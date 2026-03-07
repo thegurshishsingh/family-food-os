@@ -100,9 +100,40 @@ const Planner = () => {
         .select("*")
         .eq("plan_id", p.id)
         .order("day_of_week");
-      if (planDays) setDays(planDays as PlanDay[]);
+      if (planDays) {
+        setDays(planDays as PlanDay[]);
+        // Load existing feedback for these days
+        const { data: fb } = await supabase
+          .from("meal_feedback")
+          .select("plan_day_id, feedback")
+          .eq("household_id", household.id)
+          .in("plan_day_id", planDays.map((d: any) => d.id));
+        if (fb) {
+          const fbMap: Record<string, FeedbackType> = {};
+          fb.forEach((f: any) => { if (f.plan_day_id) fbMap[f.plan_day_id] = f.feedback; });
+          setDayFeedback(fbMap);
+        }
+      }
     }
     setLoading(false);
+  };
+
+  const submitFeedback = async (day: PlanDay, feedback: FeedbackType) => {
+    if (!household || !day.meal_name) return;
+    // Optimistic update
+    setDayFeedback((prev) => ({ ...prev, [day.id]: feedback }));
+    const { error } = await supabase.from("meal_feedback").insert({
+      household_id: household.id,
+      plan_day_id: day.id,
+      meal_name: day.meal_name,
+      feedback,
+    });
+    if (error) {
+      toast({ variant: "destructive", title: "Feedback failed", description: error.message });
+      setDayFeedback((prev) => { const n = { ...prev }; delete n[day.id]; return n; });
+    } else {
+      toast({ title: "Feedback saved!", description: `Marked "${day.meal_name}" as ${feedback.replace("_", " ")}` });
+    }
   };
 
   const generatePlan = async () => {
