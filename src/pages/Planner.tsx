@@ -70,6 +70,7 @@ const Planner = () => {
   const [days, setDays] = useState<PlanDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [dayFeedback, setDayFeedback] = useState<Record<string, FeedbackType>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
 
