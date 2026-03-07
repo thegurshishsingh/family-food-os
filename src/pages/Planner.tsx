@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   ChefHat, UtensilsCrossed, Truck, Store, Zap, Lock, Unlock, RefreshCw,
-  ArrowRight, AlertTriangle, TrendingUp, Flame
+  ArrowRight, AlertTriangle, TrendingUp, Flame, Heart, ThumbsUp, Baby, Wrench, RotateCcw, Star
 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { motion } from "framer-motion";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -25,6 +26,17 @@ const MODE_CONFIG: Record<MealMode, { label: string; icon: typeof ChefHat; color
   dine_out: { label: "Dine Out", icon: Store, color: "bg-warm text-primary-foreground" },
   emergency: { label: "Emergency", icon: Zap, color: "bg-destructive text-destructive-foreground" },
 };
+
+type FeedbackType = "loved" | "okay" | "kids_refused" | "too_hard" | "good_leftovers" | "reorder_worthy";
+
+const FEEDBACK_OPTIONS: { value: FeedbackType; label: string; icon: typeof Heart; emoji: string }[] = [
+  { value: "loved", label: "Loved it", icon: Heart, emoji: "❤️" },
+  { value: "okay", label: "Okay", icon: ThumbsUp, emoji: "👍" },
+  { value: "kids_refused", label: "Kids refused", icon: Baby, emoji: "👶" },
+  { value: "too_hard", label: "Too much work", icon: Wrench, emoji: "😮‍💨" },
+  { value: "good_leftovers", label: "Good leftovers", icon: RotateCcw, emoji: "♻️" },
+  { value: "reorder_worthy", label: "Reorder-worthy", icon: Star, emoji: "⭐" },
+];
 
 type PlanDay = {
   id: string;
@@ -58,6 +70,7 @@ const Planner = () => {
   const [days, setDays] = useState<PlanDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [dayFeedback, setDayFeedback] = useState<Record<string, FeedbackType>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -87,9 +100,40 @@ const Planner = () => {
         .select("*")
         .eq("plan_id", p.id)
         .order("day_of_week");
-      if (planDays) setDays(planDays as PlanDay[]);
+      if (planDays) {
+        setDays(planDays as PlanDay[]);
+        // Load existing feedback for these days
+        const { data: fb } = await supabase
+          .from("meal_feedback")
+          .select("plan_day_id, feedback")
+          .eq("household_id", household.id)
+          .in("plan_day_id", planDays.map((d: any) => d.id));
+        if (fb) {
+          const fbMap: Record<string, FeedbackType> = {};
+          fb.forEach((f: any) => { if (f.plan_day_id) fbMap[f.plan_day_id] = f.feedback; });
+          setDayFeedback(fbMap);
+        }
+      }
     }
     setLoading(false);
+  };
+
+  const submitFeedback = async (day: PlanDay, feedback: FeedbackType) => {
+    if (!household || !day.meal_name) return;
+    // Optimistic update
+    setDayFeedback((prev) => ({ ...prev, [day.id]: feedback }));
+    const { error } = await supabase.from("meal_feedback").insert({
+      household_id: household.id,
+      plan_day_id: day.id,
+      meal_name: day.meal_name,
+      feedback,
+    });
+    if (error) {
+      toast({ variant: "destructive", title: "Feedback failed", description: error.message });
+      setDayFeedback((prev) => { const n = { ...prev }; delete n[day.id]; return n; });
+    } else {
+      toast({ title: "Feedback saved!", description: `Marked "${day.meal_name}" as ${feedback.replace("_", " ")}` });
+    }
   };
 
   const generatePlan = async () => {
@@ -337,6 +381,43 @@ const Planner = () => {
                             <Badge variant="outline" className="text-xs">{day.cuisine_type}</Badge>
                           )}
                         </div>
+
+                        {/* Feedback buttons */}
+                        {day.meal_name && (
+                          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                            {dayFeedback[day.id] ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">Rated:</span>
+                                <Badge variant="secondary" className="text-xs gap-1">
+                                  {FEEDBACK_OPTIONS.find((f) => f.value === dayFeedback[day.id])?.emoji}
+                                  {FEEDBACK_OPTIONS.find((f) => f.value === dayFeedback[day.id])?.label}
+                                </Badge>
+                              </div>
+                            ) : (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground gap-1.5 h-7 px-2">
+                                    <Heart className="w-3 h-3" /> Rate this meal
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-2" align="start">
+                                  <div className="grid grid-cols-2 gap-1">
+                                    {FEEDBACK_OPTIONS.map((opt) => (
+                                      <button
+                                        key={opt.value}
+                                        onClick={() => submitFeedback(day, opt.value)}
+                                        className="flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-muted transition-colors text-left"
+                                      >
+                                        <span>{opt.emoji}</span>
+                                        <span className="text-foreground">{opt.label}</span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </Card>
