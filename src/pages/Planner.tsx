@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   ChefHat, UtensilsCrossed, Truck, Store, Zap, Lock, Unlock, RefreshCw,
-  ArrowRight, AlertTriangle, TrendingUp, Flame
+  ArrowRight, AlertTriangle, TrendingUp, Flame, Heart, ThumbsUp, Baby, Wrench, RotateCcw, Star
 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { motion } from "framer-motion";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -25,6 +26,17 @@ const MODE_CONFIG: Record<MealMode, { label: string; icon: typeof ChefHat; color
   dine_out: { label: "Dine Out", icon: Store, color: "bg-warm text-primary-foreground" },
   emergency: { label: "Emergency", icon: Zap, color: "bg-destructive text-destructive-foreground" },
 };
+
+type FeedbackType = "loved" | "okay" | "kids_refused" | "too_hard" | "good_leftovers" | "reorder_worthy";
+
+const FEEDBACK_OPTIONS: { value: FeedbackType; label: string; icon: typeof Heart; emoji: string }[] = [
+  { value: "loved", label: "Loved it", icon: Heart, emoji: "❤️" },
+  { value: "okay", label: "Okay", icon: ThumbsUp, emoji: "👍" },
+  { value: "kids_refused", label: "Kids refused", icon: Baby, emoji: "👶" },
+  { value: "too_hard", label: "Too much work", icon: Wrench, emoji: "😮‍💨" },
+  { value: "good_leftovers", label: "Good leftovers", icon: RotateCcw, emoji: "♻️" },
+  { value: "reorder_worthy", label: "Reorder-worthy", icon: Star, emoji: "⭐" },
+];
 
 type PlanDay = {
   id: string;
