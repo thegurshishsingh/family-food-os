@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { RequireAuth, RequireHousehold, RedirectIfAuthed } from "@/components/RouteGuards";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -25,13 +26,13 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/planner" element={<Planner />} />
-            <Route path="/groceries" element={<Groceries />} />
-            <Route path="/memory" element={<MealMemory />} />
-            <Route path="/settings" element={<HouseholdSettings />} />
+            <Route path="/login" element={<RedirectIfAuthed><Login /></RedirectIfAuthed>} />
+            <Route path="/signup" element={<RedirectIfAuthed><Signup /></RedirectIfAuthed>} />
+            <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
+            <Route path="/planner" element={<RequireHousehold><Planner /></RequireHousehold>} />
+            <Route path="/groceries" element={<RequireHousehold><Groceries /></RequireHousehold>} />
+            <Route path="/memory" element={<RequireHousehold><MealMemory /></RequireHousehold>} />
+            <Route path="/settings" element={<RequireHousehold><HouseholdSettings /></RequireHousehold>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
