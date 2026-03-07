@@ -381,6 +381,43 @@ const Planner = () => {
                             <Badge variant="outline" className="text-xs">{day.cuisine_type}</Badge>
                           )}
                         </div>
+
+                        {/* Feedback buttons */}
+                        {day.meal_name && (
+                          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
+                            {dayFeedback[day.id] ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground">Rated:</span>
+                                <Badge variant="secondary" className="text-xs gap-1">
+                                  {FEEDBACK_OPTIONS.find((f) => f.value === dayFeedback[day.id])?.emoji}
+                                  {FEEDBACK_OPTIONS.find((f) => f.value === dayFeedback[day.id])?.label}
+                                </Badge>
+                              </div>
+                            ) : (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="text-xs text-muted-foreground gap-1.5 h-7 px-2">
+                                    <Heart className="w-3 h-3" /> Rate this meal
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-2" align="start">
+                                  <div className="grid grid-cols-2 gap-1">
+                                    {FEEDBACK_OPTIONS.map((opt) => (
+                                      <button
+                                        key={opt.value}
+                                        onClick={() => submitFeedback(day, opt.value)}
+                                        className="flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-muted transition-colors text-left"
+                                      >
+                                        <span>{opt.emoji}</span>
+                                        <span className="text-foreground">{opt.label}</span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </Card>
