@@ -80,7 +80,7 @@ const ProductProof = () => {
                   </div>
                   <div className="flex items-center gap-1.5 pl-3 pr-3.5 py-1.5 rounded-full bg-primary/8 text-primary text-[11px] font-bold border border-primary/15 tracking-wide">
                     <TrendingUp className="w-3 h-3" />
-                    84
+                    Reality Score: 84
                   </div>
                 </div>
               </div>
