@@ -278,6 +278,11 @@ function buildPrompt(household: any, prefs: any, context: any, lovedMeals: strin
   if (lovedMeals.length) parts.push(`Previously loved meals: ${lovedMeals.slice(0, 10).join(", ")}.`);
   if (dislikedMeals.length) parts.push(`Previously disliked/refused meals: ${dislikedMeals.slice(0, 10).join(", ")}.`);
 
+  if (savedMeals.length) {
+    const mealList = savedMeals.map(m => m.meal_description ? `${m.meal_name} (${m.meal_description})` : m.meal_name).join(", ");
+    parts.push(`The family has requested these specific meals be included when possible: ${mealList}. Try to include at least some of them in the plan.`);
+  }
+
   parts.push(`Include at least 1 leftover night reusing a previous cooked meal.`);
   parts.push(`Include realistic nutrition estimates per meal (calories, protein_g, carbs_g, fat_g).`);
   parts.push(`Generate a matching grocery list organized by category.`);
