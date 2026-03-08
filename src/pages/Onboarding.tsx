@@ -66,7 +66,12 @@ const Onboarding = () => {
   const [groceryStore, setGroceryStore] = useState("");
   const [deliveryPref, setDeliveryPref] = useState("in-store");
 
-  // Step 4 - Weekly context
+  // Step 4 - Custom meals
+  const [savedMeals, setSavedMeals] = useState<{ name: string; description: string }[]>([]);
+  const [newMealName, setNewMealName] = useState("");
+  const [newMealDesc, setNewMealDesc] = useState("");
+
+  // Step 5 - Weekly context
   const [contexts, setContexts] = useState<Record<string, boolean>>({});
 
   const toggleInList = (list: string[], item: string, setter: (v: string[]) => void) => {
