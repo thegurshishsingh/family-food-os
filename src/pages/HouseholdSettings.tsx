@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Save } from "lucide-react";
+import { Save, Plus, X } from "lucide-react";
 
 const CUISINES = ["Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Mediterranean", "American", "Korean", "French", "Middle Eastern", "Vietnamese"];
 const DIETARY = ["Vegetarian", "Vegan", "Gluten-free", "Dairy-free", "Keto", "Paleo", "Halal", "Kosher", "Low-sodium", "Nut-free"];
@@ -38,6 +38,11 @@ const HouseholdSettings = () => {
   const [deliveryPref, setDeliveryPref] = useState("in-store");
   const [healthGoal, setHealthGoal] = useState("Balanced family eating");
 
+  // Saved meals
+  const [savedMeals, setSavedMeals] = useState<{ id: string; meal_name: string; meal_description: string | null }[]>([]);
+  const [newMealName, setNewMealName] = useState("");
+  const [newMealDesc, setNewMealDesc] = useState("");
+
   useEffect(() => {
     if (household) {
       setName(household.name);
@@ -57,7 +62,46 @@ const HouseholdSettings = () => {
       setDeliveryPref(preferences.delivery_preference || "in-store");
       setHealthGoal(preferences.health_goal || "Balanced family eating");
     }
+    if (household) loadSavedMeals();
   }, [household, preferences]);
+
+  const loadSavedMeals = async () => {
+    if (!household) return;
+    const { data } = await supabase
+      .from("saved_meals")
+      .select("id, meal_name, meal_description")
+      .eq("household_id", household.id)
+      .order("created_at");
+    if (data) setSavedMeals(data);
+  };
+
+  const addMeal = async () => {
+    if (!household) return;
+    const trimmed = newMealName.trim().slice(0, 200);
+    if (!trimmed) return;
+    const { data, error } = await supabase
+      .from("saved_meals")
+      .insert({ household_id: household.id, meal_name: trimmed, meal_description: newMealDesc.trim().slice(0, 500) || null })
+      .select("id, meal_name, meal_description")
+      .single();
+    if (!error && data) {
+      setSavedMeals((prev) => [...prev, data]);
+      setNewMealName("");
+      setNewMealDesc("");
+      toast({ title: "Meal added!" });
+    } else {
+      toast({ variant: "destructive", title: "Failed to add meal", description: error?.message });
+    }
+  };
+
+  const removeMeal = async (id: string) => {
+    const { error } = await supabase.from("saved_meals").delete().eq("id", id);
+    if (!error) {
+      setSavedMeals((prev) => prev.filter((m) => m.id !== id));
+    } else {
+      toast({ variant: "destructive", title: "Failed to remove meal", description: error.message });
+    }
+  };
 
   const toggleInList = (list: string[], item: string, setter: (v: string[]) => void) => {
     setter(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
@@ -244,6 +288,51 @@ const HouseholdSettings = () => {
                   <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setTakeoutFreq(Math.min(7, takeoutFreq + 1))}>+</Button>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Saved Meals */}
+          <Card>
+            <CardHeader><CardTitle className="text-lg font-serif">Saved Meals</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">Add meals your family loves. These will be prioritized when generating weekly plans.</p>
+              <div className="flex flex-col sm:flex-row gap-2 max-w-md">
+                <Input
+                  value={newMealName}
+                  onChange={(e) => setNewMealName(e.target.value)}
+                  placeholder="Meal name"
+                  maxLength={200}
+                  onKeyDown={(e) => { if (e.key === "Enter") addMeal(); }}
+                />
+                <Input
+                  value={newMealDesc}
+                  onChange={(e) => setNewMealDesc(e.target.value)}
+                  placeholder="Description (optional)"
+                  maxLength={500}
+                  onKeyDown={(e) => { if (e.key === "Enter") addMeal(); }}
+                />
+                <Button variant="outline" onClick={addMeal} disabled={!newMealName.trim()} className="gap-1.5 shrink-0">
+                  <Plus className="w-4 h-4" /> Add
+                </Button>
+              </div>
+              {savedMeals.length > 0 && (
+                <div className="space-y-2">
+                  {savedMeals.map((m) => (
+                    <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm text-foreground truncate">{m.meal_name}</p>
+                        {m.meal_description && <p className="text-xs text-muted-foreground truncate">{m.meal_description}</p>}
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeMeal(m.id)}>
+                        <X className="w-3.5 h-3.5 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {savedMeals.length === 0 && (
+                <p className="text-xs text-muted-foreground italic">No saved meals yet. Add some above!</p>
+              )}
             </CardContent>
           </Card>
         </div>
