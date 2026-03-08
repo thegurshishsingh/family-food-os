@@ -33,7 +33,17 @@ function computeBreakdown(days: PlanDay[]) {
   ];
 }
 
+const SCORE_FACTORS = [
+  { label: "Cook-to-convenience ratio", desc: "Balancing home-cooked meals with realistic takeout/leftover nights" },
+  { label: "Prep time vs. tolerance", desc: "Whether cook times match your household's stated comfort level" },
+  { label: "Variety & repetition", desc: "Cuisine diversity without overwhelming the week" },
+  { label: "Nutritional balance", desc: "Calorie and macro spread across the full week" },
+  { label: "Family context", desc: "Adjustments for household size, children's ages, and weekly context flags" },
+];
+
 const RealityScore = ({ plan, days = [] }: RealityScoreProps) => {
+  const [showFactors, setShowFactors] = useState(false);
+
   if (plan.reality_score === null) return null;
 
   const score = plan.reality_score || 0;
@@ -53,9 +63,16 @@ const RealityScore = ({ plan, days = [] }: RealityScoreProps) => {
             )}
             <div className="flex-1">
               <div className="flex items-center justify-between mb-1">
-                <p className="font-semibold text-sm text-foreground">
-                  Reality Score
-                </p>
+                <div className="flex items-center gap-1.5">
+                  <p className="font-semibold text-sm text-foreground">Reality Score</p>
+                  <button
+                    onClick={() => setShowFactors((v) => !v)}
+                    className="text-muted-foreground hover:text-foreground transition-colors rounded-full"
+                    aria-label="What factors into this score?"
+                  >
+                    <Info className="w-3.5 h-3.5" />
+                  </button>
+                </div>
                 <div className="flex items-center gap-2">
                   <span className={`text-xs font-bold ${tier.color}`}>{tier.label}</span>
                   <span className="text-lg font-bold text-foreground tabular-nums">{score}</span>
@@ -72,6 +89,32 @@ const RealityScore = ({ plan, days = [] }: RealityScoreProps) => {
                   transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
                 />
               </div>
+
+              {/* Expandable factors */}
+              <AnimatePresence>
+                {showFactors && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-3 p-3 rounded-lg bg-background/60 border border-border/40 space-y-2">
+                      <p className="text-xs font-semibold text-foreground mb-1.5">What factors into this score</p>
+                      {SCORE_FACTORS.map((f) => (
+                        <div key={f.label} className="flex items-start gap-2">
+                          <div className="w-1 h-1 rounded-full bg-primary mt-1.5 shrink-0" />
+                          <div>
+                            <p className="text-xs font-medium text-foreground leading-tight">{f.label}</p>
+                            <p className="text-[11px] text-muted-foreground leading-snug">{f.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {plan.reality_message && (
                 <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{plan.reality_message}</p>
