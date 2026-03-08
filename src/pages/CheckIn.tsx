@@ -39,6 +39,7 @@ const CheckIn = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [effort, setEffort] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [smartLine, setSmartLine] = useState("");
 
   useEffect(() => {
     if (hhLoading || !household) return;
