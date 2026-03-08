@@ -10,7 +10,7 @@ interface TrendChartsProps {
   weeklyBudget?: number | null;
 }
 
-const TrendCharts = ({ weeks }: TrendChartsProps) => {
+const TrendCharts = ({ weeks, weeklyBudget }: TrendChartsProps) => {
   if (weeks.length < 2) return null;
 
   // Reverse so oldest is first (left side of chart)
