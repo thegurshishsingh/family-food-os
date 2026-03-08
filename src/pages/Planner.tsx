@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   ChefHat, UtensilsCrossed, Truck, Store, Zap, Lock, Unlock, RefreshCw,
-  ArrowRight, AlertTriangle, TrendingUp, Flame, Heart, ThumbsUp, Baby, Wrench, RotateCcw, Star
+  ArrowRight, AlertTriangle, TrendingUp, Flame, Heart, ThumbsUp, Baby, Wrench, RotateCcw, Star, Shuffle
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { motion } from "framer-motion";
@@ -71,6 +71,7 @@ const Planner = () => {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [dayFeedback, setDayFeedback] = useState<Record<string, FeedbackType>>({});
+  const [swappingDay, setSwappingDay] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -150,6 +151,44 @@ const Planner = () => {
       toast({ variant: "destructive", title: "Generation failed", description: err.message });
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const swapMeal = async (day: PlanDay) => {
+    if (!household || day.is_locked) return;
+    setSwappingDay(day.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("swap-meal", {
+        body: { plan_day_id: day.id, household_id: household.id },
+      });
+      if (error) throw error;
+      if (data?.meal) {
+        setDays((prev) =>
+          prev.map((d) =>
+            d.id === day.id
+              ? {
+                  ...d,
+                  meal_name: data.meal.meal_name,
+                  meal_description: data.meal.meal_description,
+                  cuisine_type: data.meal.cuisine_type || null,
+                  prep_time_minutes: data.meal.prep_time_minutes || null,
+                  calories: data.meal.calories,
+                  protein_g: data.meal.protein_g,
+                  carbs_g: data.meal.carbs_g,
+                  fat_g: data.meal.fat_g,
+                  fiber_g: data.meal.fiber_g || null,
+                }
+              : d
+          )
+        );
+        // Clear feedback for swapped meal
+        setDayFeedback((prev) => { const n = { ...prev }; delete n[day.id]; return n; });
+        toast({ title: "Meal swapped!", description: `Now serving: ${data.meal.meal_name}` });
+      }
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Swap failed", description: err.message });
+    } finally {
+      setSwappingDay(null);
     }
   };
 
@@ -350,14 +389,30 @@ const Planner = () => {
                               <p className="text-xs text-muted-foreground mt-1 italic">{day.notes}</p>
                             )}
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="shrink-0"
-                            onClick={() => toggleLock(day)}
-                          >
-                            {day.is_locked ? <Lock className="w-4 h-4 text-primary" /> : <Unlock className="w-4 h-4 text-muted-foreground" />}
-                          </Button>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => swapMeal(day)}
+                              disabled={day.is_locked || swappingDay === day.id}
+                              title="Swap meal"
+                            >
+                              {swappingDay === day.id ? (
+                                <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <Shuffle className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => toggleLock(day)}
+                            >
+                              {day.is_locked ? <Lock className="w-4 h-4 text-primary" /> : <Unlock className="w-4 h-4 text-muted-foreground" />}
+                            </Button>
+                          </div>
                         </div>
 
                         {/* Nutrition badges */}
