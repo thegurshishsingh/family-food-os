@@ -213,6 +213,7 @@ const DayCard = ({
           </div>
         </div>
       </Card>
+      <MealDetailDialog day={day} open={detailOpen} onOpenChange={setDetailOpen} />
     </motion.div>
   );
 };
