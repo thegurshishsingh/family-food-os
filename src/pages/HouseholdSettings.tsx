@@ -276,9 +276,40 @@ const HouseholdSettings = () => {
                 <Label>Weekly grocery budget ($)</Label>
                 <Input type="number" value={budget} onChange={(e) => setBudget(e.target.value)} className="mt-1.5" />
               </div>
+              <div>
+                <Label className="text-sm font-medium">Cooking time tolerance</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {[
+                    { value: "minimal", label: "Minimal (15 min)" },
+                    { value: "low", label: "Low (30 min)" },
+                    { value: "medium", label: "Medium (45 min)" },
+                    { value: "high", label: "High (60+ min)" },
+                  ].map((t) => (
+                    <button key={t.value} onClick={() => setCookingTolerance(t.value)}
+                      className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${cookingTolerance === t.value ? "bg-primary text-primary-foreground border-primary" : "bg-background text-foreground border-border hover:bg-muted"}`}>
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="max-w-sm">
                 <Label>Preferred grocery store</Label>
                 <Input value={groceryStore} onChange={(e) => setGroceryStore(e.target.value)} className="mt-1.5" />
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Grocery preference</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {[
+                    { v: "in-store", l: "In-store shopping" },
+                    { v: "delivery", l: "Delivery" },
+                    { v: "pickup", l: "Curbside pickup" },
+                  ].map((o) => (
+                    <button key={o.v} onClick={() => setDeliveryPref(o.v)}
+                      className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${deliveryPref === o.v ? "bg-primary text-primary-foreground border-primary" : "bg-background text-foreground border-border hover:bg-muted"}`}>
+                      {o.l}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div>
                 <Label className="text-sm font-medium">Takeout nights per week: {takeoutFreq}</Label>
