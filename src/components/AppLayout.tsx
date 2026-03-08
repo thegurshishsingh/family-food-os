@@ -9,6 +9,7 @@ import { ChefHat, CalendarDays, ShoppingCart, Heart, Settings, LogOut, User, His
 
 const NAV = [
   { to: "/planner", label: "Weekly Plan", icon: CalendarDays },
+  { to: "/history", label: "History", icon: History },
   { to: "/groceries", label: "Groceries", icon: ShoppingCart },
   { to: "/memory", label: "Meal Memory", icon: Heart },
   { to: "/settings", label: "Settings", icon: Settings },
