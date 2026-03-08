@@ -10,9 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   ChefHat, UtensilsCrossed, Truck, Store, Zap, Lock, Unlock, RefreshCw,
-  ArrowRight, AlertTriangle, TrendingUp, Flame, Heart, ThumbsUp, Baby, Wrench, RotateCcw, Star, Shuffle
+  ArrowRight, AlertTriangle, TrendingUp, Flame, Heart, ThumbsUp, Baby, Wrench, RotateCcw, Star, Shuffle, Pencil, Check, X
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -72,6 +74,9 @@ const Planner = () => {
   const [generating, setGenerating] = useState(false);
   const [dayFeedback, setDayFeedback] = useState<Record<string, FeedbackType>>({});
   const [swappingDay, setSwappingDay] = useState<string | null>(null);
+  const [editingDay, setEditingDay] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -190,6 +195,41 @@ const Planner = () => {
     } finally {
       setSwappingDay(null);
     }
+  };
+  const startEditing = (day: PlanDay) => {
+    if (day.is_locked) return;
+    setEditingDay(day.id);
+    setEditName(day.meal_name || "");
+    setEditDesc(day.meal_description || "");
+  };
+
+  const cancelEditing = () => {
+    setEditingDay(null);
+    setEditName("");
+    setEditDesc("");
+  };
+
+  const saveEdit = async (day: PlanDay) => {
+    const trimmedName = editName.trim().slice(0, 200);
+    const trimmedDesc = editDesc.trim().slice(0, 500);
+    if (!trimmedName) {
+      toast({ variant: "destructive", title: "Meal name required" });
+      return;
+    }
+    const { error } = await supabase
+      .from("plan_days")
+      .update({ meal_name: trimmedName, meal_description: trimmedDesc || null })
+      .eq("id", day.id);
+    if (!error) {
+      setDays((prev) =>
+        prev.map((d) => d.id === day.id ? { ...d, meal_name: trimmedName, meal_description: trimmedDesc || null } : d)
+      );
+      setDayFeedback((prev) => { const n = { ...prev }; delete n[day.id]; return n; });
+      toast({ title: "Meal updated!" });
+    } else {
+      toast({ variant: "destructive", title: "Save failed", description: error.message });
+    }
+    cancelEditing();
   };
 
   const toggleLock = async (day: PlanDay) => {
@@ -379,39 +419,86 @@ const Planner = () => {
                       <div className="flex-1 p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-foreground truncate">
-                              {day.meal_name || "No meal assigned"}
-                            </h3>
-                            {day.meal_description && (
-                              <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{day.meal_description}</p>
-                            )}
-                            {day.notes && (
-                              <p className="text-xs text-muted-foreground mt-1 italic">{day.notes}</p>
+                            {editingDay === day.id ? (
+                              <div className="space-y-2">
+                                <Input
+                                  value={editName}
+                                  onChange={(e) => setEditName(e.target.value)}
+                                  placeholder="Meal name"
+                                  maxLength={200}
+                                  className="h-8 text-sm"
+                                  autoFocus
+                                  onKeyDown={(e) => { if (e.key === "Enter") saveEdit(day); if (e.key === "Escape") cancelEditing(); }}
+                                />
+                                <Textarea
+                                  value={editDesc}
+                                  onChange={(e) => setEditDesc(e.target.value)}
+                                  placeholder="Description (optional)"
+                                  maxLength={500}
+                                  className="text-sm min-h-[60px] resize-none"
+                                  onKeyDown={(e) => { if (e.key === "Escape") cancelEditing(); }}
+                                />
+                              </div>
+                            ) : (
+                              <>
+                                <h3 className="font-medium text-foreground truncate">
+                                  {day.meal_name || "No meal assigned"}
+                                </h3>
+                                {day.meal_description && (
+                                  <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{day.meal_description}</p>
+                                )}
+                                {day.notes && (
+                                  <p className="text-xs text-muted-foreground mt-1 italic">{day.notes}</p>
+                                )}
+                              </>
                             )}
                           </div>
                           <div className="flex items-center gap-1 shrink-0">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => swapMeal(day)}
-                              disabled={day.is_locked || swappingDay === day.id}
-                              title="Swap meal"
-                            >
-                              {swappingDay === day.id ? (
-                                <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
-                              ) : (
-                                <Shuffle className="w-4 h-4 text-muted-foreground" />
-                              )}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => toggleLock(day)}
-                            >
-                              {day.is_locked ? <Lock className="w-4 h-4 text-primary" /> : <Unlock className="w-4 h-4 text-muted-foreground" />}
-                            </Button>
+                            {editingDay === day.id ? (
+                              <>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => saveEdit(day)} title="Save">
+                                  <Check className="w-4 h-4 text-primary" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={cancelEditing} title="Cancel">
+                                  <X className="w-4 h-4 text-muted-foreground" />
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => startEditing(day)}
+                                  disabled={day.is_locked}
+                                  title="Edit meal"
+                                >
+                                  <Pencil className="w-4 h-4 text-muted-foreground" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => swapMeal(day)}
+                                  disabled={day.is_locked || swappingDay === day.id}
+                                  title="Swap meal"
+                                >
+                                  {swappingDay === day.id ? (
+                                    <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+                                  ) : (
+                                    <Shuffle className="w-4 h-4 text-muted-foreground" />
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => toggleLock(day)}
+                                >
+                                  {day.is_locked ? <Lock className="w-4 h-4 text-primary" /> : <Unlock className="w-4 h-4 text-muted-foreground" />}
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </div>
 
