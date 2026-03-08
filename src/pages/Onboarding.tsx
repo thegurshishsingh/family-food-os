@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,22 @@ const Onboarding = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Redirect if household already exists
+  useEffect(() => {
+    const checkExisting = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: hh } = await supabase
+        .from("households")
+        .select("id")
+        .eq("owner_id", user.id)
+        .limit(1)
+        .maybeSingle();
+      if (hh) navigate("/planner", { replace: true });
+    };
+    checkExisting();
+  }, [navigate]);
 
   // Step 1 - Household
   const [householdName, setHouseholdName] = useState("");
@@ -95,6 +111,21 @@ const Onboarding = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
+
+      // Check if household already exists
+      const { data: existingHh } = await supabase
+        .from("households")
+        .select("id")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingHh) {
+        // Household already exists — skip to planner
+        navigate("/planner");
+        return;
+      }
 
       // Create household
       const { data: household, error: hhError } = await supabase
