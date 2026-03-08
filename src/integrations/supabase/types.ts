@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      evening_checkins: {
+        Row: {
+          created_at: string
+          effort_level: string | null
+          household_id: string
+          id: string
+          plan_day_id: string
+          tags: string[]
+        }
+        Insert: {
+          created_at?: string
+          effort_level?: string | null
+          household_id: string
+          id?: string
+          plan_day_id: string
+          tags?: string[]
+        }
+        Update: {
+          created_at?: string
+          effort_level?: string | null
+          household_id?: string
+          id?: string
+          plan_day_id?: string
+          tags?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evening_checkins_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evening_checkins_plan_day_id_fkey"
+            columns: ["plan_day_id"]
+            isOneToOne: true
+            referencedRelation: "plan_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       grocery_items: {
         Row: {
           category: string
