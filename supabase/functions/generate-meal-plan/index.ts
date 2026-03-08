@@ -66,8 +66,15 @@ serve(async (req) => {
     const lovedMeals = feedback?.filter(f => f.feedback === "loved").map(f => f.meal_name) || [];
     const dislikedMeals = feedback?.filter(f => ["kids_refused", "too_hard"].includes(f.feedback)).map(f => f.meal_name) || [];
 
+    // Get saved meals
+    const { data: savedMeals } = await supabaseClient
+      .from("saved_meals")
+      .select("meal_name, meal_description")
+      .eq("household_id", household_id)
+      .limit(50);
+
     // Build AI prompt
-    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals);
+    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, savedMeals || []);
 
     let planData;
 
@@ -234,7 +241,7 @@ function getNextMonday() {
   return d.toISOString().split("T")[0];
 }
 
-function buildPrompt(household: any, prefs: any, context: any, lovedMeals: string[], dislikedMeals: string[]) {
+function buildPrompt(household: any, prefs: any, context: any, lovedMeals: string[], dislikedMeals: string[], savedMeals: { meal_name: string; meal_description: string | null }[]) {
   const parts = [
     `Create a 7-day dinner meal plan for a family of ${household.num_adults} adults and ${household.num_children} children.`,
   ];
@@ -270,6 +277,11 @@ function buildPrompt(household: any, prefs: any, context: any, lovedMeals: strin
 
   if (lovedMeals.length) parts.push(`Previously loved meals: ${lovedMeals.slice(0, 10).join(", ")}.`);
   if (dislikedMeals.length) parts.push(`Previously disliked/refused meals: ${dislikedMeals.slice(0, 10).join(", ")}.`);
+
+  if (savedMeals.length) {
+    const mealList = savedMeals.map(m => m.meal_description ? `${m.meal_name} (${m.meal_description})` : m.meal_name).join(", ");
+    parts.push(`The family has requested these specific meals be included when possible: ${mealList}. Try to include at least some of them in the plan.`);
+  }
 
   parts.push(`Include at least 1 leftover night reusing a previous cooked meal.`);
   parts.push(`Include realistic nutrition estimates per meal (calories, protein_g, carbs_g, fat_g).`);

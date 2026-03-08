@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChefHat, ArrowRight, ArrowLeft, Check } from "lucide-react";
+import { ChefHat, ArrowRight, ArrowLeft, Check, Plus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -36,6 +36,7 @@ const STEPS = [
   { title: "Your household", desc: "Tell us about your family" },
   { title: "Food preferences", desc: "What does your family like?" },
   { title: "Logistics", desc: "Budget, time, and grocery habits" },
+  { title: "Your meals", desc: "Add meals you'd like included in your plan" },
   { title: "This week's context", desc: "What's happening this week?" },
 ];
 
@@ -65,11 +66,28 @@ const Onboarding = () => {
   const [groceryStore, setGroceryStore] = useState("");
   const [deliveryPref, setDeliveryPref] = useState("in-store");
 
-  // Step 4 - Weekly context
+  // Step 4 - Custom meals
+  const [savedMeals, setSavedMeals] = useState<{ name: string; description: string }[]>([]);
+  const [newMealName, setNewMealName] = useState("");
+  const [newMealDesc, setNewMealDesc] = useState("");
+
+  // Step 5 - Weekly context
   const [contexts, setContexts] = useState<Record<string, boolean>>({});
 
   const toggleInList = (list: string[], item: string, setter: (v: string[]) => void) => {
     setter(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
+  };
+
+  const addMeal = () => {
+    const trimmed = newMealName.trim().slice(0, 200);
+    if (!trimmed) return;
+    setSavedMeals((prev) => [...prev, { name: trimmed, description: newMealDesc.trim().slice(0, 500) }]);
+    setNewMealName("");
+    setNewMealDesc("");
+  };
+
+  const removeMeal = (idx: number) => {
+    setSavedMeals((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const handleComplete = async () => {
@@ -120,6 +138,18 @@ const Onboarding = () => {
           ...Object.fromEntries(CONTEXT_TOGGLES.map((t) => [t.key, contexts[t.key] || false])),
         });
       if (ctxError) throw ctxError;
+
+      // Save custom meals
+      if (savedMeals.length > 0) {
+        const { error: mealsError } = await supabase
+          .from("saved_meals")
+          .insert(savedMeals.map((m) => ({
+            household_id: household.id,
+            meal_name: m.name,
+            meal_description: m.description || null,
+          })));
+        if (mealsError) throw mealsError;
+      }
 
       navigate("/planner");
     } catch (err: any) {
@@ -362,6 +392,53 @@ const Onboarding = () => {
               )}
 
               {step === 3 && (
+                <div className="space-y-6">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Add meals your family loves. These will be prioritized when generating your weekly plan. This is optional — you can always add more later.
+                  </p>
+
+                  {/* Add meal form */}
+                  <div className="space-y-3 max-w-md">
+                    <Input
+                      value={newMealName}
+                      onChange={(e) => setNewMealName(e.target.value)}
+                      placeholder="Meal name, e.g. Grandma's Lasagna"
+                      maxLength={200}
+                      onKeyDown={(e) => { if (e.key === "Enter") addMeal(); }}
+                    />
+                    <Input
+                      value={newMealDesc}
+                      onChange={(e) => setNewMealDesc(e.target.value)}
+                      placeholder="Brief description (optional)"
+                      maxLength={500}
+                      onKeyDown={(e) => { if (e.key === "Enter") addMeal(); }}
+                    />
+                    <Button variant="outline" onClick={addMeal} disabled={!newMealName.trim()} className="gap-2">
+                      <Plus className="w-4 h-4" /> Add meal
+                    </Button>
+                  </div>
+
+                  {/* Saved meals list */}
+                  {savedMeals.length > 0 && (
+                    <div className="space-y-2 mt-6">
+                      <Label className="text-base font-medium">Your meals ({savedMeals.length})</Label>
+                      {savedMeals.map((m, i) => (
+                        <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm text-foreground truncate">{m.name}</p>
+                            {m.description && <p className="text-xs text-muted-foreground truncate">{m.description}</p>}
+                          </div>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeMeal(i)}>
+                            <X className="w-3.5 h-3.5 text-muted-foreground" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {step === 4 && (
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground mb-6">Select anything that applies to this week. This helps us generate a more realistic plan.</p>
                   <div className="grid sm:grid-cols-2 gap-3">
