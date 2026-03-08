@@ -119,7 +119,10 @@ const DayCard = ({
                   </div>
                 ) : (
                   <>
-                    <h3 className="font-medium text-foreground truncate">
+                    <h3
+                      className={`font-medium truncate ${day.meal_name ? "text-foreground hover:text-primary cursor-pointer underline-offset-2 hover:underline transition-colors" : "text-muted-foreground"}`}
+                      onClick={() => day.meal_name && setDetailOpen(true)}
+                    >
                       {day.meal_name || "No meal assigned"}
                     </h3>
                     {day.meal_description && (
