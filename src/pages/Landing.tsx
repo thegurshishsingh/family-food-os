@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChefHat, CalendarDays, ShoppingCart, Repeat, Users, Brain, ArrowRight, CheckCircle2 } from "lucide-react";
 import ProductProof from "@/components/landing/ProductProof";
 
+
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
@@ -12,28 +13,6 @@ const fadeUp = {
     transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" as const },
   }),
 };
-
-const WEEK_PREVIEW = [
-  { day: "Mon", mode: "Cook", meal: "Lemon chicken bowls", emoji: "🍳", modeColor: "bg-primary text-primary-foreground" },
-  { day: "Tue", mode: "Leftovers", meal: "Leftover taco bowls", emoji: "♻️", modeColor: "bg-secondary text-secondary-foreground" },
-  { day: "Wed", mode: "Takeout", meal: "Family sushi takeout", emoji: "📦", modeColor: "bg-accent text-accent-foreground" },
-  { day: "Thu", mode: "Cook", meal: "Sheet pan salmon", emoji: "🍳", modeColor: "bg-primary text-primary-foreground" },
-  { day: "Fri", mode: "Dine Out", meal: "Dinner out", emoji: "🍽️", modeColor: "bg-warm text-primary-foreground" },
-];
-
-const CHECKIN_CHIPS = [
-  { label: "Cooked it", active: true },
-  { label: "Ordered out instead", active: false },
-  { label: "Kids liked it", active: true },
-  { label: "Too much work", active: false },
-  { label: "Great leftovers", active: false },
-];
-
-const LEARNINGS = [
-  { icon: CalendarDays, text: "Wednesdays often become takeout" },
-  { icon: Utensils, text: "Kids prefer low-spice meals" },
-  { icon: Clock, text: "Thursdays should stay under 25 min" },
-];
 
 const Landing = () => {
   return (
