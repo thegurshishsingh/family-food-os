@@ -15,6 +15,7 @@ import MealMemory from "./pages/MealMemory";
 import HouseholdSettings from "./pages/HouseholdSettings";
 import Profile from "./pages/Profile";
 import PlanHistory from "./pages/PlanHistory";
+import CheckIn from "./pages/CheckIn";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
