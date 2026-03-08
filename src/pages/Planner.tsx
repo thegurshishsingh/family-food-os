@@ -196,8 +196,43 @@ const Planner = () => {
       setSwappingDay(null);
     }
   };
+  const startEditing = (day: PlanDay) => {
+    if (day.is_locked) return;
+    setEditingDay(day.id);
+    setEditName(day.meal_name || "");
+    setEditDesc(day.meal_description || "");
+  };
 
-  const toggleLock = async (day: PlanDay) => {
+  const cancelEditing = () => {
+    setEditingDay(null);
+    setEditName("");
+    setEditDesc("");
+  };
+
+  const saveEdit = async (day: PlanDay) => {
+    const trimmedName = editName.trim().slice(0, 200);
+    const trimmedDesc = editDesc.trim().slice(0, 500);
+    if (!trimmedName) {
+      toast({ variant: "destructive", title: "Meal name required" });
+      return;
+    }
+    const { error } = await supabase
+      .from("plan_days")
+      .update({ meal_name: trimmedName, meal_description: trimmedDesc || null })
+      .eq("id", day.id);
+    if (!error) {
+      setDays((prev) =>
+        prev.map((d) => d.id === day.id ? { ...d, meal_name: trimmedName, meal_description: trimmedDesc || null } : d)
+      );
+      setDayFeedback((prev) => { const n = { ...prev }; delete n[day.id]; return n; });
+      toast({ title: "Meal updated!" });
+    } else {
+      toast({ variant: "destructive", title: "Save failed", description: error.message });
+    }
+    cancelEditing();
+  };
+
+
     const { error } = await supabase
       .from("plan_days")
       .update({ is_locked: !day.is_locked })
