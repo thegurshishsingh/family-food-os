@@ -40,7 +40,7 @@ const Landing = () => {
         <div className="container max-w-4xl text-center">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}>
             <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-sage-light text-primary border border-primary/10">
-              For busy families who eat real food
+              The family food system that learns with you every week
             </span>
           </motion.div>
           <motion.h1
