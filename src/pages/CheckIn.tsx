@@ -39,6 +39,7 @@ const CheckIn = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [effort, setEffort] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [smartLine, setSmartLine] = useState("");
 
   useEffect(() => {
     if (hhLoading || !household) return;
@@ -96,6 +97,53 @@ const CheckIn = () => {
     );
   };
 
+  const generateSmartLine = (tags: string[], effortLevel: string | null, meal: PlanDay): string => {
+    const dayName = DAYS[meal.day_of_week];
+    const mealName = meal.meal_name || "tonight's meal";
+
+    // Contextual responses based on tag combinations
+    if (tags.includes("kids_refused") && tags.includes("too_much_work")) {
+      return `Got it. We'll make ${dayName}s easier and more kid-friendly.`;
+    }
+    if (tags.includes("kids_refused")) {
+      return `Noted. We'll try something the kids might go for on ${dayName}s.`;
+    }
+    if (tags.includes("easy_win") && tags.includes("everyone_liked")) {
+      return `${mealName} is a keeper. We'll plan around it.`;
+    }
+    if (tags.includes("everyone_liked")) {
+      return `Noted. "${mealName}" works for your family. Expect it back.`;
+    }
+    if (tags.includes("great_leftovers")) {
+      return `Nice. We'll plan tomorrow around those leftovers.`;
+    }
+    if (tags.includes("not_again")) {
+      return `Won't suggest "${mealName}" again. Moving on.`;
+    }
+    if (tags.includes("ordered_out") && tags.includes("easy_win")) {
+      return `${dayName} takeout night seems to work. We'll plan around it.`;
+    }
+    if (tags.includes("ordered_out")) {
+      return `No judgment. We'll keep ${dayName}s flexible.`;
+    }
+    if (tags.includes("too_much_work")) {
+      return `We'll suggest fewer cleanup-heavy meals next week.`;
+    }
+    if (tags.includes("easy_win")) {
+      return `Easy wins build momentum. More of those coming.`;
+    }
+    if (effortLevel === "too_much") {
+      return `Looks like ${dayName}s should stay low-effort. On it.`;
+    }
+    if (effortLevel === "easy") {
+      return `Smooth night. We'll keep the rhythm going.`;
+    }
+    if (tags.includes("cooked_it")) {
+      return `Another home-cooked night in the books. 💪`;
+    }
+    return `Got it. Next week gets a little smarter.`;
+  };
+
   const handleSubmit = async () => {
     if (!household || !todayMeal || selectedTags.length === 0) return;
     setSaving(true);
@@ -113,9 +161,9 @@ const CheckIn = () => {
       return;
     }
 
+    setSmartLine(generateSmartLine(selectedTags, effort, todayMeal));
     setStep("done");
     setSaving(false);
-    toast({ title: "Check-in saved!", description: "Thanks for the feedback 🎉" });
   };
 
   const handleNext = () => {
@@ -280,24 +328,34 @@ const CheckIn = () => {
           {/* Done */}
           {todayMeal && !alreadyCheckedIn && step === "done" && (
             <motion.div key="step-done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-              <Card className="py-16 text-center">
-                <CardContent>
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                  >
-                    <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
-                  </motion.div>
-                  <h2 className="text-xl font-serif font-semibold mb-2">Check-in complete!</h2>
-                  <p className="text-muted-foreground mb-6">
-                    Your feedback helps make next week's plan even better.
-                  </p>
-                  <Button onClick={() => navigate("/planner")} className="gap-2">
+              <div className="text-center py-8">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                >
+                  <Sparkles className="w-10 h-10 text-primary mx-auto mb-6" />
+                </motion.div>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-lg md:text-xl font-serif font-medium text-foreground leading-relaxed max-w-sm mx-auto mb-8"
+                >
+                  {smartLine}
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <Button variant="ghost" onClick={() => navigate("/planner")} className="gap-2 text-muted-foreground">
                     <ArrowRight className="w-4 h-4" /> Back to Planner
                   </Button>
-                </CardContent>
-              </Card>
+                </motion.div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
