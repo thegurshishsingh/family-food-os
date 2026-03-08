@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   ChefHat, UtensilsCrossed, Truck, Store, Zap, Lock, Unlock, RefreshCw,
-  ArrowRight, AlertTriangle, TrendingUp, Flame, Heart, ThumbsUp, Baby, Wrench, RotateCcw, Star, Shuffle, Pencil, Check, X
+  ArrowRight, AlertTriangle, TrendingUp, Flame, Heart, ThumbsUp, Baby, Wrench, RotateCcw, Star, Shuffle, Pencil, Check, X, GripVertical
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
@@ -77,6 +77,8 @@ const Planner = () => {
   const [editingDay, setEditingDay] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editDesc, setEditDesc] = useState("");
+  const [draggedDayId, setDraggedDayId] = useState<string | null>(null);
+  const [dragOverDayId, setDragOverDayId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -256,6 +258,70 @@ const Planner = () => {
     }
   };
 
+  const handleDragStart = (dayId: string) => {
+    const day = days.find((d) => d.id === dayId);
+    if (day?.is_locked) return;
+    setDraggedDayId(dayId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, dayId: string) => {
+    e.preventDefault();
+    if (draggedDayId && draggedDayId !== dayId) {
+      setDragOverDayId(dayId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverDayId(null);
+  };
+
+  const handleDrop = async (targetDayId: string) => {
+    setDragOverDayId(null);
+    if (!draggedDayId || draggedDayId === targetDayId) {
+      setDraggedDayId(null);
+      return;
+    }
+    const source = days.find((d) => d.id === draggedDayId);
+    const target = days.find((d) => d.id === targetDayId);
+    if (!source || !target || target.is_locked) {
+      setDraggedDayId(null);
+      return;
+    }
+
+    const mealFields = ["meal_name", "meal_description", "meal_mode", "cuisine_type", "prep_time_minutes", "calories", "protein_g", "carbs_g", "fat_g", "fiber_g", "notes", "takeout_budget"] as const;
+    const sourceData: any = {};
+    const targetData: any = {};
+    mealFields.forEach((f) => { sourceData[f] = (source as any)[f]; targetData[f] = (target as any)[f]; });
+
+    setDays((prev) =>
+      prev.map((d) => {
+        if (d.id === draggedDayId) return { ...d, ...targetData };
+        if (d.id === targetDayId) return { ...d, ...sourceData };
+        return d;
+      })
+    );
+
+    const [r1, r2] = await Promise.all([
+      supabase.from("plan_days").update(targetData).eq("id", draggedDayId),
+      supabase.from("plan_days").update(sourceData).eq("id", targetDayId),
+    ]);
+
+    if (r1.error || r2.error) {
+      toast({ variant: "destructive", title: "Swap failed", description: "Could not save the reorder." });
+      setDays((prev) =>
+        prev.map((d) => {
+          if (d.id === draggedDayId) return { ...d, ...sourceData };
+          if (d.id === targetDayId) return { ...d, ...targetData };
+          return d;
+        })
+      );
+    } else {
+      setDayFeedback((prev) => { const n = { ...prev }; delete n[draggedDayId!]; delete n[targetDayId]; return n; });
+      toast({ title: "Meals swapped!", description: `${DAYS[source.day_of_week]} ↔ ${DAYS[target.day_of_week]}` });
+    }
+    setDraggedDayId(null);
+  };
+
   const totalCals = days.reduce((s, d) => s + (d.calories || 0), 0);
   const totalProtein = days.reduce((s, d) => s + Number(d.protein_g || 0), 0);
   const totalCarbs = days.reduce((s, d) => s + Number(d.carbs_g || 0), 0);
@@ -397,11 +463,20 @@ const Planner = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
+                  draggable={!day.is_locked}
+                  onDragStart={() => handleDragStart(day.id)}
+                  onDragOver={(e) => handleDragOver(e, day.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={() => handleDrop(day.id)}
+                  onDragEnd={() => { setDraggedDayId(null); setDragOverDayId(null); }}
                 >
-                  <Card className={`overflow-hidden ${day.is_locked ? "ring-1 ring-primary/20" : ""}`}>
+                  <Card className={`overflow-hidden transition-all ${day.is_locked ? "ring-1 ring-primary/20" : ""} ${draggedDayId === day.id ? "opacity-50 scale-[0.98]" : ""} ${dragOverDayId === day.id ? "ring-2 ring-primary shadow-lg" : ""}`}>
                     <div className="flex flex-col sm:flex-row">
                       {/* Day label + mode */}
                       <div className="flex items-center gap-3 p-4 sm:w-48 sm:border-r border-border">
+                        {!day.is_locked && (
+                          <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 hidden sm:block" />
+                        )}
                         <div className="text-center sm:text-left">
                           <p className="font-serif font-semibold text-foreground">{DAYS[day.day_of_week]}</p>
                           <button
