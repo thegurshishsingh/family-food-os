@@ -38,6 +38,11 @@ const HouseholdSettings = () => {
   const [deliveryPref, setDeliveryPref] = useState("in-store");
   const [healthGoal, setHealthGoal] = useState("Balanced family eating");
 
+  // Saved meals
+  const [savedMeals, setSavedMeals] = useState<{ id: string; meal_name: string; meal_description: string | null }[]>([]);
+  const [newMealName, setNewMealName] = useState("");
+  const [newMealDesc, setNewMealDesc] = useState("");
+
   useEffect(() => {
     if (household) {
       setName(household.name);
