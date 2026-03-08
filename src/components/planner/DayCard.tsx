@@ -37,6 +37,7 @@ const DayCard = ({
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [editDesc, setEditDesc] = useState("");
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const mode = MODE_CONFIG[day.meal_mode];
   const Icon = mode.icon;
