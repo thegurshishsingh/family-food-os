@@ -46,6 +46,22 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Redirect if household already exists
+  useEffect(() => {
+    const checkExisting = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: hh } = await supabase
+        .from("households")
+        .select("id")
+        .eq("owner_id", user.id)
+        .limit(1)
+        .maybeSingle();
+      if (hh) navigate("/planner", { replace: true });
+    };
+    checkExisting();
+  }, [navigate]);
+
   // Step 1 - Household
   const [householdName, setHouseholdName] = useState("");
   const [numAdults, setNumAdults] = useState(2);
