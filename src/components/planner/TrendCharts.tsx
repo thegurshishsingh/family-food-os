@@ -82,6 +82,32 @@ const TrendCharts = ({ weeks, weeklyBudget }: TrendChartsProps) => {
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      {/* Budget trend */}
+      <Card>
+        <CardHeader className="pb-2 pt-4 px-4">
+          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+            <DollarSign className="w-3.5 h-3.5" /> Weekly Takeout Spend
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-2 pb-4">
+          <ResponsiveContainer width="100%" height={160}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <XAxis dataKey="label" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+              <YAxis tick={{ fontSize: 11 }} width={45} className="fill-muted-foreground" tickFormatter={(v) => `$${v}`} />
+              <Tooltip
+                contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--popover))", color: "hsl(var(--popover-foreground))" }}
+                formatter={(value: number) => [`$${value}`, "Takeout Spend"]}
+              />
+              {weeklyBudget && (
+                <ReferenceLine y={weeklyBudget} stroke="hsl(var(--destructive))" strokeDasharray="6 4" label={{ value: `Budget $${weeklyBudget}`, position: "right", fontSize: 10, fill: "hsl(var(--destructive))" }} />
+              )}
+              <Line type="monotone" dataKey="takeoutSpend" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </div>
   );
 };
