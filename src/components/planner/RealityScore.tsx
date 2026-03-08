@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, TrendingUp, ChefHat, Clock, DollarSign, Zap } from "lucide-react";
-import { motion } from "framer-motion";
+import { AlertTriangle, TrendingUp, ChefHat, Clock, DollarSign, Zap, Info } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import type { WeeklyPlan, PlanDay } from "./types";
 
 interface RealityScoreProps {
