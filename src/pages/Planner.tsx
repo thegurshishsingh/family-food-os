@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ChefHat, RefreshCw, ArrowRight } from "lucide-react";
 import CheckInNudge from "@/components/planner/CheckInNudge";
 import RealityScore from "@/components/planner/RealityScore";
+import TimeSavedRecap from "@/components/planner/TimeSavedRecap";
 import WeeklySummary from "@/components/planner/WeeklySummary";
 import DayCard from "@/components/planner/DayCard";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
