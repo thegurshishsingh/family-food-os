@@ -290,6 +290,51 @@ const HouseholdSettings = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Saved Meals */}
+          <Card>
+            <CardHeader><CardTitle className="text-lg font-serif">Saved Meals</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">Add meals your family loves. These will be prioritized when generating weekly plans.</p>
+              <div className="flex flex-col sm:flex-row gap-2 max-w-md">
+                <Input
+                  value={newMealName}
+                  onChange={(e) => setNewMealName(e.target.value)}
+                  placeholder="Meal name"
+                  maxLength={200}
+                  onKeyDown={(e) => { if (e.key === "Enter") addMeal(); }}
+                />
+                <Input
+                  value={newMealDesc}
+                  onChange={(e) => setNewMealDesc(e.target.value)}
+                  placeholder="Description (optional)"
+                  maxLength={500}
+                  onKeyDown={(e) => { if (e.key === "Enter") addMeal(); }}
+                />
+                <Button variant="outline" onClick={addMeal} disabled={!newMealName.trim()} className="gap-1.5 shrink-0">
+                  <Plus className="w-4 h-4" /> Add
+                </Button>
+              </div>
+              {savedMeals.length > 0 && (
+                <div className="space-y-2">
+                  {savedMeals.map((m) => (
+                    <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm text-foreground truncate">{m.meal_name}</p>
+                        {m.meal_description && <p className="text-xs text-muted-foreground truncate">{m.meal_description}</p>}
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeMeal(m.id)}>
+                        <X className="w-3.5 h-3.5 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {savedMeals.length === 0 && (
+                <p className="text-xs text-muted-foreground italic">No saved meals yet. Add some above!</p>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </AppLayout>
