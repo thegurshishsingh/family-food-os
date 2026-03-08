@@ -5,10 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChefHat, CalendarDays, ShoppingCart, Heart, Settings, LogOut, User } from "lucide-react";
+import { ChefHat, CalendarDays, ShoppingCart, Heart, Settings, LogOut, User, History } from "lucide-react";
 
 const NAV = [
   { to: "/planner", label: "Weekly Plan", icon: CalendarDays },
+  { to: "/history", label: "History", icon: History },
   { to: "/groceries", label: "Groceries", icon: ShoppingCart },
   { to: "/memory", label: "Meal Memory", icon: Heart },
   { to: "/settings", label: "Settings", icon: Settings },
