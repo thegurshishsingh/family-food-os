@@ -81,7 +81,9 @@ const PlanHistory = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <>
+            <TrendCharts weeks={weeks} />
+            <div className="space-y-4">
             {weeks.map((week) => {
               const isExpanded = expandedWeek === week.id;
               const totalCals = week.days.reduce((s, d) => s + (d.calories || 0), 0);
