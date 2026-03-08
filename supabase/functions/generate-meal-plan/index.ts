@@ -368,7 +368,13 @@ function buildPrompt(
   parts.push(`Include at least 1 leftover night reusing a previous cooked meal.`);
   parts.push(`Include realistic nutrition estimates per meal (calories, protein_g, carbs_g, fat_g).`);
   parts.push(`Generate a matching grocery list organized by category.`);
-  parts.push(`Assess reality_score (0-100) based on how realistic the plan is given the context.`);
+  parts.push(`Assess reality_score (0-100) based on how realistic the plan is given the family's context. Factor in:
+- Number of cook nights vs convenience nights (more cook nights = lower score for busy families)
+- Average prep time relative to cooking_time_tolerance
+- Whether the plan respects weekly context flags (newborn, chaotic week, etc.)
+- Balance of nutrition across the week
+- Whether past check-in patterns suggest the family can handle this plan
+A score of 90+ means very easy week. 70-89 is realistic. 50-69 is ambitious. Below 50 is likely unsustainable.`);
 
   return parts.join("\n");
 }
