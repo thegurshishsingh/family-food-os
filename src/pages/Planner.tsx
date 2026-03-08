@@ -262,6 +262,8 @@ const Planner = () => {
           </Button>
         </div>
 
+        {plan && household && <CheckInNudge householdId={household.id} planId={plan.id} />}
+
         {plan && <RealityScore plan={plan} />}
 
         <WeeklySummary days={days} />
