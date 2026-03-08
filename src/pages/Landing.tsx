@@ -51,11 +51,17 @@ const Landing = () => {
             <span className="text-primary">of food.</span>
           </motion.h1>
           <motion.p
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
             Meals, takeout, leftovers, and groceries. One smart weekly plan
             built around your family's real life — not an ideal one.
+          </motion.p>
+          <motion.p
+            className="text-sm md:text-base text-muted-foreground/70 max-w-lg mx-auto mb-10"
+            initial="hidden" animate="visible" variants={fadeUp} custom={2.5}
+          >
+            Built for busy families who need fewer decisions, not more.
           </motion.p>
           <motion.div
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
