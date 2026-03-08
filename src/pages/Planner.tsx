@@ -77,6 +77,8 @@ const Planner = () => {
   const [editingDay, setEditingDay] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editDesc, setEditDesc] = useState("");
+  const [draggedDayId, setDraggedDayId] = useState<string | null>(null);
+  const [dragOverDayId, setDragOverDayId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
