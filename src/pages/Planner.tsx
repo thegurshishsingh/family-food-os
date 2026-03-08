@@ -265,6 +265,17 @@ const Planner = () => {
 
         {plan && household && <CheckInNudge householdId={household.id} planId={plan.id} />}
 
+        {plan && household && (
+          <TimeSavedRecap
+            plan={plan}
+            days={days}
+            householdId={household.id}
+            onGeneratePlan={generatePlan}
+            onViewDetails={() => navigate("/history")}
+            generating={generating}
+          />
+        )}
+
         {plan && <RealityScore plan={plan} days={days} />}
 
         <WeeklySummary days={days} />
