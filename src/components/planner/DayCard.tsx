@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Lock, Unlock, Shuffle, Pencil, Check, X, GripVertical, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { DAYS, MODE_CONFIG, FEEDBACK_OPTIONS, type PlanDay, type FeedbackType } from "./types";
+import MealDetailDialog from "./MealDetailDialog";
 
 interface DayCardProps {
   day: PlanDay;
@@ -36,6 +37,7 @@ const DayCard = ({
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [editDesc, setEditDesc] = useState("");
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const mode = MODE_CONFIG[day.meal_mode];
   const Icon = mode.icon;
@@ -117,7 +119,10 @@ const DayCard = ({
                   </div>
                 ) : (
                   <>
-                    <h3 className="font-medium text-foreground truncate">
+                    <h3
+                      className={`font-medium truncate ${day.meal_name ? "text-foreground hover:text-primary cursor-pointer underline-offset-2 hover:underline transition-colors" : "text-muted-foreground"}`}
+                      onClick={() => day.meal_name && setDetailOpen(true)}
+                    >
                       {day.meal_name || "No meal assigned"}
                     </h3>
                     {day.meal_description && (
@@ -208,6 +213,7 @@ const DayCard = ({
           </div>
         </div>
       </Card>
+      <MealDetailDialog day={day} open={detailOpen} onOpenChange={setDetailOpen} />
     </motion.div>
   );
 };
