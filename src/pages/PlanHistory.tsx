@@ -191,6 +191,7 @@ const PlanHistory = () => {
               );
             })}
           </div>
+          </>
         )}
       </div>
     </AppLayout>
