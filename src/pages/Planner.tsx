@@ -232,7 +232,7 @@ const Planner = () => {
     cancelEditing();
   };
 
-
+  const toggleLock = async (day: PlanDay) => {
     const { error } = await supabase
       .from("plan_days")
       .update({ is_locked: !day.is_locked })
