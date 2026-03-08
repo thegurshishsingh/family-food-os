@@ -78,6 +78,18 @@ const Onboarding = () => {
     setter(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
   };
 
+  const addMeal = () => {
+    const trimmed = newMealName.trim().slice(0, 200);
+    if (!trimmed) return;
+    setSavedMeals((prev) => [...prev, { name: trimmed, description: newMealDesc.trim().slice(0, 500) }]);
+    setNewMealName("");
+    setNewMealDesc("");
+  };
+
+  const removeMeal = (idx: number) => {
+    setSavedMeals((prev) => prev.filter((_, i) => i !== idx));
+  };
+
   const handleComplete = async () => {
     setLoading(true);
     try {
