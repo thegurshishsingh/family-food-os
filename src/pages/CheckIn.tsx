@@ -97,6 +97,53 @@ const CheckIn = () => {
     );
   };
 
+  const generateSmartLine = (tags: string[], effortLevel: string | null, meal: PlanDay): string => {
+    const dayName = DAYS[meal.day_of_week];
+    const mealName = meal.meal_name || "tonight's meal";
+
+    // Contextual responses based on tag combinations
+    if (tags.includes("kids_refused") && tags.includes("too_much_work")) {
+      return `Got it. We'll make ${dayName}s easier and more kid-friendly.`;
+    }
+    if (tags.includes("kids_refused")) {
+      return `Noted. We'll try something the kids might go for on ${dayName}s.`;
+    }
+    if (tags.includes("easy_win") && tags.includes("everyone_liked")) {
+      return `${mealName} is a keeper. We'll plan around it.`;
+    }
+    if (tags.includes("everyone_liked")) {
+      return `Noted. "${mealName}" works for your family. Expect it back.`;
+    }
+    if (tags.includes("great_leftovers")) {
+      return `Nice. We'll plan tomorrow around those leftovers.`;
+    }
+    if (tags.includes("not_again")) {
+      return `Won't suggest "${mealName}" again. Moving on.`;
+    }
+    if (tags.includes("ordered_out") && tags.includes("easy_win")) {
+      return `${dayName} takeout night seems to work. We'll plan around it.`;
+    }
+    if (tags.includes("ordered_out")) {
+      return `No judgment. We'll keep ${dayName}s flexible.`;
+    }
+    if (tags.includes("too_much_work")) {
+      return `We'll suggest fewer cleanup-heavy meals next week.`;
+    }
+    if (tags.includes("easy_win")) {
+      return `Easy wins build momentum. More of those coming.`;
+    }
+    if (effortLevel === "too_much") {
+      return `Looks like ${dayName}s should stay low-effort. On it.`;
+    }
+    if (effortLevel === "easy") {
+      return `Smooth night. We'll keep the rhythm going.`;
+    }
+    if (tags.includes("cooked_it")) {
+      return `Another home-cooked night in the books. 💪`;
+    }
+    return `Got it. Next week gets a little smarter.`;
+  };
+
   const handleSubmit = async () => {
     if (!household || !todayMeal || selectedTags.length === 0) return;
     setSaving(true);
@@ -114,9 +161,9 @@ const CheckIn = () => {
       return;
     }
 
+    setSmartLine(generateSmartLine(selectedTags, effort, todayMeal));
     setStep("done");
     setSaving(false);
-    toast({ title: "Check-in saved!", description: "Thanks for the feedback 🎉" });
   };
 
   const handleNext = () => {
