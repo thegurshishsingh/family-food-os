@@ -36,6 +36,7 @@ const STEPS = [
   { title: "Your household", desc: "Tell us about your family" },
   { title: "Food preferences", desc: "What does your family like?" },
   { title: "Logistics", desc: "Budget, time, and grocery habits" },
+  { title: "Your meals", desc: "Add meals you'd like included in your plan" },
   { title: "This week's context", desc: "What's happening this week?" },
 ];
 
