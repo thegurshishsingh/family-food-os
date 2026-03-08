@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChefHat, CalendarDays, ShoppingCart, Repeat, Users, Brain, ArrowRight, CheckCircle2, MessageCircle } from "lucide-react";
+import { ChefHat, CalendarDays, ShoppingCart, Repeat, Users, Brain, ArrowRight, CheckCircle2, Sparkles, TrendingUp, Clock, Utensils } from "lucide-react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -11,6 +11,28 @@ const fadeUp = {
     transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" as const },
   }),
 };
+
+const WEEK_PREVIEW = [
+  { day: "Mon", mode: "Cook", meal: "Lemon chicken bowls", emoji: "🍳", modeColor: "bg-primary text-primary-foreground" },
+  { day: "Tue", mode: "Leftovers", meal: "Leftover taco bowls", emoji: "♻️", modeColor: "bg-secondary text-secondary-foreground" },
+  { day: "Wed", mode: "Takeout", meal: "Family sushi takeout", emoji: "📦", modeColor: "bg-accent text-accent-foreground" },
+  { day: "Thu", mode: "Cook", meal: "Sheet pan salmon", emoji: "🍳", modeColor: "bg-primary text-primary-foreground" },
+  { day: "Fri", mode: "Dine Out", meal: "Dinner out", emoji: "🍽️", modeColor: "bg-warm text-primary-foreground" },
+];
+
+const CHECKIN_CHIPS = [
+  { label: "Cooked it", active: true },
+  { label: "Ordered out instead", active: false },
+  { label: "Kids liked it", active: true },
+  { label: "Too much work", active: false },
+  { label: "Great leftovers", active: false },
+];
+
+const LEARNINGS = [
+  { icon: CalendarDays, text: "Wednesdays often become takeout" },
+  { icon: Utensils, text: "Kids prefer low-spice meals" },
+  { icon: Clock, text: "Thursdays should stay under 25 min" },
+];
 
 const Landing = () => {
   return (
@@ -36,7 +58,7 @@ const Landing = () => {
       </nav>
 
       {/* Hero */}
-      <section className="pt-32 pb-20 md:pt-44 md:pb-32 px-4">
+      <section className="pt-32 pb-12 md:pt-44 md:pb-16 px-4">
         <div className="container max-w-4xl text-center">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}>
             <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-sage-light text-primary border border-primary/10">
@@ -51,7 +73,7 @@ const Landing = () => {
             <span className="text-primary">of food.</span>
           </motion.h1>
           <motion.p
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed"
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3 leading-relaxed"
             initial="hidden" animate="visible" variants={fadeUp} custom={2}
           >
             Meals, takeout, leftovers, and groceries. One smart weekly plan
@@ -75,22 +97,142 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Meal modes strip */}
-      <section className="py-12 border-y border-border bg-card/50">
-        <div className="container px-4">
-          <div className="flex flex-wrap justify-center gap-3 md:gap-4">
-            {["Cook at Home", "Leftovers Night", "Takeout", "Dine Out", "Emergency Meal"].map((mode) => (
-              <span
-                key={mode}
-                className="px-5 py-2.5 rounded-full text-sm font-medium bg-secondary text-secondary-foreground border border-border"
-              >
-                {mode}
-              </span>
-            ))}
+      {/* Product Proof — Learning Loop */}
+      <section className="py-16 md:py-24 px-4">
+        <div className="container max-w-6xl">
+          {/* Section header */}
+          <motion.div
+            className="text-center mb-12 md:mb-16"
+            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}
+          >
+            <h2 className="text-3xl md:text-4xl font-serif font-semibold text-foreground mb-4">
+              It learns from real life, not just recipes.
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
+              Most meal apps stop at planning. Family Food OS keeps learning after dinner, so each week fits your family better.
+            </p>
+          </motion.div>
+
+          {/* Split layout */}
+          <div className="grid lg:grid-cols-2 gap-6 md:gap-8">
+
+            {/* LEFT — Weekly Planner Preview */}
+            <motion.div
+              initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}
+            >
+              <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden h-full">
+                {/* Card header */}
+                <div className="px-6 pt-6 pb-4 border-b border-border">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Your Week</p>
+                      <h3 className="text-lg font-serif font-semibold text-foreground mt-0.5">March 10 – 14</h3>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                      <TrendingUp className="w-3 h-3" />
+                      Score: 84
+                    </div>
+                  </div>
+                </div>
+
+                {/* Day rows */}
+                <div className="divide-y divide-border">
+                  {WEEK_PREVIEW.map((day, i) => (
+                    <motion.div
+                      key={day.day}
+                      className="flex items-center gap-4 px-6 py-4 hover:bg-muted/30 transition-colors"
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.15 + i * 0.06 }}
+                    >
+                      <div className="w-10 text-center">
+                        <span className="text-sm font-semibold text-foreground">{day.day}</span>
+                      </div>
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium ${day.modeColor}`}>
+                        {day.emoji} {day.mode}
+                      </span>
+                      <span className="text-sm text-muted-foreground flex-1 truncate">{day.meal}</span>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Card footer */}
+                <div className="px-6 py-4 bg-muted/20 border-t border-border">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>3 cook · 1 leftover · 1 out</span>
+                    <span className="font-medium text-primary">~2,400 cal avg/day</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* RIGHT — Dinner Check-In */}
+            <motion.div
+              initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={2}
+            >
+              <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden h-full flex flex-col">
+                {/* Card header */}
+                <div className="px-6 pt-6 pb-4 border-b border-border">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Sparkles className="w-4.5 h-4.5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-serif font-semibold text-foreground">Dinner Check-In</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">A 10-second nightly ritual that helps the system learn.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Check-in body */}
+                <div className="px-6 py-5 flex-1">
+                  <p className="text-sm font-medium text-foreground mb-4">How did dinner go tonight?</p>
+
+                  {/* Chips */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {CHECKIN_CHIPS.map((chip) => (
+                      <span
+                        key={chip.label}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-medium border-2 transition-all ${
+                          chip.active
+                            ? "border-primary bg-primary/10 text-primary shadow-sm"
+                            : "border-border bg-background text-muted-foreground"
+                        }`}
+                      >
+                        {chip.label}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Smart response */}
+                  <div className="rounded-xl bg-sage-light/60 border border-primary/10 px-4 py-3.5 mb-6">
+                    <div className="flex items-start gap-2.5">
+                      <Sparkles className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                      <p className="text-sm text-foreground font-medium leading-relaxed">
+                        Got it. Thursdays should stay low-effort for your family.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Weekly learnings */}
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">This week's learning</p>
+                    <div className="space-y-2.5">
+                      {LEARNINGS.map((item) => (
+                        <div key={item.text} className="flex items-center gap-3">
+                          <div className="w-7 h-7 rounded-lg bg-muted/60 flex items-center justify-center shrink-0">
+                            <item.icon className="w-3.5 h-3.5 text-muted-foreground" />
+                          </div>
+                          <span className="text-sm text-muted-foreground">{item.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            Every night is different. Your plan should be too.
-          </p>
         </div>
       </section>
 
@@ -178,51 +320,6 @@ const Landing = () => {
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Dinner Check-In */}
-      <section className="py-20 md:py-28 px-4">
-        <div className="container max-w-4xl">
-          <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
-              <MessageCircle className="w-7 h-7 text-primary" />
-            </div>
-            <h2 className="text-3xl md:text-4xl font-serif font-semibold text-foreground mb-4">
-              Dinner Check-In
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-              A nightly feedback ritual that helps the app learn your family faster.
-            </p>
-          </motion.div>
-
-          <motion.div
-            className="max-w-2xl mx-auto"
-            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}
-          >
-            <p className="text-center text-muted-foreground mb-8">
-              After dinner, just tap what happened.
-            </p>
-            <div className="grid grid-cols-2 gap-3 mb-8">
-              {[
-                { emoji: "🍳", label: "Did you cook it?" },
-                { emoji: "😋", label: "Did the kids like it?" },
-                { emoji: "😮‍💨", label: "Was it too much work?" },
-                { emoji: "📦", label: "Did you order takeout instead?" },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-border bg-card hover:border-primary/30 transition-colors"
-                >
-                  <span className="text-lg">{item.emoji}</span>
-                  <span className="text-sm font-medium text-foreground">{item.label}</span>
-                </div>
-              ))}
-            </div>
-            <p className="text-center text-muted-foreground text-sm leading-relaxed max-w-lg mx-auto">
-              Those tiny signals help Family Food OS personalize your meals, grocery lists, and weekly plan around real life — not guesswork.
-            </p>
-          </motion.div>
         </div>
       </section>
 
