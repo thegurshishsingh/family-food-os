@@ -139,6 +139,18 @@ const Onboarding = () => {
         });
       if (ctxError) throw ctxError;
 
+      // Save custom meals
+      if (savedMeals.length > 0) {
+        const { error: mealsError } = await supabase
+          .from("saved_meals")
+          .insert(savedMeals.map((m) => ({
+            household_id: household.id,
+            meal_name: m.name,
+            meal_description: m.description || null,
+          })));
+        if (mealsError) throw mealsError;
+      }
+
       navigate("/planner");
     } catch (err: any) {
       toast({ variant: "destructive", title: "Error", description: err.message });
