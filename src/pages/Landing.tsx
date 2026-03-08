@@ -130,7 +130,7 @@ const Landing = () => {
                     </div>
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
                       <TrendingUp className="w-3 h-3" />
-                      Score: 84
+                      Reality Score: 84
                     </div>
                   </div>
                 </div>
