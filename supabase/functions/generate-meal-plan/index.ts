@@ -66,8 +66,15 @@ serve(async (req) => {
     const lovedMeals = feedback?.filter(f => f.feedback === "loved").map(f => f.meal_name) || [];
     const dislikedMeals = feedback?.filter(f => ["kids_refused", "too_hard"].includes(f.feedback)).map(f => f.meal_name) || [];
 
+    // Get saved meals
+    const { data: savedMeals } = await supabaseClient
+      .from("saved_meals")
+      .select("meal_name, meal_description")
+      .eq("household_id", household_id)
+      .limit(50);
+
     // Build AI prompt
-    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals);
+    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, savedMeals || []);
 
     let planData;
 
