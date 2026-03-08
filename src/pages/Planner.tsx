@@ -389,14 +389,30 @@ const Planner = () => {
                               <p className="text-xs text-muted-foreground mt-1 italic">{day.notes}</p>
                             )}
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="shrink-0"
-                            onClick={() => toggleLock(day)}
-                          >
-                            {day.is_locked ? <Lock className="w-4 h-4 text-primary" /> : <Unlock className="w-4 h-4 text-muted-foreground" />}
-                          </Button>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => swapMeal(day)}
+                              disabled={day.is_locked || swappingDay === day.id}
+                              title="Swap meal"
+                            >
+                              {swappingDay === day.id ? (
+                                <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <Shuffle className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => toggleLock(day)}
+                            >
+                              {day.is_locked ? <Lock className="w-4 h-4 text-primary" /> : <Unlock className="w-4 h-4 text-muted-foreground" />}
+                            </Button>
+                          </div>
                         </div>
 
                         {/* Nutrition badges */}
