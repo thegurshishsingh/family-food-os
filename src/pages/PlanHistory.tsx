@@ -15,7 +15,7 @@ type HistoryWeek = WeeklyPlan & {
 };
 
 const PlanHistory = () => {
-  const { household, loading: hhLoading } = useHousehold();
+  const { household, preferences, loading: hhLoading } = useHousehold();
   const [weeks, setWeeks] = useState<HistoryWeek[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedWeek, setExpandedWeek] = useState<string | null>(null);
