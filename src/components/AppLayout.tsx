@@ -2,13 +2,14 @@ import { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ChefHat, CalendarDays, ShoppingCart, Heart, Settings, LogOut } from "lucide-react";
+import { ChefHat, CalendarDays, ShoppingCart, Heart, Settings, LogOut, User } from "lucide-react";
 
 const NAV = [
   { to: "/planner", label: "Weekly Plan", icon: CalendarDays },
   { to: "/groceries", label: "Groceries", icon: ShoppingCart },
   { to: "/memory", label: "Meal Memory", icon: Heart },
   { to: "/settings", label: "Settings", icon: Settings },
+  { to: "/profile", label: "Profile", icon: User },
 ];
 
 const AppLayout = ({ children }: { children: ReactNode }) => {

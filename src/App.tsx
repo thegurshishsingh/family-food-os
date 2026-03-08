@@ -13,6 +13,7 @@ import Planner from "./pages/Planner";
 import Groceries from "./pages/Groceries";
 import MealMemory from "./pages/MealMemory";
 import HouseholdSettings from "./pages/HouseholdSettings";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/groceries" element={<RequireHousehold><Groceries /></RequireHousehold>} />
             <Route path="/memory" element={<RequireHousehold><MealMemory /></RequireHousehold>} />
             <Route path="/settings" element={<RequireHousehold><HouseholdSettings /></RequireHousehold>} />
+            <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
