@@ -68,17 +68,30 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
                 </Link>
               </Button>
             ))}
-            <Link to="/profile" className="ml-2">
-              <Avatar className="h-7 w-7">
-                {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName ?? "Avatar"} />}
-                <AvatarFallback className="text-xs bg-muted text-muted-foreground">
-                  {displayName ? displayName.charAt(0).toUpperCase() : <User className="w-3.5 h-3.5" />}
-                </AvatarFallback>
-              </Avatar>
-            </Link>
-            <Button variant="ghost" size="icon" onClick={handleSignOut}>
-              <LogOut className="w-4 h-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="ml-2 rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+                  <Avatar className="h-7 w-7">
+                    {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName ?? "Avatar"} />}
+                    <AvatarFallback className="text-xs bg-muted text-muted-foreground">
+                      {displayName ? displayName.charAt(0).toUpperCase() : <User className="w-3.5 h-3.5" />}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer gap-2">
+                  <User className="w-4 h-4" /> Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer gap-2">
+                  <Settings className="w-4 h-4" /> Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer gap-2 text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </nav>
