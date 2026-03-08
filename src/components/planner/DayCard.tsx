@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Lock, Unlock, Shuffle, Pencil, Check, X, GripVertical, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { DAYS, MODE_CONFIG, FEEDBACK_OPTIONS, type PlanDay, type FeedbackType } from "./types";
+import MealDetailDialog from "./MealDetailDialog";
 
 interface DayCardProps {
   day: PlanDay;
