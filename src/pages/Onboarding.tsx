@@ -96,6 +96,21 @@ const Onboarding = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Check if household already exists
+      const { data: existingHh } = await supabase
+        .from("households")
+        .select("id")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingHh) {
+        // Household already exists — skip to planner
+        navigate("/planner");
+        return;
+      }
+
       // Create household
       const { data: household, error: hhError } = await supabase
         .from("households")
