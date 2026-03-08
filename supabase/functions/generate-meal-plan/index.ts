@@ -73,8 +73,33 @@ serve(async (req) => {
       .eq("household_id", household_id)
       .limit(50);
 
+    // Get evening check-in patterns (last 4 weeks)
+    const { data: checkins } = await supabaseClient
+      .from("evening_checkins")
+      .select("tags, effort_level, plan_day_id, created_at")
+      .eq("household_id", household_id)
+      .order("created_at", { ascending: false })
+      .limit(28);
+
+    // Enrich check-ins with day_of_week from plan_days
+    let checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[] = [];
+    if (checkins?.length) {
+      const planDayIds = checkins.map((c: any) => c.plan_day_id);
+      const { data: checkinDays } = await supabaseClient
+        .from("plan_days")
+        .select("id, day_of_week, meal_name")
+        .in("id", planDayIds);
+
+      const dayMap = new Map((checkinDays || []).map((d: any) => [d.id, d]));
+      checkinInsights = checkins.map((c: any) => ({
+        tags: c.tags || [],
+        effort_level: c.effort_level,
+        day_of_week: dayMap.get(c.plan_day_id)?.day_of_week ?? -1,
+      })).filter(c => c.day_of_week >= 0);
+    }
+
     // Build AI prompt
-    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, savedMeals || []);
+    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, savedMeals || [], checkinInsights);
 
     let planData;
 
