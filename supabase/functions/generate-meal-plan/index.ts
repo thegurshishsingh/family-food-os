@@ -241,7 +241,7 @@ function getNextMonday() {
   return d.toISOString().split("T")[0];
 }
 
-function buildPrompt(household: any, prefs: any, context: any, lovedMeals: string[], dislikedMeals: string[]) {
+function buildPrompt(household: any, prefs: any, context: any, lovedMeals: string[], dislikedMeals: string[], savedMeals: { meal_name: string; meal_description: string | null }[]) {
   const parts = [
     `Create a 7-day dinner meal plan for a family of ${household.num_adults} adults and ${household.num_children} children.`,
   ];
