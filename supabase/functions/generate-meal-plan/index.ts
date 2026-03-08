@@ -73,8 +73,33 @@ serve(async (req) => {
       .eq("household_id", household_id)
       .limit(50);
 
+    // Get evening check-in patterns (last 4 weeks)
+    const { data: checkins } = await supabaseClient
+      .from("evening_checkins")
+      .select("tags, effort_level, plan_day_id, created_at")
+      .eq("household_id", household_id)
+      .order("created_at", { ascending: false })
+      .limit(28);
+
+    // Enrich check-ins with day_of_week from plan_days
+    let checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[] = [];
+    if (checkins?.length) {
+      const planDayIds = checkins.map((c: any) => c.plan_day_id);
+      const { data: checkinDays } = await supabaseClient
+        .from("plan_days")
+        .select("id, day_of_week, meal_name")
+        .in("id", planDayIds);
+
+      const dayMap = new Map((checkinDays || []).map((d: any) => [d.id, d]));
+      checkinInsights = checkins.map((c: any) => ({
+        tags: c.tags || [],
+        effort_level: c.effort_level,
+        day_of_week: dayMap.get(c.plan_day_id)?.day_of_week ?? -1,
+      })).filter(c => c.day_of_week >= 0);
+    }
+
     // Build AI prompt
-    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, savedMeals || []);
+    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, savedMeals || [], checkinInsights);
 
     let planData;
 
@@ -241,7 +266,13 @@ function getNextMonday() {
   return d.toISOString().split("T")[0];
 }
 
-function buildPrompt(household: any, prefs: any, context: any, lovedMeals: string[], dislikedMeals: string[], savedMeals: { meal_name: string; meal_description: string | null }[]) {
+function buildPrompt(
+  household: any, prefs: any, context: any,
+  lovedMeals: string[], dislikedMeals: string[],
+  savedMeals: { meal_name: string; meal_description: string | null }[],
+  checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[],
+) {
+  const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const parts = [
     `Create a 7-day dinner meal plan for a family of ${household.num_adults} adults and ${household.num_children} children.`,
   ];
@@ -281,6 +312,57 @@ function buildPrompt(household: any, prefs: any, context: any, lovedMeals: strin
   if (savedMeals.length) {
     const mealList = savedMeals.map(m => m.meal_description ? `${m.meal_name} (${m.meal_description})` : m.meal_name).join(", ");
     parts.push(`The family has requested these specific meals be included when possible: ${mealList}. Try to include at least some of them in the plan.`);
+  }
+
+  // Check-in behavioral insights
+  if (checkinInsights.length > 0) {
+    parts.push(`\nIMPORTANT — Recent evening check-in data from the family (use this to adapt the plan):`);
+
+    // Aggregate patterns by day of week
+    const dayPatterns: Record<number, { tags: Record<string, number>; effortTooMuch: number; total: number }> = {};
+    const globalTags: Record<string, number> = {};
+
+    for (const ci of checkinInsights) {
+      if (!dayPatterns[ci.day_of_week]) {
+        dayPatterns[ci.day_of_week] = { tags: {}, effortTooMuch: 0, total: 0 };
+      }
+      const dp = dayPatterns[ci.day_of_week];
+      dp.total++;
+      if (ci.effort_level === "too_much") dp.effortTooMuch++;
+      for (const tag of ci.tags) {
+        dp.tags[tag] = (dp.tags[tag] || 0) + 1;
+        globalTags[tag] = (globalTags[tag] || 0) + 1;
+      }
+    }
+
+    // Per-day insights
+    for (const [dayIdx, pattern] of Object.entries(dayPatterns)) {
+      const dayName = dayNames[Number(dayIdx)];
+      const notes: string[] = [];
+      if (pattern.effortTooMuch > 0) notes.push("felt like too much effort");
+      if (pattern.tags["kids_refused"] > 0) notes.push("kids refused the meal");
+      if (pattern.tags["ordered_out"] > 0) notes.push("family ordered out instead of cooking");
+      if (pattern.tags["easy_win"] > 0) notes.push("was an easy win");
+      if (pattern.tags["everyone_liked"] > 0) notes.push("everyone liked it");
+      if (pattern.tags["great_leftovers"] > 0) notes.push("produced great leftovers");
+      if (pattern.tags["not_again"] > 0) notes.push("family said not again");
+      if (notes.length) parts.push(`- ${dayName}: ${notes.join(", ")} (${pattern.total} check-in${pattern.total > 1 ? "s" : ""})`);
+    }
+
+    // Global guidance
+    const totalCheckins = checkinInsights.length;
+    if (globalTags["too_much_work"] > totalCheckins * 0.3) {
+      parts.push(`Overall pattern: meals feel like too much work. Prefer simpler, lower-effort meals.`);
+    }
+    if (globalTags["ordered_out"] > totalCheckins * 0.3) {
+      parts.push(`Overall pattern: family frequently orders out. Consider adding more takeout/easy nights.`);
+    }
+    if (globalTags["kids_refused"] > totalCheckins * 0.25) {
+      parts.push(`Overall pattern: kids frequently refuse meals. Prioritize kid-friendly options.`);
+    }
+    if (globalTags["easy_win"] > totalCheckins * 0.3) {
+      parts.push(`Overall pattern: easy wins are valued. Keep meals simple and approachable.`);
+    }
   }
 
   parts.push(`Include at least 1 leftover night reusing a previous cooked meal.`);
