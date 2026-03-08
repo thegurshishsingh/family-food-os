@@ -62,7 +62,46 @@ const HouseholdSettings = () => {
       setDeliveryPref(preferences.delivery_preference || "in-store");
       setHealthGoal(preferences.health_goal || "Balanced family eating");
     }
+    if (household) loadSavedMeals();
   }, [household, preferences]);
+
+  const loadSavedMeals = async () => {
+    if (!household) return;
+    const { data } = await supabase
+      .from("saved_meals")
+      .select("id, meal_name, meal_description")
+      .eq("household_id", household.id)
+      .order("created_at");
+    if (data) setSavedMeals(data);
+  };
+
+  const addMeal = async () => {
+    if (!household) return;
+    const trimmed = newMealName.trim().slice(0, 200);
+    if (!trimmed) return;
+    const { data, error } = await supabase
+      .from("saved_meals")
+      .insert({ household_id: household.id, meal_name: trimmed, meal_description: newMealDesc.trim().slice(0, 500) || null })
+      .select("id, meal_name, meal_description")
+      .single();
+    if (!error && data) {
+      setSavedMeals((prev) => [...prev, data]);
+      setNewMealName("");
+      setNewMealDesc("");
+      toast({ title: "Meal added!" });
+    } else {
+      toast({ variant: "destructive", title: "Failed to add meal", description: error?.message });
+    }
+  };
+
+  const removeMeal = async (id: string) => {
+    const { error } = await supabase.from("saved_meals").delete().eq("id", id);
+    if (!error) {
+      setSavedMeals((prev) => prev.filter((m) => m.id !== id));
+    } else {
+      toast({ variant: "destructive", title: "Failed to remove meal", description: error.message });
+    }
+  };
 
   const toggleInList = (list: string[], item: string, setter: (v: string[]) => void) => {
     setter(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
