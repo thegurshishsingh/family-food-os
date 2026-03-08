@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ChefHat, TrendingUp, AlertTriangle, ChevronDown, ChevronUp, Flame, Truck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DAYS, MODE_CONFIG, type PlanDay, type WeeklyPlan } from "@/components/planner/types";
+import TrendCharts from "@/components/planner/TrendCharts";
 
 type HistoryWeek = WeeklyPlan & {
   days: PlanDay[];
