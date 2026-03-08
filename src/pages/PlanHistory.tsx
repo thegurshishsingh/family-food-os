@@ -82,7 +82,7 @@ const PlanHistory = () => {
           </Card>
         ) : (
           <>
-            <TrendCharts weeks={weeks} />
+            <TrendCharts weeks={weeks} weeklyBudget={preferences?.weekly_grocery_budget ? Number(preferences.weekly_grocery_budget) : null} />
             <div className="space-y-4">
             {weeks.map((week) => {
               const isExpanded = expandedWeek === week.id;
