@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, ReferenceLine, Legend } from "recharts";
-import { Flame, Beef, ChefHat, Truck, DollarSign } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, ReferenceLine, Legend, Area, AreaChart } from "recharts";
+import { Flame, Beef, ChefHat, Truck, DollarSign, TrendingUp } from "lucide-react";
 import type { PlanDay, WeeklyPlan } from "@/components/planner/types";
 
 type HistoryWeek = WeeklyPlan & { days: PlanDay[] };
@@ -21,7 +21,8 @@ const TrendCharts = ({ weeks, weeklyBudget }: TrendChartsProps) => {
     const cookNights = week.days.filter((d) => d.meal_mode === "cook").length;
     const takeoutNights = week.days.filter((d) => d.meal_mode === "takeout" || d.meal_mode === "dine_out").length;
     const takeoutSpend = week.days.reduce((s, d) => s + (d.takeout_budget ? Number(d.takeout_budget) : 0), 0);
-    return { label, calories: totalCals, protein: Math.round(totalProtein), cookNights, takeoutNights, takeoutSpend: Math.round(takeoutSpend) };
+    const realityScore = week.reality_score ?? null;
+    return { label, calories: totalCals, protein: Math.round(totalProtein), cookNights, takeoutNights, takeoutSpend: Math.round(takeoutSpend), realityScore };
   });
 
   const chartConfig = {
@@ -29,9 +30,52 @@ const TrendCharts = ({ weeks, weeklyBudget }: TrendChartsProps) => {
     protein: { title: "Weekly Protein", color: "hsl(var(--accent-foreground))", icon: Beef, dataKey: "protein", unit: "g" },
   };
 
+  const hasRealityScores = chartData.some((d) => d.realityScore !== null);
+
   return (
     <div className="space-y-4 mb-8">
       <h2 className="text-lg font-serif font-semibold text-foreground">Trends</h2>
+
+      {/* Reality Score trend */}
+      {hasRealityScores && (
+        <Card>
+          <CardHeader className="pb-2 pt-4 px-4">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+              <TrendingUp className="w-3.5 h-3.5" /> Reality Score Over Time
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-2 pb-4">
+            <ResponsiveContainer width="100%" height={180}>
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="realityGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="label" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+                <YAxis tick={{ fontSize: 11 }} width={35} domain={[0, 100]} className="fill-muted-foreground" />
+                <Tooltip
+                  contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--popover))", color: "hsl(var(--popover-foreground))" }}
+                  formatter={(value: number) => [`${value}/100`, "Reality Score"]}
+                />
+                <ReferenceLine y={80} stroke="hsl(var(--primary))" strokeDasharray="6 4" strokeOpacity={0.5} />
+                <ReferenceLine y={60} stroke="hsl(var(--destructive))" strokeDasharray="6 4" strokeOpacity={0.4} />
+                <Area type="monotone" dataKey="realityScore" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#realityGradient)" dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} connectNulls />
+              </AreaChart>
+            </ResponsiveContainer>
+            <div className="flex items-center justify-center gap-4 mt-2">
+              <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <span className="w-4 h-px border-t-2 border-dashed border-primary/50" /> Realistic (80+)
+              </span>
+              <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <span className="w-4 h-px border-t-2 border-dashed border-destructive/40" /> Ambitious (&lt;60)
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Line charts row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
