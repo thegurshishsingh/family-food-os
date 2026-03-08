@@ -328,24 +328,34 @@ const CheckIn = () => {
           {/* Done */}
           {todayMeal && !alreadyCheckedIn && step === "done" && (
             <motion.div key="step-done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-              <Card className="py-16 text-center">
-                <CardContent>
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                  >
-                    <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
-                  </motion.div>
-                  <h2 className="text-xl font-serif font-semibold mb-2">Check-in complete!</h2>
-                  <p className="text-muted-foreground mb-6">
-                    Your feedback helps make next week's plan even better.
-                  </p>
-                  <Button onClick={() => navigate("/planner")} className="gap-2">
+              <div className="text-center py-8">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                >
+                  <Sparkles className="w-10 h-10 text-primary mx-auto mb-6" />
+                </motion.div>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-lg md:text-xl font-serif font-medium text-foreground leading-relaxed max-w-sm mx-auto mb-8"
+                >
+                  {smartLine}
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <Button variant="ghost" onClick={() => navigate("/planner")} className="gap-2 text-muted-foreground">
                     <ArrowRight className="w-4 h-4" /> Back to Planner
                   </Button>
-                </CardContent>
-              </Card>
+                </motion.div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
