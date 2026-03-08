@@ -13,6 +13,8 @@ import {
   ArrowRight, AlertTriangle, TrendingUp, Flame, Heart, ThumbsUp, Baby, Wrench, RotateCcw, Star, Shuffle, Pencil, Check, X
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
