@@ -20,7 +20,8 @@ const TrendCharts = ({ weeks, weeklyBudget }: TrendChartsProps) => {
     const totalProtein = week.days.reduce((s, d) => s + (d.protein_g ? Number(d.protein_g) : 0), 0);
     const cookNights = week.days.filter((d) => d.meal_mode === "cook").length;
     const takeoutNights = week.days.filter((d) => d.meal_mode === "takeout" || d.meal_mode === "dine_out").length;
-    return { label, calories: totalCals, protein: Math.round(totalProtein), cookNights, takeoutNights };
+    const takeoutSpend = week.days.reduce((s, d) => s + (d.takeout_budget ? Number(d.takeout_budget) : 0), 0);
+    return { label, calories: totalCals, protein: Math.round(totalProtein), cookNights, takeoutNights, takeoutSpend: Math.round(takeoutSpend) };
   });
 
   const chartConfig = {
