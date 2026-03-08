@@ -1,7 +1,9 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ChefHat, CalendarDays, ShoppingCart, Heart, Settings, LogOut, User } from "lucide-react";
 
 const NAV = [
@@ -13,9 +15,26 @@ const NAV = [
 ];
 
 const AppLayout = ({ children }: { children: ReactNode }) => {
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("avatar_url, display_name")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setAvatarUrl(data.avatar_url);
+          setDisplayName(data.display_name);
+        }
+      });
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -48,7 +67,15 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
                 </Link>
               </Button>
             ))}
-            <Button variant="ghost" size="icon" className="ml-2" onClick={handleSignOut}>
+            <Link to="/profile" className="ml-2">
+              <Avatar className="h-7 w-7">
+                {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName ?? "Avatar"} />}
+                <AvatarFallback className="text-xs bg-muted text-muted-foreground">
+                  {displayName ? displayName.charAt(0).toUpperCase() : <User className="w-3.5 h-3.5" />}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
+            <Button variant="ghost" size="icon" onClick={handleSignOut}>
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
