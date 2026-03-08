@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChefHat, CalendarDays, ShoppingCart, Repeat, Users, Brain, ArrowRight, CheckCircle2 } from "lucide-react";
+import { ChefHat, CalendarDays, ShoppingCart, Repeat, Users, Brain, ArrowRight, CheckCircle2, MessageCircle } from "lucide-react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -178,6 +178,51 @@ const Landing = () => {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Dinner Check-In */}
+      <section className="py-20 md:py-28 px-4">
+        <div className="container max-w-4xl">
+          <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
+              <MessageCircle className="w-7 h-7 text-primary" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-serif font-semibold text-foreground mb-4">
+              Dinner Check-In
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+              A nightly feedback ritual that helps the app learn your family faster.
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="max-w-2xl mx-auto"
+            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1}
+          >
+            <p className="text-center text-muted-foreground mb-8">
+              After dinner, just tap what happened.
+            </p>
+            <div className="grid grid-cols-2 gap-3 mb-8">
+              {[
+                { emoji: "🍳", label: "Did you cook it?" },
+                { emoji: "😋", label: "Did the kids like it?" },
+                { emoji: "😮‍💨", label: "Was it too much work?" },
+                { emoji: "📦", label: "Did you order takeout instead?" },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-3 px-5 py-4 rounded-xl border-2 border-border bg-card hover:border-primary/30 transition-colors"
+                >
+                  <span className="text-lg">{item.emoji}</span>
+                  <span className="text-sm font-medium text-foreground">{item.label}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-muted-foreground text-sm leading-relaxed max-w-lg mx-auto">
+              Those tiny signals help Family Food OS personalize your meals, grocery lists, and weekly plan around real life — not guesswork.
+            </p>
+          </motion.div>
         </div>
       </section>
 
