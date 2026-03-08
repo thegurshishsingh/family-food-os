@@ -67,7 +67,15 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
                 </Link>
               </Button>
             ))}
-            <Button variant="ghost" size="icon" className="ml-2" onClick={handleSignOut}>
+            <Link to="/profile" className="ml-2">
+              <Avatar className="h-7 w-7">
+                {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName ?? "Avatar"} />}
+                <AvatarFallback className="text-xs bg-muted text-muted-foreground">
+                  {displayName ? displayName.charAt(0).toUpperCase() : <User className="w-3.5 h-3.5" />}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
+            <Button variant="ghost" size="icon" onClick={handleSignOut}>
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
