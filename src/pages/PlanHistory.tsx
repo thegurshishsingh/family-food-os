@@ -15,7 +15,7 @@ type HistoryWeek = WeeklyPlan & {
 };
 
 const PlanHistory = () => {
-  const { household, loading: hhLoading } = useHousehold();
+  const { household, preferences, loading: hhLoading } = useHousehold();
   const [weeks, setWeeks] = useState<HistoryWeek[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedWeek, setExpandedWeek] = useState<string | null>(null);
@@ -82,7 +82,7 @@ const PlanHistory = () => {
           </Card>
         ) : (
           <>
-            <TrendCharts weeks={weeks} />
+            <TrendCharts weeks={weeks} weeklyBudget={preferences?.weekly_grocery_budget ? Number(preferences.weekly_grocery_budget) : null} />
             <div className="space-y-4">
             {weeks.map((week) => {
               const isExpanded = expandedWeek === week.id;
