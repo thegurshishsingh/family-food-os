@@ -463,11 +463,20 @@ const Planner = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
+                  draggable={!day.is_locked}
+                  onDragStart={() => handleDragStart(day.id)}
+                  onDragOver={(e) => handleDragOver(e, day.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={() => handleDrop(day.id)}
+                  onDragEnd={() => { setDraggedDayId(null); setDragOverDayId(null); }}
                 >
-                  <Card className={`overflow-hidden ${day.is_locked ? "ring-1 ring-primary/20" : ""}`}>
+                  <Card className={`overflow-hidden transition-all ${day.is_locked ? "ring-1 ring-primary/20" : ""} ${draggedDayId === day.id ? "opacity-50 scale-[0.98]" : ""} ${dragOverDayId === day.id ? "ring-2 ring-primary shadow-lg" : ""}`}>
                     <div className="flex flex-col sm:flex-row">
                       {/* Day label + mode */}
                       <div className="flex items-center gap-3 p-4 sm:w-48 sm:border-r border-border">
+                        {!day.is_locked && (
+                          <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 hidden sm:block" />
+                        )}
                         <div className="text-center sm:text-left">
                           <p className="font-serif font-semibold text-foreground">{DAYS[day.day_of_week]}</p>
                           <button
