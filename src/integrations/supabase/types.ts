@@ -293,6 +293,38 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_meals: {
+        Row: {
+          created_at: string
+          household_id: string
+          id: string
+          meal_description: string | null
+          meal_name: string
+        }
+        Insert: {
+          created_at?: string
+          household_id: string
+          id?: string
+          meal_description?: string | null
+          meal_name: string
+        }
+        Update: {
+          created_at?: string
+          household_id?: string
+          id?: string
+          meal_description?: string | null
+          meal_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_meals_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_takeout_preferences: {
         Row: {
           avg_cost: number | null
