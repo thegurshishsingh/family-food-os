@@ -343,7 +343,6 @@ const Planner = () => {
                 onDragEnd={handleDragEnd}
                 onCheckedIn={(dayId) => setCheckedInDays((prev) => new Set([...prev, dayId]))}
               />
-              />
             ))}
           </div>
         )}
