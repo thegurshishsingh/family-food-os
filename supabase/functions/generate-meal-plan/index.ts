@@ -286,6 +286,7 @@ function buildPrompt(
     if (prefs.cuisines_disliked?.length) parts.push(`Avoid cuisines: ${prefs.cuisines_disliked.join(", ")}.`);
     if (prefs.dietary_preferences?.length) parts.push(`Dietary: ${prefs.dietary_preferences.join(", ")}.`);
     if (prefs.allergies?.length) parts.push(`ALLERGIES (must avoid): ${prefs.allergies.join(", ")}.`);
+    if (prefs.foods_to_avoid?.length) parts.push(`FOODS TO AVOID (the family does not eat these — never include them in any meal): ${prefs.foods_to_avoid.join(", ")}.`);
     if (prefs.weekly_grocery_budget) parts.push(`Weekly budget: $${prefs.weekly_grocery_budget}.`);
     if (prefs.cooking_time_tolerance) parts.push(`Cooking time tolerance: ${prefs.cooking_time_tolerance}.`);
     if (prefs.preferred_takeout_frequency) parts.push(`Include ${prefs.preferred_takeout_frequency} takeout night(s).`);
