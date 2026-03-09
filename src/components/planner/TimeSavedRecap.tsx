@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, TrendingUp, Calendar, ArrowRight, ChevronDown, ChevronUp, Sparkles, Award, X, Lightbulb } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Clock, TrendingUp, Zap, ArrowRight, ChevronDown, ChevronUp, Sparkles, Award, X, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { computeTimeSaved, formatHours, type TimeSavedResult } from "@/lib/timeSaved";
+import { getHumanRewards, getCumulativeMessage, getYearlyProjection, type HumanReward } from "@/lib/humanReward";
 import type { PlanDay, WeeklyPlan } from "./types";
 
 interface TimeSavedRecapProps {
@@ -29,7 +32,6 @@ function getMilestone(totalMinutes: number) {
   return MILESTONES.find((m) => hours >= m.hours) || null;
 }
 
-// Confetti particle component
 function ConfettiParticle({ delay, x, color }: { delay: number; x: number; color: string }) {
   return (
     <motion.div
@@ -43,11 +45,7 @@ function ConfettiParticle({ delay, x, color }: { delay: number; x: number; color
         rotate: [0, 180, 360],
         scale: [0, 1, 0.8, 0],
       }}
-      transition={{
-        duration: 2.5,
-        delay,
-        ease: "easeOut",
-      }}
+      transition={{ duration: 2.5, delay, ease: "easeOut" }}
     />
   );
 }
@@ -59,13 +57,12 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [showMilestone, setShowMilestone] = useState(false);
   const [milestoneAcknowledged, setMilestoneAcknowledged] = useState(false);
-  const [insight, setInsight] = useState<string | null>(null);
+  const [showMethodology, setShowMethodology] = useState(false);
 
   useEffect(() => {
     loadTimeSaved();
   }, [plan, days, householdId]);
 
-  // Trigger milestone celebration after data loads
   useEffect(() => {
     if (result && cumulativeMinutes > 0 && !milestoneAcknowledged) {
       const milestone = getMilestone(cumulativeMinutes);
@@ -77,13 +74,11 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
   }, [result, cumulativeMinutes, milestoneAcknowledged]);
 
   const loadTimeSaved = async () => {
-    // Check grocery list existence
     const { count: groceryCount } = await supabase
       .from("grocery_items")
       .select("id", { count: "exact", head: true })
       .eq("plan_id", plan.id);
 
-    // Check evening check-ins for this plan
     const dayIds = days.map(d => d.id);
     let checkinCount = 0;
     if (dayIds.length) {
@@ -95,7 +90,6 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
       checkinCount = count || 0;
     }
 
-    // Count total plans for cumulative stats
     const { data: allPlans } = await supabase
       .from("weekly_plans")
       .select("id")
@@ -112,53 +106,6 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
 
     setResult(computed);
     setCumulativeMinutes(computed.totalMinutesSaved * weeks);
-
-    // Generate personalized insight from feedback + cuisine data
-    buildInsight(householdId);
-  };
-
-  const buildInsight = async (hhId: string) => {
-    // Gather cuisine preferences from current plan
-    const cuisines = days.map(d => d.cuisine_type).filter(Boolean) as string[];
-    const cuisineCounts: Record<string, number> = {};
-    cuisines.forEach(c => { cuisineCounts[c] = (cuisineCounts[c] || 0) + 1; });
-
-    // Gather feedback history
-    const { data: feedback } = await supabase
-      .from("meal_feedback")
-      .select("meal_name, feedback")
-      .eq("household_id", hhId)
-      .order("created_at", { ascending: false })
-      .limit(30);
-
-    const lovedMeals = feedback?.filter(f => f.feedback === "loved" || f.feedback === "reorder_worthy") || [];
-    const refusedCount = feedback?.filter(f => f.feedback === "kids_refused").length || 0;
-    const tooHardCount = feedback?.filter(f => f.feedback === "too_hard").length || 0;
-
-    // Determine top cuisine
-    const topCuisine = Object.entries(cuisineCounts).sort((a, b) => b[1] - a[1])[0];
-
-    // Build insight based on available signals (priority order)
-    if (topCuisine && topCuisine[1] >= 2) {
-      setInsight(`Your family gravitates toward ${topCuisine[0]} flavors—we'll weave in more next week.`);
-    } else if (lovedMeals.length >= 3) {
-      setInsight(`${lovedMeals.length} meals marked as favorites so far. We're building a library around what your family loves.`);
-    } else if (lovedMeals.length >= 1) {
-      const name = lovedMeals[0].meal_name;
-      setInsight(`"${name}" was a hit. Expect more meals in that direction next week.`);
-    } else if (refusedCount > 0 && tooHardCount > 0) {
-      setInsight(`We noticed some meals didn't land—next week's plan adjusts for simpler, kid-friendlier options.`);
-    } else if (refusedCount > 0) {
-      setInsight(`We're learning what the kids enjoy. Next week's plan leans into family-friendly winners.`);
-    } else if (tooHardCount > 0) {
-      setInsight(`Some meals felt like too much effort. Next week, we'll keep things simpler on busy nights.`);
-    } else if (topCuisine) {
-      setInsight(`${topCuisine[0]} showed up in your plan this week—if you loved it, we'll feature it more.`);
-    } else if (days.filter(d => d.meal_mode === "leftovers").length >= 2) {
-      setInsight(`Smart use of leftovers this week—we'll keep building plans that reduce waste.`);
-    } else {
-      setInsight(`Each week teaches us more about your family's rhythm. Keep rating meals to sharpen recommendations.`);
-    }
   };
 
   const dismissMilestone = () => {
@@ -171,8 +118,16 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
   const milestone = getMilestone(cumulativeMinutes);
   const avgMinutes = totalWeeks > 0 ? Math.round(cumulativeMinutes / totalWeeks) : 0;
   const maxBarValue = Math.max(...result.breakdown.map(b => b.withoutApp));
+  const plannedNights = days.filter(d => d.meal_name).length;
+  const humanRewards = getHumanRewards(result.totalMinutesSaved, plannedNights);
+  const cumulativeMessage = getCumulativeMessage(cumulativeMinutes);
+  const yearlyProjection = getYearlyProjection(avgMinutes);
 
-  // Confetti colors using design system tones
+  // Find biggest saving source
+  const biggestFactor = result.factors.length > 0
+    ? result.factors.reduce((a, b) => b.minutesSaved > a.minutesSaved ? b : a)
+    : null;
+
   const confettiColors = [
     "hsl(var(--primary))",
     "hsl(var(--sage))",
@@ -180,6 +135,12 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
     "hsl(var(--primary) / 0.6)",
     "hsl(var(--sage-dark))",
   ];
+
+  // Cumulative progress toward next milestone
+  const cumulativeHours = cumulativeMinutes / 60;
+  const nextMilestoneHours = [10, 25, 50, 100].find(h => h > cumulativeHours) || 100;
+  const prevMilestoneHours = [0, 10, 25, 50].reverse().find(h => h < nextMilestoneHours) || 0;
+  const progressPct = Math.min(100, Math.round(((cumulativeHours - prevMilestoneHours) / (nextMilestoneHours - prevMilestoneHours)) * 100));
 
   return (
     <motion.div
@@ -199,104 +160,45 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
               transition={{ duration: 0.4 }}
               className="absolute inset-0 z-10 flex items-center justify-center rounded-xl overflow-hidden"
             >
-              {/* Glow background */}
               <motion.div
                 className="absolute inset-0 bg-gradient-to-br from-primary/20 via-sage-light/40 to-warm-light/30 backdrop-blur-sm"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: [0, 1, 0.85] }}
-                transition={{ duration: 1.5, ease: "easeOut" }}
+                transition={{ duration: 1.5 }}
               />
-              
-              {/* Subtle radial glow pulse */}
               <motion.div
                 className="absolute inset-0"
-                style={{
-                  background: "radial-gradient(circle at 50% 40%, hsl(var(--primary) / 0.15) 0%, transparent 60%)",
-                }}
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                  opacity: [0.5, 0.8, 0.5],
-                }}
+                style={{ background: "radial-gradient(circle at 50% 40%, hsl(var(--primary) / 0.15) 0%, transparent 60%)" }}
+                animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
               />
-
-              {/* Confetti particles */}
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 {Array.from({ length: 20 }).map((_, i) => (
-                  <ConfettiParticle
-                    key={i}
-                    delay={i * 0.08}
-                    x={10 + (i * 4.5)}
-                    color={confettiColors[i % confettiColors.length]}
-                  />
+                  <ConfettiParticle key={i} delay={i * 0.08} x={10 + (i * 4.5)} color={confettiColors[i % confettiColors.length]} />
                 ))}
               </div>
-
-              {/* Content */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
+                transition={{ delay: 0.3, duration: 0.5 }}
                 className="relative z-20 text-center px-6 py-10 max-w-sm"
               >
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: [0, 1.2, 1] }}
-                  transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
+                  transition={{ delay: 0.4, duration: 0.6 }}
                   className="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20"
                 >
                   <Award className="w-8 h-8 text-primary" />
                 </motion.div>
-                
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="text-xs uppercase tracking-widest text-primary/80 font-medium mb-2"
-                >
-                  Milestone Reached
-                </motion.p>
-                
-                <motion.h3
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
-                  className="text-2xl sm:text-3xl font-serif font-semibold text-foreground mb-3"
-                >
-                  {milestone.label} saved
-                </motion.h3>
-                
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.85 }}
-                  className="text-sm text-muted-foreground leading-relaxed mb-6"
-                >
-                  {milestone.message}
-                </motion.p>
-                
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1 }}
-                >
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={dismissMilestone}
-                    className="gap-1.5 text-xs"
-                  >
-                    Continue
-                    <ArrowRight className="w-3 h-3" />
-                  </Button>
-                </motion.div>
+                <p className="text-xs uppercase tracking-widest text-primary/80 font-medium mb-2">Milestone Reached</p>
+                <h3 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground mb-3">{milestone.label} saved</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-6">{milestone.message}</p>
+                <Button variant="outline" size="sm" onClick={dismissMilestone} className="gap-1.5 text-xs">
+                  Continue <ArrowRight className="w-3 h-3" />
+                </Button>
               </motion.div>
-
-              {/* Dismiss X */}
-              <button
-                onClick={dismissMilestone}
-                className="absolute top-4 right-4 z-30 p-1.5 rounded-full bg-background/60 hover:bg-background/80 transition-colors"
-              >
+              <button onClick={dismissMilestone} className="absolute top-4 right-4 z-30 p-1.5 rounded-full bg-background/60 hover:bg-background/80 transition-colors">
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             </motion.div>
@@ -304,7 +206,7 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
         </AnimatePresence>
 
         <CardContent className="pt-8 pb-6 px-5 sm:px-8">
-          {/* Headline */}
+          {/* ── LAYER 1: WEEKLY WIN ── */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -320,118 +222,157 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
               <span className="text-primary">{formatHours(result.totalMinutesSaved)}</span>
               {" "}back last week.
             </h2>
-            <p className="text-muted-foreground text-sm sm:text-base mt-3 max-w-lg mx-auto leading-relaxed">
-              That's time you didn't spend deciding, shopping, or scrambling—based on the meals your family actually made together.
+            <p className="text-muted-foreground text-sm mt-3 max-w-lg mx-auto leading-relaxed">
+              This estimate is based on your actual weekly plan, grocery automation, leftovers, takeout planning, and dinner check-ins.
             </p>
           </motion.div>
 
-          {/* KPI cards */}
+          {/* ── KPI CARDS ── */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="grid grid-cols-3 gap-3 mb-8"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8"
           >
             <KpiCard
               icon={Clock}
               value={formatHours(result.totalMinutesSaved)}
               label="Saved last week"
+              sublabel={`from ${plannedNights} planned meals`}
+              accent={false}
               delay={0.35}
             />
             <KpiCard
               icon={TrendingUp}
               value={formatHours(cumulativeMinutes)}
-              label="Total saved"
+              label="Total time back"
+              sublabel={`across ${totalWeeks} week${totalWeeks !== 1 ? "s" : ""}`}
+              accent={false}
               delay={0.4}
             />
-            <KpiCard
-              icon={Calendar}
-              value={formatHours(avgMinutes)}
-              label="Avg per week"
-              delay={0.45}
-            />
+            {totalWeeks >= 3 && biggestFactor ? (
+              <KpiCard
+                icon={Zap}
+                value={`${biggestFactor.minutesSaved} min`}
+                label="Biggest source"
+                sublabel={biggestFactor.label.length > 50 ? biggestFactor.label.slice(0, 47) + "…" : biggestFactor.label}
+                accent
+                delay={0.45}
+              />
+            ) : (
+              <KpiCard
+                icon={Zap}
+                value={yearlyProjection}
+                label="Projected yearly savings"
+                sublabel="At this pace, per year"
+                accent
+                delay={0.45}
+              />
+            )}
           </motion.div>
 
-          {/* Why you saved time */}
+          {/* ── LAYER 2: WHERE THE TIME CAME FROM ── */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
+            className="mb-6"
           >
-            <div className="rounded-xl border border-border/50 bg-background/70 backdrop-blur-sm p-4 sm:p-5 mb-4">
-              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
+            <div className="rounded-xl border border-border/50 bg-background/70 backdrop-blur-sm p-4 sm:p-5">
+              <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                Why your family saved time
+                Where your time came from
               </h3>
-              <ul className="space-y-2.5">
+              <div className="space-y-3">
                 {result.factors.map((factor, i) => (
-                  <motion.li
+                  <motion.div
                     key={i}
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.55 + i * 0.06 }}
-                    className="flex items-start gap-2.5 text-sm"
+                    transition={{ delay: 0.55 + i * 0.05 }}
+                    className="flex items-center justify-between gap-3"
                   >
-                    <span className="shrink-0 mt-1 w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                      <span className="shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-primary/60" />
+                      <span className="text-sm text-foreground/85 leading-snug">{factor.label}</span>
+                    </div>
+                    <span className="shrink-0 text-sm font-medium text-primary tabular-nums">
+                      {factor.minutesSaved} min
                     </span>
-                    <span className="text-foreground/85 leading-relaxed">{factor.label}</span>
-                  </motion.li>
+                  </motion.div>
                 ))}
-              </ul>
+              </div>
             </div>
           </motion.div>
 
-          {/* Personalized insight */}
-          {insight && (
+          {/* ── LAYER 3: HUMAN REWARD ── */}
+          {humanRewards.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.58 }}
-              className="mb-4"
+              transition={{ delay: 0.62 }}
+              className="mb-6"
             >
-              <div className="flex items-start gap-3 rounded-xl border border-primary/10 bg-primary/[0.04] p-4 sm:p-5">
-                <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                  <Lightbulb className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground/90 leading-relaxed">
-                    {insight}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground/60 mt-1.5">
-                    Based on your family's ratings and preferences
-                  </p>
+              <div className="rounded-xl border border-primary/10 bg-primary/[0.03] p-4 sm:p-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-warm" />
+                  What that time turned into
+                </h3>
+                <div className="space-y-2.5">
+                  {humanRewards.map((reward, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.66 + i * 0.08 }}
+                      className="flex items-center gap-3"
+                    >
+                      <span className="text-lg shrink-0">{reward.emoji}</span>
+                      <span className="text-sm text-foreground/85 leading-snug">{reward.text}</span>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             </motion.div>
           )}
 
-          {/* Learning indicator */}
+          {/* ── LAYER 4: CUMULATIVE PROGRESS ── */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.65 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.72 }}
             className="mb-6"
           >
-            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40">
-                <div className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/60 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary/80" />
-                </div>
-                <span>Learning from your family's habits</span>
+            <div className="rounded-xl border border-border/50 bg-background/60 p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sage" />
+                  Cumulative progress
+                </h3>
+                <span className="text-xs text-muted-foreground">
+                  Next: {nextMilestoneHours}h
+                </span>
               </div>
+              <p className="text-2xl sm:text-3xl font-serif font-semibold text-foreground mb-1">
+                {formatHours(cumulativeMinutes)}{" "}
+                <span className="text-base font-normal text-muted-foreground">saved total</span>
+              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                {cumulativeMessage}
+              </p>
+              <Progress value={progressPct} className="h-2" />
+              <p className="text-[11px] text-muted-foreground/60 mt-1.5 text-right">
+                {progressPct}% to {nextMilestoneHours}-hour milestone
+              </p>
             </div>
-            <p className="text-center text-xs text-muted-foreground/70 mt-2">
-              Each week, the system adapts—next week's plan will fit even better.
-            </p>
           </motion.div>
 
-          {/* Expandable breakdown chart */}
+          {/* ── COMPARISON CHART (expandable) ── */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.78 }}
+            className="mb-4"
           >
             <button
               onClick={() => setShowBreakdown(v => !v)}
@@ -457,7 +398,7 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
                           <span className="w-2.5 h-2.5 rounded-sm bg-muted-foreground/25" /> Without app
                         </span>
                         <span className="flex items-center gap-1">
-                          <span className="w-2.5 h-2.5 rounded-sm bg-primary" /> With app
+                          <span className="w-2.5 h-2.5 rounded-sm bg-primary" /> With Family Food OS
                         </span>
                       </div>
                     </div>
@@ -504,12 +445,58 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
             </AnimatePresence>
           </motion.div>
 
-          {/* CTAs */}
+          {/* ── METHODOLOGY / TRANSPARENCY ── */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.82 }}
+            className="mb-6"
+          >
+            <Collapsible open={showMethodology} onOpenChange={setShowMethodology}>
+              <CollapsibleTrigger className="w-full flex items-center justify-center gap-1.5 text-xs text-muted-foreground/70 hover:text-muted-foreground transition-colors py-1">
+                <Info className="w-3 h-3" />
+                How we estimate this
+                {showMethodology ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="rounded-xl border border-border/30 bg-background/50 p-4 mt-2 text-xs text-muted-foreground leading-relaxed space-y-2">
+                  <p>Our estimates are based on research into weekly household meal planning time. Here's how each factor contributes:</p>
+                  <ul className="space-y-1.5 ml-1">
+                    <li className="flex items-start gap-2">
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/40 mt-1.5 shrink-0" />
+                      <span><strong>Planned dinners</strong> reduce decision time — families spend ~6 min/day deciding what to cook.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/40 mt-1.5 shrink-0" />
+                      <span><strong>Auto-generated grocery lists</strong> eliminate manual list building and reduce forgotten items.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/40 mt-1.5 shrink-0" />
+                      <span><strong>Ingredient overlap</strong> across meals simplifies shopping trips and reduces waste.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/40 mt-1.5 shrink-0" />
+                      <span><strong>Leftover and takeout planning</strong> reduces extra cooking and prevents last-minute scrambling.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/40 mt-1.5 shrink-0" />
+                      <span><strong>Dinner Check-Ins</strong> help the system learn your preferences, reducing replanning over time.</span>
+                    </li>
+                  </ul>
+                  <p className="pt-1 text-muted-foreground/60 italic">
+                    This is an estimate based on your weekly plan and activity, not a stopwatch measurement.
+                  </p>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </motion.div>
+
+          {/* ── CTAs ── */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.75 }}
-            className="flex flex-col items-center gap-4 mt-6"
+            transition={{ delay: 0.88 }}
+            className="flex flex-col items-center gap-4 mt-2"
           >
             <Button
               onClick={onGeneratePlan}
@@ -525,13 +512,10 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
               ) : (
                 <>
                   <ArrowRight className="w-4 h-4" />
-                  Plan next week
+                  Generate this week's plan
                 </>
               )}
             </Button>
-            <p className="text-xs text-muted-foreground/70 text-center max-w-xs">
-              Your preferences, your pace, your family's tastes—ready to go.
-            </p>
             <Button
               variant="ghost"
               onClick={onViewDetails}
@@ -546,19 +530,38 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
   );
 };
 
-function KpiCard({ icon: Icon, value, label, delay }: { icon: typeof Clock; value: string; label: string; delay: number }) {
+function KpiCard({
+  icon: Icon,
+  value,
+  label,
+  sublabel,
+  accent,
+  delay,
+}: {
+  icon: typeof Clock;
+  value: string;
+  label: string;
+  sublabel: string;
+  accent: boolean;
+  delay: number;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay }}
     >
-      <div className="rounded-xl border border-border/40 bg-background/70 backdrop-blur-sm p-3 sm:p-4 text-center">
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+      <div className={`rounded-xl border bg-background/70 backdrop-blur-sm p-3 sm:p-4 text-center ${
+        accent ? "border-primary/20 bg-primary/[0.03]" : "border-border/40"
+      }`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2 ${
+          accent ? "bg-primary/15" : "bg-primary/10"
+        }`}>
           <Icon className="w-4 h-4 text-primary" />
         </div>
         <p className="text-lg sm:text-xl font-serif font-bold text-foreground leading-tight">{value}</p>
         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">{label}</p>
+        <p className="text-[9px] sm:text-[10px] text-muted-foreground/60 mt-0.5 leading-tight line-clamp-2">{sublabel}</p>
       </div>
     </motion.div>
   );
