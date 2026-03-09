@@ -147,23 +147,20 @@ const CheckInStreak = ({ householdId, checkedInCount }: CheckInStreakProps) => {
 
   return (
     <div className="relative">
-      <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border"
+      >
         <motion.div
-          key={streak}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 border border-border"
+          animate={streak >= 3 ? { scale: [1, 1.2, 1] } : {}}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
         >
-          <motion.div
-            animate={streak >= 3 ? { scale: [1, 1.2, 1] } : {}}
-            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-          >
-            <Flame className={`w-4 h-4 ${flameColor}`} />
-          </motion.div>
-          <span className="text-sm font-semibold text-foreground">{streak}</span>
-          <span className="text-xs text-muted-foreground hidden sm:inline">{message}</span>
+          <Flame className={`w-4 h-4 ${flameColor}`} />
         </motion.div>
-      </AnimatePresence>
+        <span className="text-sm font-semibold text-foreground">{streak}</span>
+        <span className="text-xs text-muted-foreground hidden sm:inline">{message}</span>
+      </motion.div>
 
       {/* Milestone celebration overlay */}
       <AnimatePresence>
