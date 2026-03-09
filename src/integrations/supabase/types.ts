@@ -347,22 +347,28 @@ export type Database = {
       saved_meals: {
         Row: {
           created_at: string
+          frequency: string
           household_id: string
           id: string
+          include_in_plan: boolean
           meal_description: string | null
           meal_name: string
         }
         Insert: {
           created_at?: string
+          frequency?: string
           household_id: string
           id?: string
+          include_in_plan?: boolean
           meal_description?: string | null
           meal_name: string
         }
         Update: {
           created_at?: string
+          frequency?: string
           household_id?: string
           id?: string
+          include_in_plan?: boolean
           meal_description?: string | null
           meal_name?: string
         }
