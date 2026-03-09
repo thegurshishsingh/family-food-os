@@ -35,9 +35,9 @@ interface DayCardProps {
 }
 
 const DayCard = ({
-  day, index, feedback, isSwapping, isDragged, isDragOver,
+  day, index, feedback, isSwapping, isDragged, isDragOver, isToday, householdId, checkedIn,
   onSwapMeal, onToggleLock, onCycleMealMode, onSubmitFeedback, onSaveEdit,
-  onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd,
+  onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, onCheckedIn,
 }: DayCardProps) => {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
