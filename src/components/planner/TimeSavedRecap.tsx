@@ -117,6 +117,50 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
     buildInsight(householdId);
   };
 
+  const buildInsight = async (hhId: string) => {
+    // Gather cuisine preferences from current plan
+    const cuisines = days.map(d => d.cuisine_type).filter(Boolean) as string[];
+    const cuisineCounts: Record<string, number> = {};
+    cuisines.forEach(c => { cuisineCounts[c] = (cuisineCounts[c] || 0) + 1; });
+
+    // Gather feedback history
+    const { data: feedback } = await supabase
+      .from("meal_feedback")
+      .select("meal_name, feedback")
+      .eq("household_id", hhId)
+      .order("created_at", { ascending: false })
+      .limit(30);
+
+    const lovedMeals = feedback?.filter(f => f.feedback === "loved" || f.feedback === "reorder_worthy") || [];
+    const refusedCount = feedback?.filter(f => f.feedback === "kids_refused").length || 0;
+    const tooHardCount = feedback?.filter(f => f.feedback === "too_hard").length || 0;
+
+    // Determine top cuisine
+    const topCuisine = Object.entries(cuisineCounts).sort((a, b) => b[1] - a[1])[0];
+
+    // Build insight based on available signals (priority order)
+    if (topCuisine && topCuisine[1] >= 2) {
+      setInsight(`Your family gravitates toward ${topCuisine[0]} flavors—we'll weave in more next week.`);
+    } else if (lovedMeals.length >= 3) {
+      setInsight(`${lovedMeals.length} meals marked as favorites so far. We're building a library around what your family loves.`);
+    } else if (lovedMeals.length >= 1) {
+      const name = lovedMeals[0].meal_name;
+      setInsight(`"${name}" was a hit. Expect more meals in that direction next week.`);
+    } else if (refusedCount > 0 && tooHardCount > 0) {
+      setInsight(`We noticed some meals didn't land—next week's plan adjusts for simpler, kid-friendlier options.`);
+    } else if (refusedCount > 0) {
+      setInsight(`We're learning what the kids enjoy. Next week's plan leans into family-friendly winners.`);
+    } else if (tooHardCount > 0) {
+      setInsight(`Some meals felt like too much effort. Next week, we'll keep things simpler on busy nights.`);
+    } else if (topCuisine) {
+      setInsight(`${topCuisine[0]} showed up in your plan this week—if you loved it, we'll feature it more.`);
+    } else if (days.filter(d => d.meal_mode === "leftovers").length >= 2) {
+      setInsight(`Smart use of leftovers this week—we'll keep building plans that reduce waste.`);
+    } else {
+      setInsight(`Each week teaches us more about your family's rhythm. Keep rating meals to sharpen recommendations.`);
+    }
+  };
+
   const dismissMilestone = () => {
     setShowMilestone(false);
     setMilestoneAcknowledged(true);
