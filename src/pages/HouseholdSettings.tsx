@@ -87,10 +87,10 @@ const HouseholdSettings = () => {
     const { data, error } = await supabase
       .from("saved_meals")
       .insert({ household_id: household.id, meal_name: trimmed, meal_description: newMealDesc.trim().slice(0, 500) || null })
-      .select("id, meal_name, meal_description")
+      .select("id, meal_name, meal_description, include_in_plan, frequency")
       .single();
     if (!error && data) {
-      setSavedMeals((prev) => [...prev, data]);
+      setSavedMeals((prev) => [...prev, data as any]);
       setNewMealName("");
       setNewMealDesc("");
       toast({ title: "Meal added!" });
