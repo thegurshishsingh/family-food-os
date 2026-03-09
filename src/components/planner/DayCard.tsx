@@ -20,6 +20,7 @@ interface DayCardProps {
   isDragOver: boolean;
   isToday: boolean;
   householdId?: string;
+  householdSize?: number;
   checkedIn?: boolean;
   onSwapMeal: (day: PlanDay) => void;
   onToggleLock: (day: PlanDay) => void;
@@ -35,7 +36,7 @@ interface DayCardProps {
 }
 
 const DayCard = ({
-  day, index, feedback, isSwapping, isDragged, isDragOver, isToday, householdId, checkedIn,
+  day, index, feedback, isSwapping, isDragged, isDragOver, isToday, householdId, householdSize, checkedIn,
   onSwapMeal, onToggleLock, onCycleMealMode, onSubmitFeedback, onSaveEdit,
   onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, onCheckedIn,
 }: DayCardProps) => {
@@ -223,7 +224,7 @@ const DayCard = ({
           </div>
         </div>
       </Card>
-      <MealDetailDialog day={day} open={detailOpen} onOpenChange={setDetailOpen} />
+      <MealDetailDialog day={day} open={detailOpen} onOpenChange={setDetailOpen} defaultServings={householdSize || 4} />
     </motion.div>
   );
 };

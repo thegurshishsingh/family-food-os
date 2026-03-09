@@ -339,6 +339,7 @@ const Planner = () => {
                 isDragOver={dragOverDayId === day.id}
                 isToday={day.day_of_week === todayDow}
                 householdId={household?.id}
+                householdSize={household ? household.num_adults + household.num_children : undefined}
                 checkedIn={checkedInDays.has(day.id)}
                 onSwapMeal={swapMeal}
                 onToggleLock={toggleLock}
