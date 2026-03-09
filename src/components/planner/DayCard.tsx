@@ -9,6 +9,7 @@ import { Lock, Unlock, Shuffle, Pencil, Check, X, GripVertical, Heart } from "lu
 import { motion } from "framer-motion";
 import { DAYS, MODE_CONFIG, FEEDBACK_OPTIONS, type PlanDay, type FeedbackType } from "./types";
 import MealDetailDialog from "./MealDetailDialog";
+import InlineCheckIn from "./InlineCheckIn";
 
 interface DayCardProps {
   day: PlanDay;
