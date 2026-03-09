@@ -150,7 +150,7 @@ const Onboarding = () => {
           household_id: household.id,
           cuisines_liked: cuisinesLiked,
           cuisines_disliked: cuisinesDisliked,
-          dietary_preferences: dietary,
+          dietary_preferences: [...dietary, ...foodsToAvoid.map(f => `no-${f.toLowerCase()}`)],
           allergies,
           weekly_grocery_budget: budget ? parseFloat(budget) : null,
           cooking_time_tolerance: cookingTolerance,
