@@ -260,31 +260,34 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.65 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6"
+            transition={{ delay: 0.75 }}
+            className="flex flex-col items-center gap-4 mt-6"
           >
             <Button
               onClick={onGeneratePlan}
               disabled={generating}
               size="lg"
-              className="gap-2 w-full sm:w-auto text-base px-8"
+              className="gap-2 w-full sm:w-auto text-base px-10 py-6 shadow-lg shadow-primary/20"
             >
               {generating ? (
                 <>
                   <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                  Generating...
+                  Creating your plan...
                 </>
               ) : (
                 <>
                   <ArrowRight className="w-4 h-4" />
-                  Generate this week's plan
+                  Plan next week
                 </>
               )}
             </Button>
+            <p className="text-xs text-muted-foreground/70 text-center max-w-xs">
+              Your preferences, your pace, your family's tastes—ready to go.
+            </p>
             <Button
               variant="ghost"
               onClick={onViewDetails}
-              className="text-muted-foreground hover:text-foreground text-sm"
+              className="text-muted-foreground hover:text-foreground text-xs"
             >
               View last week's details
             </Button>
