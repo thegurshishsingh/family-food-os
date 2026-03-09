@@ -108,6 +108,13 @@ const HouseholdSettings = () => {
     }
   };
 
+  const updateMealPref = async (id: string, field: "include_in_plan" | "frequency", value: boolean | string) => {
+    const { error } = await supabase.from("saved_meals").update({ [field]: value }).eq("id", id);
+    if (!error) {
+      setSavedMeals((prev) => prev.map((m) => m.id === id ? { ...m, [field]: value } : m));
+    }
+  };
+
   const toggleInList = (list: string[], item: string, setter: (v: string[]) => void) => {
     setter(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
   };
