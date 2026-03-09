@@ -126,12 +126,18 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   };
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="mb-10"
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className="mb-12"
     >
-      <div className="rounded-2xl border border-border/40 bg-card px-6 py-10 sm:px-10 sm:py-14 relative overflow-hidden">
+      <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-card via-card to-background/40 px-6 py-12 sm:px-12 sm:py-16">
+
+        {/* Subtle decorative glow */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[320px] h-[320px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.06) 0%, transparent 70%)" }}
+        />
 
         {/* ── MILESTONE OVERLAY ── */}
         <AnimatePresence>
@@ -143,7 +149,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
               transition={{ duration: 0.4 }}
               className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl overflow-hidden"
             >
-              <div className="absolute inset-0 bg-card/90 backdrop-blur-sm" />
+              <div className="absolute inset-0 bg-card/92 backdrop-blur-md" />
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 {Array.from({ length: 18 }).map((_, i) => (
                   <ConfettiParticle key={i} delay={i * 0.07} x={8 + (i * 5)} color={CONFETTI_COLORS[i % CONFETTI_COLORS.length]} />
@@ -188,25 +194,23 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="text-center mb-8"
+          className="text-center mb-6"
         >
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/8 text-primary text-xs font-medium tracking-wide">
-            <Sparkles className="w-3 h-3" />
+          <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground/60 font-medium">
             Last Week Recap
-          </div>
+          </span>
         </motion.div>
 
-        {/* ── 2. MAIN HEADLINE ── */}
+        {/* ── 2. HERO NUMBER ── */}
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-center mb-4"
+          transition={{ delay: 0.18, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center mb-3"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-[2.75rem] font-serif font-semibold text-foreground leading-tight tracking-tight">
-            You got{" "}
+          <h2 className="text-4xl sm:text-5xl md:text-[3.5rem] font-serif font-semibold text-foreground leading-none tracking-tight">
             <span className="text-primary">{formatHours(result.totalMinutesSaved)}</span>
-            {" "}back last week.
+            {" "}back.
           </h2>
         </motion.div>
 
@@ -214,89 +218,84 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.32 }}
           className="text-center mb-10"
         >
-          <p className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto leading-relaxed">
-            From smarter planning, grocery automation, and fewer last-minute dinner scrambles.
+          <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
+            From smarter planning, fewer scrambles, and a week that mostly ran itself.
           </p>
         </motion.div>
 
-        {/* ── 4. KPI ROW (2 cards only) ── */}
+        {/* ── 4. KPI ROW ── */}
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="grid grid-cols-2 gap-3 sm:gap-4 max-w-sm mx-auto mb-12"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.42 }}
+          className="flex justify-center gap-8 sm:gap-12 mb-12"
         >
-          <div className="rounded-xl border border-border/40 bg-background/60 p-4 sm:p-5 text-center">
+          <div className="text-center">
             <p className="text-2xl sm:text-3xl font-serif font-bold text-foreground leading-none">
               {formatHours(result.totalMinutesSaved)}
             </p>
-            <p className="text-xs text-muted-foreground mt-1.5">Saved last week</p>
+            <p className="text-[11px] text-muted-foreground/60 mt-1 tracking-wide">this week</p>
           </div>
-          <div className="rounded-xl border border-border/40 bg-background/60 p-4 sm:p-5 text-center">
+          <div className="w-px bg-border/40 self-stretch" />
+          <div className="text-center">
             <p className="text-2xl sm:text-3xl font-serif font-bold text-foreground leading-none">
               {formatHours(cumulativeMinutes)}
             </p>
-            <p className="text-xs text-muted-foreground mt-1.5">Total time back</p>
+            <p className="text-[11px] text-muted-foreground/60 mt-1 tracking-wide">all time</p>
           </div>
         </motion.div>
 
         {/* ── 5. EMOTIONAL PAYOFF ── */}
         {primaryReward && (
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.52 }}
-            className="text-center mb-10"
+            className="text-center mb-4"
           >
-            <p className="text-[11px] uppercase tracking-widest text-muted-foreground/70 font-medium mb-3">
-              What you got back
-            </p>
-            <p className="text-lg sm:text-xl font-serif font-medium text-foreground leading-snug">
+            <p className="text-lg sm:text-xl font-serif text-foreground leading-snug">
               {primaryReward.emoji} {primaryReward.text}
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              And one less week of dinner scrambling.
             </p>
           </motion.div>
         )}
 
-        {/* ── 6. SYSTEM LEARNING LINE ── */}
+        {/* ── 6. SYSTEM LEARNING ── */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="text-center mb-10"
+          transition={{ delay: 0.58 }}
+          className="text-center mb-12"
         >
-          <p className="text-xs text-muted-foreground/60 italic">
-            We'll use last week's patterns to make this week easier.
+          <p className="text-xs text-muted-foreground/50">
+            We'll use last week's patterns to make this week even easier.
           </p>
         </motion.div>
 
-        {/* ── 7. PRIMARY CTA ── */}
+        {/* ── 7. CTA ── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.68 }}
-          className="flex justify-center mb-6"
+          transition={{ delay: 0.66, duration: 0.5 }}
+          className="flex justify-center mb-8"
         >
           <Button
             onClick={onGeneratePlan}
             disabled={generating}
             size="lg"
-            className="gap-2 w-full sm:w-auto text-base px-10 py-6 shadow-lg shadow-primary/20 rounded-xl"
+            className="gap-2.5 w-full sm:w-auto text-base font-medium px-12 py-6 shadow-lg shadow-primary/15 rounded-xl"
           >
             {generating ? (
               <>
                 <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                Creating your plan...
+                Creating your plan…
               </>
             ) : (
               <>
-                <ArrowRight className="w-4 h-4" />
                 Generate this week's plan
+                <ArrowRight className="w-4 h-4" />
               </>
             )}
           </Button>
@@ -306,16 +305,15 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.75 }}
-          className="flex flex-col items-center gap-1"
+          transition={{ delay: 0.76 }}
+          className="flex flex-col items-center gap-0"
         >
           <Collapsible open={showEstimation} onOpenChange={setShowEstimation}>
-            <CollapsibleTrigger className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors flex items-center gap-1 py-1">
-              See how we estimated this
-              <ChevronDown className={`w-3 h-3 transition-transform ${showEstimation ? "rotate-180" : ""}`} />
+            <CollapsibleTrigger className="text-[11px] text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors flex items-center gap-1 py-1.5">
+              How we estimated this
+              <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${showEstimation ? "rotate-180" : ""}`} />
             </CollapsibleTrigger>
 
-            {/* ── 9. COLLAPSIBLE TRANSPARENCY ── */}
             <AnimatePresence>
               {showEstimation && (
                 <CollapsibleContent forceMount>
@@ -323,26 +321,15 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.25 }}
                     className="overflow-hidden"
                   >
-                    <div className="rounded-xl border border-border/30 bg-background/50 p-5 mt-3 text-xs text-muted-foreground leading-relaxed space-y-2 max-w-lg mx-auto">
-                      <ul className="space-y-2">
-                        <li className="flex items-start gap-2">
-                          <span className="w-1 h-1 rounded-full bg-muted-foreground/40 mt-1.5 shrink-0" />
-                          <span>Planned dinners reduced decision time — families spend ~6 min/day deciding what to cook.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="w-1 h-1 rounded-full bg-muted-foreground/40 mt-1.5 shrink-0" />
-                          <span>Grocery automation reduced list-building time and forgotten items.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="w-1 h-1 rounded-full bg-muted-foreground/40 mt-1.5 shrink-0" />
-                          <span>Leftovers and planned takeout reduced extra cooking and last-minute scrambling.</span>
-                        </li>
-                      </ul>
-                      <p className="pt-2 text-muted-foreground/50 italic">
-                        This is an estimate based on your weekly plan and activity, not a stopwatch measurement.
+                    <div className="rounded-lg bg-muted/30 p-4 mt-2 text-[11px] text-muted-foreground/70 leading-relaxed space-y-1.5 max-w-sm mx-auto">
+                      <p>Planned dinners reduced daily decision time.</p>
+                      <p>Grocery automation cut list-building effort.</p>
+                      <p>Leftovers & planned takeout prevented scrambling.</p>
+                      <p className="pt-1.5 text-muted-foreground/40 italic">
+                        Estimated from your plan and activity, not a stopwatch.
                       </p>
                     </div>
                   </motion.div>
@@ -353,7 +340,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
 
           <button
             onClick={onViewDetails}
-            className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors py-1"
+            className="text-[11px] text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors py-1.5"
           >
             View last week's details
           </button>
