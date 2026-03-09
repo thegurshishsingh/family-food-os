@@ -567,7 +567,14 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
                 <Share2 className="w-3.5 h-3.5" />
                 Share recap
               </Button>
-            </div>
+              <ShareableRecapCard
+                result={result}
+                cumulativeMinutes={cumulativeMinutes}
+                totalWeeks={totalWeeks}
+                plannedNights={plannedNights}
+                humanRewards={humanRewards}
+                householdName={householdName}
+              />
           </motion.div>
         </CardContent>
       </Card>
