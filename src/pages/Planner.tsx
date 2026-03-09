@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ChefHat, RefreshCw, ArrowRight } from "lucide-react";
+import CheckInStreak from "@/components/planner/CheckInStreak";
 import CheckInNudge from "@/components/planner/CheckInNudge";
 import RealityScore from "@/components/planner/RealityScore";
 import TimeSavedRecap from "@/components/planner/TimeSavedRecap";
@@ -266,6 +267,11 @@ const Planner = () => {
             <p className="text-muted-foreground text-sm mt-1">
               {plan ? `Week of ${new Date(plan.week_start + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : "No plan yet"}
             </p>
+            {household && (
+              <div className="mt-2">
+                <CheckInStreak householdId={household.id} checkedInCount={checkedInDays.size} />
+              </div>
+            )}
           </div>
           <Button onClick={generatePlan} disabled={generating} className="gap-2">
             {generating ? (
