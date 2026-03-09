@@ -260,7 +260,7 @@ const HouseholdSettings = () => {
                 </div>
               <div>
                 <Label className="text-sm font-medium">Foods to avoid</Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Select any foods your family doesn't eat</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Select presets or add your own</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {FOODS_TO_AVOID.map((f) => (
                     <button key={f} onClick={() => toggleInList(foodsToAvoid, f, setFoodsToAvoid)}
@@ -268,6 +268,27 @@ const HouseholdSettings = () => {
                       🚫 {f}
                     </button>
                   ))}
+                  {foodsToAvoid.filter(f => !FOODS_TO_AVOID.includes(f)).map((f) => (
+                    <button key={f} onClick={() => setFoodsToAvoid(foodsToAvoid.filter(x => x !== f))}
+                      className="px-3 py-1.5 rounded-full text-xs border bg-destructive text-destructive-foreground border-destructive flex items-center gap-1">
+                      🚫 {f} <X className="w-3 h-3" />
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-2 mt-3 max-w-xs">
+                  <Input
+                    placeholder="Add custom food..."
+                    maxLength={50}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        const val = (e.target as HTMLInputElement).value.trim();
+                        if (val && !foodsToAvoid.includes(val)) {
+                          setFoodsToAvoid([...foodsToAvoid, val]);
+                          (e.target as HTMLInputElement).value = "";
+                        }
+                      }
+                    }}
+                  />
                 </div>
               </div>
               <div>

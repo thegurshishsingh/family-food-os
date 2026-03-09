@@ -355,7 +355,7 @@ const Onboarding = () => {
                   </div>
                   <div>
                     <Label className="text-base font-medium">Foods to avoid</Label>
-                    <p className="text-sm text-muted-foreground mt-1">Select any foods your family doesn't eat</p>
+                    <p className="text-sm text-muted-foreground mt-1">Select presets or add your own</p>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {FOODS_TO_AVOID.map((f) => (
                         <button
@@ -368,6 +368,30 @@ const Onboarding = () => {
                           🚫 {f}
                         </button>
                       ))}
+                      {foodsToAvoid.filter(f => !FOODS_TO_AVOID.includes(f)).map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => setFoodsToAvoid(foodsToAvoid.filter(x => x !== f))}
+                          className="px-4 py-2 rounded-full text-sm border bg-destructive text-destructive-foreground border-destructive flex items-center gap-1.5"
+                        >
+                          🚫 {f} <X className="w-3.5 h-3.5" />
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 mt-3 max-w-sm">
+                      <Input
+                        placeholder="Add custom food..."
+                        maxLength={50}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            const val = (e.target as HTMLInputElement).value.trim();
+                            if (val && !foodsToAvoid.includes(val)) {
+                              setFoodsToAvoid([...foodsToAvoid, val]);
+                              (e.target as HTMLInputElement).value = "";
+                            }
+                          }
+                        }}
+                      />
                     </div>
                   </div>
                   <div>
