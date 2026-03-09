@@ -387,8 +387,9 @@ function buildPrompt(
   }
 
   parts.push(`Include at least 1 leftover night reusing a previous cooked meal.`);
-  parts.push(`Include realistic nutrition estimates per meal (calories, protein_g, carbs_g, fat_g).`);
-  parts.push(`For each meal, include a full ingredient list with quantities and units, and clear step-by-step cooking instructions that are easy to follow.`);
+  parts.push(`Include realistic nutrition estimates per meal (calories, protein_g, carbs_g, fat_g). Nutrition should be PER SINGLE SERVING.`);
+  parts.push(`IMPORTANT — Ingredient quantities must be for ONE SINGLE SERVING (the app will scale them by number of servings). Use sensible household units (e.g. "1" chicken breast, "0.5" lb ground turkey, "1" cup rice, "2" tbsp olive oil, "1" clove garlic). Keep units in the "unit" field, numeric amounts in "quantity".`);
+  parts.push(`For each meal, provide detailed step-by-step cooking instructions with 6-10 steps. Include prep details (how to cut, season, marinate), cooking temperatures and times, and plating/serving suggestions. Be specific enough that a beginner cook could follow along.`);
   parts.push(`Generate a matching grocery list organized by category.`);
   parts.push(`Assess reality_score (0-100) based on how realistic the plan is given the family's context. Factor in:
 - Number of cook nights vs convenience nights (more cook nights = lower score for busy families)
