@@ -43,7 +43,7 @@ const HouseholdSettings = () => {
   const [foodsToAvoid, setFoodsToAvoid] = useState<string[]>([]);
 
   // Saved meals
-  const [savedMeals, setSavedMeals] = useState<{ id: string; meal_name: string; meal_description: string | null }[]>([]);
+  const [savedMeals, setSavedMeals] = useState<{ id: string; meal_name: string; meal_description: string | null; include_in_plan: boolean; frequency: string }[]>([]);
   const [newMealName, setNewMealName] = useState("");
   const [newMealDesc, setNewMealDesc] = useState("");
 
