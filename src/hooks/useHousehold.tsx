@@ -18,6 +18,7 @@ export type HouseholdPreferences = {
   cuisines_disliked: string[];
   dietary_preferences: string[];
   allergies: string[];
+  foods_to_avoid: string[];
   weekly_grocery_budget: number | null;
   cooking_time_tolerance: string;
   preferred_takeout_frequency: number;

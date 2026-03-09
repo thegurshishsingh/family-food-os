@@ -255,6 +255,18 @@ const HouseholdSettings = () => {
                       className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${allergies.includes(a) ? "bg-destructive text-destructive-foreground border-destructive" : "bg-background text-foreground border-border hover:bg-muted"}`}>
                       {a}
                     </button>
+                    ))}
+                  </div>
+                </div>
+              <div>
+                <Label className="text-sm font-medium">Foods to avoid</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Select any foods your family doesn't eat</p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {FOODS_TO_AVOID.map((f) => (
+                    <button key={f} onClick={() => toggleInList(foodsToAvoid, f, setFoodsToAvoid)}
+                      className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${foodsToAvoid.includes(f) ? "bg-destructive text-destructive-foreground border-destructive" : "bg-background text-foreground border-border hover:bg-muted"}`}>
+                      🚫 {f}
+                    </button>
                   ))}
                 </div>
               </div>
