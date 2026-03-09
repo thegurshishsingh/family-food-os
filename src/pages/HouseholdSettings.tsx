@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Plus, X } from "lucide-react";
+import { Save, Plus, X, CalendarDays } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const CUISINES = ["Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Mediterranean", "American", "Korean", "French", "Middle Eastern", "Vietnamese"];
 const DIETARY = ["Vegetarian", "Vegan", "Gluten-free", "Dairy-free", "Keto", "Paleo", "Halal", "Kosher", "Low-sodium", "Nut-free"];
@@ -41,7 +43,7 @@ const HouseholdSettings = () => {
   const [foodsToAvoid, setFoodsToAvoid] = useState<string[]>([]);
 
   // Saved meals
-  const [savedMeals, setSavedMeals] = useState<{ id: string; meal_name: string; meal_description: string | null }[]>([]);
+  const [savedMeals, setSavedMeals] = useState<{ id: string; meal_name: string; meal_description: string | null; include_in_plan: boolean; frequency: string }[]>([]);
   const [newMealName, setNewMealName] = useState("");
   const [newMealDesc, setNewMealDesc] = useState("");
 
@@ -72,10 +74,10 @@ const HouseholdSettings = () => {
     if (!household) return;
     const { data } = await supabase
       .from("saved_meals")
-      .select("id, meal_name, meal_description")
+      .select("id, meal_name, meal_description, include_in_plan, frequency")
       .eq("household_id", household.id)
       .order("created_at");
-    if (data) setSavedMeals(data);
+    if (data) setSavedMeals(data as any);
   };
 
   const addMeal = async () => {
@@ -85,10 +87,10 @@ const HouseholdSettings = () => {
     const { data, error } = await supabase
       .from("saved_meals")
       .insert({ household_id: household.id, meal_name: trimmed, meal_description: newMealDesc.trim().slice(0, 500) || null })
-      .select("id, meal_name, meal_description")
+      .select("id, meal_name, meal_description, include_in_plan, frequency")
       .single();
     if (!error && data) {
-      setSavedMeals((prev) => [...prev, data]);
+      setSavedMeals((prev) => [...prev, data as any]);
       setNewMealName("");
       setNewMealDesc("");
       toast({ title: "Meal added!" });
@@ -103,6 +105,13 @@ const HouseholdSettings = () => {
       setSavedMeals((prev) => prev.filter((m) => m.id !== id));
     } else {
       toast({ variant: "destructive", title: "Failed to remove meal", description: error.message });
+    }
+  };
+
+  const updateMealPref = async (id: string, field: "include_in_plan" | "frequency", value: boolean | string) => {
+    const { error } = await supabase.from("saved_meals").update({ [field]: value }).eq("id", id);
+    if (!error) {
+      setSavedMeals((prev) => prev.map((m) => m.id === id ? { ...m, [field]: value } : m));
     }
   };
 
@@ -384,16 +393,43 @@ const HouseholdSettings = () => {
                 </Button>
               </div>
               {savedMeals.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {savedMeals.map((m) => (
-                    <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm text-foreground truncate">{m.meal_name}</p>
-                        {m.meal_description && <p className="text-xs text-muted-foreground truncate">{m.meal_description}</p>}
+                    <div key={m.id} className="p-3 rounded-xl border border-border bg-background space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm text-foreground truncate">{m.meal_name}</p>
+                          {m.meal_description && <p className="text-xs text-muted-foreground truncate">{m.meal_description}</p>}
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeMeal(m.id)}>
+                          <X className="w-3.5 h-3.5 text-muted-foreground" />
+                        </Button>
                       </div>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeMeal(m.id)}>
-                        <X className="w-3.5 h-3.5 text-muted-foreground" />
-                      </Button>
+                      <div className="flex items-center gap-4 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={m.include_in_plan}
+                            onCheckedChange={(checked) => updateMealPref(m.id, "include_in_plan", checked)}
+                          />
+                          <span className="text-xs text-muted-foreground">Include in plans</span>
+                        </div>
+                        {m.include_in_plan && (
+                          <div className="flex items-center gap-2">
+                            <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+                            <Select value={m.frequency} onValueChange={(val) => updateMealPref(m.id, "frequency", val)}>
+                              <SelectTrigger className="h-8 w-[160px] text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="every_week">Every week</SelectItem>
+                                <SelectItem value="every_other_week">Every other week</SelectItem>
+                                <SelectItem value="once_a_month">Once a month</SelectItem>
+                                <SelectItem value="occasionally">Occasionally</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
