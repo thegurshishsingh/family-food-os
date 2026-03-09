@@ -69,7 +69,7 @@ serve(async (req) => {
     // Get saved meals
     const { data: savedMeals } = await supabaseClient
       .from("saved_meals")
-      .select("meal_name, meal_description")
+      .select("meal_name, meal_description, include_in_plan, frequency")
       .eq("household_id", household_id)
       .limit(50);
 
