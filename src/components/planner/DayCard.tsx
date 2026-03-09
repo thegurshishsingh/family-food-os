@@ -215,6 +215,11 @@ const DayCard = ({
                 )}
               </div>
             )}
+
+            {/* Inline check-in for today */}
+            {isToday && day.meal_name && !checkedIn && householdId && onCheckedIn && (
+              <InlineCheckIn day={day} householdId={householdId} onCheckedIn={onCheckedIn} />
+            )}
           </div>
         </div>
       </Card>
