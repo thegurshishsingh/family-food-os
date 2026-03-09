@@ -124,8 +124,64 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
     setShowMilestone(false);
     setMilestoneAcknowledged(true);
   };
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="mb-10"
     >
-      <div className="rounded-2xl border border-border/40 bg-card px-6 py-10 sm:px-10 sm:py-14">
+      <div className="rounded-2xl border border-border/40 bg-card px-6 py-10 sm:px-10 sm:py-14 relative overflow-hidden">
+
+        {/* ── MILESTONE OVERLAY ── */}
+        <AnimatePresence>
+          {showMilestone && milestone && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-card/90 backdrop-blur-sm" />
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {Array.from({ length: 18 }).map((_, i) => (
+                  <ConfettiParticle key={i} delay={i * 0.07} x={8 + (i * 5)} color={CONFETTI_COLORS[i % CONFETTI_COLORS.length]} />
+                ))}
+              </div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92, y: 16 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: 0.5 }}
+                className="relative z-20 text-center px-6 py-10 max-w-xs"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: [0, 1.15, 1] }}
+                  transition={{ delay: 0.35, duration: 0.5 }}
+                  className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5"
+                >
+                  <Award className="w-7 h-7 text-primary" />
+                </motion.div>
+                <p className="text-[11px] uppercase tracking-widest text-primary/70 font-medium mb-2">
+                  Milestone Reached
+                </p>
+                <h3 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground mb-2">
+                  {milestone.label} saved
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+                  {milestone.message}
+                </p>
+                <Button variant="outline" size="sm" onClick={dismissMilestone} className="gap-1.5 text-xs">
+                  Continue <ArrowRight className="w-3 h-3" />
+                </Button>
+              </motion.div>
+              <button onClick={dismissMilestone} className="absolute top-4 right-4 z-30 p-1.5 rounded-full bg-background/60 hover:bg-background/80 transition-colors">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ── 1. TOP LABEL ── */}
         <motion.div
