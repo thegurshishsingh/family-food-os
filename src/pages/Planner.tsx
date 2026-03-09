@@ -288,21 +288,8 @@ const Planner = () => {
             <CheckInStreak householdId={household.id} checkedInCount={checkedInDays.size} />
           </div>
         )}
-          </div>
-          <Button onClick={generatePlan} disabled={generating} className="gap-2">
-            {generating ? (
-              <>
-                <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="w-4 h-4" />
-                {plan ? "Regenerate Plan" : "Generate Plan"}
-              </>
-            )}
-          </Button>
-        </div>
+
+
 
         {plan && household && <CheckInNudge householdId={household.id} planId={plan.id} />}
 
