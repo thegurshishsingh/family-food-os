@@ -62,7 +62,7 @@ const Planner = () => {
         .eq("plan_id", p.id)
         .order("day_of_week");
       if (planDays) {
-        setDays(planDays as PlanDay[]);
+        setDays(planDays as unknown as PlanDay[]);
         const dayIds = planDays.map((d: any) => d.id);
 
         // Load feedback and check-in status in parallel
@@ -138,7 +138,7 @@ const Planner = () => {
         setDays((prev) =>
           prev.map((d) =>
             d.id === day.id
-              ? { ...d, meal_name: data.meal.meal_name, meal_description: data.meal.meal_description, cuisine_type: data.meal.cuisine_type || null, prep_time_minutes: data.meal.prep_time_minutes || null, calories: data.meal.calories, protein_g: data.meal.protein_g, carbs_g: data.meal.carbs_g, fat_g: data.meal.fat_g, fiber_g: data.meal.fiber_g || null }
+              ? { ...d, meal_name: data.meal.meal_name, meal_description: data.meal.meal_description, cuisine_type: data.meal.cuisine_type || null, prep_time_minutes: data.meal.prep_time_minutes || null, calories: data.meal.calories, protein_g: data.meal.protein_g, carbs_g: data.meal.carbs_g, fat_g: data.meal.fat_g, fiber_g: data.meal.fiber_g || null, ingredients: data.meal.ingredients || null, instructions: data.meal.instructions || null }
               : d
           )
         );

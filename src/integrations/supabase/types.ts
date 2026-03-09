@@ -247,6 +247,8 @@ export type Database = {
           fat_g: number | null
           fiber_g: number | null
           id: string
+          ingredients: Json | null
+          instructions: string[] | null
           is_locked: boolean | null
           leftover_source_day: number | null
           meal_description: string | null
@@ -268,6 +270,8 @@ export type Database = {
           fat_g?: number | null
           fiber_g?: number | null
           id?: string
+          ingredients?: Json | null
+          instructions?: string[] | null
           is_locked?: boolean | null
           leftover_source_day?: number | null
           meal_description?: string | null
@@ -289,6 +293,8 @@ export type Database = {
           fat_g?: number | null
           fiber_g?: number | null
           id?: string
+          ingredients?: Json | null
+          instructions?: string[] | null
           is_locked?: boolean | null
           leftover_source_day?: number | null
           meal_description?: string | null

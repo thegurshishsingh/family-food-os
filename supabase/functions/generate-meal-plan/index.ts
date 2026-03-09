@@ -145,8 +145,26 @@ serve(async (req) => {
                         fiber_g: { type: "number" },
                         notes: { type: "string" },
                         takeout_budget: { type: "number" },
+                        ingredients: {
+                          type: "array",
+                          description: "List of ingredients with quantities",
+                          items: {
+                            type: "object",
+                            properties: {
+                              name: { type: "string" },
+                              quantity: { type: "string" },
+                              unit: { type: "string" },
+                            },
+                            required: ["name", "quantity"],
+                          },
+                        },
+                        instructions: {
+                          type: "array",
+                          description: "Step-by-step cooking instructions",
+                          items: { type: "string" },
+                        },
                       },
-                      required: ["day_of_week", "meal_mode", "meal_name", "meal_description", "calories", "protein_g", "carbs_g", "fat_g"],
+                      required: ["day_of_week", "meal_mode", "meal_name", "meal_description", "calories", "protein_g", "carbs_g", "fat_g", "ingredients", "instructions"],
                     },
                   },
                   grocery_items: {
@@ -232,6 +250,8 @@ serve(async (req) => {
       fiber_g: d.fiber_g || null,
       notes: d.notes || null,
       takeout_budget: d.takeout_budget || null,
+      ingredients: d.ingredients || null,
+      instructions: d.instructions || null,
     }));
     await supabaseClient.from("plan_days").insert(dayInserts);
 
@@ -368,6 +388,7 @@ function buildPrompt(
 
   parts.push(`Include at least 1 leftover night reusing a previous cooked meal.`);
   parts.push(`Include realistic nutrition estimates per meal (calories, protein_g, carbs_g, fat_g).`);
+  parts.push(`For each meal, include a full ingredient list with quantities and units, and clear step-by-step cooking instructions that are easy to follow.`);
   parts.push(`Generate a matching grocery list organized by category.`);
   parts.push(`Assess reality_score (0-100) based on how realistic the plan is given the family's context. Factor in:
 - Number of cook nights vs convenience nights (more cook nights = lower score for busy families)

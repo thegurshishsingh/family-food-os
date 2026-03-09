@@ -90,6 +90,7 @@ serve(async (req) => {
         `Meal mode: ${currentDay.meal_mode}.`,
         preferences?.cooking_time_tolerance ? `Cooking time tolerance: ${preferences.cooking_time_tolerance}. Match the replacement meal's prep time to this preference.` : "",
         `Include realistic nutrition estimates.`,
+        `Include a full ingredient list with quantities and units, and clear step-by-step cooking instructions.`,
       ].filter(Boolean).join("\n");
 
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -108,7 +109,7 @@ serve(async (req) => {
             type: "function",
             function: {
               name: "suggest_meal",
-              description: "Suggest a single replacement meal",
+              description: "Suggest a single replacement meal with recipe",
               parameters: {
                 type: "object",
                 properties: {
@@ -121,8 +122,26 @@ serve(async (req) => {
                   carbs_g: { type: "number" },
                   fat_g: { type: "number" },
                   fiber_g: { type: "number" },
+                  ingredients: {
+                    type: "array",
+                    description: "List of ingredients with quantities",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        quantity: { type: "string" },
+                        unit: { type: "string" },
+                      },
+                      required: ["name", "quantity"],
+                    },
+                  },
+                  instructions: {
+                    type: "array",
+                    description: "Step-by-step cooking instructions",
+                    items: { type: "string" },
+                  },
                 },
-                required: ["meal_name", "meal_description", "calories", "protein_g", "carbs_g", "fat_g"],
+                required: ["meal_name", "meal_description", "calories", "protein_g", "carbs_g", "fat_g", "ingredients", "instructions"],
               },
             },
           }],
@@ -168,6 +187,8 @@ serve(async (req) => {
         carbs_g: newMeal.carbs_g,
         fat_g: newMeal.fat_g,
         fiber_g: newMeal.fiber_g || null,
+        ingredients: newMeal.ingredients || null,
+        instructions: newMeal.instructions || null,
       })
       .eq("id", plan_day_id);
 

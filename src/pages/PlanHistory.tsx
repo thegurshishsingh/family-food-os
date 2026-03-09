@@ -44,7 +44,7 @@ const PlanHistory = () => {
 
       const history: HistoryWeek[] = plans.map((p: any) => ({
         ...p,
-        days: (allDays || []).filter((d: any) => d.plan_id === p.id) as PlanDay[],
+        days: (allDays || []).filter((d: any) => d.plan_id === p.id) as unknown as PlanDay[],
       }));
       setWeeks(history);
       if (history.length > 0) setExpandedWeek(history[0].id);

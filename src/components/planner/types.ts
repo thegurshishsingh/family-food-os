@@ -39,6 +39,8 @@ export type PlanDay = {
   is_locked: boolean;
   notes: string | null;
   takeout_budget: number | null;
+  ingredients: { name: string; quantity: string; unit?: string }[] | null;
+  instructions: string[] | null;
 };
 
 export type WeeklyPlan = {

@@ -139,7 +139,7 @@ const CheckIn = () => {
       .limit(1);
 
     if (dayData && dayData.length > 0) {
-      const day = dayData[0] as PlanDay;
+      const day = dayData[0] as unknown as PlanDay;
       setTodayMeal(day);
 
       const { data: existing } = await supabase
