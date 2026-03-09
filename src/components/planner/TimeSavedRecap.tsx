@@ -92,12 +92,12 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
               Last Week Recap
             </div>
             <h2 className="text-3xl sm:text-4xl font-serif font-semibold text-foreground leading-tight">
-              You saved{" "}
+              Your family got{" "}
               <span className="text-primary">{formatHours(result.totalMinutesSaved)}</span>
-              {" "}last week.
+              {" "}back last week.
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base mt-3 max-w-lg mx-auto leading-relaxed">
-              Family Food OS reduced planning, shopping, and coordination time based on the meals your family actually made.
+              That's time you didn't spend deciding, shopping, or scrambling—based on the meals your family actually made together.
             </p>
           </motion.div>
 
@@ -134,10 +134,10 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            <div className="rounded-xl border border-border/50 bg-background/70 backdrop-blur-sm p-4 sm:p-5 mb-6">
+            <div className="rounded-xl border border-border/50 bg-background/70 backdrop-blur-sm p-4 sm:p-5 mb-4">
               <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                Why you saved time
+                Why your family saved time
               </h3>
               <ul className="space-y-2.5">
                 {result.factors.map((factor, i) => (
@@ -156,6 +156,27 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
                 ))}
               </ul>
             </div>
+          </motion.div>
+
+          {/* Learning indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.65 }}
+            className="mb-6"
+          >
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40">
+                <div className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/60 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary/80" />
+                </div>
+                <span>Learning from your family's habits</span>
+              </div>
+            </div>
+            <p className="text-center text-xs text-muted-foreground/70 mt-2">
+              Each week, the system adapts—next week's plan will fit even better.
+            </p>
           </motion.div>
 
           {/* Expandable breakdown chart */}
@@ -239,31 +260,34 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.65 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6"
+            transition={{ delay: 0.75 }}
+            className="flex flex-col items-center gap-4 mt-6"
           >
             <Button
               onClick={onGeneratePlan}
               disabled={generating}
               size="lg"
-              className="gap-2 w-full sm:w-auto text-base px-8"
+              className="gap-2 w-full sm:w-auto text-base px-10 py-6 shadow-lg shadow-primary/20"
             >
               {generating ? (
                 <>
                   <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                  Generating...
+                  Creating your plan...
                 </>
               ) : (
                 <>
                   <ArrowRight className="w-4 h-4" />
-                  Generate this week's plan
+                  Plan next week
                 </>
               )}
             </Button>
+            <p className="text-xs text-muted-foreground/70 text-center max-w-xs">
+              Your preferences, your pace, your family's tastes—ready to go.
+            </p>
             <Button
               variant="ghost"
               onClick={onViewDetails}
-              className="text-muted-foreground hover:text-foreground text-sm"
+              className="text-muted-foreground hover:text-foreground text-xs"
             >
               View last week's details
             </Button>
