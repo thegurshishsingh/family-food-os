@@ -267,11 +267,6 @@ const Planner = () => {
             <p className="text-muted-foreground text-sm mt-1">
               {plan ? `Week of ${new Date(plan.week_start + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : "No plan yet"}
             </p>
-            {household && (
-              <div className="mt-2">
-                <CheckInStreak householdId={household.id} checkedInCount={checkedInDays.size} />
-              </div>
-            )}
           </div>
           <Button onClick={generatePlan} disabled={generating} className="gap-2">
             {generating ? (
@@ -287,6 +282,14 @@ const Planner = () => {
             )}
           </Button>
         </div>
+
+        {household && (
+          <div className="mb-4">
+            <CheckInStreak householdId={household.id} checkedInCount={checkedInDays.size} />
+          </div>
+        )}
+
+
 
         {plan && household && <CheckInNudge householdId={household.id} planId={plan.id} />}
 
