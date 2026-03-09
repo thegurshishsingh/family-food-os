@@ -141,8 +141,121 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="mb-8"
     >
-      {/* Main recap card */}
-      <Card className="border-primary/15 bg-gradient-to-br from-sage-light/60 via-card to-warm-light/30 overflow-hidden">
+      <Card className="border-primary/15 bg-gradient-to-br from-sage-light/60 via-card to-warm-light/30 overflow-hidden relative">
+        {/* Milestone celebration overlay */}
+        <AnimatePresence>
+          {showMilestone && milestone && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0 z-10 flex items-center justify-center rounded-xl overflow-hidden"
+            >
+              {/* Glow background */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-br from-primary/20 via-sage-light/40 to-warm-light/30 backdrop-blur-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 1, 0.85] }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+              />
+              
+              {/* Subtle radial glow pulse */}
+              <motion.div
+                className="absolute inset-0"
+                style={{
+                  background: "radial-gradient(circle at 50% 40%, hsl(var(--primary) / 0.15) 0%, transparent 60%)",
+                }}
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  opacity: [0.5, 0.8, 0.5],
+                }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+
+              {/* Confetti particles */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {Array.from({ length: 20 }).map((_, i) => (
+                  <ConfettiParticle
+                    key={i}
+                    delay={i * 0.08}
+                    x={10 + (i * 4.5)}
+                    color={confettiColors[i % confettiColors.length]}
+                  />
+                ))}
+              </div>
+
+              {/* Content */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
+                className="relative z-20 text-center px-6 py-10 max-w-sm"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: [0, 1.2, 1] }}
+                  transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
+                  className="w-16 h-16 rounded-full bg-primary/15 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20"
+                >
+                  <Award className="w-8 h-8 text-primary" />
+                </motion.div>
+                
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="text-xs uppercase tracking-widest text-primary/80 font-medium mb-2"
+                >
+                  Milestone Reached
+                </motion.p>
+                
+                <motion.h3
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 }}
+                  className="text-2xl sm:text-3xl font-serif font-semibold text-foreground mb-3"
+                >
+                  {milestone.label} saved
+                </motion.h3>
+                
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.85 }}
+                  className="text-sm text-muted-foreground leading-relaxed mb-6"
+                >
+                  {milestone.message}
+                </motion.p>
+                
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1 }}
+                >
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={dismissMilestone}
+                    className="gap-1.5 text-xs"
+                  >
+                    Continue
+                    <ArrowRight className="w-3 h-3" />
+                  </Button>
+                </motion.div>
+              </motion.div>
+
+              {/* Dismiss X */}
+              <button
+                onClick={dismissMilestone}
+                className="absolute top-4 right-4 z-30 p-1.5 rounded-full bg-background/60 hover:bg-background/80 transition-colors"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <CardContent className="pt-8 pb-6 px-5 sm:px-8">
           {/* Headline */}
           <motion.div
