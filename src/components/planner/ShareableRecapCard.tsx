@@ -47,51 +47,50 @@ function renderCard(
 
   // Background gradient
   const bg = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
-  bg.addColorStop(0, "#f6f4f0");
-  bg.addColorStop(0.5, "#f0eeea");
-  bg.addColorStop(1, "#eae6df");
+  bg.addColorStop(0, "#f7f5f1");
+  bg.addColorStop(0.5, "#f2f0ec");
+  bg.addColorStop(1, "#ece8e1");
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
 
   // Subtle decorative circles
-  ctx.globalAlpha = 0.06;
+  ctx.globalAlpha = 0.045;
   ctx.fillStyle = "#4a8c6f";
-  ctx.beginPath(); ctx.arc(900, 120, 200, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(180, 900, 160, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(920, 100, 220, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(160, 940, 180, 0, Math.PI * 2); ctx.fill();
   ctx.globalAlpha = 1;
 
-  const pad = 80;
-  let y = pad;
+  const pad = 88;
+  let y = pad + 10;
 
   // App badge
-  ctx.fillStyle = "rgba(74, 140, 111, 0.12)";
-  drawRoundedRect(ctx, pad, y, 340, 44, 22);
+  ctx.fillStyle = "rgba(74, 140, 111, 0.10)";
+  drawRoundedRect(ctx, pad, y, 310, 42, 21);
   ctx.fill();
   ctx.fillStyle = "#4a8c6f";
-  ctx.font = "600 20px 'DM Sans', system-ui, sans-serif";
-  ctx.fillText("✨ Family Food OS", pad + 20, y + 29);
-  y += 76;
+  ctx.font = "600 18px 'DM Sans', system-ui, sans-serif";
+  ctx.fillText("✨ Family Food OS", pad + 18, y + 27);
+  y += 72;
 
   // Headline
   ctx.fillStyle = "#1f1d1a";
-  ctx.font = "700 54px 'Fraunces', Georgia, serif";
+  ctx.font = "700 58px 'Fraunces', Georgia, serif";
   const headline = `We got ${formatHours(result.totalMinutesSaved)} back`;
   ctx.fillText(headline, pad, y);
-  y += 36;
-  ctx.font = "700 54px 'Fraunces', Georgia, serif";
-  ctx.fillText("last week.", pad, y + 42);
-  y += 100;
+  y += 70;
+  ctx.fillText("last week.", pad, y);
+  y += 40;
 
   // Subtitle
-  ctx.fillStyle = "#6b6560";
-  ctx.font = "400 24px 'DM Sans', system-ui, sans-serif";
+  ctx.fillStyle = "#7a7570";
+  ctx.font = "400 22px 'DM Sans', system-ui, sans-serif";
   ctx.fillText(`from ${plannedNights} planned meals · ${householdName}`, pad, y);
-  y += 60;
+  y += 52;
 
   // Divider
-  ctx.fillStyle = "rgba(74, 140, 111, 0.2)";
-  ctx.fillRect(pad, y, CARD_W - pad * 2, 2);
-  y += 40;
+  ctx.fillStyle = "rgba(74, 140, 111, 0.15)";
+  ctx.fillRect(pad, y, CARD_W - pad * 2, 1.5);
+  y += 44;
 
   // KPI row
   const kpis = [
@@ -99,61 +98,64 @@ function renderCard(
     { value: formatHours(cumulativeMinutes), label: `Total (${totalWeeks} wk${totalWeeks !== 1 ? "s" : ""})` },
     { value: `${plannedNights}`, label: "Meals planned" },
   ];
-  const kpiW = (CARD_W - pad * 2) / 3;
+  const kpiGap = 14;
+  const kpiW = (CARD_W - pad * 2 - kpiGap * 2) / 3;
   kpis.forEach((kpi, i) => {
-    const kx = pad + i * kpiW;
-    // KPI card bg
-    ctx.fillStyle = "rgba(255,255,255,0.6)";
-    drawRoundedRect(ctx, kx, y, kpiW - 16, 110, 16);
+    const kx = pad + i * (kpiW + kpiGap);
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    drawRoundedRect(ctx, kx, y, kpiW, 100, 14);
     ctx.fill();
-    ctx.strokeStyle = "rgba(74, 140, 111, 0.15)";
-    ctx.lineWidth = 1.5;
-    drawRoundedRect(ctx, kx, y, kpiW - 16, 110, 16);
+    ctx.strokeStyle = "rgba(74, 140, 111, 0.12)";
+    ctx.lineWidth = 1;
+    drawRoundedRect(ctx, kx, y, kpiW, 100, 14);
     ctx.stroke();
-    // Value
     ctx.fillStyle = "#4a8c6f";
-    ctx.font = "700 36px 'Fraunces', Georgia, serif";
-    ctx.fillText(kpi.value, kx + 20, y + 50);
-    // Label
+    ctx.font = "700 32px 'Fraunces', Georgia, serif";
+    ctx.fillText(kpi.value, kx + 18, y + 44);
     ctx.fillStyle = "#8a8580";
-    ctx.font = "500 18px 'DM Sans', system-ui, sans-serif";
-    ctx.fillText(kpi.label, kx + 20, y + 84);
+    ctx.font = "500 16px 'DM Sans', system-ui, sans-serif";
+    ctx.fillText(kpi.label, kx + 18, y + 74);
   });
-  y += 140;
+  y += 132;
 
-  // Top factors
+  // Top factors heading
   ctx.fillStyle = "#1f1d1a";
-  ctx.font = "600 22px 'DM Sans', system-ui, sans-serif";
-  ctx.fillText("Where the time came from", pad, y + 6);
-  y += 40;
+  ctx.font = "600 20px 'DM Sans', system-ui, sans-serif";
+  ctx.fillText("Where the time came from", pad, y);
+  y += 36;
 
   const topFactors = result.factors.slice(0, 4);
   topFactors.forEach((f) => {
     ctx.fillStyle = "#4a8c6f";
-    ctx.beginPath(); ctx.arc(pad + 8, y + 4, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(pad + 7, y + 4, 4, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#3a3530";
-    ctx.font = "400 22px 'DM Sans', system-ui, sans-serif";
-    const label = f.label.length > 50 ? f.label.slice(0, 47) + "…" : f.label;
-    ctx.fillText(label, pad + 24, y + 10);
+    ctx.font = "400 20px 'DM Sans', system-ui, sans-serif";
+    const maxLabelW = CARD_W - pad * 2 - 120;
+    let label = f.label;
+    while (ctx.measureText(label).width > maxLabelW && label.length > 10) {
+      label = label.slice(0, -4) + "…";
+    }
+    ctx.fillText(label, pad + 22, y + 10);
     ctx.fillStyle = "#4a8c6f";
-    ctx.font = "600 22px 'DM Sans', system-ui, sans-serif";
-    ctx.fillText(`${f.minutesSaved} min`, CARD_W - pad - ctx.measureText(`${f.minutesSaved} min`).width, y + 10);
-    y += 38;
+    ctx.font = "600 20px 'DM Sans', system-ui, sans-serif";
+    const minText = `${f.minutesSaved} min`;
+    ctx.fillText(minText, CARD_W - pad - ctx.measureText(minText).width, y + 10);
+    y += 34;
   });
-  y += 20;
+  y += 24;
 
   // Human rewards
   if (humanRewards.length > 0) {
-    ctx.fillStyle = "rgba(74, 140, 111, 0.06)";
-    const rewardH = 30 + humanRewards.length * 38;
-    drawRoundedRect(ctx, pad, y, CARD_W - pad * 2, rewardH, 16);
+    ctx.fillStyle = "rgba(74, 140, 111, 0.05)";
+    const rewardH = 28 + humanRewards.length * 36;
+    drawRoundedRect(ctx, pad, y, CARD_W - pad * 2, rewardH, 14);
     ctx.fill();
-    y += 30;
+    y += 28;
     humanRewards.forEach((r) => {
       ctx.fillStyle = "#3a3530";
-      ctx.font = "400 22px 'DM Sans', system-ui, sans-serif";
+      ctx.font = "400 20px 'DM Sans', system-ui, sans-serif";
       ctx.fillText(`${r.emoji}  ${r.text}`, pad + 20, y + 6);
-      y += 38;
+      y += 36;
     });
     y += 10;
   }
