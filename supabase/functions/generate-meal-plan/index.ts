@@ -250,6 +250,8 @@ serve(async (req) => {
       fiber_g: d.fiber_g || null,
       notes: d.notes || null,
       takeout_budget: d.takeout_budget || null,
+      ingredients: d.ingredients || null,
+      instructions: d.instructions || null,
     }));
     await supabaseClient.from("plan_days").insert(dayInserts);
 
