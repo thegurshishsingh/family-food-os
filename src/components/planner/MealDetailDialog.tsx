@@ -1,8 +1,11 @@
+import { useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clock, Flame, Beef, Wheat, Droplets, Leaf, UtensilsCrossed, ShoppingBasket, ListOrdered } from "lucide-react";
+import { Clock, Flame, Beef, Wheat, Droplets, Leaf, UtensilsCrossed, ShoppingBasket, ListOrdered, Printer, Share2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { MODE_CONFIG, DAYS, type PlanDay } from "./types";
 
 interface MealDetailDialogProps {
@@ -12,6 +15,8 @@ interface MealDetailDialogProps {
 }
 
 const MealDetailDialog = ({ day, open, onOpenChange }: MealDetailDialogProps) => {
+  const { toast } = useToast();
+
   if (!day || !day.meal_name) return null;
 
   const mode = MODE_CONFIG[day.meal_mode];
@@ -28,6 +33,47 @@ const MealDetailDialog = ({ day, open, onOpenChange }: MealDetailDialogProps) =>
   const ingredients = day.ingredients || [];
   const instructions = day.instructions || [];
 
+  const buildRecipeText = () => {
+    const lines: string[] = [day.meal_name!, ""];
+    if (day.meal_description) lines.push(day.meal_description, "");
+    if (nutritionItems.length) {
+      lines.push("Nutrition:");
+      nutritionItems.forEach(n => lines.push(`  ${n.label}: ${n.value}${n.unit === "kcal" ? " cal" : n.unit}`));
+      lines.push("");
+    }
+    if (ingredients.length) {
+      lines.push("Ingredients:");
+      ingredients.forEach(ing => lines.push(`  • ${ing.quantity}${ing.unit ? " " + ing.unit : ""} ${ing.name}`));
+      lines.push("");
+    }
+    if (instructions.length) {
+      lines.push("Instructions:");
+      instructions.forEach((step, i) => lines.push(`  ${i + 1}. ${step}`));
+    }
+    return lines.join("\n");
+  };
+
+  const handlePrint = () => {
+    const text = buildRecipeText();
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    printWindow.document.write(`<html><head><title>${day.meal_name}</title><style>body{font-family:system-ui,sans-serif;max-width:600px;margin:40px auto;padding:0 20px;line-height:1.6}h1{margin-bottom:4px}pre{white-space:pre-wrap;font-family:inherit;font-size:14px}</style></head><body><pre>${text}</pre></body></html>`);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  const handleShare = async () => {
+    const text = buildRecipeText();
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: day.meal_name!, text });
+      } catch { /* user cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Recipe copied!", description: "Recipe text copied to clipboard." });
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[85vh] p-0">
@@ -41,7 +87,17 @@ const MealDetailDialog = ({ day, open, onOpenChange }: MealDetailDialogProps) =>
                   {mode.label}
                 </span>
               </div>
-              <DialogTitle className="text-xl font-serif">{day.meal_name}</DialogTitle>
+              <div className="flex items-start justify-between gap-2">
+                <DialogTitle className="text-xl font-serif">{day.meal_name}</DialogTitle>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrint} title="Print recipe">
+                    <Printer className="w-4 h-4 text-muted-foreground" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShare} title="Share recipe">
+                    <Share2 className="w-4 h-4 text-muted-foreground" />
+                  </Button>
+                </div>
+              </div>
             </DialogHeader>
 
             {day.meal_description && (
