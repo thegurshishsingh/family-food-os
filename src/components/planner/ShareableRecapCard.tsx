@@ -36,8 +36,8 @@ function renderCard(
   canvas: HTMLCanvasElement,
   result: TimeSavedResult,
   cumulativeMinutes: number,
-  totalWeeks: number,
-  plannedNights: number,
+  _totalWeeks: number,
+  _plannedNights: number,
   humanRewards: HumanReward[],
   householdName: string,
 ) {
@@ -45,128 +45,94 @@ function renderCard(
   canvas.width = CARD_W;
   canvas.height = CARD_H;
 
-  // Background gradient
-  const bg = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
-  bg.addColorStop(0, "#f7f5f1");
-  bg.addColorStop(0.5, "#f2f0ec");
-  bg.addColorStop(1, "#ece8e1");
+  // Background
+  const bg = ctx.createLinearGradient(0, 0, 0, CARD_H);
+  bg.addColorStop(0, "#f8f6f2");
+  bg.addColorStop(1, "#f0ede7");
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
 
-  // Subtle decorative circles
-  ctx.globalAlpha = 0.045;
+  // Subtle radial glow
+  const glow = ctx.createRadialGradient(CARD_W / 2, 340, 0, CARD_W / 2, 340, 360);
+  glow.addColorStop(0, "rgba(74, 140, 111, 0.06)");
+  glow.addColorStop(1, "transparent");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, CARD_W, CARD_H);
+
+  const pad = 100;
+  const cx = CARD_W / 2;
+
+  // ── TOP LABEL ──
+  ctx.fillStyle = "#9a9590";
+  ctx.font = "500 16px 'DM Sans', system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.letterSpacing = "4px";
+  ctx.fillText("LAST WEEK RECAP", cx, 130);
+  ctx.letterSpacing = "0px";
+
+  // ── HERO NUMBER ──
   ctx.fillStyle = "#4a8c6f";
-  ctx.beginPath(); ctx.arc(920, 100, 220, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(160, 940, 180, 0, Math.PI * 2); ctx.fill();
-  ctx.globalAlpha = 1;
+  ctx.font = "700 72px 'Fraunces', Georgia, serif";
+  ctx.fillText(formatHours(result.totalMinutesSaved), cx, 260);
 
-  const pad = 88;
-  let y = pad + 10;
-
-  // App badge
-  ctx.fillStyle = "rgba(74, 140, 111, 0.10)";
-  drawRoundedRect(ctx, pad, y, 310, 42, 21);
-  ctx.fill();
-  ctx.fillStyle = "#4a8c6f";
-  ctx.font = "600 18px 'DM Sans', system-ui, sans-serif";
-  ctx.fillText("✨ Family Food OS", pad + 18, y + 27);
-  y += 72;
-
-  // Headline
   ctx.fillStyle = "#1f1d1a";
-  ctx.font = "700 58px 'Fraunces', Georgia, serif";
-  const headline = `We got ${formatHours(result.totalMinutesSaved)} back`;
-  ctx.fillText(headline, pad, y);
-  y += 70;
-  ctx.fillText("last week.", pad, y);
-  y += 40;
+  ctx.font = "600 38px 'Fraunces', Georgia, serif";
+  ctx.fillText("back.", cx, 310);
 
-  // Subtitle
-  ctx.fillStyle = "#7a7570";
-  ctx.font = "400 22px 'DM Sans', system-ui, sans-serif";
-  ctx.fillText(`from ${plannedNights} planned meals · ${householdName}`, pad, y);
-  y += 52;
+  // ── SUPPORTING COPY ──
+  ctx.fillStyle = "#9a9590";
+  ctx.font = "400 20px 'DM Sans', system-ui, sans-serif";
+  ctx.fillText("From smarter planning, fewer scrambles,", cx, 370);
+  ctx.fillText("and a week that mostly ran itself.", cx, 398);
+
+  // ── DIVIDER ──
+  ctx.fillStyle = "rgba(74, 140, 111, 0.12)";
+  ctx.fillRect(pad + 80, 440, CARD_W - (pad + 80) * 2, 1);
+
+  // ── KPIs (inline) ──
+  const kpiY = 500;
+  // Left KPI
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#1f1d1a";
+  ctx.font = "700 40px 'Fraunces', Georgia, serif";
+  ctx.fillText(formatHours(result.totalMinutesSaved), cx - 140, kpiY);
+  ctx.fillStyle = "#9a9590";
+  ctx.font = "400 16px 'DM Sans', system-ui, sans-serif";
+  ctx.fillText("this week", cx - 140, kpiY + 28);
 
   // Divider
-  ctx.fillStyle = "rgba(74, 140, 111, 0.15)";
-  ctx.fillRect(pad, y, CARD_W - pad * 2, 1.5);
-  y += 44;
+  ctx.fillStyle = "rgba(0,0,0,0.08)";
+  ctx.fillRect(cx, kpiY - 30, 1, 60);
 
-  // KPI row
-  const kpis = [
-    { value: formatHours(result.totalMinutesSaved), label: "Saved this week" },
-    { value: formatHours(cumulativeMinutes), label: `Total (${totalWeeks} wk${totalWeeks !== 1 ? "s" : ""})` },
-    { value: `${plannedNights}`, label: "Meals planned" },
-  ];
-  const kpiGap = 14;
-  const kpiW = (CARD_W - pad * 2 - kpiGap * 2) / 3;
-  kpis.forEach((kpi, i) => {
-    const kx = pad + i * (kpiW + kpiGap);
-    ctx.fillStyle = "rgba(255,255,255,0.55)";
-    drawRoundedRect(ctx, kx, y, kpiW, 100, 14);
-    ctx.fill();
-    ctx.strokeStyle = "rgba(74, 140, 111, 0.12)";
-    ctx.lineWidth = 1;
-    drawRoundedRect(ctx, kx, y, kpiW, 100, 14);
-    ctx.stroke();
-    ctx.fillStyle = "#4a8c6f";
-    ctx.font = "700 32px 'Fraunces', Georgia, serif";
-    ctx.fillText(kpi.value, kx + 18, y + 44);
-    ctx.fillStyle = "#8a8580";
-    ctx.font = "500 16px 'DM Sans', system-ui, sans-serif";
-    ctx.fillText(kpi.label, kx + 18, y + 74);
-  });
-  y += 132;
-
-  // Top factors heading
+  // Right KPI
   ctx.fillStyle = "#1f1d1a";
-  ctx.font = "600 20px 'DM Sans', system-ui, sans-serif";
-  ctx.fillText("Where the time came from", pad, y);
-  y += 36;
+  ctx.font = "700 40px 'Fraunces', Georgia, serif";
+  ctx.fillText(formatHours(cumulativeMinutes), cx + 140, kpiY);
+  ctx.fillStyle = "#9a9590";
+  ctx.font = "400 16px 'DM Sans', system-ui, sans-serif";
+  ctx.fillText("all time", cx + 140, kpiY + 28);
 
-  const topFactors = result.factors.slice(0, 4);
-  topFactors.forEach((f) => {
-    ctx.fillStyle = "#4a8c6f";
-    ctx.beginPath(); ctx.arc(pad + 7, y + 4, 4, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "#3a3530";
-    ctx.font = "400 20px 'DM Sans', system-ui, sans-serif";
-    const maxLabelW = CARD_W - pad * 2 - 120;
-    let label = f.label;
-    while (ctx.measureText(label).width > maxLabelW && label.length > 10) {
-      label = label.slice(0, -4) + "…";
-    }
-    ctx.fillText(label, pad + 22, y + 10);
-    ctx.fillStyle = "#4a8c6f";
-    ctx.font = "600 20px 'DM Sans', system-ui, sans-serif";
-    const minText = `${f.minutesSaved} min`;
-    ctx.fillText(minText, CARD_W - pad - ctx.measureText(minText).width, y + 10);
-    y += 34;
-  });
-  y += 24;
-
-  // Human rewards
+  // ── EMOTIONAL PAYOFF ──
   if (humanRewards.length > 0) {
-    ctx.fillStyle = "rgba(74, 140, 111, 0.05)";
-    const rewardH = 28 + humanRewards.length * 36;
-    drawRoundedRect(ctx, pad, y, CARD_W - pad * 2, rewardH, 14);
-    ctx.fill();
-    y += 28;
-    humanRewards.forEach((r) => {
-      ctx.fillStyle = "#3a3530";
-      ctx.font = "400 20px 'DM Sans', system-ui, sans-serif";
-      ctx.fillText(`${r.emoji}  ${r.text}`, pad + 20, y + 6);
-      y += 36;
-    });
-    y += 10;
+    const reward = humanRewards[0];
+    ctx.fillStyle = "#1f1d1a";
+    ctx.font = "500 26px 'Fraunces', Georgia, serif";
+    ctx.fillText(`${reward.emoji}  ${reward.text}`, cx, 620);
   }
 
-  // Footer
-  y = CARD_H - pad;
-  ctx.fillStyle = "#b0aaa4";
+  // ── HOUSEHOLD NAME ──
+  ctx.fillStyle = "#b5b0a8";
   ctx.font = "400 18px 'DM Sans', system-ui, sans-serif";
-  ctx.fillText("familyfoodOS.com", pad, y);
-  ctx.fillStyle = "rgba(74, 140, 111, 0.15)";
-  ctx.fillRect(pad, y - 30, CARD_W - pad * 2, 1);
+  ctx.fillText(householdName, cx, 690);
+
+  // ── FOOTER ──
+  ctx.fillStyle = "rgba(74, 140, 111, 0.10)";
+  ctx.fillRect(pad + 80, CARD_H - 100, CARD_W - (pad + 80) * 2, 1);
+  ctx.fillStyle = "#b5b0a8";
+  ctx.font = "400 16px 'DM Sans', system-ui, sans-serif";
+  ctx.fillText("familyfoodOS.com", cx, CARD_H - 60);
+
+  ctx.textAlign = "start";
 }
 
 const ShareableRecapCard = ({
