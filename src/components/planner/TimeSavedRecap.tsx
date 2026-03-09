@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, TrendingUp, Calendar, ArrowRight, ChevronDown, ChevronUp, Sparkles, Award, X } from "lucide-react";
+import { Clock, TrendingUp, Calendar, ArrowRight, ChevronDown, ChevronUp, Sparkles, Award, X, Lightbulb } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { computeTimeSaved, formatHours, type TimeSavedResult } from "@/lib/timeSaved";
 import type { PlanDay, WeeklyPlan } from "./types";
