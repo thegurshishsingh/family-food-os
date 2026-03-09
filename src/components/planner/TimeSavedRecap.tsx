@@ -134,10 +134,10 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            <div className="rounded-xl border border-border/50 bg-background/70 backdrop-blur-sm p-4 sm:p-5 mb-6">
+            <div className="rounded-xl border border-border/50 bg-background/70 backdrop-blur-sm p-4 sm:p-5 mb-4">
               <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                Why you saved time
+                Why your family saved time
               </h3>
               <ul className="space-y-2.5">
                 {result.factors.map((factor, i) => (
@@ -156,6 +156,27 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
                 ))}
               </ul>
             </div>
+          </motion.div>
+
+          {/* Learning indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.65 }}
+            className="mb-6"
+          >
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40">
+                <div className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/60 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary/80" />
+                </div>
+                <span>Learning from your family's habits</span>
+              </div>
+            </div>
+            <p className="text-center text-xs text-muted-foreground/70 mt-2">
+              Each week, the system adapts—next week's plan will fit even better.
+            </p>
           </motion.div>
 
           {/* Expandable breakdown chart */}
