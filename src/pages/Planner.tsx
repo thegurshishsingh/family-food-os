@@ -62,15 +62,29 @@ const Planner = () => {
         .order("day_of_week");
       if (planDays) {
         setDays(planDays as PlanDay[]);
-        const { data: fb } = await supabase
-          .from("meal_feedback")
-          .select("plan_day_id, feedback")
-          .eq("household_id", household.id)
-          .in("plan_day_id", planDays.map((d: any) => d.id));
-        if (fb) {
+        const dayIds = planDays.map((d: any) => d.id);
+
+        // Load feedback and check-in status in parallel
+        const [fbResult, ciResult] = await Promise.all([
+          supabase
+            .from("meal_feedback")
+            .select("plan_day_id, feedback")
+            .eq("household_id", household.id)
+            .in("plan_day_id", dayIds),
+          supabase
+            .from("evening_checkins")
+            .select("plan_day_id")
+            .eq("household_id", household.id)
+            .in("plan_day_id", dayIds),
+        ]);
+
+        if (fbResult.data) {
           const fbMap: Record<string, FeedbackType> = {};
-          fb.forEach((f: any) => { if (f.plan_day_id) fbMap[f.plan_day_id] = f.feedback; });
+          fbResult.data.forEach((f: any) => { if (f.plan_day_id) fbMap[f.plan_day_id] = f.feedback; });
           setDayFeedback(fbMap);
+        }
+        if (ciResult.data) {
+          setCheckedInDays(new Set(ciResult.data.map((c: any) => c.plan_day_id)));
         }
       }
     }
