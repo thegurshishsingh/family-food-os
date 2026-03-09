@@ -6,6 +6,7 @@ import { ArrowRight, ChevronDown, Sparkles, Award, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { computeTimeSaved, formatHours, type TimeSavedResult } from "@/lib/timeSaved";
 import { getHumanRewards, type HumanReward } from "@/lib/humanReward";
+import ShareableRecapCard from "./ShareableRecapCard";
 import type { PlanDay, WeeklyPlan } from "./types";
 
 interface TimeSavedRecapProps {
@@ -344,6 +345,15 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           >
             View last week's details
           </button>
+
+          <ShareableRecapCard
+            result={result}
+            cumulativeMinutes={cumulativeMinutes}
+            totalWeeks={totalWeeks}
+            plannedNights={plannedNights}
+            humanRewards={humanRewards}
+            householdName={householdName}
+          />
         </motion.div>
       </div>
     </motion.div>
