@@ -1,8 +1,11 @@
+import { useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clock, Flame, Beef, Wheat, Droplets, Leaf, UtensilsCrossed, ShoppingBasket, ListOrdered } from "lucide-react";
+import { Clock, Flame, Beef, Wheat, Droplets, Leaf, UtensilsCrossed, ShoppingBasket, ListOrdered, Printer, Share2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { MODE_CONFIG, DAYS, type PlanDay } from "./types";
 
 interface MealDetailDialogProps {
