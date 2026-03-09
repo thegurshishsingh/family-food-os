@@ -57,6 +57,7 @@ const HouseholdSettings = () => {
       setCuisinesDisliked(preferences.cuisines_disliked || []);
       setDietary(preferences.dietary_preferences || []);
       setAllergyList(preferences.allergies || []);
+      setFoodsToAvoid(preferences.foods_to_avoid || []);
       setBudget(preferences.weekly_grocery_budget?.toString() || "");
       setCookingTolerance(preferences.cooking_time_tolerance || "medium");
       setTakeoutFreq(preferences.preferred_takeout_frequency || 1);
