@@ -353,7 +353,23 @@ const Onboarding = () => {
                     </div>
                   </div>
                   <div>
-                    <Label className="text-base font-medium">Health goal</Label>
+                    <Label className="text-base font-medium">Foods to avoid</Label>
+                    <p className="text-sm text-muted-foreground mt-1">Select any foods your family doesn't eat</p>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {FOODS_TO_AVOID.map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => toggleInList(foodsToAvoid, f, setFoodsToAvoid)}
+                          className={`px-4 py-2 rounded-full text-sm border transition-colors ${
+                            foodsToAvoid.includes(f) ? "bg-destructive text-destructive-foreground border-destructive" : "bg-background text-foreground border-border hover:bg-muted"
+                          }`}
+                        >
+                          🚫 {f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {HEALTH_GOALS.map((g) => (
                         <button
