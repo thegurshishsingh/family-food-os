@@ -108,7 +108,7 @@ serve(async (req) => {
             type: "function",
             function: {
               name: "suggest_meal",
-              description: "Suggest a single replacement meal",
+              description: "Suggest a single replacement meal with recipe",
               parameters: {
                 type: "object",
                 properties: {
@@ -121,8 +121,26 @@ serve(async (req) => {
                   carbs_g: { type: "number" },
                   fat_g: { type: "number" },
                   fiber_g: { type: "number" },
+                  ingredients: {
+                    type: "array",
+                    description: "List of ingredients with quantities",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        quantity: { type: "string" },
+                        unit: { type: "string" },
+                      },
+                      required: ["name", "quantity"],
+                    },
+                  },
+                  instructions: {
+                    type: "array",
+                    description: "Step-by-step cooking instructions",
+                    items: { type: "string" },
+                  },
                 },
-                required: ["meal_name", "meal_description", "calories", "protein_g", "carbs_g", "fat_g"],
+                required: ["meal_name", "meal_description", "calories", "protein_g", "carbs_g", "fat_g", "ingredients", "instructions"],
               },
             },
           }],
