@@ -9,6 +9,7 @@ import { Lock, Unlock, Shuffle, Pencil, Check, X, GripVertical, Heart } from "lu
 import { motion } from "framer-motion";
 import { DAYS, MODE_CONFIG, FEEDBACK_OPTIONS, type PlanDay, type FeedbackType } from "./types";
 import MealDetailDialog from "./MealDetailDialog";
+import InlineCheckIn from "./InlineCheckIn";
 
 interface DayCardProps {
   day: PlanDay;
@@ -17,6 +18,9 @@ interface DayCardProps {
   isSwapping: boolean;
   isDragged: boolean;
   isDragOver: boolean;
+  isToday: boolean;
+  householdId?: string;
+  checkedIn?: boolean;
   onSwapMeal: (day: PlanDay) => void;
   onToggleLock: (day: PlanDay) => void;
   onCycleMealMode: (day: PlanDay) => void;
@@ -27,12 +31,13 @@ interface DayCardProps {
   onDragLeave: () => void;
   onDrop: (dayId: string) => void;
   onDragEnd: () => void;
+  onCheckedIn?: (dayId: string) => void;
 }
 
 const DayCard = ({
-  day, index, feedback, isSwapping, isDragged, isDragOver,
+  day, index, feedback, isSwapping, isDragged, isDragOver, isToday, householdId, checkedIn,
   onSwapMeal, onToggleLock, onCycleMealMode, onSubmitFeedback, onSaveEdit,
-  onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd,
+  onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, onCheckedIn,
 }: DayCardProps) => {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
@@ -209,6 +214,11 @@ const DayCard = ({
                   </Popover>
                 )}
               </div>
+            )}
+
+            {/* Inline check-in for today */}
+            {isToday && day.meal_name && !checkedIn && householdId && onCheckedIn && (
+              <InlineCheckIn day={day} householdId={householdId} onCheckedIn={onCheckedIn} />
             )}
           </div>
         </div>
