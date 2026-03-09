@@ -20,6 +20,7 @@ interface DayCardProps {
   isDragOver: boolean;
   isToday: boolean;
   householdId?: string;
+  householdSize?: number;
   checkedIn?: boolean;
   onSwapMeal: (day: PlanDay) => void;
   onToggleLock: (day: PlanDay) => void;
