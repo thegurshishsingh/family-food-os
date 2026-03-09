@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Clock, TrendingUp, Zap, ArrowRight, ChevronDown, ChevronUp, Sparkles, Award, X, Info, Share2 } from "lucide-react";
+import ShareableRecapCard from "./ShareableRecapCard";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { computeTimeSaved, formatHours, type TimeSavedResult } from "@/lib/timeSaved";
