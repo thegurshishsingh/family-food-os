@@ -345,6 +345,15 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           >
             View last week's details
           </button>
+
+          <ShareableRecapCard
+            result={result}
+            cumulativeMinutes={cumulativeMinutes}
+            totalWeeks={totalWeeks}
+            plannedNights={plannedNights}
+            humanRewards={humanRewards}
+            householdName={householdName}
+          />
         </motion.div>
       </div>
     </motion.div>
