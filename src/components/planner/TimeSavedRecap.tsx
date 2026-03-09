@@ -92,12 +92,12 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
               Last Week Recap
             </div>
             <h2 className="text-3xl sm:text-4xl font-serif font-semibold text-foreground leading-tight">
-              You saved{" "}
+              Your family got{" "}
               <span className="text-primary">{formatHours(result.totalMinutesSaved)}</span>
-              {" "}last week.
+              {" "}back last week.
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base mt-3 max-w-lg mx-auto leading-relaxed">
-              Family Food OS reduced planning, shopping, and coordination time based on the meals your family actually made.
+              That's time you didn't spend deciding, shopping, or scrambling—based on the meals your family actually made together.
             </p>
           </motion.div>
 
