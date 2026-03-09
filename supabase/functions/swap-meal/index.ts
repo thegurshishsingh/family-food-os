@@ -85,9 +85,10 @@ serve(async (req) => {
         preferences?.cuisines_liked?.length ? `Preferred cuisines: ${preferences.cuisines_liked.join(", ")}.` : "",
         preferences?.allergies?.length ? `ALLERGIES (must avoid): ${preferences.allergies.join(", ")}.` : "",
         preferences?.dietary_preferences?.length ? `Dietary: ${preferences.dietary_preferences.join(", ")}.` : "",
+        preferences?.foods_to_avoid?.length ? `FOODS TO AVOID (the family does not eat these — never include them in any meal): ${preferences.foods_to_avoid.join(", ")}.` : "",
         dislikedMeals.length ? `Avoid these disliked meals: ${dislikedMeals.join(", ")}.` : "",
         `Meal mode: ${currentDay.meal_mode}.`,
-        preferences?.cooking_time_tolerance ? `Cooking time tolerance: ${preferences.cooking_time_tolerance}.` : "",
+        preferences?.cooking_time_tolerance ? `Cooking time tolerance: ${preferences.cooking_time_tolerance}. Match the replacement meal's prep time to this preference.` : "",
         `Include realistic nutrition estimates.`,
       ].filter(Boolean).join("\n");
 
