@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const CUISINES = ["Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Mediterranean", "American", "Korean", "French", "Middle Eastern", "Vietnamese"];
 const DIETARY = ["Vegetarian", "Vegan", "Gluten-free", "Dairy-free", "Keto", "Paleo", "Halal", "Kosher", "Low-sodium", "Nut-free"];
 const ALLERGIES = ["Peanuts", "Tree nuts", "Milk", "Eggs", "Fish", "Shellfish", "Wheat", "Soy", "Sesame"];
+const FOODS_TO_AVOID = ["Beef", "Pork", "Lamb", "Fish", "Shellfish", "Organ meats", "Tofu", "Mushrooms", "Spicy food", "Raw food"];
 const AGE_BANDS = ["0–1 (infant)", "1–3 (toddler)", "3–5 (preschool)", "5–10 (school age)", "10–13 (preteen)", "13–18 (teenager)"];
 const HEALTH_GOALS = ["Balanced family eating", "Lose weight", "Gain weight", "Higher protein", "Maintain"];
 const COOKING_TOLERANCES = [
@@ -73,6 +74,7 @@ const Onboarding = () => {
   const [cuisinesDisliked, setCuisinesDisliked] = useState<string[]>([]);
   const [dietary, setDietary] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
+  const [foodsToAvoid, setFoodsToAvoid] = useState<string[]>([]);
   const [healthGoal, setHealthGoal] = useState("Balanced family eating");
 
   // Step 3 - Logistics
@@ -148,7 +150,7 @@ const Onboarding = () => {
           household_id: household.id,
           cuisines_liked: cuisinesLiked,
           cuisines_disliked: cuisinesDisliked,
-          dietary_preferences: dietary,
+          dietary_preferences: [...dietary, ...foodsToAvoid.map(f => `no-${f.toLowerCase()}`)],
           allergies,
           weekly_grocery_budget: budget ? parseFloat(budget) : null,
           cooking_time_tolerance: cookingTolerance,
@@ -351,7 +353,23 @@ const Onboarding = () => {
                     </div>
                   </div>
                   <div>
-                    <Label className="text-base font-medium">Health goal</Label>
+                    <Label className="text-base font-medium">Foods to avoid</Label>
+                    <p className="text-sm text-muted-foreground mt-1">Select any foods your family doesn't eat</p>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {FOODS_TO_AVOID.map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => toggleInList(foodsToAvoid, f, setFoodsToAvoid)}
+                          className={`px-4 py-2 rounded-full text-sm border transition-colors ${
+                            foodsToAvoid.includes(f) ? "bg-destructive text-destructive-foreground border-destructive" : "bg-background text-foreground border-border hover:bg-muted"
+                          }`}
+                        >
+                          🚫 {f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {HEALTH_GOALS.map((g) => (
                         <button
