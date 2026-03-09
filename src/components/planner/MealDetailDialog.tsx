@@ -87,7 +87,17 @@ const MealDetailDialog = ({ day, open, onOpenChange }: MealDetailDialogProps) =>
                   {mode.label}
                 </span>
               </div>
-              <DialogTitle className="text-xl font-serif">{day.meal_name}</DialogTitle>
+              <div className="flex items-start justify-between gap-2">
+                <DialogTitle className="text-xl font-serif">{day.meal_name}</DialogTitle>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrint} title="Print recipe">
+                    <Printer className="w-4 h-4 text-muted-foreground" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShare} title="Share recipe">
+                    <Share2 className="w-4 h-4 text-muted-foreground" />
+                  </Button>
+                </div>
+              </div>
             </DialogHeader>
 
             {day.meal_description && (
