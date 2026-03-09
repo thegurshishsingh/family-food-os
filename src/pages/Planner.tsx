@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ChefHat, RefreshCw, ArrowRight } from "lucide-react";
+import CheckInStreak from "@/components/planner/CheckInStreak";
 import CheckInNudge from "@/components/planner/CheckInNudge";
 import RealityScore from "@/components/planner/RealityScore";
 import TimeSavedRecap from "@/components/planner/TimeSavedRecap";
