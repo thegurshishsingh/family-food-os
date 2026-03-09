@@ -59,6 +59,7 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
   const [showMilestone, setShowMilestone] = useState(false);
   const [milestoneAcknowledged, setMilestoneAcknowledged] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadTimeSaved();
