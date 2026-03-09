@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, TrendingUp, Calendar, ArrowRight, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { Clock, TrendingUp, Calendar, ArrowRight, ChevronDown, ChevronUp, Sparkles, Award, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { computeTimeSaved, formatHours, type TimeSavedResult } from "@/lib/timeSaved";
 import type { PlanDay, WeeklyPlan } from "./types";
@@ -16,15 +16,64 @@ interface TimeSavedRecapProps {
   generating: boolean;
 }
 
+// Milestone thresholds in hours
+const MILESTONES = [
+  { hours: 100, label: "100 hours", message: "A hundred hours reclaimed for your family." },
+  { hours: 50, label: "50 hours", message: "Fifty hours back in your family's hands." },
+  { hours: 25, label: "25 hours", message: "Twenty-five hours saved—and counting." },
+  { hours: 10, label: "10 hours", message: "Ten hours reclaimed for what matters." },
+];
+
+function getMilestone(totalMinutes: number) {
+  const hours = totalMinutes / 60;
+  return MILESTONES.find((m) => hours >= m.hours) || null;
+}
+
+// Confetti particle component
+function ConfettiParticle({ delay, x, color }: { delay: number; x: number; color: string }) {
+  return (
+    <motion.div
+      className="absolute w-2 h-2 rounded-full"
+      style={{ backgroundColor: color, left: `${x}%`, top: -8 }}
+      initial={{ opacity: 0, y: 0, rotate: 0, scale: 0 }}
+      animate={{
+        opacity: [0, 1, 1, 0],
+        y: [0, 60, 120, 180],
+        x: [0, (Math.random() - 0.5) * 40, (Math.random() - 0.5) * 60],
+        rotate: [0, 180, 360],
+        scale: [0, 1, 0.8, 0],
+      }}
+      transition={{
+        duration: 2.5,
+        delay,
+        ease: "easeOut",
+      }}
+    />
+  );
+}
+
 const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails, generating }: TimeSavedRecapProps) => {
   const [result, setResult] = useState<TimeSavedResult | null>(null);
   const [cumulativeMinutes, setCumulativeMinutes] = useState(0);
   const [totalWeeks, setTotalWeeks] = useState(1);
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [showMilestone, setShowMilestone] = useState(false);
+  const [milestoneAcknowledged, setMilestoneAcknowledged] = useState(false);
 
   useEffect(() => {
     loadTimeSaved();
   }, [plan, days, householdId]);
+
+  // Trigger milestone celebration after data loads
+  useEffect(() => {
+    if (result && cumulativeMinutes > 0 && !milestoneAcknowledged) {
+      const milestone = getMilestone(cumulativeMinutes);
+      if (milestone) {
+        const timer = setTimeout(() => setShowMilestone(true), 800);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [result, cumulativeMinutes, milestoneAcknowledged]);
 
   const loadTimeSaved = async () => {
     // Check grocery list existence
@@ -65,10 +114,25 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
     setCumulativeMinutes(computed.totalMinutesSaved * weeks);
   };
 
+  const dismissMilestone = () => {
+    setShowMilestone(false);
+    setMilestoneAcknowledged(true);
+  };
+
   if (!result || result.totalMinutesSaved === 0) return null;
 
+  const milestone = getMilestone(cumulativeMinutes);
   const avgMinutes = totalWeeks > 0 ? Math.round(cumulativeMinutes / totalWeeks) : 0;
   const maxBarValue = Math.max(...result.breakdown.map(b => b.withoutApp));
+
+  // Confetti colors using design system tones
+  const confettiColors = [
+    "hsl(var(--primary))",
+    "hsl(var(--sage))",
+    "hsl(var(--warm))",
+    "hsl(var(--primary) / 0.6)",
+    "hsl(var(--sage-dark))",
+  ];
 
   return (
     <motion.div
