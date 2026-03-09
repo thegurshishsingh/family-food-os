@@ -224,7 +224,7 @@ const DayCard = ({
           </div>
         </div>
       </Card>
-      <MealDetailDialog day={day} open={detailOpen} onOpenChange={setDetailOpen} />
+      <MealDetailDialog day={day} open={detailOpen} onOpenChange={setDetailOpen} defaultServings={householdSize || 4} />
     </motion.div>
   );
 };
