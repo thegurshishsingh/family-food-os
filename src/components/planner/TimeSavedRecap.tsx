@@ -115,6 +115,37 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
     setMilestoneAcknowledged(true);
   };
 
+  const handleShare = async () => {
+    if (!result) return;
+    const topFactors = result.factors.slice(0, 3).map(f => `• ${f.label}: ${f.minutesSaved} min`).join("\n");
+    const text = [
+      `🕐 My family got ${formatHours(result.totalMinutesSaved)} back last week with Family Food OS!`,
+      "",
+      topFactors,
+      "",
+      `📊 ${formatHours(cumulativeMinutes)} saved total across ${totalWeeks} week${totalWeeks !== 1 ? "s" : ""}.`,
+      "",
+      humanRewards.length > 0 ? humanRewards.map(r => `${r.emoji} ${r.text}`).join("\n") : "",
+    ].filter(Boolean).join("\n");
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "My Weekly Time Saved", text });
+      } catch (e: any) {
+        if (e.name !== "AbortError") {
+          toast({ variant: "destructive", title: "Share failed", description: e.message });
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+        toast({ title: "Copied to clipboard!", description: "Paste it anywhere to share your recap." });
+      } catch {
+        toast({ variant: "destructive", title: "Could not copy to clipboard" });
+      }
+    }
+  };
+
   if (!result || result.totalMinutesSaved === 0) return null;
 
   const milestone = getMilestone(cumulativeMinutes);
