@@ -127,6 +127,7 @@ const HouseholdSettings = () => {
           cuisines_disliked: cuisinesDisliked,
           dietary_preferences: dietary,
           allergies,
+          foods_to_avoid: foodsToAvoid,
           weekly_grocery_budget: budget ? parseFloat(budget) : null,
           cooking_time_tolerance: cookingTolerance,
           preferred_takeout_frequency: takeoutFreq,
