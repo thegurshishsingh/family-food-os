@@ -74,10 +74,10 @@ const HouseholdSettings = () => {
     if (!household) return;
     const { data } = await supabase
       .from("saved_meals")
-      .select("id, meal_name, meal_description")
+      .select("id, meal_name, meal_description, include_in_plan, frequency")
       .eq("household_id", household.id)
       .order("created_at");
-    if (data) setSavedMeals(data);
+    if (data) setSavedMeals(data as any);
   };
 
   const addMeal = async () => {
