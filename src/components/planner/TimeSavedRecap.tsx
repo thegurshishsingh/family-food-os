@@ -549,13 +549,23 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
                 </>
               )}
             </Button>
-            <Button
-              variant="ghost"
-              onClick={onViewDetails}
-              className="text-muted-foreground hover:text-foreground text-xs"
-            >
-              View last week's details
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                onClick={onViewDetails}
+                className="text-muted-foreground hover:text-foreground text-xs"
+              >
+                View last week's details
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleShare}
+                className="text-muted-foreground hover:text-foreground text-xs gap-1.5"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                Share recap
+              </Button>
+            </div>
           </motion.div>
         </CardContent>
       </Card>
