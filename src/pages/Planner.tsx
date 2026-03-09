@@ -26,8 +26,13 @@ const Planner = () => {
   const [swappingDay, setSwappingDay] = useState<string | null>(null);
   const [draggedDayId, setDraggedDayId] = useState<string | null>(null);
   const [dragOverDayId, setDragOverDayId] = useState<string | null>(null);
+  const [checkedInDays, setCheckedInDays] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Compute today's day_of_week (0=Mon)
+  const jsDay = new Date().getDay();
+  const todayDow = jsDay === 0 ? 6 : jsDay - 1;
 
   useEffect(() => {
     if (hhLoading) return;
