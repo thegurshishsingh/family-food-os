@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, TrendingUp, Calendar, ArrowRight, ChevronDown, ChevronUp, Sparkles, Award, X } from "lucide-react";
+import { Clock, TrendingUp, Calendar, ArrowRight, ChevronDown, ChevronUp, Sparkles, Award, X, Lightbulb } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { computeTimeSaved, formatHours, type TimeSavedResult } from "@/lib/timeSaved";
 import type { PlanDay, WeeklyPlan } from "./types";
@@ -59,6 +59,7 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [showMilestone, setShowMilestone] = useState(false);
   const [milestoneAcknowledged, setMilestoneAcknowledged] = useState(false);
+  const [insight, setInsight] = useState<string | null>(null);
 
   useEffect(() => {
     loadTimeSaved();
@@ -110,8 +111,54 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
     });
 
     setResult(computed);
-    // Estimate cumulative as avg * weeks (since we don't persist per-week yet)
     setCumulativeMinutes(computed.totalMinutesSaved * weeks);
+
+    // Generate personalized insight from feedback + cuisine data
+    buildInsight(householdId);
+  };
+
+  const buildInsight = async (hhId: string) => {
+    // Gather cuisine preferences from current plan
+    const cuisines = days.map(d => d.cuisine_type).filter(Boolean) as string[];
+    const cuisineCounts: Record<string, number> = {};
+    cuisines.forEach(c => { cuisineCounts[c] = (cuisineCounts[c] || 0) + 1; });
+
+    // Gather feedback history
+    const { data: feedback } = await supabase
+      .from("meal_feedback")
+      .select("meal_name, feedback")
+      .eq("household_id", hhId)
+      .order("created_at", { ascending: false })
+      .limit(30);
+
+    const lovedMeals = feedback?.filter(f => f.feedback === "loved" || f.feedback === "reorder_worthy") || [];
+    const refusedCount = feedback?.filter(f => f.feedback === "kids_refused").length || 0;
+    const tooHardCount = feedback?.filter(f => f.feedback === "too_hard").length || 0;
+
+    // Determine top cuisine
+    const topCuisine = Object.entries(cuisineCounts).sort((a, b) => b[1] - a[1])[0];
+
+    // Build insight based on available signals (priority order)
+    if (topCuisine && topCuisine[1] >= 2) {
+      setInsight(`Your family gravitates toward ${topCuisine[0]} flavors—we'll weave in more next week.`);
+    } else if (lovedMeals.length >= 3) {
+      setInsight(`${lovedMeals.length} meals marked as favorites so far. We're building a library around what your family loves.`);
+    } else if (lovedMeals.length >= 1) {
+      const name = lovedMeals[0].meal_name;
+      setInsight(`"${name}" was a hit. Expect more meals in that direction next week.`);
+    } else if (refusedCount > 0 && tooHardCount > 0) {
+      setInsight(`We noticed some meals didn't land—next week's plan adjusts for simpler, kid-friendlier options.`);
+    } else if (refusedCount > 0) {
+      setInsight(`We're learning what the kids enjoy. Next week's plan leans into family-friendly winners.`);
+    } else if (tooHardCount > 0) {
+      setInsight(`Some meals felt like too much effort. Next week, we'll keep things simpler on busy nights.`);
+    } else if (topCuisine) {
+      setInsight(`${topCuisine[0]} showed up in your plan this week—if you loved it, we'll feature it more.`);
+    } else if (days.filter(d => d.meal_mode === "leftovers").length >= 2) {
+      setInsight(`Smart use of leftovers this week—we'll keep building plans that reduce waste.`);
+    } else {
+      setInsight(`Each week teaches us more about your family's rhythm. Keep rating meals to sharpen recommendations.`);
+    }
   };
 
   const dismissMilestone = () => {
@@ -334,6 +381,30 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
               </ul>
             </div>
           </motion.div>
+
+          {/* Personalized insight */}
+          {insight && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.58 }}
+              className="mb-4"
+            >
+              <div className="flex items-start gap-3 rounded-xl border border-primary/10 bg-primary/[0.04] p-4 sm:p-5">
+                <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
+                  <Lightbulb className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground/90 leading-relaxed">
+                    {insight}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground/60 mt-1.5">
+                    Based on your family's ratings and preferences
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Learning indicator */}
           <motion.div
