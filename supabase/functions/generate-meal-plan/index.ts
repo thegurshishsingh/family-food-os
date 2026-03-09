@@ -145,8 +145,26 @@ serve(async (req) => {
                         fiber_g: { type: "number" },
                         notes: { type: "string" },
                         takeout_budget: { type: "number" },
+                        ingredients: {
+                          type: "array",
+                          description: "List of ingredients with quantities",
+                          items: {
+                            type: "object",
+                            properties: {
+                              name: { type: "string" },
+                              quantity: { type: "string" },
+                              unit: { type: "string" },
+                            },
+                            required: ["name", "quantity"],
+                          },
+                        },
+                        instructions: {
+                          type: "array",
+                          description: "Step-by-step cooking instructions",
+                          items: { type: "string" },
+                        },
                       },
-                      required: ["day_of_week", "meal_mode", "meal_name", "meal_description", "calories", "protein_g", "carbs_g", "fat_g"],
+                      required: ["day_of_week", "meal_mode", "meal_name", "meal_description", "calories", "protein_g", "carbs_g", "fat_g", "ingredients", "instructions"],
                     },
                   },
                   grocery_items: {
