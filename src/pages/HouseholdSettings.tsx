@@ -393,16 +393,43 @@ const HouseholdSettings = () => {
                 </Button>
               </div>
               {savedMeals.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {savedMeals.map((m) => (
-                    <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm text-foreground truncate">{m.meal_name}</p>
-                        {m.meal_description && <p className="text-xs text-muted-foreground truncate">{m.meal_description}</p>}
+                    <div key={m.id} className="p-3 rounded-xl border border-border bg-background space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm text-foreground truncate">{m.meal_name}</p>
+                          {m.meal_description && <p className="text-xs text-muted-foreground truncate">{m.meal_description}</p>}
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeMeal(m.id)}>
+                          <X className="w-3.5 h-3.5 text-muted-foreground" />
+                        </Button>
                       </div>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeMeal(m.id)}>
-                        <X className="w-3.5 h-3.5 text-muted-foreground" />
-                      </Button>
+                      <div className="flex items-center gap-4 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={m.include_in_plan}
+                            onCheckedChange={(checked) => updateMealPref(m.id, "include_in_plan", checked)}
+                          />
+                          <span className="text-xs text-muted-foreground">Include in plans</span>
+                        </div>
+                        {m.include_in_plan && (
+                          <div className="flex items-center gap-2">
+                            <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+                            <Select value={m.frequency} onValueChange={(val) => updateMealPref(m.id, "frequency", val)}>
+                              <SelectTrigger className="h-8 w-[160px] text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="every_week">Every week</SelectItem>
+                                <SelectItem value="every_other_week">Every other week</SelectItem>
+                                <SelectItem value="once_a_month">Once a month</SelectItem>
+                                <SelectItem value="occasionally">Occasionally</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
