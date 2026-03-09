@@ -106,6 +106,29 @@ const Planner = () => {
       setDayFeedback((prev) => { const n = { ...prev }; delete n[day.id]; return n; });
     } else {
       toast({ title: "Feedback saved!", description: `Marked "${day.meal_name}" as ${feedback.replace("_", " ")}` });
+
+      // Auto-save to saved meals when loved
+      if (feedback === "loved" && day.meal_name) {
+        const { data: existing } = await supabase
+          .from("saved_meals")
+          .select("id")
+          .eq("household_id", household.id)
+          .eq("meal_name", day.meal_name)
+          .maybeSingle();
+
+        if (!existing) {
+          const { error: saveErr } = await supabase.from("saved_meals").insert({
+            household_id: household.id,
+            meal_name: day.meal_name,
+            meal_description: day.meal_description || null,
+            include_in_plan: true,
+            frequency: "every_week",
+          });
+          if (!saveErr) {
+            toast({ title: "⭐ Saved to Your Meals!", description: `"${day.meal_name}" will now appear in future plans.` });
+          }
+        }
+      }
     }
   };
 
