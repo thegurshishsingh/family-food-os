@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Clock, TrendingUp, Zap, ArrowRight, ChevronDown, ChevronUp, Sparkles, Award, X, Info } from "lucide-react";
+import { Clock, TrendingUp, Zap, ArrowRight, ChevronDown, ChevronUp, Sparkles, Award, X, Info, Share2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { computeTimeSaved, formatHours, type TimeSavedResult } from "@/lib/timeSaved";
 import { getHumanRewards, getCumulativeMessage, getYearlyProjection, type HumanReward } from "@/lib/humanReward";
@@ -58,6 +59,7 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
   const [showMilestone, setShowMilestone] = useState(false);
   const [milestoneAcknowledged, setMilestoneAcknowledged] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadTimeSaved();
@@ -111,6 +113,37 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
   const dismissMilestone = () => {
     setShowMilestone(false);
     setMilestoneAcknowledged(true);
+  };
+
+  const handleShare = async () => {
+    if (!result) return;
+    const topFactors = result.factors.slice(0, 3).map(f => `• ${f.label}: ${f.minutesSaved} min`).join("\n");
+    const text = [
+      `🕐 My family got ${formatHours(result.totalMinutesSaved)} back last week with Family Food OS!`,
+      "",
+      topFactors,
+      "",
+      `📊 ${formatHours(cumulativeMinutes)} saved total across ${totalWeeks} week${totalWeeks !== 1 ? "s" : ""}.`,
+      "",
+      humanRewards.length > 0 ? humanRewards.map(r => `${r.emoji} ${r.text}`).join("\n") : "",
+    ].filter(Boolean).join("\n");
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "My Weekly Time Saved", text });
+      } catch (e: any) {
+        if (e.name !== "AbortError") {
+          toast({ variant: "destructive", title: "Share failed", description: e.message });
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+        toast({ title: "Copied to clipboard!", description: "Paste it anywhere to share your recap." });
+      } catch {
+        toast({ variant: "destructive", title: "Could not copy to clipboard" });
+      }
+    }
   };
 
   if (!result || result.totalMinutesSaved === 0) return null;
@@ -516,13 +549,23 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
                 </>
               )}
             </Button>
-            <Button
-              variant="ghost"
-              onClick={onViewDetails}
-              className="text-muted-foreground hover:text-foreground text-xs"
-            >
-              View last week's details
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                onClick={onViewDetails}
+                className="text-muted-foreground hover:text-foreground text-xs"
+              >
+                View last week's details
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleShare}
+                className="text-muted-foreground hover:text-foreground text-xs gap-1.5"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                Share recap
+              </Button>
+            </div>
           </motion.div>
         </CardContent>
       </Card>
