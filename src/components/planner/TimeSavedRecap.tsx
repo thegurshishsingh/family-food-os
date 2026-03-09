@@ -114,7 +114,7 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
     setCumulativeMinutes(computed.totalMinutesSaved * weeks);
 
     // Generate personalized insight from feedback + cuisine data
-    generateInsight(householdId);
+    buildInsight(householdId);
   };
 
   const dismissMilestone = () => {
