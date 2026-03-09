@@ -90,6 +90,7 @@ serve(async (req) => {
         `Meal mode: ${currentDay.meal_mode}.`,
         preferences?.cooking_time_tolerance ? `Cooking time tolerance: ${preferences.cooking_time_tolerance}. Match the replacement meal's prep time to this preference.` : "",
         `Include realistic nutrition estimates.`,
+        `Include a full ingredient list with quantities and units, and clear step-by-step cooking instructions.`,
       ].filter(Boolean).join("\n");
 
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
