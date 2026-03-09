@@ -74,6 +74,7 @@ const Onboarding = () => {
   const [cuisinesDisliked, setCuisinesDisliked] = useState<string[]>([]);
   const [dietary, setDietary] = useState<string[]>([]);
   const [allergies, setAllergies] = useState<string[]>([]);
+  const [foodsToAvoid, setFoodsToAvoid] = useState<string[]>([]);
   const [healthGoal, setHealthGoal] = useState("Balanced family eating");
 
   // Step 3 - Logistics
