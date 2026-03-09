@@ -1,10 +1,10 @@
-import { useCallback } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Clock, Flame, Beef, Wheat, Droplets, Leaf, UtensilsCrossed, ShoppingBasket, ListOrdered, Printer, Share2 } from "lucide-react";
+import { Clock, Flame, Beef, Wheat, Droplets, Leaf, UtensilsCrossed, ShoppingBasket, ListOrdered, Printer, Share2, Minus, Plus, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MODE_CONFIG, DAYS, type PlanDay } from "./types";
 
@@ -12,15 +12,65 @@ interface MealDetailDialogProps {
   day: PlanDay | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultServings?: number;
 }
 
-const MealDetailDialog = ({ day, open, onOpenChange }: MealDetailDialogProps) => {
+/** Try to parse a leading number from a quantity string like "2", "1.5", "1/2", "3/4 cup" */
+function parseLeadingNumber(qty: string): { num: number; rest: string } | null {
+  const trimmed = qty.trim();
+  // fraction like "1/2"
+  const fracMatch = trimmed.match(/^(\d+)\s*\/\s*(\d+)(.*)/);
+  if (fracMatch) {
+    const num = parseInt(fracMatch[1]) / parseInt(fracMatch[2]);
+    return { num, rest: fracMatch[3].trim() };
+  }
+  // mixed number like "1 1/2"
+  const mixedMatch = trimmed.match(/^(\d+)\s+(\d+)\s*\/\s*(\d+)(.*)/);
+  if (mixedMatch) {
+    const num = parseInt(mixedMatch[1]) + parseInt(mixedMatch[2]) / parseInt(mixedMatch[3]);
+    return { num, rest: mixedMatch[4].trim() };
+  }
+  // decimal or integer
+  const decMatch = trimmed.match(/^(\d+\.?\d*)(.*)/);
+  if (decMatch) {
+    return { num: parseFloat(decMatch[1]), rest: decMatch[2].trim() };
+  }
+  return null;
+}
+
+function formatNumber(n: number): string {
+  // Common fractions for readability
+  const fractions: Record<string, string> = {
+    "0.25": "¼", "0.33": "⅓", "0.5": "½", "0.67": "⅔", "0.75": "¾",
+  };
+  if (Number.isInteger(n)) return n.toString();
+  const whole = Math.floor(n);
+  const frac = n - whole;
+  const fracKey = frac.toFixed(2);
+  if (fractions[fracKey]) {
+    return whole > 0 ? `${whole}${fractions[fracKey]}` : fractions[fracKey];
+  }
+  // Round to 1 decimal
+  const rounded = Math.round(n * 10) / 10;
+  return Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1);
+}
+
+function scaleQuantity(qty: string, multiplier: number): string {
+  const parsed = parseLeadingNumber(qty);
+  if (!parsed) return qty;
+  const scaled = parsed.num * multiplier;
+  return `${formatNumber(scaled)}${parsed.rest ? " " + parsed.rest : ""}`;
+}
+
+const MealDetailDialog = ({ day, open, onOpenChange, defaultServings = 4 }: MealDetailDialogProps) => {
   const { toast } = useToast();
+  const [servings, setServings] = useState(defaultServings);
 
   if (!day || !day.meal_name) return null;
 
   const mode = MODE_CONFIG[day.meal_mode];
   const ModeIcon = mode.icon;
+  const multiplier = servings / defaultServings;
 
   const nutritionItems = [
     { label: "Calories", value: day.calories, unit: "kcal", icon: Flame, accent: "text-orange-500" },
@@ -34,16 +84,22 @@ const MealDetailDialog = ({ day, open, onOpenChange }: MealDetailDialogProps) =>
   const instructions = day.instructions || [];
 
   const buildRecipeText = () => {
-    const lines: string[] = [day.meal_name!, ""];
+    const lines: string[] = [day.meal_name!, `Servings: ${servings}`, ""];
     if (day.meal_description) lines.push(day.meal_description, "");
     if (nutritionItems.length) {
-      lines.push("Nutrition:");
-      nutritionItems.forEach(n => lines.push(`  ${n.label}: ${n.value}${n.unit === "kcal" ? " cal" : n.unit}`));
+      lines.push("Nutrition (per serving):");
+      nutritionItems.forEach(n => {
+        const val = n.value != null ? Math.round(n.value * multiplier) : n.value;
+        lines.push(`  ${n.label}: ${val}${n.unit === "kcal" ? " cal" : n.unit}`);
+      });
       lines.push("");
     }
     if (ingredients.length) {
       lines.push("Ingredients:");
-      ingredients.forEach(ing => lines.push(`  • ${ing.quantity}${ing.unit ? " " + ing.unit : ""} ${ing.name}`));
+      ingredients.forEach(ing => {
+        const qty = scaleQuantity(ing.quantity, multiplier);
+        lines.push(`  • ${qty}${ing.unit ? " " + ing.unit : ""} ${ing.name}`);
+      });
       lines.push("");
     }
     if (instructions.length) {
@@ -57,7 +113,7 @@ const MealDetailDialog = ({ day, open, onOpenChange }: MealDetailDialogProps) =>
     const text = buildRecipeText();
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
-    printWindow.document.write(`<html><head><title>${day.meal_name}</title><style>body{font-family:system-ui,sans-serif;max-width:600px;margin:40px auto;padding:0 20px;line-height:1.6}h1{margin-bottom:4px}pre{white-space:pre-wrap;font-family:inherit;font-size:14px}</style></head><body><pre>${text}</pre></body></html>`);
+    printWindow.document.write(`<html><head><title>${day.meal_name}</title><style>body{font-family:system-ui,sans-serif;max-width:600px;margin:40px auto;padding:0 20px;line-height:1.6}pre{white-space:pre-wrap;font-family:inherit;font-size:14px}</style></head><body><pre>${text}</pre></body></html>`);
     printWindow.document.close();
     printWindow.print();
   };
@@ -123,6 +179,37 @@ const MealDetailDialog = ({ day, open, onOpenChange }: MealDetailDialogProps) =>
               )}
             </div>
 
+            {/* Serving adjuster */}
+            {ingredients.length > 0 && (
+              <div className="flex items-center justify-between rounded-xl bg-muted/50 px-4 py-3">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  Servings
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-7 w-7 rounded-full"
+                    onClick={() => setServings(Math.max(1, servings - 1))}
+                    disabled={servings <= 1}
+                  >
+                    <Minus className="w-3 h-3" />
+                  </Button>
+                  <span className="w-8 text-center text-sm font-bold text-foreground">{servings}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-7 w-7 rounded-full"
+                    onClick={() => setServings(Math.min(20, servings + 1))}
+                    disabled={servings >= 20}
+                  >
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
             {/* Macros */}
             {nutritionItems.length > 0 && (
               <>
@@ -136,7 +223,7 @@ const MealDetailDialog = ({ day, open, onOpenChange }: MealDetailDialogProps) =>
                     {nutritionItems.map(({ label, value, unit, icon: Icon, accent }) => (
                       <div key={label} className="flex flex-col items-center rounded-xl bg-muted/50 px-2 py-3 text-center">
                         <Icon className={`w-4 h-4 ${accent} mb-1`} />
-                        <p className="text-base font-bold text-foreground leading-none">{value}</p>
+                        <p className="text-base font-bold text-foreground leading-none">{value != null ? Math.round(value * multiplier) : value}</p>
                         <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider">{unit === "kcal" ? "cal" : label}</p>
                       </div>
                     ))}
@@ -160,7 +247,7 @@ const MealDetailDialog = ({ day, open, onOpenChange }: MealDetailDialogProps) =>
                       <li key={i} className="flex items-baseline gap-2 text-sm py-1 px-2 rounded-lg hover:bg-muted/50 transition-colors">
                         <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1.5" />
                         <span className="text-foreground">
-                          <span className="font-medium">{ing.quantity}{ing.unit ? ` ${ing.unit}` : ""}</span>
+                          <span className="font-medium">{scaleQuantity(ing.quantity, multiplier)}{ing.unit ? ` ${ing.unit}` : ""}</span>
                           {" "}
                           <span className="text-muted-foreground">{ing.name}</span>
                         </span>
