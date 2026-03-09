@@ -575,6 +575,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
                 humanRewards={humanRewards}
                 householdName={householdName}
               />
+            </div>
           </motion.div>
         </CardContent>
       </Card>
