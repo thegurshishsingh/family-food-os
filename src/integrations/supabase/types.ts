@@ -106,6 +106,7 @@ export type Database = {
           cuisines_liked: string[] | null
           delivery_preference: string | null
           dietary_preferences: string[] | null
+          foods_to_avoid: string[] | null
           grocery_store: string | null
           health_goal: string | null
           household_id: string
@@ -122,6 +123,7 @@ export type Database = {
           cuisines_liked?: string[] | null
           delivery_preference?: string | null
           dietary_preferences?: string[] | null
+          foods_to_avoid?: string[] | null
           grocery_store?: string | null
           health_goal?: string | null
           household_id: string
@@ -138,6 +140,7 @@ export type Database = {
           cuisines_liked?: string[] | null
           delivery_preference?: string | null
           dietary_preferences?: string[] | null
+          foods_to_avoid?: string[] | null
           grocery_store?: string | null
           health_goal?: string | null
           household_id?: string
