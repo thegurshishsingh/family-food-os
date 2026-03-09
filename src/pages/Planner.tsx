@@ -62,7 +62,7 @@ const Planner = () => {
         .eq("plan_id", p.id)
         .order("day_of_week");
       if (planDays) {
-        setDays(planDays as PlanDay[]);
+        setDays(planDays as unknown as PlanDay[]);
         const dayIds = planDays.map((d: any) => d.id);
 
         // Load feedback and check-in status in parallel
