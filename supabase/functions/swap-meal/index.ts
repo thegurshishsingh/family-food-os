@@ -89,8 +89,9 @@ serve(async (req) => {
         dislikedMeals.length ? `Avoid these disliked meals: ${dislikedMeals.join(", ")}.` : "",
         `Meal mode: ${currentDay.meal_mode}.`,
         preferences?.cooking_time_tolerance ? `Cooking time tolerance: ${preferences.cooking_time_tolerance}. Match the replacement meal's prep time to this preference.` : "",
-        `Include realistic nutrition estimates.`,
-        `Include a full ingredient list with quantities and units, and clear step-by-step cooking instructions.`,
+        `Include realistic nutrition estimates PER SINGLE SERVING.`,
+        `IMPORTANT — Ingredient quantities must be for ONE SINGLE SERVING. Use sensible units (e.g. "1" chicken breast, "0.5" lb, "1" cup, "2" tbsp). Keep units in the "unit" field, numeric amounts in "quantity".`,
+        `Provide detailed step-by-step cooking instructions with 6-10 steps. Include prep details (cutting, seasoning), cooking temperatures and times, and plating suggestions. Be specific enough for a beginner cook.`,
       ].filter(Boolean).join("\n");
 
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
