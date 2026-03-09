@@ -382,6 +382,30 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
             </div>
           </motion.div>
 
+          {/* Personalized insight */}
+          {insight && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.58 }}
+              className="mb-4"
+            >
+              <div className="flex items-start gap-3 rounded-xl border border-primary/10 bg-primary/[0.04] p-4 sm:p-5">
+                <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
+                  <Lightbulb className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground/90 leading-relaxed">
+                    {insight}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground/60 mt-1.5">
+                    Based on your family's ratings and preferences
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Learning indicator */}
           <motion.div
             initial={{ opacity: 0 }}
