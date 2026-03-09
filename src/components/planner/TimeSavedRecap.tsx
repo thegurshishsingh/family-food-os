@@ -53,7 +53,7 @@ function ConfettiParticle({ delay, x, color }: { delay: number; x: number; color
   );
 }
 
-const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails, generating }: TimeSavedRecapProps) => {
+const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan, onViewDetails, generating }: TimeSavedRecapProps) => {
   const [result, setResult] = useState<TimeSavedResult | null>(null);
   const [cumulativeMinutes, setCumulativeMinutes] = useState(0);
   const [totalWeeks, setTotalWeeks] = useState(1);
