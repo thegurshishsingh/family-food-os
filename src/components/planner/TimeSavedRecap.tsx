@@ -111,8 +111,10 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
     });
 
     setResult(computed);
-    // Estimate cumulative as avg * weeks (since we don't persist per-week yet)
     setCumulativeMinutes(computed.totalMinutesSaved * weeks);
+
+    // Generate personalized insight from feedback + cuisine data
+    generateInsight(householdId);
   };
 
   const dismissMilestone = () => {
