@@ -38,6 +38,7 @@ const HouseholdSettings = () => {
   const [groceryStore, setGroceryStore] = useState("");
   const [deliveryPref, setDeliveryPref] = useState("in-store");
   const [healthGoal, setHealthGoal] = useState("Balanced family eating");
+  const [foodsToAvoid, setFoodsToAvoid] = useState<string[]>([]);
 
   // Saved meals
   const [savedMeals, setSavedMeals] = useState<{ id: string; meal_name: string; meal_description: string | null }[]>([]);
