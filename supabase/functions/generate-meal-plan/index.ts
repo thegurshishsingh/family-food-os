@@ -331,8 +331,26 @@ function buildPrompt(
   if (dislikedMeals.length) parts.push(`Previously disliked/refused meals: ${dislikedMeals.slice(0, 10).join(", ")}.`);
 
   if (savedMeals.length) {
-    const mealList = savedMeals.map(m => m.meal_description ? `${m.meal_name} (${m.meal_description})` : m.meal_name).join(", ");
-    parts.push(`The family has requested these specific meals be included when possible: ${mealList}. Try to include at least some of them in the plan.`);
+    const includedMeals = savedMeals.filter((m: any) => m.include_in_plan !== false);
+    if (includedMeals.length) {
+      const frequencyLabel: Record<string, string> = {
+        every_week: "MUST include every week",
+        every_other_week: "include roughly every other week",
+        once_a_month: "include about once a month",
+        occasionally: "include occasionally when it fits",
+      };
+      const mealList = includedMeals.map((m: any) => {
+        const desc = m.meal_description ? ` (${m.meal_description})` : "";
+        const freq = frequencyLabel[m.frequency] || "include when possible";
+        return `- ${m.meal_name}${desc} → ${freq}`;
+      }).join("\n");
+      parts.push(`\nSAVED FAMILY MEALS — The family has specifically saved these meals with inclusion preferences. Respect their frequency settings:\n${mealList}`);
+      
+      const mustInclude = includedMeals.filter((m: any) => m.frequency === "every_week");
+      if (mustInclude.length) {
+        parts.push(`⚠️ The following meals MUST appear in this week's plan: ${mustInclude.map((m: any) => m.meal_name).join(", ")}.`);
+      }
+    }
   }
 
   // Check-in behavioral insights
