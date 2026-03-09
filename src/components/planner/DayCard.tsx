@@ -18,6 +18,9 @@ interface DayCardProps {
   isSwapping: boolean;
   isDragged: boolean;
   isDragOver: boolean;
+  isToday: boolean;
+  householdId?: string;
+  checkedIn?: boolean;
   onSwapMeal: (day: PlanDay) => void;
   onToggleLock: (day: PlanDay) => void;
   onCycleMealMode: (day: PlanDay) => void;
@@ -28,6 +31,7 @@ interface DayCardProps {
   onDragLeave: () => void;
   onDrop: (dayId: string) => void;
   onDragEnd: () => void;
+  onCheckedIn?: (dayId: string) => void;
 }
 
 const DayCard = ({
