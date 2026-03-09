@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Clock, TrendingUp, Zap, ArrowRight, ChevronDown, ChevronUp, Sparkles, Award, X, Info, Share2 } from "lucide-react";
+import ShareableRecapCard from "./ShareableRecapCard";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { computeTimeSaved, formatHours, type TimeSavedResult } from "@/lib/timeSaved";
@@ -15,6 +16,7 @@ interface TimeSavedRecapProps {
   plan: WeeklyPlan;
   days: PlanDay[];
   householdId: string;
+  householdName?: string;
   onGeneratePlan: () => void;
   onViewDetails: () => void;
   generating: boolean;
@@ -51,7 +53,7 @@ function ConfettiParticle({ delay, x, color }: { delay: number; x: number; color
   );
 }
 
-const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails, generating }: TimeSavedRecapProps) => {
+const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan, onViewDetails, generating }: TimeSavedRecapProps) => {
   const [result, setResult] = useState<TimeSavedResult | null>(null);
   const [cumulativeMinutes, setCumulativeMinutes] = useState(0);
   const [totalWeeks, setTotalWeeks] = useState(1);
@@ -565,6 +567,14 @@ const TimeSavedRecap = ({ plan, days, householdId, onGeneratePlan, onViewDetails
                 <Share2 className="w-3.5 h-3.5" />
                 Share recap
               </Button>
+              <ShareableRecapCard
+                result={result}
+                cumulativeMinutes={cumulativeMinutes}
+                totalWeeks={totalWeeks}
+                plannedNights={plannedNights}
+                humanRewards={humanRewards}
+                householdName={householdName}
+              />
             </div>
           </motion.div>
         </CardContent>

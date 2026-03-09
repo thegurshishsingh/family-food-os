@@ -270,6 +270,7 @@ const Planner = () => {
             plan={plan}
             days={days}
             householdId={household.id}
+            householdName={household.name}
             onGeneratePlan={generatePlan}
             onViewDetails={() => navigate("/history")}
             generating={generating}
