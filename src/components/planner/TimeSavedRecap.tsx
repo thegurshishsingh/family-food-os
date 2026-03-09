@@ -103,18 +103,27 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
     setCumulativeMinutes(computed.totalMinutesSaved * weeks);
   };
 
+  useEffect(() => {
+    if (result && cumulativeMinutes > 0 && !milestoneAcknowledged) {
+      const milestone = getMilestone(cumulativeMinutes);
+      if (milestone) {
+        const timer = setTimeout(() => setShowMilestone(true), 600);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [result, cumulativeMinutes, milestoneAcknowledged]);
+
   if (!result || result.totalMinutesSaved === 0) return null;
 
   const plannedNights = days.filter(d => d.meal_name).length;
   const humanRewards = getHumanRewards(result.totalMinutesSaved, plannedNights);
   const primaryReward = humanRewards[0];
+  const milestone = getMilestone(cumulativeMinutes);
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="mb-10"
+  const dismissMilestone = () => {
+    setShowMilestone(false);
+    setMilestoneAcknowledged(true);
+  };
     >
       <div className="rounded-2xl border border-border/40 bg-card px-6 py-10 sm:px-10 sm:py-14">
 
