@@ -388,6 +388,7 @@ function buildPrompt(
 
   parts.push(`Include at least 1 leftover night reusing a previous cooked meal.`);
   parts.push(`Include realistic nutrition estimates per meal (calories, protein_g, carbs_g, fat_g).`);
+  parts.push(`For each meal, include a full ingredient list with quantities and units, and clear step-by-step cooking instructions that are easy to follow.`);
   parts.push(`Generate a matching grocery list organized by category.`);
   parts.push(`Assess reality_score (0-100) based on how realistic the plan is given the family's context. Factor in:
 - Number of cook nights vs convenience nights (more cook nights = lower score for busy families)

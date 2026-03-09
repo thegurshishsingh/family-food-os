@@ -187,6 +187,8 @@ serve(async (req) => {
         carbs_g: newMeal.carbs_g,
         fat_g: newMeal.fat_g,
         fiber_g: newMeal.fiber_g || null,
+        ingredients: newMeal.ingredients || null,
+        instructions: newMeal.instructions || null,
       })
       .eq("id", plan_day_id);
 
