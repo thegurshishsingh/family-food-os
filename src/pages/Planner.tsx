@@ -328,6 +328,9 @@ const Planner = () => {
                 isSwapping={swappingDay === day.id}
                 isDragged={draggedDayId === day.id}
                 isDragOver={dragOverDayId === day.id}
+                isToday={day.day_of_week === todayDow}
+                householdId={household?.id}
+                checkedIn={checkedInDays.has(day.id)}
                 onSwapMeal={swapMeal}
                 onToggleLock={toggleLock}
                 onCycleMealMode={cycleMealMode}
@@ -338,6 +341,8 @@ const Planner = () => {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onDragEnd={handleDragEnd}
+                onCheckedIn={(dayId) => setCheckedInDays((prev) => new Set([...prev, dayId]))}
+              />
               />
             ))}
           </div>
