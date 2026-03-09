@@ -16,6 +16,7 @@ interface TimeSavedRecapProps {
   plan: WeeklyPlan;
   days: PlanDay[];
   householdId: string;
+  householdName?: string;
   onGeneratePlan: () => void;
   onViewDetails: () => void;
   generating: boolean;
