@@ -12,6 +12,7 @@ import { Save, Plus, X } from "lucide-react";
 const CUISINES = ["Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Mediterranean", "American", "Korean", "French", "Middle Eastern", "Vietnamese"];
 const DIETARY = ["Vegetarian", "Vegan", "Gluten-free", "Dairy-free", "Keto", "Paleo", "Halal", "Kosher", "Low-sodium", "Nut-free"];
 const ALLERGIES = ["Peanuts", "Tree nuts", "Milk", "Eggs", "Fish", "Shellfish", "Wheat", "Soy", "Sesame"];
+const FOODS_TO_AVOID = ["Beef", "Pork", "Lamb", "Fish", "Shellfish", "Organ meats", "Tofu", "Mushrooms", "Spicy food", "Raw food"];
 const HEALTH_GOALS = ["Balanced family eating", "Lose weight", "Gain weight", "Higher protein", "Maintain"];
 const AGE_BANDS = ["0–1 (infant)", "1–3 (toddler)", "3–5 (preschool)", "5–10 (school age)", "10–13 (preteen)", "13–18 (teenager)"];
 
@@ -37,6 +38,7 @@ const HouseholdSettings = () => {
   const [groceryStore, setGroceryStore] = useState("");
   const [deliveryPref, setDeliveryPref] = useState("in-store");
   const [healthGoal, setHealthGoal] = useState("Balanced family eating");
+  const [foodsToAvoid, setFoodsToAvoid] = useState<string[]>([]);
 
   // Saved meals
   const [savedMeals, setSavedMeals] = useState<{ id: string; meal_name: string; meal_description: string | null }[]>([]);
@@ -55,6 +57,7 @@ const HouseholdSettings = () => {
       setCuisinesDisliked(preferences.cuisines_disliked || []);
       setDietary(preferences.dietary_preferences || []);
       setAllergyList(preferences.allergies || []);
+      setFoodsToAvoid(preferences.foods_to_avoid || []);
       setBudget(preferences.weekly_grocery_budget?.toString() || "");
       setCookingTolerance(preferences.cooking_time_tolerance || "medium");
       setTakeoutFreq(preferences.preferred_takeout_frequency || 1);
@@ -124,6 +127,7 @@ const HouseholdSettings = () => {
           cuisines_disliked: cuisinesDisliked,
           dietary_preferences: dietary,
           allergies,
+          foods_to_avoid: foodsToAvoid,
           weekly_grocery_budget: budget ? parseFloat(budget) : null,
           cooking_time_tolerance: cookingTolerance,
           preferred_takeout_frequency: takeoutFreq,
@@ -250,6 +254,18 @@ const HouseholdSettings = () => {
                     <button key={a} onClick={() => toggleInList(allergies, a, setAllergyList)}
                       className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${allergies.includes(a) ? "bg-destructive text-destructive-foreground border-destructive" : "bg-background text-foreground border-border hover:bg-muted"}`}>
                       {a}
+                    </button>
+                    ))}
+                  </div>
+                </div>
+              <div>
+                <Label className="text-sm font-medium">Foods to avoid</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Select any foods your family doesn't eat</p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {FOODS_TO_AVOID.map((f) => (
+                    <button key={f} onClick={() => toggleInList(foodsToAvoid, f, setFoodsToAvoid)}
+                      className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${foodsToAvoid.includes(f) ? "bg-destructive text-destructive-foreground border-destructive" : "bg-background text-foreground border-border hover:bg-muted"}`}>
+                      🚫 {f}
                     </button>
                   ))}
                 </div>
