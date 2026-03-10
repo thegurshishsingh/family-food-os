@@ -15,6 +15,7 @@ import TimeSavedRecap from "@/components/planner/TimeSavedRecap";
 import WeeklySummary from "@/components/planner/WeeklySummary";
 import DayCard from "@/components/planner/DayCard";
 import SwapMealDialog, { type MealSuggestion } from "@/components/planner/SwapMealDialog";
+import DailyDinnerCard from "@/components/planner/DailyDinnerCard";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
 
 const Planner = () => {
@@ -397,6 +398,22 @@ const Planner = () => {
               </Button>
             </CardContent>
           </Card>
+        )}
+
+        {/* Daily Dinner Card */}
+        {plan && household && (
+          <div className="mb-4">
+            <DailyDinnerCard
+              todayDay={days.find((d) => d.day_of_week === todayDow) || null}
+              householdId={household.id}
+              checkedIn={(() => {
+                const td = days.find((d) => d.day_of_week === todayDow);
+                return td ? checkedInDays.has(td.id) : false;
+              })()}
+              onCheckedIn={(dayId) => setCheckedInDays((prev) => new Set([...prev, dayId]))}
+              onFeedback={submitFeedback}
+            />
+          </div>
         )}
 
         {/* Day cards */}
