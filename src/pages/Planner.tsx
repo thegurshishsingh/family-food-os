@@ -14,6 +14,7 @@ import RealityScore from "@/components/planner/RealityScore";
 import TimeSavedRecap from "@/components/planner/TimeSavedRecap";
 import WeeklySummary from "@/components/planner/WeeklySummary";
 import DayCard from "@/components/planner/DayCard";
+import SwapMealDialog, { type MealSuggestion } from "@/components/planner/SwapMealDialog";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
 
 const Planner = () => {
@@ -29,6 +30,10 @@ const Planner = () => {
   const [dragOverDayId, setDragOverDayId] = useState<string | null>(null);
   const [checkedInDays, setCheckedInDays] = useState<Set<string>>(new Set());
   const [savedMealNames, setSavedMealNames] = useState<Set<string>>(new Set());
+  const [swapSuggestions, setSwapSuggestions] = useState<MealSuggestion[]>([]);
+  const [swapDialogOpen, setSwapDialogOpen] = useState(false);
+  const [swapDayContext, setSwapDayContext] = useState<PlanDay | null>(null);
+  const [confirmingSwap, setConfirmingSwap] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -167,26 +172,56 @@ const Planner = () => {
   const swapMeal = async (day: PlanDay) => {
     if (!household || day.is_locked) return;
     setSwappingDay(day.id);
+    setSwapDayContext(day);
     try {
       const { data, error } = await supabase.functions.invoke("swap-meal", {
         body: { plan_day_id: day.id, household_id: household.id },
       });
       if (error) throw error;
-      if (data?.meal) {
-        setDays((prev) =>
-          prev.map((d) =>
-            d.id === day.id
-              ? { ...d, meal_name: data.meal.meal_name, meal_description: data.meal.meal_description, cuisine_type: data.meal.cuisine_type || null, prep_time_minutes: data.meal.prep_time_minutes || null, calories: data.meal.calories, protein_g: data.meal.protein_g, carbs_g: data.meal.carbs_g, fat_g: data.meal.fat_g, fiber_g: data.meal.fiber_g || null, ingredients: data.meal.ingredients || null, instructions: data.meal.instructions || null }
-              : d
-          )
-        );
-        setDayFeedback((prev) => { const n = { ...prev }; delete n[day.id]; return n; });
-        toast({ title: "Meal swapped!", description: `Now serving: ${data.meal.meal_name}` });
+      if (data?.suggestions?.length) {
+        setSwapSuggestions(data.suggestions);
+        setSwapDialogOpen(true);
+      } else {
+        toast({ variant: "destructive", title: "No suggestions returned" });
       }
     } catch (err: any) {
       toast({ variant: "destructive", title: "Swap failed", description: err.message });
     } finally {
       setSwappingDay(null);
+    }
+  };
+
+  const confirmSwapMeal = async (meal: MealSuggestion) => {
+    if (!household || !swapDayContext) return;
+    setConfirmingSwap(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("swap-meal", {
+        body: {
+          plan_day_id: swapDayContext.id,
+          household_id: household.id,
+          action: "confirm",
+          selected_meal: meal,
+        },
+      });
+      if (error) throw error;
+      if (data?.meal) {
+        setDays((prev) =>
+          prev.map((d) =>
+            d.id === swapDayContext.id
+              ? { ...d, meal_name: data.meal.meal_name, meal_description: data.meal.meal_description, cuisine_type: data.meal.cuisine_type || null, prep_time_minutes: data.meal.prep_time_minutes || null, calories: data.meal.calories, protein_g: data.meal.protein_g, carbs_g: data.meal.carbs_g, fat_g: data.meal.fat_g, fiber_g: data.meal.fiber_g || null, ingredients: data.meal.ingredients || null, instructions: data.meal.instructions || null }
+              : d
+          )
+        );
+        setDayFeedback((prev) => { const n = { ...prev }; delete n[swapDayContext.id]; return n; });
+        toast({ title: "Meal swapped!", description: `Now serving: ${data.meal.meal_name}. Grocery list updated.` });
+        setSwapDialogOpen(false);
+        setSwapSuggestions([]);
+        setSwapDayContext(null);
+      }
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Swap failed", description: err.message });
+    } finally {
+      setConfirmingSwap(false);
     }
   };
 
@@ -396,6 +431,16 @@ const Planner = () => {
           </div>
         )}
       </div>
+
+      <SwapMealDialog
+        open={swapDialogOpen}
+        onOpenChange={(o) => { setSwapDialogOpen(o); if (!o) { setSwapSuggestions([]); setSwapDayContext(null); } }}
+        suggestions={swapSuggestions}
+        dayName={swapDayContext ? DAYS[swapDayContext.day_of_week] : ""}
+        currentMealName={swapDayContext?.meal_name || undefined}
+        onSelect={confirmSwapMeal}
+        confirming={confirmingSwap}
+      />
     </AppLayout>
   );
 };
