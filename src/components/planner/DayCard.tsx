@@ -134,7 +134,7 @@ const DayCard = ({
                         {day.meal_name || "No meal assigned"}
                       </h3>
                       {isSavedMeal && (
-                        <Bookmark className="w-3.5 h-3.5 text-primary fill-primary shrink-0" title="Saved meal" />
+                        <Bookmark className="w-3.5 h-3.5 text-primary fill-primary shrink-0" />
                       )}
                     </div>
                     {day.meal_description && (
