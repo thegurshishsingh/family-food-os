@@ -43,7 +43,20 @@ const Planner = () => {
       return;
     }
     loadPlan();
+    loadSavedMealNames();
   }, [household, hhLoading]);
+
+  const loadSavedMealNames = async () => {
+    if (!household) return;
+    const { data } = await supabase
+      .from("saved_meals")
+      .select("meal_name")
+      .eq("household_id", household.id)
+      .eq("include_in_plan", true);
+    if (data) {
+      setSavedMealNames(new Set(data.map((m: any) => m.meal_name.toLowerCase())));
+    }
+  };
 
   const loadPlan = async () => {
     if (!household) return;
