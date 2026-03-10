@@ -419,6 +419,7 @@ const Planner = () => {
         {/* Day cards */}
         {days.length > 0 && (
           <div className="space-y-3">
+            {days.map((day, i) => (
               <DayCard
                 key={day.id}
                 day={day}
