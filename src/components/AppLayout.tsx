@@ -56,17 +56,20 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
             <span className="font-serif text-lg font-semibold text-foreground hidden sm:inline">Family Food OS</span>
           </Link>
           <div className="flex items-center gap-1">
+            {/* Show only key nav items on mobile, all on md+ */}
             {NAV.map((n) => (
               <Button
                 key={n.to}
                 variant={location.pathname === n.to ? "secondary" : "ghost"}
                 size="sm"
-                className="gap-1.5"
+                className={`gap-1.5 px-2 sm:px-3 ${
+                  ["/planner", "/groceries", "/checkin"].includes(n.to) ? "" : "hidden md:inline-flex"
+                }`}
                 asChild
               >
                 <Link to={n.to}>
                   <n.icon className="w-4 h-4" />
-                  <span className="hidden md:inline">{n.label}</span>
+                  <span className="hidden lg:inline">{n.label}</span>
                 </Link>
               </Button>
             ))}
