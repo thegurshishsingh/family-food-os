@@ -56,7 +56,7 @@ const CheckInStreak = ({ householdId, checkedInCount }: CheckInStreakProps) => {
   const [message, setMessage] = useState("");
   const [milestoneHit, setMilestoneHit] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
-  const prevStreakRef = useRef(0);
+  const prevStreakRef = useRef<number | null>(null);
 
   useEffect(() => {
     computeStreak();
