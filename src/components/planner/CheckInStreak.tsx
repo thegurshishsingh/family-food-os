@@ -56,7 +56,7 @@ const CheckInStreak = ({ householdId, checkedInCount }: CheckInStreakProps) => {
   const [message, setMessage] = useState("");
   const [milestoneHit, setMilestoneHit] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
-  const prevStreakRef = useRef(0);
+  const prevStreakRef = useRef<number | null>(null);
 
   useEffect(() => {
     computeStreak();
@@ -108,9 +108,9 @@ const CheckInStreak = ({ householdId, checkedInCount }: CheckInStreakProps) => {
       }
     }
 
-    // Check if we just crossed a milestone
+    // Only check milestones after initial load (not on mount)
     const prevStreak = prevStreakRef.current;
-    if (count > prevStreak) {
+    if (prevStreak !== null && count > prevStreak) {
       const crossedMilestone = MILESTONES.find((m) => count >= m && prevStreak < m);
       if (crossedMilestone) {
         setMilestoneHit(crossedMilestone);
