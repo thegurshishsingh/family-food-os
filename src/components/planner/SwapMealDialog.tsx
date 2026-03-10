@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Clock, Flame, Check } from "lucide-react";
+import { Clock, Flame, Check, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export interface MealSuggestion {
@@ -27,7 +27,9 @@ interface SwapMealDialogProps {
   dayName: string;
   currentMealName?: string;
   onSelect: (meal: MealSuggestion) => void;
+  onRegenerate: () => void;
   confirming: boolean;
+  regenerating: boolean;
 }
 
 const SwapMealDialog = ({
@@ -37,7 +39,9 @@ const SwapMealDialog = ({
   dayName,
   currentMealName,
   onSelect,
+  onRegenerate,
   confirming,
+  regenerating,
 }: SwapMealDialogProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
@@ -125,11 +129,31 @@ const SwapMealDialog = ({
           </AnimatePresence>
         </div>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={() => { setSelectedIndex(null); onOpenChange(false); }} disabled={confirming}>
-            Cancel
+        <div className="flex justify-between mt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => { setSelectedIndex(null); onRegenerate(); }}
+            disabled={confirming || regenerating}
+            className="gap-2 text-muted-foreground"
+          >
+            {regenerating ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+                Loading…
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-3.5 h-3.5" />
+                New suggestions
+              </>
+            )}
           </Button>
-          <Button onClick={handleConfirm} disabled={selectedIndex === null || confirming}>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => { setSelectedIndex(null); onOpenChange(false); }} disabled={confirming}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirm} disabled={selectedIndex === null || confirming}>
             {confirming ? (
               <>
                 <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
@@ -139,6 +163,7 @@ const SwapMealDialog = ({
               "Confirm swap"
             )}
           </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

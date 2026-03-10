@@ -34,6 +34,7 @@ const Planner = () => {
   const [swapDialogOpen, setSwapDialogOpen] = useState(false);
   const [swapDayContext, setSwapDayContext] = useState<PlanDay | null>(null);
   const [confirmingSwap, setConfirmingSwap] = useState(false);
+  const [regeneratingSwap, setRegeneratingSwap] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -439,7 +440,23 @@ const Planner = () => {
         dayName={swapDayContext ? DAYS[swapDayContext.day_of_week] : ""}
         currentMealName={swapDayContext?.meal_name || undefined}
         onSelect={confirmSwapMeal}
+        onRegenerate={async () => {
+          if (!household || !swapDayContext) return;
+          setRegeneratingSwap(true);
+          try {
+            const { data, error } = await supabase.functions.invoke("swap-meal", {
+              body: { plan_day_id: swapDayContext.id, household_id: household.id },
+            });
+            if (error) throw error;
+            if (data?.suggestions?.length) setSwapSuggestions(data.suggestions);
+          } catch (err: any) {
+            toast({ variant: "destructive", title: "Failed to load suggestions", description: err.message });
+          } finally {
+            setRegeneratingSwap(false);
+          }
+        }}
         confirming={confirmingSwap}
+        regenerating={regeneratingSwap}
       />
     </AppLayout>
   );
