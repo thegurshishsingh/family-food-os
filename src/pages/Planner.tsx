@@ -16,6 +16,7 @@ import WeeklySummary from "@/components/planner/WeeklySummary";
 import DayCard from "@/components/planner/DayCard";
 import SwapMealDialog, { type MealSuggestion } from "@/components/planner/SwapMealDialog";
 import DailyDinnerCard from "@/components/planner/DailyDinnerCard";
+import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
 
 const Planner = () => {
@@ -381,6 +382,8 @@ const Planner = () => {
         )}
 
         {plan && <RealityScore plan={plan} days={days} />}
+
+        {household && <WeeklyInsights householdId={household.id} />}
 
         <WeeklySummary days={days} />
 
