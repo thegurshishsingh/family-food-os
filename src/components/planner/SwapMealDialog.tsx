@@ -129,11 +129,31 @@ const SwapMealDialog = ({
           </AnimatePresence>
         </div>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={() => { setSelectedIndex(null); onOpenChange(false); }} disabled={confirming}>
-            Cancel
+        <div className="flex justify-between mt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => { setSelectedIndex(null); onRegenerate(); }}
+            disabled={confirming || regenerating}
+            className="gap-2 text-muted-foreground"
+          >
+            {regenerating ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+                Loading…
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-3.5 h-3.5" />
+                New suggestions
+              </>
+            )}
           </Button>
-          <Button onClick={handleConfirm} disabled={selectedIndex === null || confirming}>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => { setSelectedIndex(null); onOpenChange(false); }} disabled={confirming}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirm} disabled={selectedIndex === null || confirming}>
             {confirming ? (
               <>
                 <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
