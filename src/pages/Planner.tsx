@@ -378,6 +378,7 @@ const Planner = () => {
                 householdId={household?.id}
                 householdSize={household ? household.num_adults + household.num_children : undefined}
                 checkedIn={checkedInDays.has(day.id)}
+                isSavedMeal={!!day.meal_name && savedMealNames.has(day.meal_name.toLowerCase())}
                 onSwapMeal={swapMeal}
                 onToggleLock={toggleLock}
                 onCycleMealMode={cycleMealMode}
