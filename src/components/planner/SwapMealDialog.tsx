@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Clock, Flame, Check } from "lucide-react";
+import { Clock, Flame, Check, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export interface MealSuggestion {
