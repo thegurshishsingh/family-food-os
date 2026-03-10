@@ -37,7 +37,7 @@ interface DayCardProps {
 }
 
 const DayCard = ({
-  day, index, feedback, isSwapping, isDragged, isDragOver, isToday, householdId, householdSize, checkedIn,
+  day, index, feedback, isSwapping, isDragged, isDragOver, isToday, householdId, householdSize, checkedIn, isSavedMeal,
   onSwapMeal, onToggleLock, onCycleMealMode, onSubmitFeedback, onSaveEdit,
   onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, onCheckedIn,
 }: DayCardProps) => {
