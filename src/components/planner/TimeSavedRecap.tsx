@@ -114,7 +114,8 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   useEffect(() => {
     if (result && cumulativeMinutes > 0 && !milestoneAcknowledged) {
       const milestone = getMilestone(cumulativeMinutes);
-      if (milestone) {
+      const acked = getAcknowledgedMilestone();
+      if (milestone && milestone.hours > acked) {
         const timer = setTimeout(() => setShowMilestone(true), 600);
         return () => clearTimeout(timer);
       }
