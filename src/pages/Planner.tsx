@@ -140,6 +140,7 @@ const Planner = () => {
           });
           if (!saveErr) {
             toast({ title: "⭐ Saved to Your Meals!", description: `"${day.meal_name}" will now appear in future plans.` });
+            setSavedMealNames((prev) => new Set([...prev, day.meal_name!.toLowerCase()]));
           }
         }
       }
