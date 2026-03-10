@@ -28,6 +28,7 @@ const Planner = () => {
   const [draggedDayId, setDraggedDayId] = useState<string | null>(null);
   const [dragOverDayId, setDragOverDayId] = useState<string | null>(null);
   const [checkedInDays, setCheckedInDays] = useState<Set<string>>(new Set());
+  const [savedMealNames, setSavedMealNames] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
   const { toast } = useToast();
 
