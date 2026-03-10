@@ -163,6 +163,7 @@ const SwapMealDialog = ({
               "Confirm swap"
             )}
           </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
