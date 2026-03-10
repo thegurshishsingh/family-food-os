@@ -383,6 +383,8 @@ const Planner = () => {
 
         {plan && <RealityScore plan={plan} days={days} />}
 
+        {household && <WeeklyInsights householdId={household.id} />}
+
         <WeeklySummary days={days} />
 
         {/* Empty state */}
