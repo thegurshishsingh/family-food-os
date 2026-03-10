@@ -431,6 +431,16 @@ const Planner = () => {
           </div>
         )}
       </div>
+
+      <SwapMealDialog
+        open={swapDialogOpen}
+        onOpenChange={(o) => { setSwapDialogOpen(o); if (!o) { setSwapSuggestions([]); setSwapDayContext(null); } }}
+        suggestions={swapSuggestions}
+        dayName={swapDayContext ? DAYS[swapDayContext.day_of_week] : ""}
+        currentMealName={swapDayContext?.meal_name || undefined}
+        onSelect={confirmSwapMeal}
+        confirming={confirmingSwap}
+      />
     </AppLayout>
   );
 };
