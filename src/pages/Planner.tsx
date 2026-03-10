@@ -400,10 +400,25 @@ const Planner = () => {
           </Card>
         )}
 
+        {/* Daily Dinner Card */}
+        {plan && household && (
+          <div className="mb-4">
+            <DailyDinnerCard
+              todayDay={days.find((d) => d.day_of_week === todayDow) || null}
+              householdId={household.id}
+              checkedIn={(() => {
+                const td = days.find((d) => d.day_of_week === todayDow);
+                return td ? checkedInDays.has(td.id) : false;
+              })()}
+              onCheckedIn={(dayId) => setCheckedInDays((prev) => new Set([...prev, dayId]))}
+              onFeedback={submitFeedback}
+            />
+          </div>
+        )}
+
         {/* Day cards */}
         {days.length > 0 && (
           <div className="space-y-3">
-            {days.map((day, i) => (
               <DayCard
                 key={day.id}
                 day={day}
