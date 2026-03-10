@@ -39,7 +39,9 @@ const SwapMealDialog = ({
   dayName,
   currentMealName,
   onSelect,
+  onRegenerate,
   confirming,
+  regenerating,
 }: SwapMealDialogProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
