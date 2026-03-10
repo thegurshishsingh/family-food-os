@@ -34,6 +34,7 @@ const Planner = () => {
   const [swapDialogOpen, setSwapDialogOpen] = useState(false);
   const [swapDayContext, setSwapDayContext] = useState<PlanDay | null>(null);
   const [confirmingSwap, setConfirmingSwap] = useState(false);
+  const [regeneratingSwap, setRegeneratingSwap] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
