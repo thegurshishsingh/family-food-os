@@ -85,13 +85,20 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer gap-2">
+                {/* Show hidden nav items on mobile */}
+                {NAV.filter((n) => !["/planner", "/groceries", "/checkin"].includes(n.to)).map((n) => (
+                  <DropdownMenuItem key={n.to} onClick={() => navigate(n.to)} className="cursor-pointer gap-2 md:hidden">
+                    <n.icon className="w-4 h-4" /> {n.label}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator className="md:hidden" />
+                <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer gap-2 hidden md:flex">
                   <User className="w-4 h-4" /> Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer gap-2">
+                <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer gap-2 hidden md:flex">
                   <Settings className="w-4 h-4" /> Settings
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="hidden md:block" />
                 <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer gap-2 text-destructive focus:text-destructive">
                   <LogOut className="w-4 h-4" /> Sign Out
                 </DropdownMenuItem>
