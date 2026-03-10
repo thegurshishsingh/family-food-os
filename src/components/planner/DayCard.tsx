@@ -126,12 +126,17 @@ const DayCard = ({
                   </div>
                 ) : (
                   <>
-                    <h3
-                      className={`font-medium truncate ${day.meal_name ? "text-foreground hover:text-primary cursor-pointer underline-offset-2 hover:underline transition-colors" : "text-muted-foreground"}`}
-                      onClick={() => day.meal_name && setDetailOpen(true)}
-                    >
-                      {day.meal_name || "No meal assigned"}
-                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3
+                        className={`font-medium truncate ${day.meal_name ? "text-foreground hover:text-primary cursor-pointer underline-offset-2 hover:underline transition-colors" : "text-muted-foreground"}`}
+                        onClick={() => day.meal_name && setDetailOpen(true)}
+                      >
+                        {day.meal_name || "No meal assigned"}
+                      </h3>
+                      {isSavedMeal && (
+                        <Bookmark className="w-3.5 h-3.5 text-primary fill-primary shrink-0" title="Saved meal" />
+                      )}
+                    </div>
                     {day.meal_description && (
                       <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{day.meal_description}</p>
                     )}
