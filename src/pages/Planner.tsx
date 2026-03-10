@@ -28,6 +28,7 @@ const Planner = () => {
   const [draggedDayId, setDraggedDayId] = useState<string | null>(null);
   const [dragOverDayId, setDragOverDayId] = useState<string | null>(null);
   const [checkedInDays, setCheckedInDays] = useState<Set<string>>(new Set());
+  const [savedMealNames, setSavedMealNames] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -42,7 +43,20 @@ const Planner = () => {
       return;
     }
     loadPlan();
+    loadSavedMealNames();
   }, [household, hhLoading]);
+
+  const loadSavedMealNames = async () => {
+    if (!household) return;
+    const { data } = await supabase
+      .from("saved_meals")
+      .select("meal_name")
+      .eq("household_id", household.id)
+      .eq("include_in_plan", true);
+    if (data) {
+      setSavedMealNames(new Set(data.map((m: any) => m.meal_name.toLowerCase())));
+    }
+  };
 
   const loadPlan = async () => {
     if (!household) return;
@@ -126,6 +140,7 @@ const Planner = () => {
           });
           if (!saveErr) {
             toast({ title: "⭐ Saved to Your Meals!", description: `"${day.meal_name}" will now appear in future plans.` });
+            setSavedMealNames((prev) => new Set([...prev, day.meal_name!.toLowerCase()]));
           }
         }
       }
@@ -364,6 +379,7 @@ const Planner = () => {
                 householdId={household?.id}
                 householdSize={household ? household.num_adults + household.num_children : undefined}
                 checkedIn={checkedInDays.has(day.id)}
+                isSavedMeal={!!day.meal_name && savedMealNames.has(day.meal_name.toLowerCase())}
                 onSwapMeal={swapMeal}
                 onToggleLock={toggleLock}
                 onCycleMealMode={cycleMealMode}

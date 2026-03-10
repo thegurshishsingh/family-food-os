@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Lock, Unlock, Shuffle, Pencil, Check, X, GripVertical, Heart } from "lucide-react";
+import { Lock, Unlock, Shuffle, Pencil, Check, X, GripVertical, Heart, Bookmark } from "lucide-react";
 import { motion } from "framer-motion";
 import { DAYS, MODE_CONFIG, FEEDBACK_OPTIONS, type PlanDay, type FeedbackType } from "./types";
 import MealDetailDialog from "./MealDetailDialog";
@@ -22,6 +22,7 @@ interface DayCardProps {
   householdId?: string;
   householdSize?: number;
   checkedIn?: boolean;
+  isSavedMeal?: boolean;
   onSwapMeal: (day: PlanDay) => void;
   onToggleLock: (day: PlanDay) => void;
   onCycleMealMode: (day: PlanDay) => void;
@@ -36,7 +37,7 @@ interface DayCardProps {
 }
 
 const DayCard = ({
-  day, index, feedback, isSwapping, isDragged, isDragOver, isToday, householdId, householdSize, checkedIn,
+  day, index, feedback, isSwapping, isDragged, isDragOver, isToday, householdId, householdSize, checkedIn, isSavedMeal,
   onSwapMeal, onToggleLock, onCycleMealMode, onSubmitFeedback, onSaveEdit,
   onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, onCheckedIn,
 }: DayCardProps) => {
@@ -125,12 +126,17 @@ const DayCard = ({
                   </div>
                 ) : (
                   <>
-                    <h3
-                      className={`font-medium truncate ${day.meal_name ? "text-foreground hover:text-primary cursor-pointer underline-offset-2 hover:underline transition-colors" : "text-muted-foreground"}`}
-                      onClick={() => day.meal_name && setDetailOpen(true)}
-                    >
-                      {day.meal_name || "No meal assigned"}
-                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3
+                        className={`font-medium truncate ${day.meal_name ? "text-foreground hover:text-primary cursor-pointer underline-offset-2 hover:underline transition-colors" : "text-muted-foreground"}`}
+                        onClick={() => day.meal_name && setDetailOpen(true)}
+                      >
+                        {day.meal_name || "No meal assigned"}
+                      </h3>
+                      {isSavedMeal && (
+                        <Bookmark className="w-3.5 h-3.5 text-primary fill-primary shrink-0" />
+                      )}
+                    </div>
                     {day.meal_description && (
                       <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{day.meal_description}</p>
                     )}
