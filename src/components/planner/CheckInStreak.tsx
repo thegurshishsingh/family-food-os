@@ -108,9 +108,9 @@ const CheckInStreak = ({ householdId, checkedInCount }: CheckInStreakProps) => {
       }
     }
 
-    // Check if we just crossed a milestone
+    // Only check milestones after initial load (not on mount)
     const prevStreak = prevStreakRef.current;
-    if (count > prevStreak) {
+    if (prevStreak !== null && count > prevStreak) {
       const crossedMilestone = MILESTONES.find((m) => count >= m && prevStreak < m);
       if (crossedMilestone) {
         setMilestoneHit(crossedMilestone);
