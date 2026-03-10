@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Lock, Unlock, Shuffle, Pencil, Check, X, GripVertical, Heart, Bookmark } from "lucide-react";
 import { motion } from "framer-motion";
 import { DAYS, MODE_CONFIG, FEEDBACK_OPTIONS, type PlanDay, type FeedbackType } from "./types";
@@ -134,7 +135,14 @@ const DayCard = ({
                         {day.meal_name || "No meal assigned"}
                       </h3>
                       {isSavedMeal && (
-                        <Bookmark className="w-3.5 h-3.5 text-primary fill-primary shrink-0" />
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Bookmark className="w-3.5 h-3.5 text-primary fill-primary shrink-0 cursor-default" />
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">
+                            Saved to favorites
+                          </TooltipContent>
+                        </Tooltip>
                       )}
                     </div>
                     {day.meal_description && (
