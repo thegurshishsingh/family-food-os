@@ -63,6 +63,13 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   const [totalWeeks, setTotalWeeks] = useState(1);
   const [showEstimation, setShowEstimation] = useState(false);
   const [showMilestone, setShowMilestone] = useState(false);
+
+  // Persist milestone acknowledgment so it doesn't show on every login
+  const getAcknowledgedMilestone = (): number => {
+    try {
+      return parseInt(localStorage.getItem(`ffos_milestone_ack_${householdId}`) || "0", 10) || 0;
+    } catch { return 0; }
+  };
   const [milestoneAcknowledged, setMilestoneAcknowledged] = useState(false);
 
   useEffect(() => {
