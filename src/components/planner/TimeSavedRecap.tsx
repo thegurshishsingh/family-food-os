@@ -132,6 +132,10 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   const dismissMilestone = () => {
     setShowMilestone(false);
     setMilestoneAcknowledged(true);
+    const milestone = getMilestone(cumulativeMinutes);
+    if (milestone) {
+      try { localStorage.setItem(`ffos_milestone_ack_${householdId}`, String(milestone.hours)); } catch {}
+    }
   };
   return (
     <motion.div
