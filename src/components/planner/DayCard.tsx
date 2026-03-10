@@ -176,9 +176,18 @@ const DayCard = ({
                         <Shuffle className="w-4 h-4 text-muted-foreground" />
                       )}
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onToggleLock(day)}>
-                      {day.is_locked ? <Lock className="w-4 h-4 text-primary" /> : <Unlock className="w-4 h-4 text-muted-foreground" />}
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onToggleLock(day)}>
+                          {day.is_locked ? <Lock className="w-4 h-4 text-primary" /> : <Unlock className="w-4 h-4 text-muted-foreground" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[200px] text-center">
+                        {day.is_locked
+                          ? "This meal is locked — it won't change when you regenerate the plan. Click to unlock."
+                          : "Lock this meal so it stays when you regenerate the plan"}
+                      </TooltipContent>
+                    </Tooltip>
                   </>
                 )}
               </div>
