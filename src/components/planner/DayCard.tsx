@@ -22,6 +22,7 @@ interface DayCardProps {
   householdId?: string;
   householdSize?: number;
   checkedIn?: boolean;
+  isSavedMeal?: boolean;
   onSwapMeal: (day: PlanDay) => void;
   onToggleLock: (day: PlanDay) => void;
   onCycleMealMode: (day: PlanDay) => void;
