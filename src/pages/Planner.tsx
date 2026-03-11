@@ -437,6 +437,35 @@ const Planner = () => {
             ))}
           </div>
         )}
+
+        {/* Last Week Recap - bottom */}
+        {plan && household && (
+          <div className="mt-6">
+            <TimeSavedRecap
+              plan={plan}
+              days={days}
+              householdId={household.id}
+              householdName={household.name}
+              onGeneratePlan={generatePlan}
+              onViewDetails={() => navigate("/history")}
+              generating={generating}
+            />
+          </div>
+        )}
+                onToggleLock={toggleLock}
+                onCycleMealMode={cycleMealMode}
+                onSubmitFeedback={submitFeedback}
+                onSaveEdit={saveEdit}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onDragEnd={handleDragEnd}
+                onCheckedIn={(dayId) => setCheckedInDays((prev) => new Set([...prev, dayId]))}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <SwapMealDialog
