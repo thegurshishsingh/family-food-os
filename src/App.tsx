@@ -36,6 +36,7 @@ const App = () => (
             <Route path="/planner" element={<RequireHousehold><Planner /></RequireHousehold>} />
             <Route path="/groceries" element={<RequireHousehold><Groceries /></RequireHousehold>} />
             <Route path="/memory" element={<RequireHousehold><MealMemory /></RequireHousehold>} />
+            <Route path="/family-profile" element={<RequireHousehold><FamilyProfile /></RequireHousehold>} />
             <Route path="/history" element={<RequireHousehold><PlanHistory /></RequireHousehold>} />
             <Route path="/checkin" element={<RequireHousehold><CheckIn /></RequireHousehold>} />
             <Route path="/settings" element={<RequireHousehold><HouseholdSettings /></RequireHousehold>} />
