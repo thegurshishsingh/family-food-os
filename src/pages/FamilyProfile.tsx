@@ -357,20 +357,45 @@ const FamilyProfile = () => {
               </Card>
             </motion.div>
 
-            {/* Section 6 — Smart Recommendations */}
+            {/* Section 6 — Smart Recommendations (AI-powered) */}
             <motion.div variants={item}>
-              <h2 className="text-lg font-serif font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Lightbulb className="w-4 h-4 text-accent" /> Smart Recommendations
-              </h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-serif font-semibold text-foreground flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4 text-accent" /> Smart Recommendations
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={fetchRecommendations}
+                  disabled={recsLoading}
+                  className="text-xs text-muted-foreground"
+                >
+                  <RefreshCw className={`w-3 h-3 mr-1 ${recsLoading ? "animate-spin" : ""}`} />
+                  Refresh
+                </Button>
+              </div>
               <div className="space-y-2">
-                {recommendations.map((rec, i) => (
-                  <Card key={i}>
-                    <CardContent className="py-3 px-4 flex items-start gap-3">
-                      <Lightbulb className="w-4 h-4 text-accent mt-0.5 shrink-0" />
-                      <p className="text-sm text-foreground">{rec}</p>
-                    </CardContent>
-                  </Card>
-                ))}
+                {recsLoading ? (
+                  <>
+                    {[1, 2, 3].map(i => (
+                      <Card key={i}>
+                        <CardContent className="py-3 px-4">
+                          <div className="h-4 bg-muted animate-pulse rounded w-full mb-1" />
+                          <div className="h-4 bg-muted animate-pulse rounded w-2/3" />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </>
+                ) : (
+                  recommendations.map((rec, i) => (
+                    <Card key={i}>
+                      <CardContent className="py-3 px-4 flex items-start gap-3">
+                        <Lightbulb className="w-4 h-4 text-accent mt-0.5 shrink-0" />
+                        <p className="text-sm text-foreground">{rec}</p>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </div>
             </motion.div>
 
