@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   ChefHat, Heart, Clock, Flame, TrendingUp, Lightbulb,
-  Baby, Calendar, Truck, Star, Utensils, Timer,
+  Baby, Calendar, Truck, Star, Utensils, Timer, RefreshCw,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -149,49 +150,47 @@ const FamilyProfile = () => {
     return { hours, movieNights, minutesSaved };
   }, [planCount]);
 
-  const recommendations = useMemo(() => {
-    const recs: string[] = [];
+  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [recsLoading, setRecsLoading] = useState(false);
 
-    // Seasonal suggestions based on current month
-    const month = new Date().getMonth(); // 0-11
-    const seasonal: Record<number, string[]> = {
-      0: ["Try a hearty beef stew or chili to warm up January nights.", "Root vegetables are in season — roasted carrots and parsnips make easy sides."],
-      1: ["February is great for slow-cooker soups — less effort, more comfort.", "Try a cozy lentil or split pea soup this week."],
-      2: ["Spring greens are arriving! Add a fresh salad night to your plan.", "Try asparagus or pea-based dishes as they come into season."],
-      3: ["April is perfect for lighter pastas with fresh herbs.", "Artichokes and spring onions are at their peak — great in simple dishes."],
-      4: ["Summer produce is starting — try grilled zucchini or fresh corn dishes.", "Strawberries are in season — add a fruit salad dessert night."],
-      5: ["It's grilling season! Try a kebab or burger night this week.", "Fresh tomatoes and basil are perfect for caprese or bruschetta."],
-      6: ["Peak summer — light meals like fish tacos or grain bowls work great.", "Try a no-cook dinner night with gazpacho or summer rolls."],
-      7: ["Late summer peaches and peppers are amazing in stir-fries and salads.", "Back-to-school season — batch-cook friendly meals like chili or pasta bake."],
-      8: ["Fall squash is arriving — try butternut squash soup or roasted acorn squash.", "September is perfect for one-pot meals as schedules get busier."],
-      9: ["Pumpkin and apple season! Try a savory pumpkin pasta or apple-glazed chicken.", "Comfort food weather — perfect for pot pies and casseroles."],
-      10: ["Root vegetables and hearty greens are in season — try kale and sweet potato bowls.", "Thanksgiving prep: try a practice run of a new side dish."],
-      11: ["Holiday season — try a slow-cooker meal to free up oven time.", "Citrus is in season — brighten winter meals with lemon or orange glazes."],
-    };
-    const monthRecs = seasonal[month] || [];
-    // Pick one seasonal rec randomly (stable per render)
-    if (monthRecs.length > 0) {
-      const seasonalPick = monthRecs[new Date().getDate() % monthRecs.length];
-      recs.push(`🌿 ${seasonalPick}`);
+  const fetchRecommendations = useCallback(async () => {
+    if (!identity && !lovedMeals.length && !rhythm) return;
+    setRecsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-recommendations", {
+        body: {
+          identity,
+          lovedMeals,
+          kidsInsights,
+          rhythm,
+          planCount,
+        },
+      });
+      if (error) throw error;
+      if (data?.recommendations?.length) {
+        setRecommendations(data.recommendations);
+      } else {
+        setRecommendations(["Keep logging check-ins to unlock personalized suggestions."]);
+      }
+    } catch (e: any) {
+      console.error("Failed to fetch AI recommendations:", e);
+      if (e?.status === 429) {
+        toast.error("Rate limit exceeded. Please try again later.");
+      } else if (e?.status === 402) {
+        toast.error("AI usage limit reached. Please add credits.");
+      }
+      // Fallback to a simple static recommendation
+      setRecommendations(["Keep logging check-ins to unlock personalized suggestions."]);
+    } finally {
+      setRecsLoading(false);
     }
+  }, [identity, lovedMeals, kidsInsights, rhythm, planCount]);
 
-    if (identity?.favCuisine) {
-      const cuisines = ["Mediterranean", "Thai", "Japanese", "Korean", "Indian"];
-      const suggestion = cuisines.find(c => c.toLowerCase() !== identity.favCuisine?.toLowerCase());
-      if (suggestion) recs.push(`Try adding one ${suggestion} meal next week for variety.`);
+  useEffect(() => {
+    if (!loading && planDays.length > 0) {
+      fetchRecommendations();
     }
-    if (lovedMeals.length > 0) {
-      recs.push(`Your family loved "${lovedMeals[0].name}" — consider adding another quick meal in that style.`);
-    }
-    if (rhythm?.avgCook && rhythm.avgCook >= 6) {
-      recs.push("You cook most nights! Adding a leftover night could save prep time.");
-    }
-    if (rhythm?.takeoutDay) {
-      recs.push(`${rhythm.takeoutDay} is your usual takeout day — plan lighter meals the night before.`);
-    }
-    if (recs.length === 0) recs.push("Keep logging check-ins to unlock personalized suggestions.");
-    return recs;
-  }, [identity, lovedMeals, rhythm]);
+  }, [loading, planDays.length, fetchRecommendations]);
 
   if (loading) {
     return (
@@ -358,20 +357,45 @@ const FamilyProfile = () => {
               </Card>
             </motion.div>
 
-            {/* Section 6 — Smart Recommendations */}
+            {/* Section 6 — Smart Recommendations (AI-powered) */}
             <motion.div variants={item}>
-              <h2 className="text-lg font-serif font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Lightbulb className="w-4 h-4 text-accent" /> Smart Recommendations
-              </h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-serif font-semibold text-foreground flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4 text-accent" /> Smart Recommendations
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={fetchRecommendations}
+                  disabled={recsLoading}
+                  className="text-xs text-muted-foreground"
+                >
+                  <RefreshCw className={`w-3 h-3 mr-1 ${recsLoading ? "animate-spin" : ""}`} />
+                  Refresh
+                </Button>
+              </div>
               <div className="space-y-2">
-                {recommendations.map((rec, i) => (
-                  <Card key={i}>
-                    <CardContent className="py-3 px-4 flex items-start gap-3">
-                      <Lightbulb className="w-4 h-4 text-accent mt-0.5 shrink-0" />
-                      <p className="text-sm text-foreground">{rec}</p>
-                    </CardContent>
-                  </Card>
-                ))}
+                {recsLoading ? (
+                  <>
+                    {[1, 2, 3].map(i => (
+                      <Card key={i}>
+                        <CardContent className="py-3 px-4">
+                          <div className="h-4 bg-muted animate-pulse rounded w-full mb-1" />
+                          <div className="h-4 bg-muted animate-pulse rounded w-2/3" />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </>
+                ) : (
+                  recommendations.map((rec, i) => (
+                    <Card key={i}>
+                      <CardContent className="py-3 px-4 flex items-start gap-3">
+                        <Lightbulb className="w-4 h-4 text-accent mt-0.5 shrink-0" />
+                        <p className="text-sm text-foreground">{rec}</p>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </div>
             </motion.div>
 

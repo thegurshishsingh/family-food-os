@@ -2,3 +2,6 @@ project_id = "khotrjtyyrtyuvlzlzrd"
 
 [functions.generate-meal-plan]
 verify_jwt = false
+
+[functions.generate-recommendations]
+verify_jwt = false
