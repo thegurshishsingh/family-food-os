@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, ThumbsDown, Baby, ChefHat, RefreshCw, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Heart, ThumbsDown, Baby, ChefHat, RefreshCw, Star, User, ArrowRight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type FeedbackEntry = {
