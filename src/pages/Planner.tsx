@@ -452,20 +452,6 @@ const Planner = () => {
             />
           </div>
         )}
-                onToggleLock={toggleLock}
-                onCycleMealMode={cycleMealMode}
-                onSubmitFeedback={submitFeedback}
-                onSaveEdit={saveEdit}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onDragEnd={handleDragEnd}
-                onCheckedIn={(dayId) => setCheckedInDays((prev) => new Set([...prev, dayId]))}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
       <SwapMealDialog
