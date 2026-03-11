@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   ChefHat, Heart, Clock, Flame, TrendingUp, Lightbulb,
-  Baby, Calendar, Truck, Star, Utensils, Timer,
+  Baby, Calendar, Truck, Star, Utensils, Timer, RefreshCw,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
