@@ -359,33 +359,29 @@ const Planner = () => {
           </Button>
         </div>
 
+        {/* Daily Dinner Card - top */}
+        {plan && household && (
+          <div className="mb-4">
+            <DailyDinnerCard
+              todayDay={days.find((d) => d.day_of_week === todayDow) || null}
+              householdId={household.id}
+              checkedIn={(() => {
+                const td = days.find((d) => d.day_of_week === todayDow);
+                return td ? checkedInDays.has(td.id) : false;
+              })()}
+              onCheckedIn={(dayId) => setCheckedInDays((prev) => new Set([...prev, dayId]))}
+              onFeedback={submitFeedback}
+            />
+          </div>
+        )}
+
+        {plan && household && <CheckInNudge householdId={household.id} planId={plan.id} />}
+
         {household && (
           <div className="mb-4">
             <CheckInStreak householdId={household.id} checkedInCount={checkedInDays.size} />
           </div>
         )}
-
-
-
-        {plan && household && <CheckInNudge householdId={household.id} planId={plan.id} />}
-
-        {plan && household && (
-          <TimeSavedRecap
-            plan={plan}
-            days={days}
-            householdId={household.id}
-            householdName={household.name}
-            onGeneratePlan={generatePlan}
-            onViewDetails={() => navigate("/history")}
-            generating={generating}
-          />
-        )}
-
-        {plan && <RealityScore plan={plan} days={days} />}
-
-        {household && <WeeklyInsights householdId={household.id} />}
-
-        <WeeklySummary days={days} />
 
         {/* Empty state */}
         {!plan && (
@@ -403,21 +399,11 @@ const Planner = () => {
           </Card>
         )}
 
-        {/* Daily Dinner Card */}
-        {plan && household && (
-          <div className="mb-4">
-            <DailyDinnerCard
-              todayDay={days.find((d) => d.day_of_week === todayDow) || null}
-              householdId={household.id}
-              checkedIn={(() => {
-                const td = days.find((d) => d.day_of_week === todayDow);
-                return td ? checkedInDays.has(td.id) : false;
-              })()}
-              onCheckedIn={(dayId) => setCheckedInDays((prev) => new Set([...prev, dayId]))}
-              onFeedback={submitFeedback}
-            />
-          </div>
-        )}
+        {plan && <RealityScore plan={plan} days={days} />}
+
+        <WeeklySummary days={days} />
+
+        {household && <WeeklyInsights householdId={household.id} />}
 
         {/* Day cards */}
         {days.length > 0 && (
