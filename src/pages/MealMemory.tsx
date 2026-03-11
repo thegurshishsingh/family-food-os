@@ -62,10 +62,19 @@ const MealMemory = () => {
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground mb-2">Meal Memory</h1>
-        <p className="text-muted-foreground text-sm mb-6">
-          What your family loved, hated, and everything in between.
-        </p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground">Meal Memory</h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              What your family loved, hated, and everything in between.
+            </p>
+          </div>
+          <Button variant="outline" size="sm" className="gap-2" asChild>
+            <Link to="/family-profile">
+              <User className="w-4 h-4" /> Family Profile <ArrowRight className="w-3 h-3" />
+            </Link>
+          </Button>
+        </div>
 
         {feedback.length === 0 ? (
           <Card className="py-16 text-center">
