@@ -151,6 +151,30 @@ const FamilyProfile = () => {
 
   const recommendations = useMemo(() => {
     const recs: string[] = [];
+
+    // Seasonal suggestions based on current month
+    const month = new Date().getMonth(); // 0-11
+    const seasonal: Record<number, string[]> = {
+      0: ["Try a hearty beef stew or chili to warm up January nights.", "Root vegetables are in season — roasted carrots and parsnips make easy sides."],
+      1: ["February is great for slow-cooker soups — less effort, more comfort.", "Try a cozy lentil or split pea soup this week."],
+      2: ["Spring greens are arriving! Add a fresh salad night to your plan.", "Try asparagus or pea-based dishes as they come into season."],
+      3: ["April is perfect for lighter pastas with fresh herbs.", "Artichokes and spring onions are at their peak — great in simple dishes."],
+      4: ["Summer produce is starting — try grilled zucchini or fresh corn dishes.", "Strawberries are in season — add a fruit salad dessert night."],
+      5: ["It's grilling season! Try a kebab or burger night this week.", "Fresh tomatoes and basil are perfect for caprese or bruschetta."],
+      6: ["Peak summer — light meals like fish tacos or grain bowls work great.", "Try a no-cook dinner night with gazpacho or summer rolls."],
+      7: ["Late summer peaches and peppers are amazing in stir-fries and salads.", "Back-to-school season — batch-cook friendly meals like chili or pasta bake."],
+      8: ["Fall squash is arriving — try butternut squash soup or roasted acorn squash.", "September is perfect for one-pot meals as schedules get busier."],
+      9: ["Pumpkin and apple season! Try a savory pumpkin pasta or apple-glazed chicken.", "Comfort food weather — perfect for pot pies and casseroles."],
+      10: ["Root vegetables and hearty greens are in season — try kale and sweet potato bowls.", "Thanksgiving prep: try a practice run of a new side dish."],
+      11: ["Holiday season — try a slow-cooker meal to free up oven time.", "Citrus is in season — brighten winter meals with lemon or orange glazes."],
+    };
+    const monthRecs = seasonal[month] || [];
+    // Pick one seasonal rec randomly (stable per render)
+    if (monthRecs.length > 0) {
+      const seasonalPick = monthRecs[new Date().getDate() % monthRecs.length];
+      recs.push(`🌿 ${seasonalPick}`);
+    }
+
     if (identity?.favCuisine) {
       const cuisines = ["Mediterranean", "Thai", "Japanese", "Korean", "Indian"];
       const suggestion = cuisines.find(c => c.toLowerCase() !== identity.favCuisine?.toLowerCase());
