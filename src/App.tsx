@@ -12,6 +12,7 @@ import Onboarding from "./pages/Onboarding";
 import Planner from "./pages/Planner";
 import Groceries from "./pages/Groceries";
 import MealMemory from "./pages/MealMemory";
+import FamilyProfile from "./pages/FamilyProfile";
 import HouseholdSettings from "./pages/HouseholdSettings";
 import Profile from "./pages/Profile";
 import PlanHistory from "./pages/PlanHistory";
