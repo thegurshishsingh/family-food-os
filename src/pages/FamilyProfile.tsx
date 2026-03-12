@@ -455,7 +455,7 @@ const FamilyProfile = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={fetchRecommendations}
+                  onClick={() => fetchRecommendations(true)}
                   disabled={recsLoading}
                   className="text-xs text-muted-foreground"
                 >
