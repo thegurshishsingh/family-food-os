@@ -233,15 +233,59 @@ const FamilyProfile = () => {
         </div>
 
         {!hasData ? (
-          <Card className="py-16 text-center">
-            <CardContent>
-              <ChefHat className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-xl font-serif font-semibold mb-2">Your profile is growing</h2>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Generate a few meal plans and check in after dinners. We'll build your family's food story here.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card className="py-12 text-center">
+              <CardContent>
+                <ChefHat className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h2 className="text-xl font-serif font-semibold mb-2">Your profile is growing</h2>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Generate a few meal plans and check in after dinners. We'll build your family's food story here.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Smart Recommendations even for new users */}
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-serif font-semibold text-foreground flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4 text-accent" /> Getting Started Tips
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={fetchRecommendations}
+                  disabled={recsLoading}
+                  className="text-xs text-muted-foreground"
+                >
+                  <RefreshCw className={`w-3 h-3 mr-1 ${recsLoading ? "animate-spin" : ""}`} />
+                  Refresh
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {recsLoading ? (
+                  <>
+                    {[1, 2, 3].map(i => (
+                      <Card key={i}>
+                        <CardContent className="py-3 px-4">
+                          <div className="h-4 bg-muted animate-pulse rounded w-full mb-1" />
+                          <div className="h-4 bg-muted animate-pulse rounded w-2/3" />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </>
+                ) : (
+                  recommendations.map((rec, i) => (
+                    <Card key={i}>
+                      <CardContent className="py-3 px-4 flex items-start gap-3">
+                        <Lightbulb className="w-4 h-4 text-accent mt-0.5 shrink-0" />
+                        <p className="text-sm text-foreground">{rec}</p>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </div>
         ) : (
           <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
 

@@ -13,11 +13,42 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { identity, lovedMeals, kidsInsights, rhythm, planCount, seasonMonth } = await req.json();
+    const { identity, lovedMeals, kidsInsights, rhythm, planCount, preferences, household } = await req.json();
 
     const month = new Date().toLocaleString("en-US", { month: "long" });
+    const isNewUser = !planCount || planCount === 0;
 
-    const prompt = `You are a warm, knowledgeable family meal planning assistant. Based on the following household food data, generate 3-5 personalized, actionable meal recommendations. Each recommendation should feel like a helpful friend's suggestion — not algorithmic output.
+    let prompt: string;
+
+    if (isNewUser && preferences) {
+      // New user flow — based on preferences + household info only
+      prompt = `You are a warm, knowledgeable family meal planning assistant. A new family just joined and hasn't created any meal plans yet. Based on their preferences, generate 3-5 personalized, encouraging meal suggestions to get them started.
+
+**Family Info:**
+- Adults: ${household?.numAdults ?? "unknown"}
+- Children: ${household?.numChildren ?? 0}
+- Child age bands: ${household?.childAgeBands?.join(", ") || "none"}
+- Cuisines they like: ${preferences.cuisinesLiked?.join(", ") || "not specified"}
+- Cuisines they dislike: ${preferences.cuisinesDisliked?.join(", ") || "none"}
+- Dietary preferences: ${preferences.dietaryPreferences?.join(", ") || "none"}
+- Allergies: ${preferences.allergies?.join(", ") || "none"}
+- Cooking time tolerance: ${preferences.cookingTimeTolerance || "not specified"}
+- Health goal: ${preferences.healthGoal || "none"}
+- Foods to avoid: ${preferences.foodsToAvoid?.join(", ") || "none"}
+- Current month: ${month}
+
+**Guidelines:**
+- Suggest easy, approachable meals perfect for a first week
+- Include one seasonal suggestion for ${month}
+- If they have children, factor in kid-friendly options
+- Respect their dietary preferences and allergies
+- Keep suggestions concise (1-2 sentences each)
+- Use a warm, encouraging "welcome" tone
+- Start each suggestion with a relevant emoji
+- Focus on building confidence — these are their first meals with the app`;
+    } else {
+      // Returning user flow — based on behavioral data
+      prompt = `You are a warm, knowledgeable family meal planning assistant. Based on the following household food data, generate 3-5 personalized, actionable meal recommendations. Each recommendation should feel like a helpful friend's suggestion — not algorithmic output.
 
 **Household Data:**
 - Plans generated: ${planCount || 0}
@@ -39,6 +70,7 @@ serve(async (req) => {
 - Use a warm, encouraging tone
 - Start each suggestion with a relevant emoji
 - Do NOT repeat data back — give forward-looking advice`;
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -76,14 +108,11 @@ serve(async (req) => {
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "[]";
 
-    // Parse the JSON array from the response
     let recommendations: string[];
     try {
-      // Strip markdown code fences if present
       const cleaned = content.replace(/```(?:json)?\n?/g, "").trim();
       recommendations = JSON.parse(cleaned);
     } catch {
-      // Fallback: split by newlines and clean up
       recommendations = content
         .split("\n")
         .map((line: string) => line.trim())
