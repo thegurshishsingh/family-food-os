@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      cached_recommendations: {
+        Row: {
+          created_at: string
+          household_id: string
+          id: string
+          plan_count: number
+          recommendations: Json
+        }
+        Insert: {
+          created_at?: string
+          household_id: string
+          id?: string
+          plan_count?: number
+          recommendations?: Json
+        }
+        Update: {
+          created_at?: string
+          household_id?: string
+          id?: string
+          plan_count?: number
+          recommendations?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cached_recommendations_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: true
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evening_checkins: {
         Row: {
           created_at: string
