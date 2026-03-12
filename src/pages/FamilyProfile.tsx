@@ -154,7 +154,9 @@ const FamilyProfile = () => {
   const [recsLoading, setRecsLoading] = useState(false);
 
   const fetchRecommendations = useCallback(async () => {
-    if (!identity && !lovedMeals.length && !rhythm) return;
+    if (!household) return;
+    // Allow fetching even without plan data — preferences alone are enough
+    if (!identity && !lovedMeals.length && !rhythm && !preferences) return;
     setRecsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-recommendations", {
@@ -164,6 +166,20 @@ const FamilyProfile = () => {
           kidsInsights,
           rhythm,
           planCount,
+          preferences: preferences ? {
+            cuisinesLiked: preferences.cuisines_liked,
+            cuisinesDisliked: preferences.cuisines_disliked,
+            dietaryPreferences: preferences.dietary_preferences,
+            allergies: preferences.allergies,
+            cookingTimeTolerance: preferences.cooking_time_tolerance,
+            healthGoal: preferences.health_goal,
+            foodsToAvoid: preferences.foods_to_avoid,
+          } : null,
+          household: household ? {
+            numAdults: household.num_adults,
+            numChildren: household.num_children,
+            childAgeBands: household.child_age_bands,
+          } : null,
         },
       });
       if (error) throw error;
@@ -179,18 +195,17 @@ const FamilyProfile = () => {
       } else if (e?.status === 402) {
         toast.error("AI usage limit reached. Please add credits.");
       }
-      // Fallback to a simple static recommendation
       setRecommendations(["Keep logging check-ins to unlock personalized suggestions."]);
     } finally {
       setRecsLoading(false);
     }
-  }, [identity, lovedMeals, kidsInsights, rhythm, planCount]);
+  }, [identity, lovedMeals, kidsInsights, rhythm, planCount, preferences, household]);
 
   useEffect(() => {
-    if (!loading && planDays.length > 0) {
+    if (!loading && household) {
       fetchRecommendations();
     }
-  }, [loading, planDays.length, fetchRecommendations]);
+  }, [loading, household, fetchRecommendations]);
 
   if (loading) {
     return (
