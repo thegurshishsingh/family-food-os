@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Flame, Beef, ChefHat, Zap, DollarSign } from "lucide-react";
+import { Flame, Beef, ChefHat, Truck } from "lucide-react";
 import type { PlanDay } from "./types";
 
 interface WeeklySummaryProps {
@@ -15,10 +15,10 @@ const WeeklySummary = ({ days }: WeeklySummaryProps) => {
   const takeoutDays = days.filter((d) => d.meal_mode === "takeout" || d.meal_mode === "dine_out").length;
 
   const stats = [
-    { icon: Zap, iconClass: "text-accent", label: "Convenience nights", value: String(takeoutDays) },
-    { icon: DollarSign, iconClass: "text-primary", label: "Avg calories", value: avgCals.toLocaleString() },
+    { icon: Flame, iconClass: "text-accent", label: "Avg calories", value: avgCals.toLocaleString() },
+    { icon: Truck, iconClass: "text-accent", label: "Convenience nights", value: String(takeoutDays) },
     { icon: ChefHat, iconClass: "text-primary", label: "Cook nights", value: String(cookDays) },
-    { icon: Beef, iconClass: "text-accent", label: "Protein focus", value: "High" },
+    { icon: Beef, iconClass: "text-primary", label: "Protein focus", value: "High" },
   ];
 
   return (
