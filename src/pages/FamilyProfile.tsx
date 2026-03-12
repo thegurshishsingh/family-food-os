@@ -152,13 +152,36 @@ const FamilyProfile = () => {
 
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const [recsLoading, setRecsLoading] = useState(false);
+  const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-  const fetchRecommendations = useCallback(async () => {
+  const fetchRecommendations = useCallback(async (forceRefresh = false) => {
     if (!household) return;
-    // Allow fetching even without plan data — preferences alone are enough
     if (!identity && !lovedMeals.length && !rhythm && !preferences) return;
     setRecsLoading(true);
     try {
+      // Check cache first (unless force refreshing)
+      if (!forceRefresh) {
+        const { data: cached } = await supabase
+          .from("cached_recommendations")
+          .select("recommendations, plan_count, created_at")
+          .eq("household_id", household.id)
+          .maybeSingle();
+
+        if (cached) {
+          const cacheAge = Date.now() - new Date(cached.created_at).getTime();
+          const planCountChanged = cached.plan_count !== planCount;
+          if (cacheAge < CACHE_TTL_MS && !planCountChanged) {
+            const recs = cached.recommendations as string[];
+            if (recs?.length) {
+              setRecommendations(recs);
+              setRecsLoading(false);
+              return;
+            }
+          }
+        }
+      }
+
+      // Fetch fresh recommendations from AI
       const { data, error } = await supabase.functions.invoke("generate-recommendations", {
         body: {
           identity,
@@ -185,6 +208,13 @@ const FamilyProfile = () => {
       if (error) throw error;
       if (data?.recommendations?.length) {
         setRecommendations(data.recommendations);
+        // Save to cache (upsert)
+        await supabase.from("cached_recommendations").upsert({
+          household_id: household.id,
+          recommendations: data.recommendations,
+          plan_count: planCount,
+          created_at: new Date().toISOString(),
+        }, { onConflict: "household_id" });
       } else {
         setRecommendations(["Keep logging check-ins to unlock personalized suggestions."]);
       }
@@ -253,7 +283,7 @@ const FamilyProfile = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={fetchRecommendations}
+                  onClick={() => fetchRecommendations(true)}
                   disabled={recsLoading}
                   className="text-xs text-muted-foreground"
                 >
@@ -425,7 +455,7 @@ const FamilyProfile = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={fetchRecommendations}
+                  onClick={() => fetchRecommendations(true)}
                   disabled={recsLoading}
                   className="text-xs text-muted-foreground"
                 >
