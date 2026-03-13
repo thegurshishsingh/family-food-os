@@ -164,8 +164,8 @@ const DayCard = ({
                   </>
                 ) : (
                   <>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={startEditing} disabled={day.is_locked} title="Edit meal">
-                      <Pencil className="w-4 h-4 text-muted-foreground" />
+                    <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={startEditing} disabled={day.is_locked} title="Edit meal">
+                      <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onSwapMeal(day)} disabled={day.is_locked || isSwapping} title="Swap meal">
                       {isSwapping ? (
