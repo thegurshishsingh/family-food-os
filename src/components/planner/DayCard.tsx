@@ -192,13 +192,13 @@ const DayCard = ({
             </div>
 
             {/* Nutrition badges */}
-            <div className="flex flex-wrap gap-2 mt-3">
-              {day.calories && <Badge variant="secondary" className="text-xs">{day.calories} cal</Badge>}
-              {day.protein_g && <Badge variant="secondary" className="text-xs">{Number(day.protein_g)}g protein</Badge>}
-              {day.carbs_g && <Badge variant="secondary" className="text-xs">{Number(day.carbs_g)}g carbs</Badge>}
-              {day.fat_g && <Badge variant="secondary" className="text-xs">{Number(day.fat_g)}g fat</Badge>}
-              {day.prep_time_minutes && day.meal_mode === "cook" && <Badge variant="outline" className="text-xs">{day.prep_time_minutes} min</Badge>}
-              {day.cuisine_type && <Badge variant="outline" className="text-xs">{day.cuisine_type}</Badge>}
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
+              {day.calories && <Badge variant="secondary" className="text-[11px] sm:text-xs">{day.calories} cal</Badge>}
+              {day.protein_g && <Badge variant="secondary" className="text-[11px] sm:text-xs">{Number(day.protein_g)}g protein</Badge>}
+              {day.carbs_g && <Badge variant="secondary" className="text-[11px] sm:text-xs hidden sm:inline-flex">{Number(day.carbs_g)}g carbs</Badge>}
+              {day.fat_g && <Badge variant="secondary" className="text-[11px] sm:text-xs hidden sm:inline-flex">{Number(day.fat_g)}g fat</Badge>}
+              {day.prep_time_minutes && day.meal_mode === "cook" && <Badge variant="outline" className="text-[11px] sm:text-xs">{day.prep_time_minutes} min</Badge>}
+              {day.cuisine_type && <Badge variant="outline" className="text-[11px] sm:text-xs">{day.cuisine_type}</Badge>}
             </div>
 
             {/* Feedback */}
