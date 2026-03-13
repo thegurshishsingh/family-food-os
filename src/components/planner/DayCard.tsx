@@ -100,8 +100,8 @@ const DayCard = ({
           </div>
 
           {/* Meal info */}
-          <div className="flex-1 p-4">
-            <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 px-3 pb-3 pt-1 sm:p-4 min-w-0">
+            <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 {editing ? (
                   <div className="space-y-2">
