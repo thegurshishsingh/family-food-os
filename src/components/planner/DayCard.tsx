@@ -152,7 +152,7 @@ const DayCard = ({
                   </>
                 )}
               </div>
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                 {editing ? (
                   <>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleSave} title="Save">
