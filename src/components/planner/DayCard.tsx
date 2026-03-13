@@ -83,27 +83,25 @@ const DayCard = ({
     >
       <Card className={`overflow-hidden transition-all ${day.is_locked ? "ring-1 ring-primary/20" : ""} ${isDragged ? "opacity-50 scale-[0.98]" : ""} ${isDragOver ? "ring-2 ring-primary shadow-lg" : ""}`}>
         <div className="flex flex-col sm:flex-row">
-          {/* Day label + mode */}
-          <div className="flex items-center gap-3 p-4 sm:w-48 sm:border-r border-border">
+          {/* Day label + mode - horizontal on mobile */}
+          <div className="flex items-center gap-2 px-3 pt-3 pb-1 sm:flex-col sm:gap-1 sm:p-4 sm:w-44 sm:border-r border-border sm:items-start">
             {!day.is_locked && (
               <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 hidden sm:block" />
             )}
-            <div className="text-center sm:text-left">
-              <p className="font-serif font-semibold text-foreground">{DAYS[day.day_of_week]}</p>
-              <button
-                onClick={() => onCycleMealMode(day)}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mt-1 transition-colors ${mode.color}`}
-                disabled={day.is_locked}
-              >
-                <Icon className="w-3 h-3" />
-                {mode.label}
-              </button>
-            </div>
+            <p className="font-serif font-semibold text-foreground text-sm sm:text-base">{DAYS[day.day_of_week]}</p>
+            <button
+              onClick={() => onCycleMealMode(day)}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium transition-colors ${mode.color}`}
+              disabled={day.is_locked}
+            >
+              <Icon className="w-3 h-3" />
+              {mode.label}
+            </button>
           </div>
 
           {/* Meal info */}
-          <div className="flex-1 p-4">
-            <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 px-3 pb-3 pt-1 sm:p-4 min-w-0">
+            <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 {editing ? (
                   <div className="space-y-2">
@@ -154,7 +152,7 @@ const DayCard = ({
                   </>
                 )}
               </div>
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                 {editing ? (
                   <>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleSave} title="Save">
@@ -166,20 +164,20 @@ const DayCard = ({
                   </>
                 ) : (
                   <>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={startEditing} disabled={day.is_locked} title="Edit meal">
-                      <Pencil className="w-4 h-4 text-muted-foreground" />
+                    <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={startEditing} disabled={day.is_locked} title="Edit meal">
+                      <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onSwapMeal(day)} disabled={day.is_locked || isSwapping} title="Swap meal">
+                    <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => onSwapMeal(day)} disabled={day.is_locked || isSwapping} title="Swap meal">
                       {isSwapping ? (
-                        <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+                        <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
                       ) : (
-                        <Shuffle className="w-4 h-4 text-muted-foreground" />
+                        <Shuffle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
                       )}
                     </Button>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onToggleLock(day)}>
-                          {day.is_locked ? <Lock className="w-4 h-4 text-primary" /> : <Unlock className="w-4 h-4 text-muted-foreground" />}
+                        <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => onToggleLock(day)}>
+                          {day.is_locked ? <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" /> : <Unlock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />}
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[200px] text-center">
@@ -194,13 +192,13 @@ const DayCard = ({
             </div>
 
             {/* Nutrition badges */}
-            <div className="flex flex-wrap gap-2 mt-3">
-              {day.calories && <Badge variant="secondary" className="text-xs">{day.calories} cal</Badge>}
-              {day.protein_g && <Badge variant="secondary" className="text-xs">{Number(day.protein_g)}g protein</Badge>}
-              {day.carbs_g && <Badge variant="secondary" className="text-xs">{Number(day.carbs_g)}g carbs</Badge>}
-              {day.fat_g && <Badge variant="secondary" className="text-xs">{Number(day.fat_g)}g fat</Badge>}
-              {day.prep_time_minutes && day.meal_mode === "cook" && <Badge variant="outline" className="text-xs">{day.prep_time_minutes} min</Badge>}
-              {day.cuisine_type && <Badge variant="outline" className="text-xs">{day.cuisine_type}</Badge>}
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
+              {day.calories && <Badge variant="secondary" className="text-[11px] sm:text-xs">{day.calories} cal</Badge>}
+              {day.protein_g && <Badge variant="secondary" className="text-[11px] sm:text-xs">{Number(day.protein_g)}g protein</Badge>}
+              {day.carbs_g && <Badge variant="secondary" className="text-[11px] sm:text-xs hidden sm:inline-flex">{Number(day.carbs_g)}g carbs</Badge>}
+              {day.fat_g && <Badge variant="secondary" className="text-[11px] sm:text-xs hidden sm:inline-flex">{Number(day.fat_g)}g fat</Badge>}
+              {day.prep_time_minutes && day.meal_mode === "cook" && <Badge variant="outline" className="text-[11px] sm:text-xs">{day.prep_time_minutes} min</Badge>}
+              {day.cuisine_type && <Badge variant="outline" className="text-[11px] sm:text-xs">{day.cuisine_type}</Badge>}
             </div>
 
             {/* Feedback */}
