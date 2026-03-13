@@ -176,8 +176,8 @@ const DayCard = ({
                     </Button>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onToggleLock(day)}>
-                          {day.is_locked ? <Lock className="w-4 h-4 text-primary" /> : <Unlock className="w-4 h-4 text-muted-foreground" />}
+                        <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => onToggleLock(day)}>
+                          {day.is_locked ? <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" /> : <Unlock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />}
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[200px] text-center">
