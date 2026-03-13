@@ -83,22 +83,20 @@ const DayCard = ({
     >
       <Card className={`overflow-hidden transition-all ${day.is_locked ? "ring-1 ring-primary/20" : ""} ${isDragged ? "opacity-50 scale-[0.98]" : ""} ${isDragOver ? "ring-2 ring-primary shadow-lg" : ""}`}>
         <div className="flex flex-col sm:flex-row">
-          {/* Day label + mode */}
-          <div className="flex items-center gap-3 p-4 sm:w-48 sm:border-r border-border">
+          {/* Day label + mode - horizontal on mobile */}
+          <div className="flex items-center gap-2 px-3 pt-3 pb-1 sm:flex-col sm:gap-1 sm:p-4 sm:w-44 sm:border-r border-border sm:items-start">
             {!day.is_locked && (
               <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 hidden sm:block" />
             )}
-            <div className="text-center sm:text-left">
-              <p className="font-serif font-semibold text-foreground">{DAYS[day.day_of_week]}</p>
-              <button
-                onClick={() => onCycleMealMode(day)}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium mt-1 transition-colors ${mode.color}`}
-                disabled={day.is_locked}
-              >
-                <Icon className="w-3 h-3" />
-                {mode.label}
-              </button>
-            </div>
+            <p className="font-serif font-semibold text-foreground text-sm sm:text-base">{DAYS[day.day_of_week]}</p>
+            <button
+              onClick={() => onCycleMealMode(day)}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium transition-colors ${mode.color}`}
+              disabled={day.is_locked}
+            >
+              <Icon className="w-3 h-3" />
+              {mode.label}
+            </button>
           </div>
 
           {/* Meal info */}
