@@ -22,14 +22,14 @@ const WeeklySummary = ({ days }: WeeklySummaryProps) => {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-6">
       {stats.map((stat) => (
-        <Card key={stat.label}>
-          <CardContent className="py-3 px-4 flex items-center gap-3">
-            <stat.icon className={`w-5 h-5 ${stat.iconClass}`} />
-            <div>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
-              <p className="font-semibold text-foreground">{stat.value}</p>
+        <Card key={stat.label} className="min-w-0">
+          <CardContent className="py-3 px-3 sm:px-4 flex items-center gap-2 sm:gap-3">
+            <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 shrink-0 ${stat.iconClass}`} />
+            <div className="min-w-0">
+              <p className="text-[11px] sm:text-xs text-muted-foreground truncate">{stat.label}</p>
+              <p className="font-semibold text-sm sm:text-base text-foreground">{stat.value}</p>
             </div>
           </CardContent>
         </Card>

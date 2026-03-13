@@ -237,8 +237,8 @@ const DailyDinnerCard = ({
                   onClick={() => handleQuickAction(action.value)}
                   disabled={saving}
                   className={`
-                    relative flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium
-                    transition-all duration-200 border
+                    relative flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-3 rounded-xl text-xs sm:text-sm font-medium
+                    transition-all duration-200 border min-w-0
                     ${isSelected && saving
                       ? "border-primary bg-primary/10 text-primary scale-[0.97]"
                       : isPositive
@@ -248,10 +248,10 @@ const DailyDinnerCard = ({
                     disabled:opacity-50 disabled:pointer-events-none
                   `}
                 >
-                  <span className="text-base">{action.emoji}</span>
-                  {action.label}
+                  <span className="text-sm sm:text-base">{action.emoji}</span>
+                  <span className="truncate">{action.label}</span>
                   {isSelected && saving && (
-                    <div className="absolute right-3 w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    <div className="absolute right-2 sm:right-3 w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                   )}
                 </button>
               );
