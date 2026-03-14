@@ -328,6 +328,7 @@ const DayCard = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
+      className="min-w-0 overflow-hidden"
       draggable={!isMobile && !day.is_locked}
       onDragStart={() => !isMobile && onDragStart(day.id)}
       onDragOver={(e) => !isMobile && onDragOver(e, day.id)}
