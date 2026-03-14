@@ -382,6 +382,9 @@ const DayCard = ({
             dragConstraints={{ left: -ACTION_WIDTH, right: ACTION_WIDTH }}
             dragElastic={0.2}
             onDragEnd={handleDragEnd}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            onTouchMove={handleTouchMove}
             className="relative z-10"
           >
             {cardContent}
