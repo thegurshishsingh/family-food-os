@@ -126,7 +126,7 @@ const DayCard = ({
   };
 
   const cardContent = (
-    <Card className={`overflow-hidden transition-all ${day.is_locked ? "ring-1 ring-primary/20" : ""} ${isDragged ? "opacity-50 scale-[0.98]" : ""} ${isDragOver ? "ring-2 ring-primary shadow-lg" : ""}`}>
+    <Card className={`overflow-hidden transition-all max-w-full ${day.is_locked ? "ring-1 ring-primary/20" : ""} ${isDragged ? "opacity-50 scale-[0.98]" : ""} ${isDragOver ? "ring-2 ring-primary shadow-lg" : ""}`}>
       <div className="flex flex-col sm:flex-row">
         {/* Day label + mode */}
         <div className="flex items-center gap-2 px-3 pt-3 pb-1 sm:flex-col sm:gap-1 sm:p-4 sm:w-44 sm:border-r border-border sm:items-start">
@@ -267,7 +267,7 @@ const DayCard = ({
           )}
 
           {/* Nutrition badges */}
-          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3 overflow-hidden">
             {day.calories && <Badge variant="secondary" className="text-[11px] sm:text-xs">{day.calories} cal</Badge>}
             {day.protein_g && <Badge variant="secondary" className="text-[11px] sm:text-xs">{Number(day.protein_g)}g protein</Badge>}
             {day.carbs_g && <Badge variant="secondary" className="text-[11px] sm:text-xs hidden sm:inline-flex">{Number(day.carbs_g)}g carbs</Badge>}
@@ -328,6 +328,7 @@ const DayCard = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
+      className="min-w-0 overflow-hidden"
       draggable={!isMobile && !day.is_locked}
       onDragStart={() => !isMobile && onDragStart(day.id)}
       onDragOver={(e) => !isMobile && onDragOver(e, day.id)}
