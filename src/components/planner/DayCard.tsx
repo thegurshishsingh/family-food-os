@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +54,34 @@ const DayCard = ({
 
   const dragX = useMotionValue(0);
   const swipeRef = useRef<boolean>(false);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTriggered = useRef(false);
+
+  const handleTouchStart = useCallback(() => {
+    if (!isMobile || !day.meal_name) return;
+    longPressTriggered.current = false;
+    longPressTimer.current = setTimeout(() => {
+      longPressTriggered.current = true;
+      setDetailOpen(true);
+      // Gentle haptic if available
+      if (navigator.vibrate) navigator.vibrate(30);
+    }, 500);
+  }, [isMobile, day.meal_name]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleTouchMove = useCallback(() => {
+    // Cancel long-press if user starts dragging
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
 
   // Background action opacity based on drag direction
   const lockOpacity = useTransform(dragX, [0, ACTION_WIDTH], [0, 1]);
@@ -233,7 +261,7 @@ const DayCard = ({
               </button>
               <span className="text-muted-foreground/30 text-[10px]">·</span>
               <span className="text-[10px] text-muted-foreground/50 italic">
-                Swipe for more
+                Swipe · Hold for details
               </span>
             </div>
           )}
@@ -354,6 +382,9 @@ const DayCard = ({
             dragConstraints={{ left: -ACTION_WIDTH, right: ACTION_WIDTH }}
             dragElastic={0.2}
             onDragEnd={handleDragEnd}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            onTouchMove={handleTouchMove}
             className="relative z-10"
           >
             {cardContent}
