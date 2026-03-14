@@ -261,7 +261,7 @@ const DayCard = ({
               </button>
               <span className="text-muted-foreground/30 text-[10px]">·</span>
               <span className="text-[10px] text-muted-foreground/50 italic">
-                Swipe for more
+                Swipe · Hold for details
               </span>
             </div>
           )}
