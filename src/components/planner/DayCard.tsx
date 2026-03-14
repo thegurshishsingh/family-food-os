@@ -54,6 +54,34 @@ const DayCard = ({
 
   const dragX = useMotionValue(0);
   const swipeRef = useRef<boolean>(false);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTriggered = useRef(false);
+
+  const handleTouchStart = useCallback(() => {
+    if (!isMobile || !day.meal_name) return;
+    longPressTriggered.current = false;
+    longPressTimer.current = setTimeout(() => {
+      longPressTriggered.current = true;
+      setDetailOpen(true);
+      // Gentle haptic if available
+      if (navigator.vibrate) navigator.vibrate(30);
+    }, 500);
+  }, [isMobile, day.meal_name]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleTouchMove = useCallback(() => {
+    // Cancel long-press if user starts dragging
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
 
   // Background action opacity based on drag direction
   const lockOpacity = useTransform(dragX, [0, ACTION_WIDTH], [0, 1]);
