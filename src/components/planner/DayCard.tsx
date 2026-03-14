@@ -267,7 +267,7 @@ const DayCard = ({
           )}
 
           {/* Nutrition badges */}
-          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3 overflow-hidden">
             {day.calories && <Badge variant="secondary" className="text-[11px] sm:text-xs">{day.calories} cal</Badge>}
             {day.protein_g && <Badge variant="secondary" className="text-[11px] sm:text-xs">{Number(day.protein_g)}g protein</Badge>}
             {day.carbs_g && <Badge variant="secondary" className="text-[11px] sm:text-xs hidden sm:inline-flex">{Number(day.carbs_g)}g carbs</Badge>}
