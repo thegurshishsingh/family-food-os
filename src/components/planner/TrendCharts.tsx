@@ -3,7 +3,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, 
 import { Flame, Beef, ChefHat, Truck, DollarSign, TrendingUp, CheckCircle2 } from "lucide-react";
 import type { PlanDay, WeeklyPlan } from "@/components/planner/types";
 
-type HistoryWeek = WeeklyPlan & { days: PlanDay[] };
+type HistoryWeek = WeeklyPlan & { days: PlanDay[]; checkinCount: number };
 
 interface TrendChartsProps {
   weeks: HistoryWeek[];
