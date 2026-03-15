@@ -22,7 +22,8 @@ const TrendCharts = ({ weeks, weeklyBudget }: TrendChartsProps) => {
     const takeoutNights = week.days.filter((d) => d.meal_mode === "takeout" || d.meal_mode === "dine_out").length;
     const takeoutSpend = week.days.reduce((s, d) => s + (d.takeout_budget ? Number(d.takeout_budget) : 0), 0);
     const realityScore = week.reality_score ?? null;
-    return { label, calories: totalCals, protein: Math.round(totalProtein), cookNights, takeoutNights, takeoutSpend: Math.round(takeoutSpend), realityScore };
+    const checkinRate = Math.round((week.checkinCount / Math.max(week.days.length, 1)) * 100);
+    return { label, calories: totalCals, protein: Math.round(totalProtein), cookNights, takeoutNights, takeoutSpend: Math.round(takeoutSpend), realityScore, checkinRate };
   });
 
   const chartConfig = {
