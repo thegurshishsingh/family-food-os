@@ -15,7 +15,6 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
-    // Get auth user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header");
 
@@ -27,10 +26,9 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await userClient.auth.getUser();
     if (authError || !user) throw new Error("Unauthorized");
 
-    const { household_id } = await req.json();
+    const { household_id, setup } = await req.json();
     if (!household_id) throw new Error("household_id required");
 
-    // Get household data
     const { data: household } = await supabaseClient
       .from("households")
       .select("*")
@@ -45,7 +43,6 @@ serve(async (req) => {
       .eq("household_id", household_id)
       .single();
 
-    // Get current week context
     const monday = getNextMonday();
     const { data: context } = await supabaseClient
       .from("weekly_contexts")
@@ -55,7 +52,6 @@ serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
-    // Get past feedback
     const { data: feedback } = await supabaseClient
       .from("meal_feedback")
       .select("meal_name, feedback")
@@ -66,14 +62,12 @@ serve(async (req) => {
     const lovedMeals = feedback?.filter(f => f.feedback === "loved").map(f => f.meal_name) || [];
     const dislikedMeals = feedback?.filter(f => ["kids_refused", "too_hard"].includes(f.feedback)).map(f => f.meal_name) || [];
 
-    // Get saved meals
     const { data: savedMeals } = await supabaseClient
       .from("saved_meals")
       .select("meal_name, meal_description, include_in_plan, frequency")
       .eq("household_id", household_id)
       .limit(50);
 
-    // Get evening check-in patterns (last 4 weeks)
     const { data: checkins } = await supabaseClient
       .from("evening_checkins")
       .select("tags, effort_level, plan_day_id, created_at")
@@ -81,7 +75,6 @@ serve(async (req) => {
       .order("created_at", { ascending: false })
       .limit(28);
 
-    // Enrich check-ins with day_of_week from plan_days
     let checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[] = [];
     if (checkins?.length) {
       const planDayIds = checkins.map((c: any) => c.plan_day_id);
@@ -98,13 +91,11 @@ serve(async (req) => {
       })).filter(c => c.day_of_week >= 0);
     }
 
-    // Build AI prompt
-    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, savedMeals || [], checkinInsights);
+    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, savedMeals || [], checkinInsights, setup);
 
     let planData;
 
     if (lovableApiKey) {
-      // Use AI to generate plan
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -147,7 +138,6 @@ serve(async (req) => {
                         takeout_budget: { type: "number" },
                         ingredients: {
                           type: "array",
-                          description: "List of ingredients with quantities",
                           items: {
                             type: "object",
                             properties: {
@@ -160,7 +150,6 @@ serve(async (req) => {
                         },
                         instructions: {
                           type: "array",
-                          description: "Step-by-step cooking instructions",
                           items: { type: "string" },
                         },
                       },
@@ -209,12 +198,10 @@ serve(async (req) => {
 
       planData = JSON.parse(toolCall.function.arguments);
     } else {
-      // Fallback: generate mock plan
-      planData = generateMockPlan(household, preferences, context);
+      planData = generateMockPlan(household, preferences, context, setup);
     }
 
     // Save plan to database
-    // Delete existing plan for this week
     await supabaseClient
       .from("weekly_plans")
       .delete()
@@ -234,7 +221,6 @@ serve(async (req) => {
       .single();
     if (planError) throw planError;
 
-    // Insert plan days
     const dayInserts = planData.days.map((d: any) => ({
       plan_id: newPlan.id,
       day_of_week: d.day_of_week,
@@ -255,7 +241,6 @@ serve(async (req) => {
     }));
     await supabaseClient.from("plan_days").insert(dayInserts);
 
-    // Insert grocery items
     if (planData.grocery_items?.length) {
       const groceryInserts = planData.grocery_items.map((g: any) => ({
         plan_id: newPlan.id,
@@ -291,6 +276,7 @@ function buildPrompt(
   lovedMeals: string[], dislikedMeals: string[],
   savedMeals: { meal_name: string; meal_description: string | null }[],
   checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[],
+  setup?: { takeout_days?: number[]; leftover_days?: number[]; special_meals?: string[]; week_intensity?: string },
 ) {
   const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const parts = [
@@ -301,6 +287,27 @@ function buildPrompt(
     parts.push(`Children ages: ${household.child_age_bands.join(", ")}.`);
   }
 
+  // Weekly setup preferences from the user
+  if (setup) {
+    if (setup.takeout_days?.length) {
+      parts.push(`TAKEOUT NIGHTS (user-selected): ${setup.takeout_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "takeout".`);
+    }
+    if (setup.leftover_days?.length) {
+      parts.push(`LEFTOVER NIGHTS (user-selected): ${setup.leftover_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "leftovers".`);
+    }
+    if (setup.special_meals?.length) {
+      parts.push(`SPECIAL MEAL REQUESTS (user wants these included this week): ${setup.special_meals.join(", ")}. Include these meals in the plan.`);
+    }
+    if (setup.week_intensity) {
+      const intensityMap: Record<string, string> = {
+        relaxed: "RELAXED WEEK — user has more time. Include more elaborate cook nights, longer prep times are okay.",
+        normal: "NORMAL WEEK — balanced mix of cooking effort.",
+        busy: "BUSY WEEK — user is very busy. Prefer quick meals (under 20 min), simple recipes, and more convenience nights.",
+      };
+      parts.push(intensityMap[setup.week_intensity] || "");
+    }
+  }
+
   if (prefs) {
     if (prefs.cuisines_liked?.length) parts.push(`Preferred cuisines: ${prefs.cuisines_liked.join(", ")}.`);
     if (prefs.cuisines_disliked?.length) parts.push(`Avoid cuisines: ${prefs.cuisines_disliked.join(", ")}.`);
@@ -309,7 +316,8 @@ function buildPrompt(
     if (prefs.foods_to_avoid?.length) parts.push(`FOODS TO AVOID (the family does not eat these — never include them in any meal): ${prefs.foods_to_avoid.join(", ")}.`);
     if (prefs.weekly_grocery_budget) parts.push(`Weekly budget: $${prefs.weekly_grocery_budget}.`);
     if (prefs.cooking_time_tolerance) parts.push(`Cooking time tolerance: ${prefs.cooking_time_tolerance}.`);
-    if (prefs.preferred_takeout_frequency) parts.push(`Include ${prefs.preferred_takeout_frequency} takeout night(s).`);
+    // Only use pref takeout frequency if no setup override
+    if (prefs.preferred_takeout_frequency && !setup?.takeout_days?.length) parts.push(`Include ${prefs.preferred_takeout_frequency} takeout night(s).`);
     if (prefs.health_goal) parts.push(`Health goal: ${prefs.health_goal}.`);
   }
 
@@ -357,7 +365,6 @@ function buildPrompt(
   if (checkinInsights.length > 0) {
     parts.push(`\nIMPORTANT — Recent evening check-in data from the family (use this to adapt the plan):`);
 
-    // Aggregate patterns by day of week
     const dayPatterns: Record<number, { tags: Record<string, number>; effortTooMuch: number; total: number }> = {};
     const globalTags: Record<string, number> = {};
 
@@ -374,7 +381,6 @@ function buildPrompt(
       }
     }
 
-    // Per-day insights
     for (const [dayIdx, pattern] of Object.entries(dayPatterns)) {
       const dayName = dayNames[Number(dayIdx)];
       const notes: string[] = [];
@@ -388,7 +394,6 @@ function buildPrompt(
       if (notes.length) parts.push(`- ${dayName}: ${notes.join(", ")} (${pattern.total} check-in${pattern.total > 1 ? "s" : ""})`);
     }
 
-    // Global guidance
     const totalCheckins = checkinInsights.length;
     if (globalTags["too_much_work"] > totalCheckins * 0.3) {
       parts.push(`Overall pattern: meals feel like too much work. Prefer simpler, lower-effort meals.`);
@@ -404,7 +409,9 @@ function buildPrompt(
     }
   }
 
-  parts.push(`Include at least 1 leftover night reusing a previous cooked meal.`);
+  if (!setup?.leftover_days?.length) {
+    parts.push(`Include at least 1 leftover night reusing a previous cooked meal.`);
+  }
   parts.push(`Include realistic nutrition estimates per meal (calories, protein_g, carbs_g, fat_g). Nutrition should be PER SINGLE SERVING.`);
   parts.push(`IMPORTANT — Ingredient quantities must be for ONE SINGLE SERVING (the app will scale them by number of servings). Use sensible household units (e.g. "1" chicken breast, "0.5" lb ground turkey, "1" cup rice, "2" tbsp olive oil, "1" clove garlic). Keep units in the "unit" field, numeric amounts in "quantity".`);
   parts.push(`For each meal, provide detailed step-by-step cooking instructions with 6-10 steps. Include prep details (how to cut, season, marinate), cooking temperatures and times, and plating/serving suggestions. Be specific enough that a beginner cook could follow along.`);
@@ -420,9 +427,11 @@ A score of 90+ means very easy week. 70-89 is realistic. 50-69 is ambitious. Bel
   return parts.join("\n");
 }
 
-function generateMockPlan(household: any, prefs: any, context: any) {
-  const isHard = context?.newborn_in_house || context?.chaotic_week || context?.sick_week;
-  const takeoutCount = prefs?.preferred_takeout_frequency || 1;
+function generateMockPlan(household: any, prefs: any, context: any, setup?: any) {
+  const isHard = context?.newborn_in_house || context?.chaotic_week || context?.sick_week || setup?.week_intensity === "busy";
+  const takeoutDays = new Set(setup?.takeout_days || []);
+  const leftoverDays = new Set(setup?.leftover_days || []);
+  const takeoutCount = takeoutDays.size || prefs?.preferred_takeout_frequency || 1;
 
   const meals = [
     { name: "One-Pot Pasta Primavera", desc: "Quick veggie pasta with garlic bread", cuisine: "Italian", prep: 25, cal: 520, p: 18, c: 68, f: 20 },
@@ -434,15 +443,28 @@ function generateMockPlan(household: any, prefs: any, context: any) {
     { name: "Grilled Cheese & Tomato Soup", desc: "Comfort classic for easy nights", cuisine: "American", prep: 15, cal: 450, p: 16, c: 48, f: 22 },
   ];
 
+  // If special meals requested, swap them in
+  const specialMeals = setup?.special_meals || [];
+  for (let si = 0; si < specialMeals.length && si < meals.length; si++) {
+    meals[si] = { ...meals[si], name: specialMeals[si], desc: `Family request: ${specialMeals[si]}` };
+  }
+
   const days = [];
   let cookIdx = 0;
 
   for (let i = 0; i < 7; i++) {
     let mode = "cook";
-    if (i === 2) mode = "leftovers";
-    if (i === 4 && takeoutCount >= 1) mode = "takeout";
-    if (i === 6 && takeoutCount >= 2) mode = "takeout";
-    if (isHard && i === 1) mode = "emergency";
+    if (takeoutDays.has(i)) {
+      mode = "takeout";
+    } else if (leftoverDays.has(i)) {
+      mode = "leftovers";
+    } else if (!takeoutDays.size && i === 4 && takeoutCount >= 1) {
+      mode = "takeout";
+    } else if (!leftoverDays.size && i === 2) {
+      mode = "leftovers";
+    } else if (isHard && i === 1 && !takeoutDays.has(1) && !leftoverDays.has(1)) {
+      mode = "emergency";
+    }
 
     const meal = meals[cookIdx % meals.length];
 
@@ -452,7 +474,7 @@ function generateMockPlan(household: any, prefs: any, context: any) {
       meal_name: mode === "takeout" ? "Pizza Night" : mode === "leftovers" ? `Leftover ${meals[(cookIdx - 1 + meals.length) % meals.length].name}` : mode === "emergency" ? "Frozen Pizza + Salad" : meal.name,
       meal_description: mode === "takeout" ? "Order from your favorite local spot" : mode === "leftovers" ? "Use up what's in the fridge" : mode === "emergency" ? "Quick freezer meal for hectic nights" : meal.desc,
       cuisine_type: mode === "takeout" ? "Various" : meal.cuisine,
-      prep_time_minutes: mode === "cook" ? meal.prep : mode === "emergency" ? 10 : 5,
+      prep_time_minutes: mode === "cook" ? (isHard ? Math.min(meal.prep, 20) : meal.prep) : mode === "emergency" ? 10 : 5,
       calories: mode === "takeout" ? 700 : mode === "emergency" ? 450 : meal.cal,
       protein_g: mode === "takeout" ? 25 : mode === "emergency" ? 15 : meal.p,
       carbs_g: mode === "takeout" ? 80 : mode === "emergency" ? 55 : meal.c,

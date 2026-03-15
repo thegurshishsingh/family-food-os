@@ -1,8 +1,8 @@
 import { useMemo, useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2, Sparkles } from "lucide-react";
-import { DAYS, type PlanDay } from "./types";
+import { type PlanDay } from "./types";
 
 interface WeeklyDinnerProgressProps {
   days: PlanDay[];
@@ -56,10 +56,8 @@ const WeeklyDinnerProgress = ({ days, checkedInDays }: WeeklyDinnerProgressProps
 
   const allComplete = completedCount === 7;
 
-  // Detect new check-in for micro-animation
   useEffect(() => {
     if (prevCountRef.current !== null && completedCount > prevCountRef.current) {
-      // Find which day just got checked in
       const newlyChecked = days.find(
         (d) => checkedInDays.has(d.id) && d.day_of_week !== undefined
       );
@@ -67,7 +65,6 @@ const WeeklyDinnerProgress = ({ days, checkedInDays }: WeeklyDinnerProgressProps
         setJustCompletedDay(newlyChecked.day_of_week);
         setTimeout(() => setJustCompletedDay(null), 800);
       }
-
       if (completedCount === 7) {
         setShowCelebration(true);
         setTimeout(() => setShowCelebration(false), 2500);
@@ -87,7 +84,6 @@ const WeeklyDinnerProgress = ({ days, checkedInDays }: WeeklyDinnerProgressProps
 
   return (
     <Card className="border-border/60 bg-card/80 backdrop-blur-sm relative overflow-hidden">
-      {/* Subtle glow when all complete */}
       <AnimatePresence>
         {allComplete && (
           <motion.div
@@ -101,7 +97,7 @@ const WeeklyDinnerProgress = ({ days, checkedInDays }: WeeklyDinnerProgressProps
       </AnimatePresence>
 
       <CardContent className="py-4 px-4 sm:px-6">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-4">
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Week progress
           </p>
@@ -127,92 +123,92 @@ const WeeklyDinnerProgress = ({ days, checkedInDays }: WeeklyDinnerProgressProps
           </AnimatePresence>
         </div>
 
-        {/* Progress dots */}
-        <div className="flex items-center justify-between gap-1">
-          {SHORT_DAYS.map((label, i) => {
-            const day = days.find((d) => d.day_of_week === i);
-            const isComplete = day ? checkedInDays.has(day.id) : false;
-            const isToday = i === todayDow;
-            const justCompleted = justCompletedDay === i;
-
-            return (
-              <div key={i} className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
-                <div className="relative">
-                  <motion.div
-                    className={`
-                      rounded-full border-2 flex items-center justify-center transition-colors duration-300
-                      ${isToday ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 sm:w-5 sm:h-5"}
-                      ${
-                        isComplete
-                          ? "bg-primary border-primary"
-                          : isToday
-                          ? "border-primary/50 bg-primary/10"
-                          : "border-border bg-transparent"
-                      }
-                    `}
-                    initial={false}
-                    animate={
-                      justCompleted
-                        ? { scale: [1, 1.4, 1], transition: { duration: 0.4 } }
-                        : {}
-                    }
-                  >
-                    {isComplete && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                      >
-                        <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary-foreground" />
-                      </motion.div>
-                    )}
-                  </motion.div>
-                  {/* Ripple on just-completed */}
-                  <AnimatePresence>
-                    {justCompleted && (
-                      <motion.div
-                        className="absolute inset-0 rounded-full border-2 border-primary"
-                        initial={{ scale: 1, opacity: 0.6 }}
-                        animate={{ scale: 2.2, opacity: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
-                      />
-                    )}
-                  </AnimatePresence>
-                </div>
-                <span
-                  className={`text-[10px] sm:text-xs leading-none ${
-                    isToday
-                      ? "font-semibold text-foreground"
-                      : isComplete
-                      ? "font-medium text-primary"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  {label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Connecting line behind dots */}
-        <div className="relative -mt-[29px] sm:-mt-[33px] mx-auto px-2 sm:px-3 pointer-events-none mb-5">
-          <div className="h-0.5 bg-border rounded-full" />
+        {/* Progress dots with connecting line */}
+        <div className="relative">
+          {/* Background line */}
+          <div className="absolute top-[10px] sm:top-[12px] left-[7%] right-[7%] h-0.5 bg-border rounded-full" />
+          {/* Filled line */}
           <motion.div
-            className="absolute top-0 left-0 h-0.5 bg-primary/40 rounded-full"
-            style={{ marginLeft: "inherit", marginRight: "inherit" }}
+            className="absolute top-[10px] sm:top-[12px] left-[7%] h-0.5 bg-primary/40 rounded-full"
             initial={false}
-            animate={{ width: `${(completedCount / 7) * 100}%` }}
+            animate={{ width: `${(completedCount / 7) * 86}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
+
+          {/* Dots */}
+          <div className="relative flex items-start justify-between">
+            {SHORT_DAYS.map((label, i) => {
+              const day = days.find((d) => d.day_of_week === i);
+              const isComplete = day ? checkedInDays.has(day.id) : false;
+              const isToday = i === todayDow;
+              const justCompleted = justCompletedDay === i;
+
+              return (
+                <div key={i} className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                  <div className="relative">
+                    <motion.div
+                      className={`
+                        rounded-full border-2 flex items-center justify-center transition-colors duration-300
+                        ${isToday ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 sm:w-5 sm:h-5"}
+                        ${
+                          isComplete
+                            ? "bg-primary border-primary"
+                            : isToday
+                            ? "border-primary/50 bg-primary/10"
+                            : "border-border bg-background"
+                        }
+                      `}
+                      initial={false}
+                      animate={
+                        justCompleted
+                          ? { scale: [1, 1.4, 1], transition: { duration: 0.4 } }
+                          : {}
+                      }
+                    >
+                      {isComplete && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                        >
+                          <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary-foreground" />
+                        </motion.div>
+                      )}
+                    </motion.div>
+                    <AnimatePresence>
+                      {justCompleted && (
+                        <motion.div
+                          className="absolute inset-0 rounded-full border-2 border-primary"
+                          initial={{ scale: 1, opacity: 0.6 }}
+                          animate={{ scale: 2.2, opacity: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.6, ease: "easeOut" }}
+                        />
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  <span
+                    className={`text-[10px] sm:text-xs leading-none ${
+                      isToday
+                        ? "font-semibold text-foreground"
+                        : isComplete
+                        ? "font-medium text-primary"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Summary text */}
         <AnimatePresence mode="wait">
           <motion.p
             key={getMessage()}
-            className="text-xs sm:text-sm text-muted-foreground text-center"
+            className="text-xs sm:text-sm text-muted-foreground text-center mt-4"
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
