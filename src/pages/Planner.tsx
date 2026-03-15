@@ -17,6 +17,7 @@ import DayCard from "@/components/planner/DayCard";
 import SwapMealDialog, { type MealSuggestion } from "@/components/planner/SwapMealDialog";
 import DailyDinnerCard from "@/components/planner/DailyDinnerCard";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
+import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
 
 const Planner = () => {
@@ -375,6 +376,13 @@ const Planner = () => {
           </div>
         )}
 
+        {/* Weekly Dinner Progress */}
+        {plan && days.length > 0 && (
+          <div className="mb-4">
+            <WeeklyDinnerProgress days={days} checkedInDays={checkedInDays} />
+          </div>
+        )}
+
         {plan && household && <CheckInNudge householdId={household.id} planId={plan.id} />}
 
         {household && (
@@ -398,12 +406,6 @@ const Planner = () => {
             </CardContent>
           </Card>
         )}
-
-        {plan && <RealityScore plan={plan} days={days} />}
-
-        <WeeklySummary days={days} />
-
-        {household && <WeeklyInsights householdId={household.id} />}
 
         {/* Day cards */}
         {days.length > 0 && (
@@ -438,7 +440,11 @@ const Planner = () => {
           </div>
         )}
 
-        {/* Last Week Recap - bottom */}
+        {plan && <RealityScore plan={plan} days={days} />}
+
+        <WeeklySummary days={days} />
+
+        {household && <WeeklyInsights householdId={household.id} />}
         {plan && household && (
           <div className="mt-6">
             <TimeSavedRecap
