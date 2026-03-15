@@ -138,6 +138,9 @@ const PlanHistory = () => {
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Truck className="w-3 h-3" /> {takeoutCount} out
                           </span>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" /> {week.checkinCount}/7 logged
+                          </span>
                         </div>
                       </div>
                     </div>
