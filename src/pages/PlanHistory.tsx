@@ -12,6 +12,7 @@ import TrendCharts from "@/components/planner/TrendCharts";
 
 type HistoryWeek = WeeklyPlan & {
   days: PlanDay[];
+  checkinCount: number;
 };
 
 const PlanHistory = () => {
