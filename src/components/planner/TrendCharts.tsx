@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, ReferenceLine, Legend, Area, AreaChart } from "recharts";
-import { Flame, Beef, ChefHat, Truck, DollarSign, TrendingUp } from "lucide-react";
+import { Flame, Beef, ChefHat, Truck, DollarSign, TrendingUp, CheckCircle2 } from "lucide-react";
 import type { PlanDay, WeeklyPlan } from "@/components/planner/types";
 
 type HistoryWeek = WeeklyPlan & { days: PlanDay[] };
