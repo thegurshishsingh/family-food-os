@@ -5,13 +5,14 @@ import AppLayout from "@/components/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChefHat, TrendingUp, AlertTriangle, ChevronDown, ChevronUp, Flame, Truck } from "lucide-react";
+import { ChefHat, TrendingUp, AlertTriangle, ChevronDown, ChevronUp, Flame, Truck, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DAYS, MODE_CONFIG, type PlanDay, type WeeklyPlan } from "@/components/planner/types";
 import TrendCharts from "@/components/planner/TrendCharts";
 
 type HistoryWeek = WeeklyPlan & {
   days: PlanDay[];
+  checkinCount: number;
 };
 
 const PlanHistory = () => {
@@ -36,16 +37,26 @@ const PlanHistory = () => {
 
     if (plans && plans.length > 0) {
       const planIds = plans.map((p: any) => p.id);
-      const { data: allDays } = await supabase
-        .from("plan_days")
-        .select("*")
-        .in("plan_id", planIds)
-        .order("day_of_week");
+      const [daysResult, checkinsResult] = await Promise.all([
+        supabase
+          .from("plan_days")
+          .select("*")
+          .in("plan_id", planIds)
+          .order("day_of_week"),
+        supabase
+          .from("evening_checkins")
+          .select("plan_day_id")
+          .eq("household_id", household.id),
+      ]);
 
-      const history: HistoryWeek[] = plans.map((p: any) => ({
-        ...p,
-        days: (allDays || []).filter((d: any) => d.plan_id === p.id) as unknown as PlanDay[],
-      }));
+      const allDays = daysResult.data || [];
+      const checkinDayIds = new Set((checkinsResult.data || []).map((c: any) => c.plan_day_id));
+
+      const history: HistoryWeek[] = plans.map((p: any) => {
+        const weekDays = allDays.filter((d: any) => d.plan_id === p.id) as unknown as PlanDay[];
+        const checkinCount = weekDays.filter((d) => checkinDayIds.has(d.id)).length;
+        return { ...p, days: weekDays, checkinCount };
+      });
       setWeeks(history);
       if (history.length > 0) setExpandedWeek(history[0].id);
     }
@@ -126,6 +137,9 @@ const PlanHistory = () => {
                           </span>
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Truck className="w-3 h-3" /> {takeoutCount} out
+                          </span>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" /> {week.checkinCount}/7 logged
                           </span>
                         </div>
                       </div>

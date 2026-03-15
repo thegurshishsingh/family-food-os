@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, ReferenceLine, Legend, Area, AreaChart } from "recharts";
-import { Flame, Beef, ChefHat, Truck, DollarSign, TrendingUp } from "lucide-react";
+import { Flame, Beef, ChefHat, Truck, DollarSign, TrendingUp, CheckCircle2 } from "lucide-react";
 import type { PlanDay, WeeklyPlan } from "@/components/planner/types";
 
-type HistoryWeek = WeeklyPlan & { days: PlanDay[] };
+type HistoryWeek = WeeklyPlan & { days: PlanDay[]; checkinCount: number };
 
 interface TrendChartsProps {
   weeks: HistoryWeek[];
@@ -22,7 +22,8 @@ const TrendCharts = ({ weeks, weeklyBudget }: TrendChartsProps) => {
     const takeoutNights = week.days.filter((d) => d.meal_mode === "takeout" || d.meal_mode === "dine_out").length;
     const takeoutSpend = week.days.reduce((s, d) => s + (d.takeout_budget ? Number(d.takeout_budget) : 0), 0);
     const realityScore = week.reality_score ?? null;
-    return { label, calories: totalCals, protein: Math.round(totalProtein), cookNights, takeoutNights, takeoutSpend: Math.round(takeoutSpend), realityScore };
+    const checkinRate = Math.round((week.checkinCount / Math.max(week.days.length, 1)) * 100);
+    return { label, calories: totalCals, protein: Math.round(totalProtein), cookNights, takeoutNights, takeoutSpend: Math.round(takeoutSpend), realityScore, checkinRate };
   });
 
   const chartConfig = {
@@ -76,6 +77,30 @@ const TrendCharts = ({ weeks, weeklyBudget }: TrendChartsProps) => {
           </CardContent>
         </Card>
       )}
+
+      {/* Check-in completion rate */}
+      <Card>
+        <CardHeader className="pb-2 pt-4 px-4">
+          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Dinner Check-in Rate
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-2 pb-4">
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <XAxis dataKey="label" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+              <YAxis tick={{ fontSize: 11 }} width={35} domain={[0, 100]} className="fill-muted-foreground" tickFormatter={(v) => `${v}%`} />
+              <Tooltip
+                contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--popover))", color: "hsl(var(--popover-foreground))" }}
+                formatter={(value: number) => [`${value}%`, "Check-in Rate"]}
+              />
+              <ReferenceLine y={100} stroke="hsl(var(--primary))" strokeDasharray="6 4" strokeOpacity={0.3} />
+              <Bar dataKey="checkinRate" name="Check-in %" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
       {/* Line charts row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
