@@ -440,7 +440,11 @@ const Planner = () => {
           </div>
         )}
 
-        {/* Last Week Recap - bottom */}
+        {plan && <RealityScore plan={plan} days={days} />}
+
+        <WeeklySummary days={days} />
+
+        {household && <WeeklyInsights householdId={household.id} />}
         {plan && household && (
           <div className="mt-6">
             <TimeSavedRecap
