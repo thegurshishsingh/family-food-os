@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Heart, Star, Plus, ShoppingBag, Ban, UtensilsCrossed } from "lucide-react";
+import { Sparkles, Plus, ShoppingBag, Ban, Flame } from "lucide-react";
 import { DAYS, MODE_CONFIG, type PlanDay, type FeedbackType } from "./types";
 
 const QUICK_ACTIONS = [
@@ -25,7 +25,7 @@ function generateSmartLine(action: QuickAction, day: PlanDay): string {
     case "ordered_instead":
       return `Got it. ${dayName} dinners should stay quick.`;
     case "kids_loved":
-      return `"${name}" is a family favorite now.`;
+      return `Kids seem to enjoy ${day.cuisine_type || "this style"}. We'll remember.`;
     case "too_much_work":
       return `Noted. We'll keep ${dayName}s lighter next week.`;
   }
@@ -77,16 +77,107 @@ const DailyDinnerCard = ({
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [smartLine, setSmartLine] = useState("");
+  const [streak, setStreak] = useState(0);
+  const [streakMessage, setStreakMessage] = useState("");
   const { toast } = useToast();
 
   const jsDay = new Date().getDay();
   const todayDow = jsDay === 0 ? 6 : jsDay - 1;
   const dayName = DAYS[todayDow];
 
-  // Already checked in — don't show
-  if (checkedIn && todayDay) return null;
+  // Load streak
+  useEffect(() => {
+    computeStreak();
+  }, [householdId, checkedIn]);
 
-  // Build subtitle chips
+  const computeStreak = async () => {
+    const { data } = await supabase
+      .from("evening_checkins")
+      .select("created_at")
+      .eq("household_id", householdId)
+      .order("created_at", { ascending: false });
+
+    if (!data || data.length === 0) {
+      setStreak(0);
+      setStreakMessage("");
+      return;
+    }
+
+    const uniqueDates = [
+      ...new Set(
+        data.map((r) => {
+          const d = new Date(r.created_at);
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        })
+      ),
+    ].sort((a, b) => (a > b ? -1 : 1));
+
+    const today = new Date();
+    const todayStr = fmt(today);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = fmt(yesterday);
+
+    if (uniqueDates[0] !== todayStr && uniqueDates[0] !== yesterdayStr) {
+      setStreak(0);
+      setStreakMessage("");
+      return;
+    }
+
+    let count = 1;
+    for (let i = 1; i < uniqueDates.length; i++) {
+      const prev = new Date(uniqueDates[i - 1] + "T00:00:00");
+      const curr = new Date(uniqueDates[i] + "T00:00:00");
+      const diffDays = Math.round((prev.getTime() - curr.getTime()) / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) count++;
+      else break;
+    }
+
+    setStreak(count);
+    setStreakMessage(getStreakMessage(count));
+  };
+
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+  const getStreakMessage = (n: number): string => {
+    if (n >= 7) return "Full week! The habit is real.";
+    if (n >= 5) return "Five days strong 💪";
+    if (n >= 3) return "Building momentum!";
+    if (n === 2) return "Two in a row — keep it going!";
+    return "First check-in! Come back tomorrow.";
+  };
+
+  // Already checked in — show completed state
+  if (checkedIn && todayDay) {
+    return (
+      <Card className="bg-primary/[0.03] border-primary/10">
+        <CardContent className="p-5 sm:p-6">
+          <p className="text-[11px] font-medium tracking-wide text-muted-foreground/60 uppercase mb-2">
+            Tonight's Dinner
+          </p>
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className="text-lg sm:text-xl font-serif font-semibold text-foreground">
+              {todayDay.meal_name}
+            </h2>
+            <span className="text-xs text-primary font-medium">✓ Logged</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Dinner logged. Your week is on track.
+          </p>
+          {streak > 0 && (
+            <div className="flex items-center gap-1.5 mt-3">
+              <Flame className={`w-3.5 h-3.5 ${streak >= 7 ? "text-orange-500" : streak >= 3 ? "text-amber-500" : "text-muted-foreground"}`} />
+              <span className="text-xs font-medium text-foreground">Dinner streak: {streak} nights</span>
+              <span className="text-xs text-muted-foreground hidden sm:inline">· {streakMessage}</span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Build subtitle
   const subtextParts: string[] = [];
   if (todayDay) {
     if (todayDay.prep_time_minutes) subtextParts.push(`${todayDay.prep_time_minutes} min prep`);
@@ -100,7 +191,6 @@ const DailyDinnerCard = ({
     setSelectedAction(action);
     setSaving(true);
 
-    // Save check-in
     const { error: ciErr } = await supabase.from("evening_checkins").insert({
       plan_day_id: todayDay.id,
       household_id: householdId,
@@ -115,16 +205,14 @@ const DailyDinnerCard = ({
       return;
     }
 
-    // Also save meal feedback
     onFeedback(todayDay, actionToFeedback(action));
-
     setSmartLine(generateSmartLine(action, todayDay));
     setDone(true);
     setSaving(false);
     setTimeout(() => onCheckedIn(todayDay.id), 3000);
   };
 
-  // ─── Empty state: no dinner scheduled ───
+  // Empty state
   if (!todayDay || !todayDay.meal_name) {
     return (
       <Card className="border-dashed border-border/60 bg-card/50">
@@ -154,7 +242,7 @@ const DailyDinnerCard = ({
     );
   }
 
-  // ─── Done state ───
+  // Done state — smart feedback
   if (done) {
     return (
       <motion.div
@@ -173,20 +261,6 @@ const DailyDinnerCard = ({
                 <p className="text-xs text-muted-foreground">
                   Thanks. We'll use this to improve next week's plan.
                 </p>
-                <div className="flex gap-3 mt-3">
-                  <button
-                    onClick={() => {/* Could navigate to rate */}}
-                    className="text-[11px] text-muted-foreground/60 hover:text-primary transition-colors underline underline-offset-2"
-                  >
-                    Rate the meal
-                  </button>
-                  <button
-                    onClick={() => {/* Could trigger save-to-favorites */}}
-                    className="text-[11px] text-muted-foreground/60 hover:text-primary transition-colors underline underline-offset-2"
-                  >
-                    Add to favorites
-                  </button>
-                </div>
               </div>
             </div>
           </CardContent>
@@ -195,7 +269,7 @@ const DailyDinnerCard = ({
     );
   }
 
-  // ─── Main dinner card ───
+  // Main dinner card
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -204,27 +278,37 @@ const DailyDinnerCard = ({
     >
       <Card className="border-primary/10 shadow-sm">
         <CardContent className="p-5 sm:p-6">
-          {/* Section label */}
           <p className="text-[11px] font-medium tracking-wide text-muted-foreground/60 uppercase mb-2">
             Tonight's Dinner
           </p>
 
-          {/* Meal title */}
           <h2 className="text-xl sm:text-2xl font-serif font-semibold text-foreground mb-1">
             {todayDay.meal_name}
           </h2>
 
-          {/* Subtext pills */}
           {subtextParts.length > 0 && (
             <p className="text-sm text-muted-foreground mb-1">
               {subtextParts.join(" · ")}
             </p>
           )}
 
-          {/* Helper text */}
-          <p className="text-xs text-muted-foreground/50 mb-5">
+          <p className="text-xs text-muted-foreground/50 mb-4">
             Your plan gets smarter when you check in.
           </p>
+
+          {/* Streak inline */}
+          {streak > 0 && (
+            <div className="flex items-center gap-1.5 mb-4 px-3 py-2 rounded-lg bg-muted/40">
+              <motion.div
+                animate={streak >= 3 ? { scale: [1, 1.15, 1] } : {}}
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              >
+                <Flame className={`w-4 h-4 ${streak >= 7 ? "text-orange-500" : streak >= 3 ? "text-amber-500" : "text-muted-foreground"}`} />
+              </motion.div>
+              <span className="text-sm font-semibold text-foreground">Dinner streak: {streak} nights</span>
+              <span className="text-xs text-muted-foreground hidden sm:inline ml-1">· {streakMessage}</span>
+            </div>
+          )}
 
           {/* Quick feedback buttons */}
           <div className="grid grid-cols-2 gap-2">

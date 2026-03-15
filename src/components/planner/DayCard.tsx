@@ -11,7 +11,6 @@ import { motion, useMotionValue, useTransform, animate, PanInfo } from "framer-m
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DAYS, MODE_CONFIG, FEEDBACK_OPTIONS, type PlanDay, type FeedbackType } from "./types";
 import MealDetailDialog from "./MealDetailDialog";
-import InlineCheckIn from "./InlineCheckIn";
 
 interface DayCardProps {
   day: PlanDay;
@@ -63,7 +62,6 @@ const DayCard = ({
     longPressTimer.current = setTimeout(() => {
       longPressTriggered.current = true;
       setDetailOpen(true);
-      // Gentle haptic if available
       if (navigator.vibrate) navigator.vibrate(30);
     }, 500);
   }, [isMobile, day.meal_name]);
@@ -76,14 +74,12 @@ const DayCard = ({
   }, []);
 
   const handleTouchMove = useCallback(() => {
-    // Cancel long-press if user starts dragging
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
     }
   }, []);
 
-  // Background action opacity based on drag direction
   const lockOpacity = useTransform(dragX, [0, ACTION_WIDTH], [0, 1]);
   const swapOpacity = useTransform(dragX, [-ACTION_WIDTH, 0], [1, 0]);
 
@@ -111,12 +107,10 @@ const DayCard = ({
   const handleDragEnd = (_: any, info: PanInfo) => {
     const offset = info.offset.x;
     if (offset < -SWIPE_THRESHOLD && !day.is_locked) {
-      // Swiped left → swap
       swipeRef.current = true;
       animate(dragX, 0, { type: "spring", stiffness: 400, damping: 30 });
       onSwapMeal(day);
     } else if (offset > SWIPE_THRESHOLD) {
-      // Swiped right → lock/unlock
       swipeRef.current = true;
       animate(dragX, 0, { type: "spring", stiffness: 400, damping: 30 });
       onToggleLock(day);
@@ -126,14 +120,28 @@ const DayCard = ({
   };
 
   const cardContent = (
-    <Card className={`overflow-hidden transition-all max-w-full ${day.is_locked ? "ring-1 ring-primary/20" : ""} ${isDragged ? "opacity-50 scale-[0.98]" : ""} ${isDragOver ? "ring-2 ring-primary shadow-lg" : ""}`}>
+    <Card
+      className={`overflow-hidden transition-all max-w-full
+        ${day.is_locked ? "ring-1 ring-primary/20" : ""}
+        ${isDragged ? "opacity-50 scale-[0.98]" : ""}
+        ${isDragOver ? "ring-2 ring-primary shadow-lg" : ""}
+        ${isToday ? "ring-1 ring-primary/30 bg-primary/[0.02]" : ""}
+      `}
+    >
       <div className="flex flex-col sm:flex-row">
         {/* Day label + mode */}
         <div className="flex items-center gap-2 px-3 pt-3 pb-1 sm:flex-col sm:gap-1 sm:p-4 sm:w-44 sm:border-r border-border sm:items-start">
           {!day.is_locked && (
             <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 hidden sm:block" />
           )}
-          <p className="font-serif font-semibold text-foreground text-sm sm:text-base">{DAYS[day.day_of_week]}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="font-serif font-semibold text-foreground text-sm sm:text-base">{DAYS[day.day_of_week]}</p>
+            {isToday && (
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-primary bg-primary/10 rounded-full px-1.5 py-0.5">
+                Today
+              </span>
+            )}
+          </div>
           <button
             onClick={() => onCycleMealMode(day)}
             className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium transition-colors ${mode.color}`}
@@ -197,7 +205,7 @@ const DayCard = ({
                 </>
               )}
             </div>
-            {/* Desktop action buttons — hidden on mobile */}
+            {/* Desktop action buttons */}
             <div className="hidden sm:flex items-center gap-1 shrink-0">
               {editing ? (
                 <>
@@ -235,7 +243,7 @@ const DayCard = ({
                 </>
               )}
             </div>
-            {/* Mobile edit buttons — only show when editing */}
+            {/* Mobile edit buttons */}
             {editing && (
               <div className="flex sm:hidden items-center gap-0.5 shrink-0">
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleSave} title="Save">
@@ -248,7 +256,7 @@ const DayCard = ({
             )}
           </div>
 
-          {/* Mobile quick actions row — tap-based, replaces swipe for edit */}
+          {/* Mobile quick actions */}
           {!editing && isMobile && (
             <div className="flex items-center gap-1 mt-1.5 -ml-1">
               <button
@@ -311,11 +319,6 @@ const DayCard = ({
                 </Popover>
               )}
             </div>
-          )}
-
-          {/* Inline check-in for today */}
-          {isToday && day.meal_name && !checkedIn && householdId && onCheckedIn && (
-            <InlineCheckIn day={day} householdId={householdId} onCheckedIn={onCheckedIn} />
           )}
         </div>
       </div>

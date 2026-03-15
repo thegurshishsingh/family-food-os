@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ChefHat, RefreshCw, ArrowRight } from "lucide-react";
-import CheckInStreak from "@/components/planner/CheckInStreak";
-import CheckInNudge from "@/components/planner/CheckInNudge";
 import RealityScore from "@/components/planner/RealityScore";
 import TimeSavedRecap from "@/components/planner/TimeSavedRecap";
 import WeeklySummary from "@/components/planner/WeeklySummary";
@@ -41,7 +39,6 @@ const Planner = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Compute today's day_of_week (0=Mon)
   const jsDay = new Date().getDay();
   const todayDow = jsDay === 0 ? 6 : jsDay - 1;
 
@@ -88,7 +85,6 @@ const Planner = () => {
         setDays(planDays as unknown as PlanDay[]);
         const dayIds = planDays.map((d: any) => d.id);
 
-        // Load feedback and check-in status in parallel
         const [fbResult, ciResult] = await Promise.all([
           supabase
             .from("meal_feedback")
@@ -129,8 +125,6 @@ const Planner = () => {
       setDayFeedback((prev) => { const n = { ...prev }; delete n[day.id]; return n; });
     } else {
       toast({ title: "Feedback saved!", description: `Marked "${day.meal_name}" as ${feedback.replace("_", " ")}` });
-
-      // Auto-save to saved meals when loved
       if (feedback === "loved" && day.meal_name) {
         const { data: existing } = await supabase
           .from("saved_meals")
@@ -138,7 +132,6 @@ const Planner = () => {
           .eq("household_id", household.id)
           .eq("meal_name", day.meal_name)
           .maybeSingle();
-
         if (!existing) {
           const { error: saveErr } = await supabase.from("saved_meals").insert({
             household_id: household.id,
@@ -360,7 +353,7 @@ const Planner = () => {
           </Button>
         </div>
 
-        {/* Daily Dinner Card - top */}
+        {/* 1. Tonight's Dinner card (single check-in point) */}
         {plan && household && (
           <div className="mb-4">
             <DailyDinnerCard
@@ -376,18 +369,10 @@ const Planner = () => {
           </div>
         )}
 
-        {/* Weekly Dinner Progress */}
+        {/* 2. Weekly Dinner Progress */}
         {plan && days.length > 0 && (
           <div className="mb-4">
             <WeeklyDinnerProgress days={days} checkedInDays={checkedInDays} />
-          </div>
-        )}
-
-        {plan && household && <CheckInNudge householdId={household.id} planId={plan.id} />}
-
-        {household && (
-          <div className="mb-4">
-            <CheckInStreak householdId={household.id} checkedInCount={checkedInDays.size} />
           </div>
         )}
 
@@ -407,7 +392,7 @@ const Planner = () => {
           </Card>
         )}
 
-        {/* Day cards */}
+        {/* 3. Day cards (weekly plan) */}
         {days.length > 0 && (
           <div className="space-y-3">
             {days.map((day, i) => (
@@ -440,11 +425,14 @@ const Planner = () => {
           </div>
         )}
 
+        {/* 4. Reality Score & Insights (below plan) */}
         {plan && <RealityScore plan={plan} days={days} />}
 
         <WeeklySummary days={days} />
 
         {household && <WeeklyInsights householdId={household.id} />}
+
+        {/* Last Week Recap */}
         {plan && household && (
           <div className="mt-6">
             <TimeSavedRecap
