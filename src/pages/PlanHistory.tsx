@@ -37,16 +37,26 @@ const PlanHistory = () => {
 
     if (plans && plans.length > 0) {
       const planIds = plans.map((p: any) => p.id);
-      const { data: allDays } = await supabase
-        .from("plan_days")
-        .select("*")
-        .in("plan_id", planIds)
-        .order("day_of_week");
+      const [daysResult, checkinsResult] = await Promise.all([
+        supabase
+          .from("plan_days")
+          .select("*")
+          .in("plan_id", planIds)
+          .order("day_of_week"),
+        supabase
+          .from("evening_checkins")
+          .select("plan_day_id")
+          .eq("household_id", household.id),
+      ]);
 
-      const history: HistoryWeek[] = plans.map((p: any) => ({
-        ...p,
-        days: (allDays || []).filter((d: any) => d.plan_id === p.id) as unknown as PlanDay[],
-      }));
+      const allDays = daysResult.data || [];
+      const checkinDayIds = new Set((checkinsResult.data || []).map((c: any) => c.plan_day_id));
+
+      const history: HistoryWeek[] = plans.map((p: any) => {
+        const weekDays = allDays.filter((d: any) => d.plan_id === p.id) as unknown as PlanDay[];
+        const checkinCount = weekDays.filter((d) => checkinDayIds.has(d.id)).length;
+        return { ...p, days: weekDays, checkinCount };
+      });
       setWeeks(history);
       if (history.length > 0) setExpandedWeek(history[0].id);
     }
