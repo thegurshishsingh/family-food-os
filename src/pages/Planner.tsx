@@ -16,6 +16,7 @@ import SwapMealDialog, { type MealSuggestion } from "@/components/planner/SwapMe
 import DailyDinnerCard from "@/components/planner/DailyDinnerCard";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
+import WeeklyPlanSetup, { type PlanSetupData } from "@/components/planner/WeeklyPlanSetup";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
 
 const Planner = () => {
@@ -36,6 +37,8 @@ const Planner = () => {
   const [swapDayContext, setSwapDayContext] = useState<PlanDay | null>(null);
   const [confirmingSwap, setConfirmingSwap] = useState(false);
   const [regeneratingSwap, setRegeneratingSwap] = useState(false);
+  const [needsNewPlan, setNeedsNewPlan] = useState(false);
+  const [generationMessage, setGenerationMessage] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -64,6 +67,17 @@ const Planner = () => {
     }
   };
 
+  // Check if current plan is for the current week
+  const isCurrentWeekPlan = (planWeekStart: string) => {
+    const now = new Date();
+    const day = now.getDay();
+    const diff = day === 0 ? -6 : 1 - day; // Monday of current week
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diff);
+    const mondayStr = monday.toISOString().split("T")[0];
+    return planWeekStart >= mondayStr;
+  };
+
   const loadPlan = async () => {
     if (!household) return;
     const { data: plans } = await supabase
@@ -75,7 +89,19 @@ const Planner = () => {
 
     if (plans && plans.length > 0) {
       const p = plans[0] as any;
+      const isCurrent = isCurrentWeekPlan(p.week_start);
+      
+      if (!isCurrent) {
+        // Plan is from a previous week — show setup banner
+        setNeedsNewPlan(true);
+        setPlan(null);
+        setDays([]);
+        setLoading(false);
+        return;
+      }
+
       setPlan(p);
+      setNeedsNewPlan(false);
       const { data: planDays } = await supabase
         .from("plan_days")
         .select("*")
@@ -107,6 +133,9 @@ const Planner = () => {
           setCheckedInDays(new Set(ciResult.data.map((c: any) => c.plan_day_id)));
         }
       }
+    } else {
+      // No plan at all
+      setNeedsNewPlan(true);
     }
     setLoading(false);
   };
@@ -149,14 +178,33 @@ const Planner = () => {
     }
   };
 
-  const generatePlan = async () => {
+  const generatePlan = async (setupData?: PlanSetupData) => {
     if (!household) return;
     setGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-meal-plan", {
-        body: { household_id: household.id },
-      });
+      const body: any = { household_id: household.id };
+      if (setupData) {
+        body.setup = {
+          takeout_days: setupData.takeoutDays,
+          leftover_days: setupData.leftoverDays,
+          special_meals: setupData.specialMeals,
+          week_intensity: setupData.weekIntensity,
+        };
+      }
+      const { data, error } = await supabase.functions.invoke("generate-meal-plan", { body });
       if (error) throw error;
+      
+      // Build generation message
+      if (setupData) {
+        const cookNights = 7 - setupData.takeoutDays.length - setupData.leftoverDays.length;
+        const parts = [`${cookNights} cook night${cookNights !== 1 ? "s" : ""}`];
+        if (setupData.leftoverDays.length > 0) parts.push(`${setupData.leftoverDays.length} leftover night${setupData.leftoverDays.length > 1 ? "s" : ""}`);
+        if (setupData.takeoutDays.length > 0) parts.push(`${setupData.takeoutDays.length} takeout night${setupData.takeoutDays.length > 1 ? "s" : ""}`);
+        setGenerationMessage(`Your week is ready. ${parts.join(", ")} planned.`);
+      } else {
+        setGenerationMessage("Your weekly plan is ready.");
+      }
+      
       await loadPlan();
       toast({ title: "Weekly plan generated!", description: "Your personalized meal plan is ready." });
     } catch (err: any) {
@@ -165,6 +213,14 @@ const Planner = () => {
       setGenerating(false);
     }
   };
+
+  // Clear generation message after 8 seconds
+  useEffect(() => {
+    if (generationMessage) {
+      const t = setTimeout(() => setGenerationMessage(""), 8000);
+      return () => clearTimeout(t);
+    }
+  }, [generationMessage]);
 
   const swapMeal = async (day: PlanDay) => {
     if (!household || day.is_locked) return;
@@ -338,22 +394,46 @@ const Planner = () => {
               {plan ? `Week of ${new Date(plan.week_start + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : "No plan yet"}
             </p>
           </div>
-          <Button onClick={generatePlan} disabled={generating} className="gap-2">
-            {generating ? (
-              <>
-                <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="w-4 h-4" />
-                {plan ? "Regenerate Plan" : "Generate Plan"}
-              </>
-            )}
-          </Button>
+          {plan && (
+            <Button onClick={() => generatePlan()} disabled={generating} variant="outline" className="gap-2">
+              {generating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4" />
+                  Regenerate Plan
+                </>
+              )}
+            </Button>
+          )}
         </div>
 
-        {/* 1. Tonight's Dinner card (single check-in point) */}
+        {/* Generation confirmation message */}
+        {generationMessage && (
+          <div className="mb-4">
+            <Card className="border-primary/20 bg-primary/[0.03]">
+              <CardContent className="py-3 px-5">
+                <p className="text-sm font-medium text-foreground">{generationMessage}</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* New week setup banner */}
+        {needsNewPlan && !plan && (
+          <div className="mb-6">
+            <WeeklyPlanSetup
+              onGenerate={(data) => generatePlan(data)}
+              generating={generating}
+              householdName={household?.name}
+            />
+          </div>
+        )}
+
+        {/* 1. Tonight's Dinner card */}
         {plan && household && (
           <div className="mb-4">
             <DailyDinnerCard
@@ -376,8 +456,8 @@ const Planner = () => {
           </div>
         )}
 
-        {/* Empty state */}
-        {!plan && (
+        {/* Empty state (no previous plan exists at all) */}
+        {!plan && !needsNewPlan && (
           <Card className="py-16 text-center">
             <CardContent>
               <ChefHat className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -385,7 +465,7 @@ const Planner = () => {
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Click "Generate Plan" to create your personalized weekly meal plan based on your household preferences.
               </p>
-              <Button onClick={generatePlan} disabled={generating} className="gap-2">
+              <Button onClick={() => generatePlan()} disabled={generating} className="gap-2">
                 <ArrowRight className="w-4 h-4" /> Generate your first plan
               </Button>
             </CardContent>
@@ -425,7 +505,7 @@ const Planner = () => {
           </div>
         )}
 
-        {/* 4. Reality Score & Insights (below plan) */}
+        {/* 4. Reality Score & Insights */}
         {plan && <RealityScore plan={plan} days={days} />}
 
         <WeeklySummary days={days} />
@@ -440,7 +520,7 @@ const Planner = () => {
               days={days}
               householdId={household.id}
               householdName={household.name}
-              onGeneratePlan={generatePlan}
+              onGeneratePlan={() => generatePlan()}
               onViewDetails={() => navigate("/history")}
               generating={generating}
             />
