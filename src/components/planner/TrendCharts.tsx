@@ -78,6 +78,30 @@ const TrendCharts = ({ weeks, weeklyBudget }: TrendChartsProps) => {
         </Card>
       )}
 
+      {/* Check-in completion rate */}
+      <Card>
+        <CardHeader className="pb-2 pt-4 px-4">
+          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Dinner Check-in Rate
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-2 pb-4">
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <XAxis dataKey="label" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+              <YAxis tick={{ fontSize: 11 }} width={35} domain={[0, 100]} className="fill-muted-foreground" tickFormatter={(v) => `${v}%`} />
+              <Tooltip
+                contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--popover))", color: "hsl(var(--popover-foreground))" }}
+                formatter={(value: number) => [`${value}%`, "Check-in Rate"]}
+              />
+              <ReferenceLine y={100} stroke="hsl(var(--primary))" strokeDasharray="6 4" strokeOpacity={0.3} />
+              <Bar dataKey="checkinRate" name="Check-in %" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
       {/* Line charts row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.entries(chartConfig).map(([key, cfg]) => (
