@@ -376,6 +376,13 @@ const Planner = () => {
           </div>
         )}
 
+        {/* Weekly Dinner Progress */}
+        {plan && days.length > 0 && (
+          <div className="mb-4">
+            <WeeklyDinnerProgress days={days} checkedInDays={checkedInDays} />
+          </div>
+        )}
+
         {plan && household && <CheckInNudge householdId={household.id} planId={plan.id} />}
 
         {household && (
@@ -399,12 +406,6 @@ const Planner = () => {
             </CardContent>
           </Card>
         )}
-
-        {plan && <RealityScore plan={plan} days={days} />}
-
-        <WeeklySummary days={days} />
-
-        {household && <WeeklyInsights householdId={household.id} />}
 
         {/* Day cards */}
         {days.length > 0 && (
