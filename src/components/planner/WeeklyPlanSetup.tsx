@@ -38,9 +38,8 @@ interface WeeklyPlanSetupProps {
   savedMeals?: SavedMealOption[];
 }
 
-const STEPS = ["takeout", "leftovers", "saved", "specials", "intensity", "confirm"] as const;
-type Step = typeof STEPS[number] | "saved";
-type Step = typeof STEPS[number];
+const ALL_STEPS = ["takeout", "leftovers", "saved", "specials", "intensity", "confirm"] as const;
+type Step = typeof ALL_STEPS[number];
 
 const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [] }: WeeklyPlanSetupProps) => {
   const [open, setOpen] = useState(false);
