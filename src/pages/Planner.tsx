@@ -32,6 +32,7 @@ const Planner = () => {
   const [dragOverDayId, setDragOverDayId] = useState<string | null>(null);
   const [checkedInDays, setCheckedInDays] = useState<Set<string>>(new Set());
   const [savedMealNames, setSavedMealNames] = useState<Set<string>>(new Set());
+  const [savedMealsList, setSavedMealsList] = useState<SavedMealOption[]>([]);
   const [swapSuggestions, setSwapSuggestions] = useState<MealSuggestion[]>([]);
   const [swapDialogOpen, setSwapDialogOpen] = useState(false);
   const [swapDayContext, setSwapDayContext] = useState<PlanDay | null>(null);
