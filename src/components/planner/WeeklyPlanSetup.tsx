@@ -56,8 +56,8 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
 
   // Skip "saved" step if no saved meals
   const activeSteps = savedMeals.length > 0
-    ? STEPS
-    : STEPS.filter(s => s !== "saved");
+    ? ALL_STEPS
+    : ALL_STEPS.filter(s => s !== "saved");
 
   const stepIdx = activeSteps.indexOf(step);
 
