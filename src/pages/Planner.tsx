@@ -16,7 +16,7 @@ import SwapMealDialog, { type MealSuggestion } from "@/components/planner/SwapMe
 import DailyDinnerCard from "@/components/planner/DailyDinnerCard";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
-import WeeklyPlanSetup, { type PlanSetupData } from "@/components/planner/WeeklyPlanSetup";
+import WeeklyPlanSetup, { type PlanSetupData, type SavedMealOption } from "@/components/planner/WeeklyPlanSetup";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
 
 const Planner = () => {
