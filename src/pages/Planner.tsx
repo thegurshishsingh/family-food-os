@@ -439,6 +439,7 @@ const Planner = () => {
               onGenerate={(data) => generatePlan(data)}
               generating={generating}
               householdName={household?.name}
+              savedMeals={savedMealsList}
             />
           </div>
         )}
