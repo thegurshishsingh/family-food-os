@@ -276,7 +276,7 @@ function buildPrompt(
   lovedMeals: string[], dislikedMeals: string[],
   savedMeals: { meal_name: string; meal_description: string | null }[],
   checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[],
-  setup?: { takeout_days?: number[]; leftover_days?: number[]; special_meals?: string[]; week_intensity?: string },
+  setup?: { takeout_days?: number[]; leftover_days?: number[]; special_meals?: string[]; week_intensity?: string; locked_saved_meals?: string[] },
 ) {
   const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const parts = [
@@ -297,6 +297,9 @@ function buildPrompt(
     }
     if (setup.special_meals?.length) {
       parts.push(`SPECIAL MEAL REQUESTS (user wants these included this week): ${setup.special_meals.join(", ")}. Include these meals in the plan.`);
+    }
+    if (setup.locked_saved_meals?.length) {
+      parts.push(`LOCKED SAVED MEALS (user specifically selected these from their saved meals — MUST include them this week): ${setup.locked_saved_meals.join(", ")}. These take priority over frequency settings.`);
     }
     if (setup.week_intensity) {
       const intensityMap: Record<string, string> = {

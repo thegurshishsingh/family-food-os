@@ -1,16 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ArrowRight, ArrowLeft, ChefHat, Loader2, X, Plus, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowLeft, ChefHat, Loader2, X, Plus, Sparkles, Bookmark } from "lucide-react";
 import { DAYS } from "./types";
 
 export interface PlanSetupData {
@@ -20,18 +21,27 @@ export interface PlanSetupData {
   leftoverDays: number[];
   specialMeals: string[];
   weekIntensity: "relaxed" | "normal" | "busy";
+  lockedSavedMeals: string[];
+}
+
+export interface SavedMealOption {
+  id: string;
+  meal_name: string;
+  meal_description: string | null;
+  frequency: string;
 }
 
 interface WeeklyPlanSetupProps {
   onGenerate: (data: PlanSetupData) => void;
   generating: boolean;
   householdName?: string;
+  savedMeals?: SavedMealOption[];
 }
 
-const STEPS = ["takeout", "leftovers", "specials", "intensity", "confirm"] as const;
-type Step = typeof STEPS[number];
+const ALL_STEPS = ["takeout", "leftovers", "saved", "specials", "intensity", "confirm"] as const;
+type Step = typeof ALL_STEPS[number];
 
-const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSetupProps) => {
+const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [] }: WeeklyPlanSetupProps) => {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("takeout");
 
@@ -39,11 +49,17 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
   const [takeoutDays, setTakeoutDays] = useState<number[]>([]);
   const [leftoverCount, setLeftoverCount] = useState(0);
   const [leftoverDays, setLeftoverDays] = useState<number[]>([]);
+  const [lockedSavedMeals, setLockedSavedMeals] = useState<string[]>([]);
   const [specialMeals, setSpecialMeals] = useState<string[]>([]);
   const [mealInput, setMealInput] = useState("");
   const [weekIntensity, setWeekIntensity] = useState<"relaxed" | "normal" | "busy">("normal");
 
-  const stepIdx = STEPS.indexOf(step);
+  // Skip "saved" step if no saved meals
+  const activeSteps: readonly Step[] = savedMeals.length > 0
+    ? ALL_STEPS
+    : ALL_STEPS.filter(s => s !== "saved");
+
+  const stepIdx = activeSteps.indexOf(step);
 
   const canAdvance = () => {
     if (step === "takeout" && takeoutCount > 0 && takeoutDays.length < takeoutCount) return false;
@@ -52,10 +68,10 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
   };
 
   const next = () => {
-    if (stepIdx < STEPS.length - 1) setStep(STEPS[stepIdx + 1]);
+    if (stepIdx < activeSteps.length - 1) setStep(activeSteps[stepIdx + 1]);
   };
   const back = () => {
-    if (stepIdx > 0) setStep(STEPS[stepIdx - 1]);
+    if (stepIdx > 0) setStep(activeSteps[stepIdx - 1]);
   };
 
   const toggleDay = (dayIdx: number, list: number[], setList: (v: number[]) => void, max: number) => {
@@ -64,6 +80,14 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
     } else if (list.length < max) {
       setList([...list, dayIdx]);
     }
+  };
+
+  const toggleSavedMeal = (mealName: string) => {
+    setLockedSavedMeals(prev =>
+      prev.includes(mealName)
+        ? prev.filter(m => m !== mealName)
+        : prev.length < 5 ? [...prev, mealName] : prev
+    );
   };
 
   const addSpecialMeal = () => {
@@ -82,6 +106,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
       leftoverDays,
       specialMeals,
       weekIntensity,
+      lockedSavedMeals,
     });
   };
 
@@ -91,13 +116,14 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
     { value: "busy" as const, label: "Busy week", desc: "Quick & easy meals" },
   ];
 
-  const summaryParts: string[] = [];
-  if (takeoutCount > 0) summaryParts.push(`${takeoutCount} takeout night${takeoutCount > 1 ? "s" : ""} (${takeoutDays.map((d) => DAYS[d]).join(", ")})`);
-  if (leftoverCount > 0) summaryParts.push(`${leftoverCount} leftover night${leftoverCount > 1 ? "s" : ""} (${leftoverDays.map((d) => DAYS[d]).join(", ")})`);
-  if (specialMeals.length > 0) summaryParts.push(`Special: ${specialMeals.join(", ")}`);
-  summaryParts.push(`Intensity: ${weekIntensity}`);
-
   const cookNights = 7 - takeoutCount - leftoverCount;
+
+  const frequencyLabel: Record<string, string> = {
+    every_week: "Weekly",
+    every_other_week: "Bi-weekly",
+    once_a_month: "Monthly",
+    occasionally: "Occasional",
+  };
 
   return (
     <>
@@ -132,7 +158,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
             <motion.div
               className="h-full bg-primary rounded-full"
               initial={false}
-              animate={{ width: `${((stepIdx + 1) / STEPS.length) * 100}%` }}
+              animate={{ width: `${((stepIdx + 1) / activeSteps.length) * 100}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -142,6 +168,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
               <DialogTitle className="text-lg font-serif">
                 {step === "takeout" && "Takeout nights"}
                 {step === "leftovers" && "Leftover nights"}
+                {step === "saved" && "Include saved meals"}
                 {step === "specials" && "Special meal requests"}
                 {step === "intensity" && "Week intensity"}
                 {step === "confirm" && "Ready to generate"}
@@ -156,7 +183,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
               >
-                {/* Step 1: Takeout */}
+                {/* Step: Takeout */}
                 {step === "takeout" && (
                   <div className="space-y-4">
                     <p className="text-sm text-muted-foreground">
@@ -202,7 +229,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
                   </div>
                 )}
 
-                {/* Step 2: Leftovers */}
+                {/* Step: Leftovers */}
                 {step === "leftovers" && (
                   <div className="space-y-4">
                     <p className="text-sm text-muted-foreground">
@@ -249,7 +276,59 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
                   </div>
                 )}
 
-                {/* Step 3: Special meals */}
+                {/* Step: Saved Meals */}
+                {step === "saved" && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Pick any saved meals you definitely want this week.
+                    </p>
+                    <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                      {savedMeals.map((meal) => {
+                        const isSelected = lockedSavedMeals.includes(meal.meal_name);
+                        return (
+                          <button
+                            key={meal.id}
+                            onClick={() => toggleSavedMeal(meal.meal_name)}
+                            className={`w-full text-left px-4 py-3 rounded-xl border transition-all flex items-start gap-3
+                              ${isSelected
+                                ? "border-primary bg-primary/10"
+                                : "border-border bg-card hover:border-primary/30"
+                              }`}
+                          >
+                            <div className={`mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors
+                              ${isSelected ? "border-primary bg-primary" : "border-muted-foreground/30"}`}>
+                              {isSelected && (
+                                <svg className="w-2.5 h-2.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className={`text-sm font-medium truncate ${isSelected ? "text-primary" : "text-foreground"}`}>
+                                  {meal.meal_name}
+                                </p>
+                                <span className="text-[10px] text-muted-foreground/60 shrink-0">
+                                  {frequencyLabel[meal.frequency] || meal.frequency}
+                                </span>
+                              </div>
+                              {meal.meal_description && (
+                                <p className="text-xs text-muted-foreground truncate mt-0.5">{meal.meal_description}</p>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {lockedSavedMeals.length > 0
+                        ? `${lockedSavedMeals.length} meal${lockedSavedMeals.length > 1 ? "s" : ""} locked in`
+                        : "Optional — skip if no preference."}
+                    </p>
+                  </div>
+                )}
+
+                {/* Step: Special meals */}
                 {step === "specials" && (
                   <div className="space-y-4">
                     <p className="text-sm text-muted-foreground">
@@ -283,7 +362,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
                   </div>
                 )}
 
-                {/* Step 4: Intensity */}
+                {/* Step: Intensity */}
                 {step === "intensity" && (
                   <div className="space-y-4">
                     <p className="text-sm text-muted-foreground">
@@ -310,7 +389,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
                   </div>
                 )}
 
-                {/* Step 5: Confirm */}
+                {/* Step: Confirm */}
                 {step === "confirm" && (
                   <div className="space-y-4">
                     <div className="bg-muted/40 rounded-xl p-4 space-y-2">
@@ -328,6 +407,12 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Leftovers</span>
                           <span className="font-medium text-foreground">{leftoverDays.map((d) => DAYS[d].slice(0, 3)).join(", ")}</span>
+                        </div>
+                      )}
+                      {lockedSavedMeals.length > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Saved meals</span>
+                          <span className="font-medium text-foreground">{lockedSavedMeals.join(", ")}</span>
                         </div>
                       )}
                       {specialMeals.length > 0 && (
@@ -372,7 +457,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName }: WeeklyPlanSe
                 </Button>
               ) : (
                 <Button size="sm" onClick={next} disabled={!canAdvance()} className="gap-1.5">
-                  {step === "specials" ? "Skip / Next" : "Next"} <ArrowRight className="w-3.5 h-3.5" />
+                  {step === "specials" || step === "saved" ? "Skip / Next" : "Next"} <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               )}
             </div>

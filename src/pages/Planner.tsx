@@ -16,7 +16,7 @@ import SwapMealDialog, { type MealSuggestion } from "@/components/planner/SwapMe
 import DailyDinnerCard from "@/components/planner/DailyDinnerCard";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
-import WeeklyPlanSetup, { type PlanSetupData } from "@/components/planner/WeeklyPlanSetup";
+import WeeklyPlanSetup, { type PlanSetupData, type SavedMealOption } from "@/components/planner/WeeklyPlanSetup";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
 
 const Planner = () => {
@@ -32,6 +32,7 @@ const Planner = () => {
   const [dragOverDayId, setDragOverDayId] = useState<string | null>(null);
   const [checkedInDays, setCheckedInDays] = useState<Set<string>>(new Set());
   const [savedMealNames, setSavedMealNames] = useState<Set<string>>(new Set());
+  const [savedMealsList, setSavedMealsList] = useState<SavedMealOption[]>([]);
   const [swapSuggestions, setSwapSuggestions] = useState<MealSuggestion[]>([]);
   const [swapDialogOpen, setSwapDialogOpen] = useState(false);
   const [swapDayContext, setSwapDayContext] = useState<PlanDay | null>(null);
@@ -59,11 +60,20 @@ const Planner = () => {
     if (!household) return;
     const { data } = await supabase
       .from("saved_meals")
-      .select("meal_name")
-      .eq("household_id", household.id)
-      .eq("include_in_plan", true);
+      .select("id, meal_name, meal_description, frequency, include_in_plan")
+      .eq("household_id", household.id);
     if (data) {
-      setSavedMealNames(new Set(data.map((m: any) => m.meal_name.toLowerCase())));
+      setSavedMealNames(new Set(
+        data.filter((m: any) => m.include_in_plan).map((m: any) => m.meal_name.toLowerCase())
+      ));
+      setSavedMealsList(
+        data.filter((m: any) => m.include_in_plan).map((m: any) => ({
+          id: m.id,
+          meal_name: m.meal_name,
+          meal_description: m.meal_description,
+          frequency: m.frequency,
+        }))
+      );
     }
   };
 
@@ -189,6 +199,7 @@ const Planner = () => {
           leftover_days: setupData.leftoverDays,
           special_meals: setupData.specialMeals,
           week_intensity: setupData.weekIntensity,
+          locked_saved_meals: setupData.lockedSavedMeals,
         };
       }
       const { data, error } = await supabase.functions.invoke("generate-meal-plan", { body });
@@ -429,6 +440,7 @@ const Planner = () => {
               onGenerate={(data) => generatePlan(data)}
               generating={generating}
               householdName={household?.name}
+              savedMeals={savedMealsList}
             />
           </div>
         )}
