@@ -60,11 +60,20 @@ const Planner = () => {
     if (!household) return;
     const { data } = await supabase
       .from("saved_meals")
-      .select("meal_name")
-      .eq("household_id", household.id)
-      .eq("include_in_plan", true);
+      .select("id, meal_name, meal_description, frequency, include_in_plan")
+      .eq("household_id", household.id);
     if (data) {
-      setSavedMealNames(new Set(data.map((m: any) => m.meal_name.toLowerCase())));
+      setSavedMealNames(new Set(
+        data.filter((m: any) => m.include_in_plan).map((m: any) => m.meal_name.toLowerCase())
+      ));
+      setSavedMealsList(
+        data.filter((m: any) => m.include_in_plan).map((m: any) => ({
+          id: m.id,
+          meal_name: m.meal_name,
+          meal_description: m.meal_description,
+          frequency: m.frequency,
+        }))
+      );
     }
   };
 
