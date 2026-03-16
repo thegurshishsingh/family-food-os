@@ -298,6 +298,9 @@ function buildPrompt(
     if (setup.special_meals?.length) {
       parts.push(`SPECIAL MEAL REQUESTS (user wants these included this week): ${setup.special_meals.join(", ")}. Include these meals in the plan.`);
     }
+    if (setup.locked_saved_meals?.length) {
+      parts.push(`LOCKED SAVED MEALS (user specifically selected these from their saved meals — MUST include them this week): ${setup.locked_saved_meals.join(", ")}. These take priority over frequency settings.`);
+    }
     if (setup.week_intensity) {
       const intensityMap: Record<string, string> = {
         relaxed: "RELAXED WEEK — user has more time. Include more elaborate cook nights, longer prep times are okay.",
