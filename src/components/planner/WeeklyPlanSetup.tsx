@@ -39,6 +39,7 @@ interface WeeklyPlanSetupProps {
 }
 
 const STEPS = ["takeout", "leftovers", "saved", "specials", "intensity", "confirm"] as const;
+type Step = typeof STEPS[number] | "saved";
 type Step = typeof STEPS[number];
 
 const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [] }: WeeklyPlanSetupProps) => {
