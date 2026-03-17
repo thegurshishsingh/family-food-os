@@ -40,7 +40,19 @@ interface WeeklyPlanSetupProps {
   savedMeals?: SavedMealOption[];
 }
 
-const ALL_STEPS = ["takeout", "leftovers", "saved", "specials", "intensity", "confirm"] as const;
+const WEEK_CONTEXT_OPTIONS = [
+  { value: "chaotic_week", label: "Chaotic week", emoji: "🌪️", desc: "Maximize convenience" },
+  { value: "budget_week", label: "Budget-tight", emoji: "💰", desc: "Affordable meals" },
+  { value: "sports_week", label: "Sports week", emoji: "⚽", desc: "High energy meals" },
+  { value: "guests_visiting", label: "Guests visiting", emoji: "🏠", desc: "Bigger portions" },
+  { value: "one_parent_traveling", label: "Solo parenting", emoji: "✈️", desc: "Simpler meals" },
+  { value: "low_cleanup_week", label: "Low cleanup", emoji: "🍳", desc: "One-pot meals" },
+  { value: "sick_week", label: "Sick week", emoji: "🤒", desc: "Comfort food" },
+  { value: "high_protein_week", label: "High protein", emoji: "💪", desc: "Protein-focused" },
+  { value: "newborn_in_house", label: "Newborn at home", emoji: "👶", desc: "Very easy meals" },
+];
+
+const ALL_STEPS = ["takeout", "leftovers", "saved", "specials", "context", "intensity", "confirm"] as const;
 type Step = typeof ALL_STEPS[number];
 
 const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [] }: WeeklyPlanSetupProps) => {
