@@ -596,7 +596,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 </Button>
               ) : (
                 <Button size="sm" onClick={next} disabled={!canAdvance()} className="gap-1.5 text-xs sm:text-sm">
-                  {step === "specials" || step === "saved" ? "Skip / Next" : "Next"} <ArrowRight className="w-3.5 h-3.5" />
+                  {["specials", "saved", "context"].includes(step) ? "Skip / Next" : "Next"} <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               )}
             </div>
