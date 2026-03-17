@@ -556,6 +556,14 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                         <span className="text-muted-foreground">Week intensity</span>
                         <span className="font-medium text-foreground capitalize">{weekIntensity}</span>
                       </div>
+                      {weekContextTags.length > 0 && (
+                        <div className="flex justify-between text-xs sm:text-sm gap-2">
+                          <span className="text-muted-foreground shrink-0">Context</span>
+                          <span className="font-medium text-foreground text-right">
+                            {weekContextTags.map(t => WEEK_CONTEXT_OPTIONS.find(o => o.value === t)?.label || t).join(", ")}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
