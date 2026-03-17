@@ -299,7 +299,12 @@ function buildPrompt(
       parts.push(`SPECIAL MEAL REQUESTS (user wants these included this week): ${setup.special_meals.join(", ")}. Include these meals in the plan.`);
     }
     if (setup.locked_saved_meals?.length) {
-      parts.push(`LOCKED SAVED MEALS (user specifically selected these from their saved meals — MUST include them this week): ${setup.locked_saved_meals.join(", ")}. These take priority over frequency settings.`);
+      const assignments = setup.saved_meal_day_assignments || {};
+      const mealDetails = setup.locked_saved_meals.map((m: string) => {
+        const dayIdx = assignments[m];
+        return dayIdx !== undefined ? `${m} → MUST be on ${dayNames[dayIdx]}` : m;
+      });
+      parts.push(`LOCKED SAVED MEALS (user specifically selected these from their saved meals — MUST include them this week): ${mealDetails.join("; ")}. These take priority over frequency settings. If a specific day is assigned, that meal MUST appear on that day with meal_mode "cook".`);
     }
     if (setup.week_intensity) {
       const intensityMap: Record<string, string> = {
