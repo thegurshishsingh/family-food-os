@@ -114,7 +114,7 @@ const Landing = () => {
             ].map((item, i) => (
               <motion.div
                 key={item.step}
-                className="relative p-8 rounded-2xl bg-card border border-border"
+                className="relative p-5 sm:p-8 rounded-2xl bg-card border border-border"
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i + 1}
               >
                 <span className="text-5xl font-serif font-bold text-primary/10 absolute top-4 right-6">{item.step}</span>
