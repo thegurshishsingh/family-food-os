@@ -200,6 +200,7 @@ const Planner = () => {
           special_meals: setupData.specialMeals,
           week_intensity: setupData.weekIntensity,
           locked_saved_meals: setupData.lockedSavedMeals,
+          saved_meal_day_assignments: setupData.savedMealDayAssignments,
         };
       }
       const { data, error } = await supabase.functions.invoke("generate-meal-plan", { body });
@@ -394,7 +395,7 @@ const Planner = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-5xl mx-auto overflow-hidden">
+      <div className="max-w-5xl mx-auto overflow-x-hidden w-full">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
