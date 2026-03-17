@@ -23,6 +23,7 @@ export interface PlanSetupData {
   weekIntensity: "relaxed" | "normal" | "busy";
   lockedSavedMeals: string[];
   savedMealDayAssignments: Record<string, number>;
+  weekContextTags: string[];
 }
 
 export interface SavedMealOption {
