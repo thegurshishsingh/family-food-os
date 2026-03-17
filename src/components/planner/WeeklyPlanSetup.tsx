@@ -451,7 +451,44 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                   </div>
                 )}
 
-                {/* Step: Intensity */}
+                {/* Step: Weekly Context */}
+                {step === "context" && (
+                  <div className="space-y-4">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Anything special about this week? Select all that apply.
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {WEEK_CONTEXT_OPTIONS.map((opt) => {
+                        const isSelected = weekContextTags.includes(opt.value);
+                        return (
+                          <button
+                            key={opt.value}
+                            onClick={() => toggleContextTag(opt.value)}
+                            className={`text-left px-3 py-2.5 rounded-xl border transition-all flex items-start gap-2
+                              ${isSelected
+                                ? "border-primary bg-primary/10"
+                                : "border-border bg-card hover:border-primary/30"
+                              }`}
+                          >
+                            <span className="text-sm sm:text-base mt-0.5">{opt.emoji}</span>
+                            <div className="min-w-0">
+                              <p className={`text-[11px] sm:text-xs font-medium ${isSelected ? "text-primary" : "text-foreground"}`}>
+                                {opt.label}
+                              </p>
+                              <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight">{opt.desc}</p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground">
+                      {weekContextTags.length > 0
+                        ? `${weekContextTags.length} context${weekContextTags.length > 1 ? "s" : ""} selected`
+                        : "Optional — skip if it's a normal week."}
+                    </p>
+                  </div>
+                )}
+
                 {step === "intensity" && (
                   <div className="space-y-4">
                     <p className="text-xs sm:text-sm text-muted-foreground">
