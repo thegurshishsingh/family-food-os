@@ -16,7 +16,7 @@ const fadeUp = {
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background max-w-full overflow-x-hidden">
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container flex items-center justify-between h-16 px-4 md:px-8">
@@ -38,15 +38,15 @@ const Landing = () => {
       </nav>
 
       {/* Hero */}
-      <section className="pt-32 pb-12 md:pt-44 md:pb-16 px-4">
-        <div className="container max-w-4xl text-center">
+      <section className="pt-28 pb-10 md:pt-44 md:pb-16 px-4">
+        <div className="container max-w-4xl text-center mx-auto">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}>
             <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-sage-light text-primary border border-primary/10">
               The family food system that learns with you every week
             </span>
           </motion.div>
           <motion.h1
-            className="text-4xl md:text-6xl lg:text-7xl font-serif font-semibold tracking-tight text-foreground leading-[1.1] mb-6"
+            className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-semibold tracking-tight text-foreground leading-[1.1] mb-6"
             initial="hidden" animate="visible" variants={fadeUp} custom={1}
           >
             Plan your real week{" "}
@@ -83,7 +83,7 @@ const Landing = () => {
       <section className="py-20 md:py-28 px-4">
         <div className="container max-w-5xl">
           <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
-            <h2 className="text-3xl md:text-4xl font-serif font-semibold text-foreground mb-4">
+            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-4">
               How it works
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl mx-auto">
@@ -91,7 +91,7 @@ const Landing = () => {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12">
             {[
               {
                 step: "01",
@@ -114,7 +114,7 @@ const Landing = () => {
             ].map((item, i) => (
               <motion.div
                 key={item.step}
-                className="relative p-8 rounded-2xl bg-card border border-border"
+                className="relative p-5 sm:p-8 rounded-2xl bg-card border border-border"
                 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i + 1}
               >
                 <span className="text-5xl font-serif font-bold text-primary/10 absolute top-4 right-6">{item.step}</span>
@@ -133,7 +133,7 @@ const Landing = () => {
       <section className="py-20 md:py-28 px-4 bg-card/50 border-y border-border">
         <div className="container max-w-5xl">
           <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
-            <h2 className="text-3xl md:text-4xl font-serif font-semibold text-foreground mb-4">
+            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-4">
               Not another recipe app.
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl mx-auto">
@@ -170,7 +170,7 @@ const Landing = () => {
       <section className="py-20 md:py-28 px-4">
         <div className="container max-w-3xl text-center">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
-            <h2 className="text-3xl md:text-4xl font-serif font-semibold text-foreground mb-6">
+            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-6">
               Built for families like yours
             </h2>
             <div className="flex flex-wrap justify-center gap-2.5 mb-8">
