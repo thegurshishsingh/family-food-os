@@ -133,7 +133,7 @@ const Landing = () => {
       <section className="py-20 md:py-28 px-4 bg-card/50 border-y border-border">
         <div className="container max-w-5xl">
           <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
-            <h2 className="text-3xl md:text-4xl font-serif font-semibold text-foreground mb-4">
+            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-4">
               Not another recipe app.
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl mx-auto">
