@@ -46,7 +46,7 @@ const Landing = () => {
             </span>
           </motion.div>
           <motion.h1
-            className="text-4xl md:text-6xl lg:text-7xl font-serif font-semibold tracking-tight text-foreground leading-[1.1] mb-6"
+            className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-semibold tracking-tight text-foreground leading-[1.1] mb-6"
             initial="hidden" animate="visible" variants={fadeUp} custom={1}
           >
             Plan your real week{" "}
