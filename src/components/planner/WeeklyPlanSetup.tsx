@@ -68,6 +68,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
   const [specialMeals, setSpecialMeals] = useState<string[]>([]);
   const [mealInput, setMealInput] = useState("");
   const [weekIntensity, setWeekIntensity] = useState<"relaxed" | "normal" | "busy">("normal");
+  const [weekContextTags, setWeekContextTags] = useState<string[]>([]);
 
   // Skip "saved" step if no saved meals
   const activeSteps: readonly Step[] = savedMeals.length > 0
