@@ -23,6 +23,7 @@ export interface PlanSetupData {
   weekIntensity: "relaxed" | "normal" | "busy";
   lockedSavedMeals: string[];
   savedMealDayAssignments: Record<string, number>;
+  weekContextTags: string[];
 }
 
 export interface SavedMealOption {
@@ -39,7 +40,19 @@ interface WeeklyPlanSetupProps {
   savedMeals?: SavedMealOption[];
 }
 
-const ALL_STEPS = ["takeout", "leftovers", "saved", "specials", "intensity", "confirm"] as const;
+const WEEK_CONTEXT_OPTIONS = [
+  { value: "chaotic_week", label: "Chaotic week", emoji: "🌪️", desc: "Maximize convenience" },
+  { value: "budget_week", label: "Budget-tight", emoji: "💰", desc: "Affordable meals" },
+  { value: "sports_week", label: "Sports week", emoji: "⚽", desc: "High energy meals" },
+  { value: "guests_visiting", label: "Guests visiting", emoji: "🏠", desc: "Bigger portions" },
+  { value: "one_parent_traveling", label: "Solo parenting", emoji: "✈️", desc: "Simpler meals" },
+  { value: "low_cleanup_week", label: "Low cleanup", emoji: "🍳", desc: "One-pot meals" },
+  { value: "sick_week", label: "Sick week", emoji: "🤒", desc: "Comfort food" },
+  { value: "high_protein_week", label: "High protein", emoji: "💪", desc: "Protein-focused" },
+  { value: "newborn_in_house", label: "Newborn at home", emoji: "👶", desc: "Very easy meals" },
+];
+
+const ALL_STEPS = ["takeout", "leftovers", "saved", "specials", "context", "intensity", "confirm"] as const;
 type Step = typeof ALL_STEPS[number];
 
 const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [] }: WeeklyPlanSetupProps) => {
@@ -55,6 +68,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
   const [specialMeals, setSpecialMeals] = useState<string[]>([]);
   const [mealInput, setMealInput] = useState("");
   const [weekIntensity, setWeekIntensity] = useState<"relaxed" | "normal" | "busy">("normal");
+  const [weekContextTags, setWeekContextTags] = useState<string[]>([]);
 
   // Skip "saved" step if no saved meals
   const activeSteps: readonly Step[] = savedMeals.length > 0
@@ -123,6 +137,12 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
     }
   };
 
+  const toggleContextTag = (tag: string) => {
+    setWeekContextTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
   const handleGenerate = () => {
     onGenerate({
       takeoutCount,
@@ -133,6 +153,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
       weekIntensity,
       lockedSavedMeals,
       savedMealDayAssignments,
+      weekContextTags,
     });
   };
 
@@ -196,6 +217,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 {step === "leftovers" && "Leftover nights"}
                 {step === "saved" && "Include saved meals"}
                 {step === "specials" && "Special meal requests"}
+                {step === "context" && "What's happening this week?"}
                 {step === "intensity" && "Week intensity"}
                 {step === "confirm" && "Ready to generate"}
               </DialogTitle>
@@ -429,7 +451,44 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                   </div>
                 )}
 
-                {/* Step: Intensity */}
+                {/* Step: Weekly Context */}
+                {step === "context" && (
+                  <div className="space-y-4">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Anything special about this week? Select all that apply.
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {WEEK_CONTEXT_OPTIONS.map((opt) => {
+                        const isSelected = weekContextTags.includes(opt.value);
+                        return (
+                          <button
+                            key={opt.value}
+                            onClick={() => toggleContextTag(opt.value)}
+                            className={`text-left px-3 py-2.5 rounded-xl border transition-all flex items-start gap-2
+                              ${isSelected
+                                ? "border-primary bg-primary/10"
+                                : "border-border bg-card hover:border-primary/30"
+                              }`}
+                          >
+                            <span className="text-sm sm:text-base mt-0.5">{opt.emoji}</span>
+                            <div className="min-w-0">
+                              <p className={`text-[11px] sm:text-xs font-medium ${isSelected ? "text-primary" : "text-foreground"}`}>
+                                {opt.label}
+                              </p>
+                              <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight">{opt.desc}</p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground">
+                      {weekContextTags.length > 0
+                        ? `${weekContextTags.length} context${weekContextTags.length > 1 ? "s" : ""} selected`
+                        : "Optional — skip if it's a normal week."}
+                    </p>
+                  </div>
+                )}
+
                 {step === "intensity" && (
                   <div className="space-y-4">
                     <p className="text-xs sm:text-sm text-muted-foreground">
@@ -497,6 +556,14 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                         <span className="text-muted-foreground">Week intensity</span>
                         <span className="font-medium text-foreground capitalize">{weekIntensity}</span>
                       </div>
+                      {weekContextTags.length > 0 && (
+                        <div className="flex justify-between text-xs sm:text-sm gap-2">
+                          <span className="text-muted-foreground shrink-0">Context</span>
+                          <span className="font-medium text-foreground text-right">
+                            {weekContextTags.map(t => WEEK_CONTEXT_OPTIONS.find(o => o.value === t)?.label || t).join(", ")}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -529,7 +596,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 </Button>
               ) : (
                 <Button size="sm" onClick={next} disabled={!canAdvance()} className="gap-1.5 text-xs sm:text-sm">
-                  {step === "specials" || step === "saved" ? "Skip / Next" : "Next"} <ArrowRight className="w-3.5 h-3.5" />
+                  {["specials", "saved", "context"].includes(step) ? "Skip / Next" : "Next"} <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               )}
             </div>
