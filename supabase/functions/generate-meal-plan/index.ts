@@ -314,6 +314,21 @@ function buildPrompt(
       };
       parts.push(intensityMap[setup.week_intensity] || "");
     }
+    if (setup.week_context_tags?.length) {
+      const contextLabels: Record<string, string> = {
+        chaotic_week: "chaotic week (maximize convenience, minimal effort)",
+        budget_week: "budget-tight week (affordable meals, pantry staples)",
+        sports_week: "sports week (high energy, carb-loading meals)",
+        guests_visiting: "guests visiting (increase portions, crowd-pleasers)",
+        one_parent_traveling: "one parent traveling (simpler, fewer dishes)",
+        low_cleanup_week: "low-cleanup week (one-pot/sheet-pan meals preferred)",
+        sick_week: "sick week (comfort food, easy on the stomach)",
+        high_protein_week: "high-protein week (prioritize protein-rich meals)",
+        newborn_in_house: "newborn in house (very easy, minimal cooking required)",
+      };
+      const activeContexts = setup.week_context_tags.map((t: string) => contextLabels[t] || t);
+      parts.push(`USER-SELECTED WEEKLY CONTEXT (adapt the plan to these conditions): ${activeContexts.join("; ")}.`);
+    }
   }
 
   if (prefs) {
