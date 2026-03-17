@@ -200,6 +200,7 @@ const Planner = () => {
           special_meals: setupData.specialMeals,
           week_intensity: setupData.weekIntensity,
           locked_saved_meals: setupData.lockedSavedMeals,
+          saved_meal_day_assignments: setupData.savedMealDayAssignments,
         };
       }
       const { data, error } = await supabase.functions.invoke("generate-meal-plan", { body });
