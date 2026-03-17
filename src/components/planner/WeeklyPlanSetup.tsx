@@ -137,6 +137,12 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
     }
   };
 
+  const toggleContextTag = (tag: string) => {
+    setWeekContextTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
   const handleGenerate = () => {
     onGenerate({
       takeoutCount,
@@ -147,6 +153,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
       weekIntensity,
       lockedSavedMeals,
       savedMealDayAssignments,
+      weekContextTags,
     });
   };
 
