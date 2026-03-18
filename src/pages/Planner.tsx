@@ -6,6 +6,7 @@ import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { ChefHat, RefreshCw, ArrowRight } from "lucide-react";
 import RealityScore from "@/components/planner/RealityScore";
@@ -40,6 +41,7 @@ const Planner = () => {
   const [regeneratingSwap, setRegeneratingSwap] = useState(false);
   const [needsNewPlan, setNeedsNewPlan] = useState(false);
   const [showReplanSetup, setShowReplanSetup] = useState(false);
+  const [showReplanConfirm, setShowReplanConfirm] = useState(false);
   const [generationMessage, setGenerationMessage] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -409,7 +411,7 @@ const Planner = () => {
             </p>
           </div>
         {plan && (
-            <Button onClick={() => setShowReplanSetup(true)} disabled={generating} variant="outline" className="gap-2">
+            <Button onClick={() => setShowReplanConfirm(true)} disabled={generating} variant="outline" className="gap-2">
               <RefreshCw className="w-4 h-4" />
               Replan This Week
             </Button>
@@ -559,6 +561,23 @@ const Planner = () => {
         confirming={confirmingSwap}
         regenerating={regeneratingSwap}
       />
+
+      <AlertDialog open={showReplanConfirm} onOpenChange={setShowReplanConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Replace current plan?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will replace your existing meal plan for the week. Any feedback, check-ins, and swaps you've made will remain in your history, but the current plan will be overwritten with a new one.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Current Plan</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setShowReplanConfirm(false); setShowReplanSetup(true); }}>
+              Yes, Replan
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 };
