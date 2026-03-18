@@ -41,6 +41,7 @@ const Planner = () => {
   const [regeneratingSwap, setRegeneratingSwap] = useState(false);
   const [needsNewPlan, setNeedsNewPlan] = useState(false);
   const [showReplanSetup, setShowReplanSetup] = useState(false);
+  const [showReplanConfirm, setShowReplanConfirm] = useState(false);
   const [generationMessage, setGenerationMessage] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
