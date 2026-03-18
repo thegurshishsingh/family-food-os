@@ -410,7 +410,7 @@ const Planner = () => {
             </p>
           </div>
         {plan && (
-            <Button onClick={() => setShowReplanSetup(true)} disabled={generating} variant="outline" className="gap-2">
+            <Button onClick={() => setShowReplanConfirm(true)} disabled={generating} variant="outline" className="gap-2">
               <RefreshCw className="w-4 h-4" />
               Replan This Week
             </Button>
