@@ -407,19 +407,10 @@ const Planner = () => {
               {plan ? `Week of ${new Date(plan.week_start + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : "No plan yet"}
             </p>
           </div>
-          {plan && (
-            <Button onClick={() => generatePlan()} disabled={generating} variant="outline" className="gap-2">
-              {generating ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="w-4 h-4" />
-                  Regenerate Plan
-                </>
-              )}
+        {plan && (
+            <Button onClick={() => setShowReplanSetup(true)} disabled={generating} variant="outline" className="gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Replan This Week
             </Button>
           )}
         </div>
