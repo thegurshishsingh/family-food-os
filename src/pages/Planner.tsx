@@ -561,6 +561,23 @@ const Planner = () => {
         confirming={confirmingSwap}
         regenerating={regeneratingSwap}
       />
+
+      <AlertDialog open={showReplanConfirm} onOpenChange={setShowReplanConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Replace current plan?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will replace your existing meal plan for the week. Any feedback, check-ins, and swaps you've made will remain in your history, but the current plan will be overwritten with a new one.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Current Plan</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setShowReplanConfirm(false); setShowReplanSetup(true); }}>
+              Yes, Replan
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 };
