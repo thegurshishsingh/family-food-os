@@ -428,16 +428,16 @@ const Planner = () => {
         )}
 
         {/* New week setup banner */}
-        {needsNewPlan && !plan && (
+        {(needsNewPlan && !plan) || showReplanSetup ? (
           <div className="mb-6">
             <WeeklyPlanSetup
-              onGenerate={(data) => generatePlan(data)}
+              onGenerate={(data) => { setShowReplanSetup(false); generatePlan(data); }}
               generating={generating}
               householdName={household?.name}
               savedMeals={savedMealsList}
             />
           </div>
-        )}
+        ) : null}
 
         {/* 1. Tonight's Dinner card */}
         {plan && household && (
