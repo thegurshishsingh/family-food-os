@@ -39,6 +39,7 @@ const Planner = () => {
   const [confirmingSwap, setConfirmingSwap] = useState(false);
   const [regeneratingSwap, setRegeneratingSwap] = useState(false);
   const [needsNewPlan, setNeedsNewPlan] = useState(false);
+  const [showReplanSetup, setShowReplanSetup] = useState(false);
   const [generationMessage, setGenerationMessage] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -407,19 +408,10 @@ const Planner = () => {
               {plan ? `Week of ${new Date(plan.week_start + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : "No plan yet"}
             </p>
           </div>
-          {plan && (
-            <Button onClick={() => generatePlan()} disabled={generating} variant="outline" className="gap-2">
-              {generating ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="w-4 h-4" />
-                  Regenerate Plan
-                </>
-              )}
+        {plan && (
+            <Button onClick={() => setShowReplanSetup(true)} disabled={generating} variant="outline" className="gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Replan This Week
             </Button>
           )}
         </div>
@@ -436,16 +428,16 @@ const Planner = () => {
         )}
 
         {/* New week setup banner */}
-        {needsNewPlan && !plan && (
+        {(needsNewPlan && !plan) || showReplanSetup ? (
           <div className="mb-6">
             <WeeklyPlanSetup
-              onGenerate={(data) => generatePlan(data)}
+              onGenerate={(data) => { setShowReplanSetup(false); generatePlan(data); }}
               generating={generating}
               householdName={household?.name}
               savedMeals={savedMealsList}
             />
           </div>
-        )}
+        ) : null}
 
         {/* 1. Tonight's Dinner card */}
         {plan && household && (
