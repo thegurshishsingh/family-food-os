@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Lock, Unlock, Shuffle, Pencil, Check, X, GripVertical, Heart, Bookmark } from "lucide-react";
+import { Lock, Unlock, Shuffle, Pencil, Check, X, GripVertical, Heart, Bookmark, ArrowUpDown } from "lucide-react";
 import { motion, useMotionValue, useTransform, animate, PanInfo } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DAYS, MODE_CONFIG, FEEDBACK_OPTIONS, type PlanDay, type FeedbackType } from "./types";
@@ -24,6 +24,7 @@ interface DayCardProps {
   householdSize?: number;
   checkedIn?: boolean;
   isSavedMeal?: boolean;
+  isFirst?: boolean;
   onSwapMeal: (day: PlanDay) => void;
   onToggleLock: (day: PlanDay) => void;
   onCycleMealMode: (day: PlanDay) => void;
@@ -35,15 +36,16 @@ interface DayCardProps {
   onDrop: (dayId: string) => void;
   onDragEnd: () => void;
   onCheckedIn?: (dayId: string) => void;
+  onMobileDragStart?: (dayId: string) => void;
 }
 
 const SWIPE_THRESHOLD = 60;
 const ACTION_WIDTH = 72;
 
 const DayCard = ({
-  day, index, feedback, isSwapping, isDragged, isDragOver, isToday, householdId, householdSize, checkedIn, isSavedMeal,
+  day, index, feedback, isSwapping, isDragged, isDragOver, isToday, householdId, householdSize, checkedIn, isSavedMeal, isFirst,
   onSwapMeal, onToggleLock, onCycleMealMode, onSubmitFeedback, onSaveEdit,
-  onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, onCheckedIn,
+  onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, onCheckedIn, onMobileDragStart,
 }: DayCardProps) => {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
@@ -133,6 +135,15 @@ const DayCard = ({
         <div className="flex items-center gap-2 px-3 pt-3 pb-1 sm:flex-col sm:gap-1 sm:p-4 sm:w-44 sm:border-r border-border sm:items-start">
           {!day.is_locked && (
             <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 hidden sm:block" />
+          )}
+          {/* Mobile drag handle */}
+          {!day.is_locked && isMobile && (
+            <button
+              className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground/60 active:text-primary active:bg-primary/10 transition-colors shrink-0 sm:hidden"
+              onTouchStart={() => onMobileDragStart?.(day.id)}
+            >
+              <ArrowUpDown className="w-3.5 h-3.5" />
+            </button>
           )}
           <div className="flex items-center gap-1.5">
             <p className="font-serif font-semibold text-foreground text-sm sm:text-base">{DAYS[day.day_of_week]}</p>
@@ -258,24 +269,24 @@ const DayCard = ({
 
           {/* Mobile action bar — always visible, clear tap targets */}
           {!editing && isMobile && (
-            <div className="flex items-center gap-1.5 mt-2 -ml-0.5">
+            <div className="flex items-center gap-2 mt-2 -ml-0.5">
               <button
                 onClick={() => onSwapMeal(day)}
                 disabled={day.is_locked || isSwapping}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-accent/10 text-accent-foreground/80 hover:bg-accent/20 active:scale-95 transition-all disabled:opacity-30"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:scale-95 transition-all disabled:opacity-30"
               >
                 {isSwapping ? (
-                  <div className="w-3 h-3 border-[1.5px] border-accent-foreground/60 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3 h-3 border-[1.5px] border-primary-foreground border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <Shuffle className="w-3 h-3" />
                 )}
-                Swap
+                Swap Meal
               </button>
               <button
                 onClick={() => onToggleLock(day)}
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all active:scale-95 ${
                   day.is_locked
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-primary/10 text-primary ring-1 ring-primary/20"
                     : "bg-muted/50 text-muted-foreground hover:bg-muted"
                 }`}
               >
