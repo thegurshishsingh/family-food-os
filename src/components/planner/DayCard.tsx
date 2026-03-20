@@ -136,6 +136,15 @@ const DayCard = ({
           {!day.is_locked && (
             <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 hidden sm:block" />
           )}
+          {/* Mobile drag handle */}
+          {!day.is_locked && isMobile && (
+            <button
+              className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground/60 active:text-primary active:bg-primary/10 transition-colors shrink-0 sm:hidden"
+              onTouchStart={() => onMobileDragStart?.(day.id)}
+            >
+              <ArrowUpDown className="w-3.5 h-3.5" />
+            </button>
+          )}
           <div className="flex items-center gap-1.5">
             <p className="font-serif font-semibold text-foreground text-sm sm:text-base">{DAYS[day.day_of_week]}</p>
             {isToday && (
