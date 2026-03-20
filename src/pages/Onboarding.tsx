@@ -77,8 +77,6 @@ const Onboarding = () => {
   const [newMealName, setNewMealName] = useState("");
   const [newMealDesc, setNewMealDesc] = useState("");
 
-  // Step 5 - Weekly context
-  const [contexts, setContexts] = useState<Record<string, boolean>>({});
 
   const toggleInList = (list: string[], item: string, setter: (v: string[]) => void) => {
     setter(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
