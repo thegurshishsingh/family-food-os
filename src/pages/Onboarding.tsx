@@ -481,26 +481,6 @@ const Onboarding = () => {
                 </div>
               )}
 
-              {step === 4 && (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground mb-6">Select anything that applies to this week. This helps us generate a more realistic plan.</p>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {CONTEXT_TOGGLES.map((t) => (
-                      <button
-                        key={t.key}
-                        onClick={() => setContexts((prev) => ({ ...prev, [t.key]: !prev[t.key] }))}
-                        className={`flex items-center gap-3 p-4 rounded-xl border text-left transition-colors ${
-                          contexts[t.key] ? "bg-sage-light border-primary" : "bg-background border-border hover:bg-muted"
-                        }`}
-                      >
-                        <span className="text-2xl">{t.emoji}</span>
-                        <span className="text-sm font-medium text-foreground">{t.label}</span>
-                        {contexts[t.key] && <Check className="w-4 h-4 text-primary ml-auto" />}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </motion.div>
           </AnimatePresence>
         </div>
