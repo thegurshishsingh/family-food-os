@@ -43,7 +43,10 @@ serve(async (req) => {
       .eq("household_id", household_id)
       .single();
 
-    const monday = getNextMonday();
+    // Determine week_start based on partial vs full week
+    const isPartialWeek = setup?.partial_week?.startDay !== undefined;
+    const monday = isPartialWeek ? getCurrentMonday() : getNextMonday();
+
     const { data: context } = await supabaseClient
       .from("weekly_contexts")
       .select("*")
@@ -93,9 +96,15 @@ serve(async (req) => {
 
     const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, savedMeals || [], checkinInsights, setup);
 
+    // Determine which days to generate
+    const daysToGenerate = isPartialWeek
+      ? Array.from({ length: setup.partial_week.dayCount }, (_, i) => setup.partial_week.startDay + i)
+      : [0, 1, 2, 3, 4, 5, 6];
+
     let planData;
 
     if (lovableApiKey) {
+      const dayCountLabel = isPartialWeek ? `${daysToGenerate.length}-day` : "7-day";
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -112,7 +121,7 @@ serve(async (req) => {
             type: "function",
             function: {
               name: "create_weekly_plan",
-              description: "Create a 7-day family meal plan",
+              description: `Create a ${dayCountLabel} family meal plan`,
               parameters: {
                 type: "object",
                 properties: {
@@ -198,7 +207,7 @@ serve(async (req) => {
 
       planData = JSON.parse(toolCall.function.arguments);
     } else {
-      planData = generateMockPlan(household, preferences, context, setup);
+      planData = generateMockPlan(household, preferences, context, setup, daysToGenerate);
     }
 
     // Save plan to database
@@ -263,6 +272,14 @@ serve(async (req) => {
   }
 });
 
+function getCurrentMonday() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().split("T")[0];
+}
+
 function getNextMonday() {
   const d = new Date();
   const day = d.getDay();
@@ -276,12 +293,26 @@ function buildPrompt(
   lovedMeals: string[], dislikedMeals: string[],
   savedMeals: { meal_name: string; meal_description: string | null }[],
   checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[],
-  setup?: { takeout_days?: number[]; leftover_days?: number[]; special_meals?: string[]; week_intensity?: string; locked_saved_meals?: string[]; saved_meal_day_assignments?: Record<string, number> },
+  setup?: { takeout_days?: number[]; leftover_days?: number[]; special_meals?: string[]; week_intensity?: string; locked_saved_meals?: string[]; saved_meal_day_assignments?: Record<string, number>; week_context_tags?: string[]; partial_week?: { startDay: number; dayCount: number } },
 ) {
   const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-  const parts = [
-    `Create a 7-day dinner meal plan for a family of ${household.num_adults} adults and ${household.num_children} children.`,
-  ];
+
+  const isPartial = setup?.partial_week;
+  const planDayCount = isPartial ? isPartial.dayCount : 7;
+  const planDayIndices = isPartial
+    ? Array.from({ length: isPartial.dayCount }, (_, i) => isPartial.startDay + i)
+    : [0, 1, 2, 3, 4, 5, 6];
+  const planDayNames = planDayIndices.map(i => dayNames[i]);
+
+  const parts = [];
+
+  if (isPartial) {
+    parts.push(`Create a ${planDayCount}-day dinner meal plan for a family of ${household.num_adults} adults and ${household.num_children} children.`);
+    parts.push(`IMPORTANT: This is a SHORT PARTIAL-WEEK plan. Only generate meals for these ${planDayCount} days: ${planDayNames.join(", ")} (day_of_week values: ${planDayIndices.join(", ")}).`);
+    parts.push(`SHORT-WEEK GUIDELINES: Since this is a partial week plan, prioritize quick and easy meals. Keep prep times under 20 minutes where possible. Favor simple, low-effort recipes. Include at most 1 takeout suggestion if none were explicitly selected. The goal is low commitment and immediate usefulness.`);
+  } else {
+    parts.push(`Create a 7-day dinner meal plan for a family of ${household.num_adults} adults and ${household.num_children} children.`);
+  }
 
   if (household.child_age_bands?.length) {
     parts.push(`Children ages: ${household.child_age_bands.join(", ")}.`);
@@ -339,7 +370,6 @@ function buildPrompt(
     if (prefs.foods_to_avoid?.length) parts.push(`FOODS TO AVOID (the family does not eat these — never include them in any meal): ${prefs.foods_to_avoid.join(", ")}.`);
     if (prefs.weekly_grocery_budget) parts.push(`Weekly budget: $${prefs.weekly_grocery_budget}.`);
     if (prefs.cooking_time_tolerance) parts.push(`Cooking time tolerance: ${prefs.cooking_time_tolerance}.`);
-    // Only use pref takeout frequency if no setup override
     if (prefs.preferred_takeout_frequency && !setup?.takeout_days?.length) parts.push(`Include ${prefs.preferred_takeout_frequency} takeout night(s).`);
     if (prefs.health_goal) parts.push(`Health goal: ${prefs.health_goal}.`);
   }
@@ -376,7 +406,7 @@ function buildPrompt(
         return `- ${m.meal_name}${desc} → ${freq}`;
       }).join("\n");
       parts.push(`\nSAVED FAMILY MEALS — The family has specifically saved these meals with inclusion preferences. Respect their frequency settings:\n${mealList}`);
-      
+
       const mustInclude = includedMeals.filter((m: any) => m.frequency === "every_week");
       if (mustInclude.length) {
         parts.push(`⚠️ The following meals MUST appear in this week's plan: ${mustInclude.map((m: any) => m.meal_name).join(", ")}.`);
@@ -449,16 +479,27 @@ function buildPrompt(
 - Whether past check-in patterns suggest the family can handle this plan
 A score of 90+ means very easy week. 70-89 is realistic. 50-69 is ambitious. Below 50 is likely unsustainable.`);
 
+  if (isPartial) {
+    parts.push(`\nREMINDER: Generate EXACTLY ${planDayCount} days with day_of_week values: ${planDayIndices.join(", ")}. Do NOT generate days outside this range.`);
+  }
+
   return parts.join("\n");
 }
 
-function generateMockPlan(household: any, prefs: any, context: any, setup?: any) {
+function generateMockPlan(household: any, prefs: any, context: any, setup?: any, daysToGenerate?: number[]) {
   const isHard = context?.newborn_in_house || context?.chaotic_week || context?.sick_week || setup?.week_intensity === "busy";
   const takeoutDays = new Set(setup?.takeout_days || []);
   const leftoverDays = new Set(setup?.leftover_days || []);
   const takeoutCount = takeoutDays.size || prefs?.preferred_takeout_frequency || 1;
+  const activeDays = daysToGenerate || [0, 1, 2, 3, 4, 5, 6];
+  const isPartial = activeDays.length < 7;
 
-  const meals = [
+  const meals = isPartial ? [
+    { name: "15-Min Quesadillas", desc: "Quick cheesy quesadillas with salsa and sour cream", cuisine: "Mexican", prep: 15, cal: 480, p: 22, c: 42, f: 24 },
+    { name: "Chicken Stir-Fry", desc: "Quick chicken and veggie stir-fry with rice", cuisine: "Chinese", prep: 18, cal: 540, p: 34, c: 52, f: 19 },
+    { name: "Grilled Cheese & Tomato Soup", desc: "Comfort classic for easy nights", cuisine: "American", prep: 12, cal: 450, p: 16, c: 48, f: 22 },
+    { name: "One-Pot Pasta", desc: "Everything cooks in one pot — minimal cleanup", cuisine: "Italian", prep: 18, cal: 520, p: 18, c: 68, f: 20 },
+  ] : [
     { name: "One-Pot Pasta Primavera", desc: "Quick veggie pasta with garlic bread", cuisine: "Italian", prep: 25, cal: 520, p: 18, c: 68, f: 20 },
     { name: "Sheet Pan Chicken Fajitas", desc: "Seasoned chicken with peppers and tortillas", cuisine: "Mexican", prep: 30, cal: 580, p: 35, c: 45, f: 22 },
     { name: "Teriyaki Salmon Bowl", desc: "Glazed salmon over rice with steamed broccoli", cuisine: "Japanese", prep: 25, cal: 610, p: 38, c: 55, f: 24 },
@@ -477,17 +518,17 @@ function generateMockPlan(household: any, prefs: any, context: any, setup?: any)
   const days = [];
   let cookIdx = 0;
 
-  for (let i = 0; i < 7; i++) {
+  for (const i of activeDays) {
     let mode = "cook";
     if (takeoutDays.has(i)) {
       mode = "takeout";
     } else if (leftoverDays.has(i)) {
       mode = "leftovers";
-    } else if (!takeoutDays.size && !setup?.takeout_days && i === 4 && takeoutCount >= 1) {
+    } else if (!takeoutDays.size && !setup?.takeout_days && !isPartial && i === 4 && takeoutCount >= 1) {
       mode = "takeout";
-    } else if (!leftoverDays.size && !setup && i === 2) {
+    } else if (!leftoverDays.size && !setup && !isPartial && i === 2) {
       mode = "leftovers";
-    } else if (isHard && i === 1 && !takeoutDays.has(1) && !leftoverDays.has(1)) {
+    } else if (isHard && cookIdx === 1 && !takeoutDays.has(i) && !leftoverDays.has(i)) {
       mode = "emergency";
     }
 
@@ -499,7 +540,7 @@ function generateMockPlan(household: any, prefs: any, context: any, setup?: any)
       meal_name: mode === "takeout" ? "Pizza Night" : mode === "leftovers" ? `Leftover ${meals[(cookIdx - 1 + meals.length) % meals.length].name}` : mode === "emergency" ? "Frozen Pizza + Salad" : meal.name,
       meal_description: mode === "takeout" ? "Order from your favorite local spot" : mode === "leftovers" ? "Use up what's in the fridge" : mode === "emergency" ? "Quick freezer meal for hectic nights" : meal.desc,
       cuisine_type: mode === "takeout" ? "Various" : meal.cuisine,
-      prep_time_minutes: mode === "cook" ? (isHard ? Math.min(meal.prep, 20) : meal.prep) : mode === "emergency" ? 10 : 5,
+      prep_time_minutes: mode === "cook" ? (isHard || isPartial ? Math.min(meal.prep, 20) : meal.prep) : mode === "emergency" ? 10 : 5,
       calories: mode === "takeout" ? 700 : mode === "emergency" ? 450 : meal.cal,
       protein_g: mode === "takeout" ? 25 : mode === "emergency" ? 15 : meal.p,
       carbs_g: mode === "takeout" ? 80 : mode === "emergency" ? 55 : meal.c,
@@ -512,8 +553,10 @@ function generateMockPlan(household: any, prefs: any, context: any, setup?: any)
     if (mode === "cook") cookIdx++;
   }
 
-  const realityScore = isHard ? 55 : 82;
-  const realityMessage = isHard
+  const realityScore = isPartial ? 90 : (isHard ? 55 : 82);
+  const realityMessage = isPartial
+    ? "Quick plan to get you through the rest of the week. Easy and low-commitment."
+    : isHard
     ? "This week looks ambitious given your context. Consider swapping another night to takeout or leftovers."
     : "This plan looks achievable! Good balance of cooking and convenience.";
 
@@ -529,23 +572,18 @@ function generateMockPlan(household: any, prefs: any, context: any, setup?: any)
       { category: "produce", item_name: "Garlic", quantity: "1 bulb" },
       { category: "produce", item_name: "Lettuce", quantity: "1 head" },
       { category: "protein", item_name: "Chicken breasts", quantity: "2 lbs" },
-      { category: "protein", item_name: "Salmon fillets", quantity: "4 fillets" },
-      { category: "protein", item_name: "Ground turkey", quantity: "1 lb" },
-      { category: "protein", item_name: "Ground beef", quantity: "1 lb" },
+      ...(isPartial ? [] : [
+        { category: "protein", item_name: "Salmon fillets", quantity: "4 fillets" },
+        { category: "protein", item_name: "Ground turkey", quantity: "1 lb" },
+        { category: "protein", item_name: "Ground beef", quantity: "1 lb" },
+      ]),
       { category: "dairy", item_name: "Shredded cheese", quantity: "2 cups" },
       { category: "dairy", item_name: "Sour cream", quantity: "1 container" },
-      { category: "dairy", item_name: "Butter", quantity: "1 stick" },
       { category: "pantry", item_name: "Pasta (spaghetti)", quantity: "1 lb" },
       { category: "pantry", item_name: "Rice", quantity: "2 cups" },
       { category: "pantry", item_name: "Tortillas", quantity: "12 pack" },
       { category: "pantry", item_name: "Olive oil", quantity: "1 bottle" },
       { category: "pantry", item_name: "Soy sauce", quantity: "1 bottle" },
-      { category: "pantry", item_name: "Taco seasoning", quantity: "2 packets" },
-      { category: "pantry", item_name: "Tomato sauce", quantity: "2 cans" },
-      { category: "frozen", item_name: "Frozen pizza", quantity: "2" },
-      { category: "frozen", item_name: "Frozen vegetables", quantity: "1 bag" },
-      { category: "snacks", item_name: "Crackers", quantity: "1 box" },
-      { category: "snacks", item_name: "Fruit (apples, bananas)", quantity: "assorted" },
     ],
   };
 }

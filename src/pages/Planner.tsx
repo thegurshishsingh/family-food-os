@@ -18,7 +18,10 @@ import DailyDinnerCard from "@/components/planner/DailyDinnerCard";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
 import WeeklyPlanSetup, { type PlanSetupData, type SavedMealOption } from "@/components/planner/WeeklyPlanSetup";
+import PlanTypeChooser from "@/components/planner/PlanTypeChooser";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
+
+type PlanType = "full_week" | "partial_week" | null;
 
 const Planner = () => {
   const { user } = useAuth();
@@ -43,11 +46,19 @@ const Planner = () => {
   const [showReplanSetup, setShowReplanSetup] = useState(false);
   const [showReplanConfirm, setShowReplanConfirm] = useState(false);
   const [generationMessage, setGenerationMessage] = useState("");
+
+  // Smart week detection state
+  const [showPlanTypeChooser, setShowPlanTypeChooser] = useState(false);
+  const [selectedPlanType, setSelectedPlanType] = useState<PlanType>(null);
+  const [planningDays, setPlanningDays] = useState<number[] | undefined>(undefined);
+  const [planLabel, setPlanLabel] = useState<string | undefined>(undefined);
+
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const jsDay = new Date().getDay();
-  const todayDow = jsDay === 0 ? 6 : jsDay - 1;
+  const todayDow = jsDay === 0 ? 6 : jsDay - 1; // 0=Mon..6=Sun
+  const remainingDaysInWeek = 7 - todayDow; // including today
 
   useEffect(() => {
     if (hhLoading) return;
@@ -80,11 +91,10 @@ const Planner = () => {
     }
   };
 
-  // Check if current plan is for the current week
   const isCurrentWeekPlan = (planWeekStart: string) => {
     const now = new Date();
     const day = now.getDay();
-    const diff = day === 0 ? -6 : 1 - day; // Monday of current week
+    const diff = day === 0 ? -6 : 1 - day;
     const monday = new Date(now);
     monday.setDate(now.getDate() + diff);
     const mondayStr = monday.toISOString().split("T")[0];
@@ -103,12 +113,12 @@ const Planner = () => {
     if (plans && plans.length > 0) {
       const p = plans[0] as any;
       const isCurrent = isCurrentWeekPlan(p.week_start);
-      
+
       if (!isCurrent) {
-        // Plan is from a previous week — show setup banner
         setNeedsNewPlan(true);
         setPlan(null);
         setDays([]);
+        triggerSmartWeekDetection();
         setLoading(false);
         return;
       }
@@ -147,10 +157,50 @@ const Planner = () => {
         }
       }
     } else {
-      // No plan at all
       setNeedsNewPlan(true);
+      triggerSmartWeekDetection();
     }
     setLoading(false);
+  };
+
+  const triggerSmartWeekDetection = () => {
+    // Case A: 4+ days remaining (Mon-Wed) → auto show partial week setup
+    if (remainingDaysInWeek >= 4) {
+      const partialDays = Array.from({ length: remainingDaysInWeek }, (_, i) => todayDow + i);
+      setPlanningDays(partialDays);
+      setPlanLabel(`the next ${remainingDaysInWeek} days`);
+      setSelectedPlanType("partial_week");
+      setShowPlanTypeChooser(false);
+    } else {
+      // Case B: 3 or fewer days (Thu-Sun) → show choice modal
+      setShowPlanTypeChooser(true);
+      setSelectedPlanType(null);
+    }
+  };
+
+  const handleChooseFullWeek = () => {
+    setShowPlanTypeChooser(false);
+    setSelectedPlanType("full_week");
+    setPlanningDays(undefined);
+    setPlanLabel(undefined);
+    savePlanPreference("full_week");
+  };
+
+  const handleChoosePartialWeek = () => {
+    setShowPlanTypeChooser(false);
+    setSelectedPlanType("partial_week");
+    const partialDays = Array.from({ length: remainingDaysInWeek }, (_, i) => todayDow + i);
+    setPlanningDays(partialDays);
+    setPlanLabel(`the next ${remainingDaysInWeek} days`);
+    savePlanPreference("partial_week");
+  };
+
+  const savePlanPreference = async (pref: string) => {
+    if (!household) return;
+    await supabase
+      .from("household_preferences")
+      .update({ plan_preference: pref } as any)
+      .eq("household_id", household.id);
   };
 
   const submitFeedback = async (day: PlanDay, feedback: FeedbackType) => {
@@ -206,13 +256,19 @@ const Planner = () => {
           saved_meal_day_assignments: setupData.savedMealDayAssignments,
           week_context_tags: setupData.weekContextTags,
         };
+        if (setupData.partialWeek) {
+          body.setup.partial_week = setupData.partialWeek;
+        }
       }
       const { data, error } = await supabase.functions.invoke("generate-meal-plan", { body });
       if (error) throw error;
-      
+
       // Build generation message
-      if (setupData) {
-        const cookNights = 7 - setupData.takeoutDays.length - setupData.leftoverDays.length;
+      if (setupData?.partialWeek) {
+        setGenerationMessage(`Your ${setupData.partialWeek.dayCount}-day plan is ready. Quick meals to get you through the week.`);
+      } else if (setupData) {
+        const totalDays = setupData.partialWeek?.dayCount || 7;
+        const cookNights = totalDays - setupData.takeoutDays.length - setupData.leftoverDays.length;
         const parts = [`${cookNights} cook night${cookNights !== 1 ? "s" : ""}`];
         if (setupData.leftoverDays.length > 0) parts.push(`${setupData.leftoverDays.length} leftover night${setupData.leftoverDays.length > 1 ? "s" : ""}`);
         if (setupData.takeoutDays.length > 0) parts.push(`${setupData.takeoutDays.length} takeout night${setupData.takeoutDays.length > 1 ? "s" : ""}`);
@@ -220,9 +276,9 @@ const Planner = () => {
       } else {
         setGenerationMessage("Your weekly plan is ready.");
       }
-      
+
       await loadPlan();
-      toast({ title: "Weekly plan generated!", description: "Your personalized meal plan is ready." });
+      toast({ title: "Plan generated!", description: setupData?.partialWeek ? "Your quick plan is ready." : "Your personalized meal plan is ready." });
     } catch (err: any) {
       toast({ variant: "destructive", title: "Generation failed", description: err.message });
     } finally {
@@ -230,7 +286,6 @@ const Planner = () => {
     }
   };
 
-  // Clear generation message after 8 seconds
   useEffect(() => {
     if (generationMessage) {
       const t = setTimeout(() => setGenerationMessage(""), 8000);
@@ -429,14 +484,28 @@ const Planner = () => {
           </div>
         )}
 
-        {/* New week setup banner */}
-        {(needsNewPlan && !plan) || showReplanSetup ? (
+        {/* Smart mid-week plan type chooser */}
+        {needsNewPlan && !plan && showPlanTypeChooser && !selectedPlanType && (
+          <div className="mb-6">
+            <PlanTypeChooser
+              remainingDays={remainingDaysInWeek}
+              todayDow={todayDow}
+              onChooseFullWeek={handleChooseFullWeek}
+              onChoosePartialWeek={handleChoosePartialWeek}
+            />
+          </div>
+        )}
+
+        {/* Weekly plan setup (shown after plan type selection or for Mon-Wed auto) */}
+        {((needsNewPlan && !plan && selectedPlanType) || showReplanSetup) ? (
           <div className="mb-6">
             <WeeklyPlanSetup
               onGenerate={(data) => { setShowReplanSetup(false); generatePlan(data); }}
               generating={generating}
               householdName={household?.name}
               savedMeals={savedMealsList}
+              planningDays={showReplanSetup ? undefined : planningDays}
+              planLabel={showReplanSetup ? undefined : planLabel}
             />
           </div>
         ) : null}
@@ -464,7 +533,7 @@ const Planner = () => {
           </div>
         )}
 
-        {/* Empty state (no previous plan exists at all) */}
+        {/* Empty state — no plan, no chooser shown (shouldn't normally happen) */}
         {!plan && !needsNewPlan && (
           <Card className="py-16 text-center">
             <CardContent>

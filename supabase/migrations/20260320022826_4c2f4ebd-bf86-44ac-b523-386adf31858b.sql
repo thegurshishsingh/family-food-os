@@ -1,0 +1,1 @@
+ALTER TABLE public.household_preferences ADD COLUMN IF NOT EXISTS plan_preference text DEFAULT 'full_week';

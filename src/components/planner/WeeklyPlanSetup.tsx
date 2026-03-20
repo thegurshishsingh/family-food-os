@@ -24,6 +24,7 @@ export interface PlanSetupData {
   lockedSavedMeals: string[];
   savedMealDayAssignments: Record<string, number>;
   weekContextTags: string[];
+  partialWeek?: { startDay: number; dayCount: number };
 }
 
 export interface SavedMealOption {
@@ -38,6 +39,10 @@ interface WeeklyPlanSetupProps {
   generating: boolean;
   householdName?: string;
   savedMeals?: SavedMealOption[];
+  /** If set, only plan these day indices (0=Mon..6=Sun) */
+  planningDays?: number[];
+  /** Label to show instead of "this week's" */
+  planLabel?: string;
 }
 
 const WEEK_CONTEXT_OPTIONS = [
@@ -55,7 +60,7 @@ const WEEK_CONTEXT_OPTIONS = [
 const ALL_STEPS = ["takeout", "leftovers", "saved", "specials", "context", "intensity", "confirm"] as const;
 type Step = typeof ALL_STEPS[number];
 
-const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [] }: WeeklyPlanSetupProps) => {
+const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [], planningDays, planLabel }: WeeklyPlanSetupProps) => {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("takeout");
 
@@ -70,16 +75,23 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
   const [weekIntensity, setWeekIntensity] = useState<"relaxed" | "normal" | "busy">("normal");
   const [weekContextTags, setWeekContextTags] = useState<string[]>([]);
 
-  // Skip "saved" step if no saved meals
-  const activeSteps: readonly Step[] = savedMeals.length > 0
-    ? ALL_STEPS
-    : ALL_STEPS.filter(s => s !== "saved");
+  // Which days are available for planning
+  const availableDayIndices = planningDays || DAYS.map((_, i) => i);
+  const isPartialWeek = !!planningDays && planningDays.length < 7;
+  const totalPlanDays = availableDayIndices.length;
+
+  // Skip "saved" step if no saved meals; skip "leftovers" for very short plans (<=2 days)
+  const activeSteps: readonly Step[] = ALL_STEPS.filter(s => {
+    if (s === "saved" && savedMeals.length === 0) return false;
+    if (s === "leftovers" && totalPlanDays <= 2) return false;
+    return true;
+  });
 
   const stepIdx = activeSteps.indexOf(step);
 
   // Days already taken by takeout or leftovers
   const takenDays = new Set([...takeoutDays, ...leftoverDays]);
-  const availableDaysForMeals = DAYS.map((_, i) => i).filter(i => !takenDays.has(i));
+  const availableDaysForMeals = availableDayIndices.filter(i => !takenDays.has(i));
   // Days already assigned to a saved meal
   const assignedDays = new Set(Object.values(savedMealDayAssignments));
 
@@ -107,7 +119,6 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
   const toggleSavedMeal = (mealName: string) => {
     setLockedSavedMeals(prev => {
       if (prev.includes(mealName)) {
-        // Remove meal and its day assignment
         const newAssignments = { ...savedMealDayAssignments };
         delete newAssignments[mealName];
         setSavedMealDayAssignments(newAssignments);
@@ -144,7 +155,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
   };
 
   const handleGenerate = () => {
-    onGenerate({
+    const data: PlanSetupData = {
       takeoutCount,
       takeoutDays,
       leftoverCount,
@@ -154,7 +165,14 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
       lockedSavedMeals,
       savedMealDayAssignments,
       weekContextTags,
-    });
+    };
+    if (isPartialWeek && planningDays) {
+      data.partialWeek = {
+        startDay: planningDays[0],
+        dayCount: planningDays.length,
+      };
+    }
+    onGenerate(data);
   };
 
   const intensityOptions = [
@@ -163,7 +181,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
     { value: "busy" as const, label: "Busy week", desc: "Quick & easy meals" },
   ];
 
-  const cookNights = 7 - takeoutCount - leftoverCount;
+  const cookNights = totalPlanDays - takeoutCount - leftoverCount;
 
   const frequencyLabel: Record<string, string> = {
     every_week: "Weekly",
@@ -171,6 +189,13 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
     once_a_month: "Monthly",
     occasionally: "Occasional",
   };
+
+  // Max takeout/leftover counts depend on available days
+  const maxTakeout = Math.min(2, Math.max(0, totalPlanDays - 1));
+  const maxLeftover = Math.min(2, Math.max(0, totalPlanDays - takeoutCount - 1));
+
+  const bannerLabel = planLabel || "this week's dinners";
+  const buttonLabel = planLabel ? `Generate ${planLabel.toLowerCase()}` : "Generate this week's plan";
 
   return (
     <>
@@ -182,16 +207,18 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
               <div className="flex items-center gap-2 mb-1">
                 <Sparkles className="w-4 h-4 text-primary shrink-0" />
                 <h2 className="text-base sm:text-xl font-serif font-semibold text-foreground">
-                  Plan this week's dinners
+                  Plan {bannerLabel}
                 </h2>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                We'll create a plan based on {householdName ? `${householdName}'s` : "your family's"} habits.
+                {isPartialWeek
+                  ? `Quick ${totalPlanDays}-day plan for ${householdName ? `${householdName}` : "your family"}.`
+                  : `We'll create a plan based on ${householdName ? `${householdName}'s` : "your family's"} habits.`}
               </p>
             </div>
             <Button onClick={() => setOpen(true)} className="gap-2 shrink-0 w-full sm:w-auto">
               <ChefHat className="w-4 h-4" />
-              Generate this week's plan
+              {buttonLabel}
             </Button>
           </div>
         </CardContent>
@@ -238,10 +265,10 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 {step === "takeout" && (
                   <div className="space-y-4">
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Do you want to plan any takeout nights this week?
+                      Do you want to plan any takeout nights{isPartialWeek ? " for these days" : " this week"}?
                     </p>
                     <div className="flex gap-2">
-                      {[0, 1, 2].map((n) => (
+                      {Array.from({ length: maxTakeout + 1 }, (_, n) => n).map((n) => (
                         <button
                           key={n}
                           onClick={() => { setTakeoutCount(n); if (n === 0) setTakeoutDays([]); }}
@@ -259,7 +286,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                       <div>
                         <p className="text-[11px] sm:text-xs text-muted-foreground mb-2">Which day{takeoutCount > 1 ? "s" : ""}?</p>
                         <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                          {DAYS.map((d, i) => {
+                          {availableDayIndices.map((i) => {
                             const selected = takeoutDays.includes(i);
                             const disabled = !selected && takeoutDays.length >= takeoutCount;
                             return (
@@ -270,7 +297,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                                 className={`px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium border transition-all
                                   ${selected ? "border-primary bg-primary/10 text-primary" : disabled ? "border-border bg-muted/30 text-muted-foreground/40" : "border-border bg-card text-foreground hover:border-primary/30"}`}
                               >
-                                {d.slice(0, 3)}
+                                {DAYS[i].slice(0, 3)}
                               </button>
                             );
                           })}
@@ -287,7 +314,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                       Do you want to schedule leftover nights?
                     </p>
                     <div className="flex gap-2">
-                      {[0, 1, 2].map((n) => (
+                      {Array.from({ length: maxLeftover + 1 }, (_, n) => n).map((n) => (
                         <button
                           key={n}
                           onClick={() => { setLeftoverCount(n); if (n === 0) setLeftoverDays([]); }}
@@ -305,7 +332,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                       <div>
                         <p className="text-[11px] sm:text-xs text-muted-foreground mb-2">Which day{leftoverCount > 1 ? "s" : ""}?</p>
                         <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                          {DAYS.map((d, i) => {
+                          {availableDayIndices.map((i) => {
                             const selected = leftoverDays.includes(i);
                             const taken = takeoutDays.includes(i);
                             const disabled = taken || (!selected && leftoverDays.length >= leftoverCount);
@@ -317,7 +344,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                                 className={`px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium border transition-all
                                   ${selected ? "border-primary bg-primary/10 text-primary" : disabled ? "border-border bg-muted/30 text-muted-foreground/40" : "border-border bg-card text-foreground hover:border-primary/30"}`}
                               >
-                                {d.slice(0, 3)}{taken ? " 🛍" : ""}
+                                {DAYS[i].slice(0, 3)}{taken ? " 🛍" : ""}
                               </button>
                             );
                           })}
@@ -331,7 +358,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 {step === "saved" && (
                   <div className="space-y-3 sm:space-y-4">
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Pick any saved meals you definitely want this week.
+                      Pick any saved meals you definitely want{isPartialWeek ? " in these days" : " this week"}.
                     </p>
                     <div className="space-y-2 max-h-[220px] sm:max-h-[260px] overflow-y-auto pr-1 -mr-1">
                       {savedMeals.map((meal) => {
@@ -377,7 +404,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                                   Assign to a day? <span className="text-muted-foreground/50">(optional)</span>
                                 </p>
                                 <div className="flex flex-wrap gap-1">
-                                  {DAYS.map((d, i) => {
+                                  {availableDayIndices.map((i) => {
                                     const isTaken = takenDays.has(i);
                                     const isAssignedToOther = assignedDays.has(i) && assignedDay !== i;
                                     const isAssignedHere = assignedDay === i;
@@ -398,7 +425,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                                             : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
                                           }`}
                                       >
-                                        {d.slice(0, 3)}
+                                        {DAYS[i].slice(0, 3)}
                                       </button>
                                     );
                                   })}
@@ -421,7 +448,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 {step === "specials" && (
                   <div className="space-y-4">
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Is there any meal you want to include this week?
+                      Is there any meal you want to include{isPartialWeek ? "" : " this week"}?
                     </p>
                     <div className="flex gap-2">
                       <Input
@@ -455,7 +482,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 {step === "context" && (
                   <div className="space-y-4">
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Anything special about this week? Select all that apply.
+                      Anything special about {isPartialWeek ? "the next few days" : "this week"}? Select all that apply.
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       {WEEK_CONTEXT_OPTIONS.map((opt) => {
@@ -492,7 +519,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 {step === "intensity" && (
                   <div className="space-y-4">
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      How busy is your week?
+                      How busy {isPartialWeek ? "are the next few days" : "is your week"}?
                     </p>
                     <div className="space-y-2">
                       {intensityOptions.map((opt) => (
@@ -519,6 +546,14 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 {step === "confirm" && (
                   <div className="space-y-4">
                     <div className="bg-muted/40 rounded-xl p-3 sm:p-4 space-y-2">
+                      {isPartialWeek && planningDays && (
+                        <div className="flex justify-between text-xs sm:text-sm">
+                          <span className="text-muted-foreground">Planning</span>
+                          <span className="font-medium text-foreground">
+                            Next {planningDays.length} day{planningDays.length !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-xs sm:text-sm">
                         <span className="text-muted-foreground">Cook nights</span>
                         <span className="font-medium text-foreground">{cookNights}</span>
@@ -585,12 +620,12 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                   {generating ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Building your week...
+                      Building your plan...
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4" />
-                      Generate my weekly plan
+                      Generate my plan
                     </>
                   )}
                 </Button>
