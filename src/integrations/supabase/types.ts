@@ -143,6 +143,7 @@ export type Database = {
           health_goal: string | null
           household_id: string
           id: string
+          plan_preference: string | null
           preferred_takeout_frequency: number | null
           updated_at: string
           weekly_grocery_budget: number | null
@@ -160,6 +161,7 @@ export type Database = {
           health_goal?: string | null
           household_id: string
           id?: string
+          plan_preference?: string | null
           preferred_takeout_frequency?: number | null
           updated_at?: string
           weekly_grocery_budget?: number | null
@@ -177,6 +179,7 @@ export type Database = {
           health_goal?: string | null
           household_id?: string
           id?: string
+          plan_preference?: string | null
           preferred_takeout_frequency?: number | null
           updated_at?: string
           weekly_grocery_budget?: number | null
