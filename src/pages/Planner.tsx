@@ -173,8 +173,16 @@ const Planner = () => {
       setShowPlanTypeChooser(false);
     } else {
       // Case B: 3 or fewer days (Thu-Sun) → show choice modal
-      setShowPlanTypeChooser(true);
-      setSelectedPlanType(null);
+      // Check if user has a saved preference to auto-select
+      const savedPref = (preferences as any)?.plan_preference;
+      if (savedPref === "full_week") {
+        handleChooseFullWeek();
+      } else if (savedPref === "partial_week") {
+        handleChoosePartialWeek();
+      } else {
+        setShowPlanTypeChooser(true);
+        setSelectedPlanType(null);
+      }
     }
   };
 
