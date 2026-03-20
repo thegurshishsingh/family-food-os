@@ -555,6 +555,7 @@ const Planner = () => {
         {/* 3. Day cards (weekly plan) */}
         {days.length > 0 && (
           <div className="space-y-3">
+            <SwipeCoachMark show={days.length > 0} />
             {days.map((day, i) => (
               <DayCard
                 key={day.id}
@@ -569,6 +570,7 @@ const Planner = () => {
                 householdSize={household ? household.num_adults + household.num_children : undefined}
                 checkedIn={checkedInDays.has(day.id)}
                 isSavedMeal={!!day.meal_name && savedMealNames.has(day.meal_name.toLowerCase())}
+                isFirst={i === 0}
                 onSwapMeal={swapMeal}
                 onToggleLock={toggleLock}
                 onCycleMealMode={cycleMealMode}
