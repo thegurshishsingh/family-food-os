@@ -483,9 +483,9 @@ function generateMockPlan(household: any, prefs: any, context: any, setup?: any)
       mode = "takeout";
     } else if (leftoverDays.has(i)) {
       mode = "leftovers";
-    } else if (!takeoutDays.size && i === 4 && takeoutCount >= 1) {
+    } else if (!takeoutDays.size && !setup?.takeout_days && i === 4 && takeoutCount >= 1) {
       mode = "takeout";
-    } else if (!leftoverDays.size && i === 2) {
+    } else if (!leftoverDays.size && !setup && i === 2) {
       mode = "leftovers";
     } else if (isHard && i === 1 && !takeoutDays.has(1) && !leftoverDays.has(1)) {
       mode = "emergency";
