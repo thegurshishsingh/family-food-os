@@ -21,24 +21,12 @@ const COOKING_TOLERANCES = [
   { value: "medium", label: "Medium (45 min)" },
   { value: "high", label: "High (60+ min, I love cooking)" },
 ];
-const CONTEXT_TOGGLES = [
-  { key: "newborn_in_house", label: "Newborn in house", emoji: "👶" },
-  { key: "guests_visiting", label: "Guests visiting", emoji: "🏠" },
-  { key: "sports_week", label: "Sports week", emoji: "⚽" },
-  { key: "one_parent_traveling", label: "One parent traveling", emoji: "✈️" },
-  { key: "budget_week", label: "Budget-tight week", emoji: "💰" },
-  { key: "low_cleanup_week", label: "Low-cleanup week", emoji: "🧹" },
-  { key: "sick_week", label: "Sick week", emoji: "🤒" },
-  { key: "high_protein_week", label: "High-protein week", emoji: "💪" },
-  { key: "chaotic_week", label: "Chaotic week", emoji: "🌀" },
-];
 
 const STEPS = [
   { title: "Your household", desc: "Tell us about your family" },
   { title: "Food preferences", desc: "What does your family like?" },
   { title: "Logistics", desc: "Budget, time, and grocery habits" },
   { title: "Your meals", desc: "Add meals you'd like included in your plan" },
-  { title: "This week's context", desc: "What's happening this week?" },
 ];
 
 const Onboarding = () => {
