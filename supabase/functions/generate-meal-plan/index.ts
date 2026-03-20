@@ -432,8 +432,10 @@ function buildPrompt(
     }
   }
 
-  if (!setup?.leftover_days?.length) {
+  if (!setup) {
     parts.push(`Include at least 1 leftover night reusing a previous cooked meal.`);
+  } else if (!setup.leftover_days?.length) {
+    parts.push(`The user selected NO leftover nights. Do NOT include any days with meal_mode "leftovers". All non-takeout days should be meal_mode "cook".`);
   }
   parts.push(`Include realistic nutrition estimates per meal (calories, protein_g, carbs_g, fat_g). Nutrition should be PER SINGLE SERVING.`);
   parts.push(`IMPORTANT — Ingredient quantities must be for ONE SINGLE SERVING (the app will scale them by number of servings). Use sensible household units (e.g. "1" chicken breast, "0.5" lb ground turkey, "1" cup rice, "2" tbsp olive oil, "1" clove garlic). Keep units in the "unit" field, numeric amounts in "quantity".`);
