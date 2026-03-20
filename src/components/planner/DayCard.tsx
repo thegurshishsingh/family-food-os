@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Lock, Unlock, Shuffle, Pencil, Check, X, GripVertical, Heart, Bookmark } from "lucide-react";
+import { Lock, Unlock, Shuffle, Pencil, Check, X, GripVertical, Heart, Bookmark, ArrowUpDown } from "lucide-react";
 import { motion, useMotionValue, useTransform, animate, PanInfo } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DAYS, MODE_CONFIG, FEEDBACK_OPTIONS, type PlanDay, type FeedbackType } from "./types";
