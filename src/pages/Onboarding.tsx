@@ -21,24 +21,12 @@ const COOKING_TOLERANCES = [
   { value: "medium", label: "Medium (45 min)" },
   { value: "high", label: "High (60+ min, I love cooking)" },
 ];
-const CONTEXT_TOGGLES = [
-  { key: "newborn_in_house", label: "Newborn in house", emoji: "👶" },
-  { key: "guests_visiting", label: "Guests visiting", emoji: "🏠" },
-  { key: "sports_week", label: "Sports week", emoji: "⚽" },
-  { key: "one_parent_traveling", label: "One parent traveling", emoji: "✈️" },
-  { key: "budget_week", label: "Budget-tight week", emoji: "💰" },
-  { key: "low_cleanup_week", label: "Low-cleanup week", emoji: "🧹" },
-  { key: "sick_week", label: "Sick week", emoji: "🤒" },
-  { key: "high_protein_week", label: "High-protein week", emoji: "💪" },
-  { key: "chaotic_week", label: "Chaotic week", emoji: "🌀" },
-];
 
 const STEPS = [
   { title: "Your household", desc: "Tell us about your family" },
   { title: "Food preferences", desc: "What does your family like?" },
   { title: "Logistics", desc: "Budget, time, and grocery habits" },
   { title: "Your meals", desc: "Add meals you'd like included in your plan" },
-  { title: "This week's context", desc: "What's happening this week?" },
 ];
 
 const Onboarding = () => {
@@ -89,8 +77,6 @@ const Onboarding = () => {
   const [newMealName, setNewMealName] = useState("");
   const [newMealDesc, setNewMealDesc] = useState("");
 
-  // Step 5 - Weekly context
-  const [contexts, setContexts] = useState<Record<string, boolean>>({});
 
   const toggleInList = (list: string[], item: string, setter: (v: string[]) => void) => {
     setter(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
@@ -162,16 +148,6 @@ const Onboarding = () => {
         });
       if (prefError) throw prefError;
 
-      // Create weekly context
-      const monday = getNextMonday();
-      const { error: ctxError } = await supabase
-        .from("weekly_contexts")
-        .insert({
-          household_id: household.id,
-          week_start: monday,
-          ...Object.fromEntries(CONTEXT_TOGGLES.map((t) => [t.key, contexts[t.key] || false])),
-        });
-      if (ctxError) throw ctxError;
 
       // Save custom meals
       if (savedMeals.length > 0) {
@@ -193,13 +169,6 @@ const Onboarding = () => {
     }
   };
 
-  const getNextMonday = () => {
-    const d = new Date();
-    const day = d.getDay();
-    const diff = day === 0 ? 1 : day === 1 ? 0 : 8 - day;
-    d.setDate(d.getDate() + diff);
-    return d.toISOString().split("T")[0];
-  };
 
   const canProceed = () => {
     if (step === 0) return true;
@@ -512,26 +481,6 @@ const Onboarding = () => {
                 </div>
               )}
 
-              {step === 4 && (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground mb-6">Select anything that applies to this week. This helps us generate a more realistic plan.</p>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {CONTEXT_TOGGLES.map((t) => (
-                      <button
-                        key={t.key}
-                        onClick={() => setContexts((prev) => ({ ...prev, [t.key]: !prev[t.key] }))}
-                        className={`flex items-center gap-3 p-4 rounded-xl border text-left transition-colors ${
-                          contexts[t.key] ? "bg-sage-light border-primary" : "bg-background border-border hover:bg-muted"
-                        }`}
-                      >
-                        <span className="text-2xl">{t.emoji}</span>
-                        <span className="text-sm font-medium text-foreground">{t.label}</span>
-                        {contexts[t.key] && <Check className="w-4 h-4 text-primary ml-auto" />}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </motion.div>
           </AnimatePresence>
         </div>
