@@ -627,15 +627,23 @@ GROCERY LIST:
   - Categorize: produce, protein, dairy, pantry, frozen, snacks
   - Skip pantry staples families always have (salt, pepper, basic oil) unless in ingredients`);
 
+  // ── Leftover policy ──
+  if (!setup) {
+    parts.push(`\nInclude at least 1 leftover night reusing a previous cooked meal.`);
+  } else if (!setup.leftover_days?.length) {
+    parts.push(`\nThe user selected NO leftover nights. Do NOT include any days with meal_mode "leftovers". All non-takeout days should be meal_mode "cook".`);
+  }
+
   // ── Reality score ──
   parts.push(`
-REALITY SCORE (0-100): How achievable is this plan?
+REALITY SCORE (0-100): How achievable is this plan for THIS specific family?
   90-100: Very easy week — lots of quick meals, minimal effort
   70-89: Realistic — good balance of cooking and convenience
   50-69: Ambitious — some challenging meals, might feel like a lot
-  Below 50: Likely unsustainable — too many complex meals for the family's situation
+  Below 50: Likely unsustainable
 
-Factor in: cook nights vs convenience, prep times vs tolerance, weekly context, family composition, and behavioral patterns.`);
+Factor in: cook nights vs convenience, prep times vs tolerance, weekly context, family composition, behavioral patterns (cook-through rate, effort perception, kid acceptance).
+Include a reality_message that's warm and specific — e.g., "Monday and Wednesday are your easiest nights. Thursday's salmon is slightly more involved but worth it."`);
 
   if (isPartial) {
     parts.push(`\n🔴 FINAL REMINDER: Generate EXACTLY ${planDayCount} days with day_of_week values: ${planDayIndices.join(", ")}. Do NOT generate days outside this range.`);
