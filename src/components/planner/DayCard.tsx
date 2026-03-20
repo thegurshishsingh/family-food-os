@@ -269,24 +269,24 @@ const DayCard = ({
 
           {/* Mobile action bar — always visible, clear tap targets */}
           {!editing && isMobile && (
-            <div className="flex items-center gap-1.5 mt-2 -ml-0.5">
+            <div className="flex items-center gap-2 mt-2 -ml-0.5">
               <button
                 onClick={() => onSwapMeal(day)}
                 disabled={day.is_locked || isSwapping}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-accent/10 text-accent-foreground/80 hover:bg-accent/20 active:scale-95 transition-all disabled:opacity-30"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:scale-95 transition-all disabled:opacity-30"
               >
                 {isSwapping ? (
-                  <div className="w-3 h-3 border-[1.5px] border-accent-foreground/60 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3 h-3 border-[1.5px] border-primary-foreground border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <Shuffle className="w-3 h-3" />
                 )}
-                Swap
+                Swap Meal
               </button>
               <button
                 onClick={() => onToggleLock(day)}
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all active:scale-95 ${
                   day.is_locked
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-primary/10 text-primary ring-1 ring-primary/20"
                     : "bg-muted/50 text-muted-foreground hover:bg-muted"
                 }`}
               >
