@@ -105,6 +105,18 @@ serve(async (req) => {
 
     if (lovableApiKey) {
       const dayCountLabel = isPartialWeek ? `${daysToGenerate.length}-day` : "7-day";
+      const systemPrompt = `You are a world-class family meal planning chef and nutritionist. You create personalized, realistic, delicious dinner plans that families actually want to cook and eat.
+
+CORE PRINCIPLES:
+- Every meal must be a REAL, specific recipe — not generic labels like "chicken dinner" or "pasta night"
+- Recipes must be detailed enough for a beginner cook to follow
+- Meals should feel exciting yet achievable — like a thoughtful friend planned them
+- Consider ingredient overlap between days to reduce waste and shopping
+- Vary protein sources, cuisines, and cooking methods across the week
+- Never repeat the same protein on consecutive days
+- If children are present, ensure at least 60% of meals are kid-approachable (without being only "kid food")
+
+Return ONLY valid JSON, no markdown.`;
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -114,7 +126,7 @@ serve(async (req) => {
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [
-            { role: "system", content: "You are a family meal planning assistant. Return ONLY valid JSON, no markdown." },
+            { role: "system", content: systemPrompt },
             { role: "user", content: prompt },
           ],
           tools: [{
@@ -306,117 +318,173 @@ function buildPrompt(
 
   const parts = [];
 
+  // ── Core request ──
   if (isPartial) {
     parts.push(`Create a ${planDayCount}-day dinner meal plan for a family of ${household.num_adults} adults and ${household.num_children} children.`);
     parts.push(`IMPORTANT: This is a SHORT PARTIAL-WEEK plan. Only generate meals for these ${planDayCount} days: ${planDayNames.join(", ")} (day_of_week values: ${planDayIndices.join(", ")}).`);
-    parts.push(`SHORT-WEEK GUIDELINES: Since this is a partial week plan, prioritize quick and easy meals. Keep prep times under 20 minutes where possible. Favor simple, low-effort recipes. Include at most 1 takeout suggestion if none were explicitly selected. The goal is low commitment and immediate usefulness.`);
+    parts.push(`SHORT-WEEK GUIDELINES: Prioritize quick, easy meals. Keep prep times under 20 minutes where possible. Favor simple, one-pan/one-pot recipes. The goal is low commitment and immediate usefulness.`);
   } else {
     parts.push(`Create a 7-day dinner meal plan for a family of ${household.num_adults} adults and ${household.num_children} children.`);
   }
 
+  // ── Family composition context ──
   if (household.child_age_bands?.length) {
     parts.push(`Children ages: ${household.child_age_bands.join(", ")}.`);
+    const hasToddlers = household.child_age_bands.some((b: string) => b.includes("0–1") || b.includes("1–3"));
+    const hasPreschool = household.child_age_bands.some((b: string) => b.includes("3–5"));
+    const hasTeens = household.child_age_bands.some((b: string) => b.includes("13–18"));
+    if (hasToddlers) parts.push(`⚠️ Family has toddlers/infants. Avoid choking hazards (whole grapes, nuts, popcorn, tough meats). Prefer soft, mild, easy-to-chew meals.`);
+    if (hasPreschool) parts.push(`Preschool-age children present — include some fun, hands-on meals (tacos, build-your-own bowls, mini pizzas).`);
+    if (hasTeens) parts.push(`Teenagers present — ensure generous portions and include higher-calorie/protein options.`);
+  }
+  if (household.num_children > 0 && !household.child_age_bands?.length) {
+    parts.push(`Family has ${household.num_children} children — ensure most meals are kid-friendly or have easy kid-adaptations.`);
   }
 
-  // Weekly setup preferences from the user
+  // ── Weekly setup preferences (user-selected for this specific plan) ──
   if (setup) {
     if (setup.takeout_days?.length) {
-      parts.push(`TAKEOUT NIGHTS (user-selected): ${setup.takeout_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "takeout".`);
+      parts.push(`\n🛍️ TAKEOUT NIGHTS (user-selected, MANDATORY): ${setup.takeout_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "takeout". For takeout days, suggest a specific cuisine or restaurant type (e.g., "Thai Takeout", "Pizza Delivery") — not just "Takeout".`);
     }
     if (setup.leftover_days?.length) {
-      parts.push(`LEFTOVER NIGHTS (user-selected): ${setup.leftover_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "leftovers".`);
+      parts.push(`♻️ LEFTOVER NIGHTS (user-selected, MANDATORY): ${setup.leftover_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "leftovers". Name the leftover meal based on what was cooked the day before (e.g., "Leftover Chicken Fajita Bowls").`);
     }
+
+    // Special meals — these are HIGH PRIORITY user requests
     if (setup.special_meals?.length) {
-      parts.push(`SPECIAL MEAL REQUESTS (user wants these included this week): ${setup.special_meals.join(", ")}. Include these meals in the plan.`);
+      parts.push(`\n⭐ SPECIAL MEAL REQUESTS — The user specifically asked for these meals this week. These MUST appear in the plan:\n${setup.special_meals.map((m: string) => `  - "${m}" → MUST be included as a cook night. Create a complete recipe with ingredients and instructions for this meal. If it's vague (e.g., "taco night"), interpret it as a specific recipe (e.g., "Beef Street Tacos with Cilantro-Lime Slaw").`).join("\n")}`);
     }
+
+    // Locked saved meals — even higher priority
     if (setup.locked_saved_meals?.length) {
       const assignments = setup.saved_meal_day_assignments || {};
-      const mealDetails = setup.locked_saved_meals.map((m: string) => {
+      parts.push(`\n🔒 LOCKED SAVED MEALS — The user hand-picked these from their saved meals. These MUST appear in the plan, no exceptions:`);
+      for (const m of setup.locked_saved_meals) {
         const dayIdx = assignments[m];
-        return dayIdx !== undefined ? `${m} → MUST be on ${dayNames[dayIdx]}` : m;
-      });
-      parts.push(`LOCKED SAVED MEALS (user specifically selected these from their saved meals — MUST include them this week): ${mealDetails.join("; ")}. These take priority over frequency settings. If a specific day is assigned, that meal MUST appear on that day with meal_mode "cook".`);
+        if (dayIdx !== undefined) {
+          parts.push(`  - "${m}" → MUST appear on ${dayNames[dayIdx]} with meal_mode "cook". This is a hard constraint.`);
+        } else {
+          parts.push(`  - "${m}" → MUST appear on any available cook day.`);
+        }
+      }
     }
+
     if (setup.week_intensity) {
       const intensityMap: Record<string, string> = {
-        relaxed: "RELAXED WEEK — user has more time. Include more elaborate cook nights, longer prep times are okay.",
-        normal: "NORMAL WEEK — balanced mix of cooking effort.",
-        busy: "BUSY WEEK — user is very busy. Prefer quick meals (under 20 min), simple recipes, and more convenience nights.",
+        relaxed: "\n🧘 RELAXED WEEK — User has more time to cook. Include 1-2 more elaborate meals (stews, slow-cook, multi-step recipes). Prep times up to 60 minutes are acceptable.",
+        normal: "\n⚖️ NORMAL WEEK — Balanced mix. Most meals 20-35 minutes prep. One more ambitious meal is fine.",
+        busy: "\n⚡ BUSY WEEK — User is very busy. ALL cook meals should be under 25 minutes prep. Favor sheet-pan, stir-fry, instant pot, one-pot meals. No multi-step or fussy recipes.",
       };
       parts.push(intensityMap[setup.week_intensity] || "");
     }
+
     if (setup.week_context_tags?.length) {
       const contextLabels: Record<string, string> = {
-        chaotic_week: "chaotic week (maximize convenience, minimal effort)",
-        budget_week: "budget-tight week (affordable meals, pantry staples)",
-        sports_week: "sports week (high energy, carb-loading meals)",
-        guests_visiting: "guests visiting (increase portions, crowd-pleasers)",
-        one_parent_traveling: "one parent traveling (simpler, fewer dishes)",
-        low_cleanup_week: "low-cleanup week (one-pot/sheet-pan meals preferred)",
-        sick_week: "sick week (comfort food, easy on the stomach)",
-        high_protein_week: "high-protein week (prioritize protein-rich meals)",
-        newborn_in_house: "newborn in house (very easy, minimal cooking required)",
+        chaotic_week: "chaotic week → maximize convenience, no-fuss meals, freezer-friendly",
+        budget_week: "budget-tight → use affordable proteins (chicken thighs, beans, eggs, ground turkey), pantry staples, seasonal produce",
+        sports_week: "sports week → high energy, extra carbs, post-practice quick meals",
+        guests_visiting: "guests visiting → crowd-pleasers, shareable dishes, slightly more impressive presentation",
+        one_parent_traveling: "solo parenting → simpler meals, less cleanup, kid-focused",
+        low_cleanup_week: "low-cleanup → one-pot, sheet-pan, or foil-packet meals only",
+        sick_week: "sick week → comfort food, soups, easy on the stomach, nourishing",
+        high_protein_week: "high-protein → every meal should have 30g+ protein per serving",
+        newborn_in_house: "newborn at home → absolute minimum effort, freezer meals, 15-min max prep",
       };
       const activeContexts = setup.week_context_tags.map((t: string) => contextLabels[t] || t);
-      parts.push(`USER-SELECTED WEEKLY CONTEXT (adapt the plan to these conditions): ${activeContexts.join("; ")}.`);
+      parts.push(`\n🏷️ WEEKLY CONTEXT — Adapt ALL meals to these conditions:\n${activeContexts.map(c => `  - ${c}`).join("\n")}`);
     }
   }
 
+  // ── Household food preferences (from onboarding) ──
   if (prefs) {
-    if (prefs.cuisines_liked?.length) parts.push(`Preferred cuisines: ${prefs.cuisines_liked.join(", ")}.`);
-    if (prefs.cuisines_disliked?.length) parts.push(`Avoid cuisines: ${prefs.cuisines_disliked.join(", ")}.`);
-    if (prefs.dietary_preferences?.length) parts.push(`Dietary: ${prefs.dietary_preferences.join(", ")}.`);
-    if (prefs.allergies?.length) parts.push(`ALLERGIES (must avoid): ${prefs.allergies.join(", ")}.`);
-    if (prefs.foods_to_avoid?.length) parts.push(`FOODS TO AVOID (the family does not eat these — never include them in any meal): ${prefs.foods_to_avoid.join(", ")}.`);
-    if (prefs.weekly_grocery_budget) parts.push(`Weekly budget: $${prefs.weekly_grocery_budget}.`);
-    if (prefs.cooking_time_tolerance) parts.push(`Cooking time tolerance: ${prefs.cooking_time_tolerance}.`);
-    if (prefs.preferred_takeout_frequency && !setup?.takeout_days?.length) parts.push(`Include ${prefs.preferred_takeout_frequency} takeout night(s).`);
-    if (prefs.health_goal) parts.push(`Health goal: ${prefs.health_goal}.`);
+    parts.push(`\n--- HOUSEHOLD PREFERENCES (from profile — apply to every plan) ---`);
+    if (prefs.cuisines_liked?.length) {
+      parts.push(`PREFERRED CUISINES: ${prefs.cuisines_liked.join(", ")}. Heavily favor these cuisines — at least 70% of cook nights should draw from these.`);
+    }
+    if (prefs.cuisines_disliked?.length) {
+      parts.push(`AVOID CUISINES: ${prefs.cuisines_disliked.join(", ")}. Do NOT use these cuisines at all.`);
+    }
+    if (prefs.dietary_preferences?.length) {
+      parts.push(`DIETARY REQUIREMENTS: ${prefs.dietary_preferences.join(", ")}. ALL meals MUST comply with these dietary preferences.`);
+    }
+    if (prefs.allergies?.length) {
+      parts.push(`🚨 ALLERGIES (CRITICAL — SAFETY): ${prefs.allergies.join(", ")}. NEVER include these allergens in any meal, ingredient, or sauce. Double-check every ingredient.`);
+    }
+    if (prefs.foods_to_avoid?.length) {
+      parts.push(`🚫 FOODS TO AVOID: ${prefs.foods_to_avoid.join(", ")}. The family does not eat these — never include them as a main ingredient or significant component.`);
+    }
+    if (prefs.weekly_grocery_budget) {
+      parts.push(`💰 Weekly grocery budget: $${prefs.weekly_grocery_budget}. Keep total grocery list cost reasonable within this budget.`);
+    }
+    if (prefs.cooking_time_tolerance) {
+      const toleranceMap: Record<string, string> = {
+        minimal: "⏱️ Cooking time: MINIMAL (15 min max). Every meal must be ultra-quick.",
+        low: "⏱️ Cooking time: LOW (30 min max). Keep all meals fast and simple.",
+        medium: "⏱️ Cooking time: MEDIUM (up to 45 min). Standard family cooking times.",
+        high: "⏱️ Cooking time: HIGH (60+ min OK). This family enjoys cooking — include some ambitious recipes.",
+      };
+      parts.push(toleranceMap[prefs.cooking_time_tolerance] || `Cooking time tolerance: ${prefs.cooking_time_tolerance}.`);
+    }
+    if (prefs.preferred_takeout_frequency && !setup?.takeout_days?.length) {
+      parts.push(`Default takeout frequency: ${prefs.preferred_takeout_frequency} night(s) per week.`);
+    }
+    if (prefs.health_goal && prefs.health_goal !== "Balanced family eating") {
+      const goalMap: Record<string, string> = {
+        "Lose weight": "🎯 Health goal: Weight loss — favor lean proteins, vegetables, lower-calorie meals (400-550 cal per serving).",
+        "Gain weight": "🎯 Health goal: Weight gain — include calorie-dense, nutrient-rich meals (600-800 cal per serving).",
+        "Higher protein": "🎯 Health goal: Higher protein — every meal should have 30g+ protein per serving. Include beans, chicken, fish, eggs, tofu.",
+        "Maintain": "🎯 Health goal: Maintain weight — balanced 500-650 cal per serving.",
+      };
+      parts.push(goalMap[prefs.health_goal] || `Health goal: ${prefs.health_goal}.`);
+    }
   }
 
+  // ── Weekly context from DB ──
   if (context) {
     const active = [];
-    if (context.newborn_in_house) active.push("newborn in house (prefer very easy meals)");
-    if (context.guests_visiting) active.push("guests visiting (increase portions)");
-    if (context.sports_week) active.push("sports week (high energy meals)");
-    if (context.one_parent_traveling) active.push("one parent traveling (simpler meals)");
-    if (context.budget_week) active.push("budget-tight week (affordable meals)");
-    if (context.low_cleanup_week) active.push("low-cleanup week (one-pot meals preferred)");
-    if (context.sick_week) active.push("sick week (comfort/easy meals)");
-    if (context.high_protein_week) active.push("high-protein week");
-    if (context.chaotic_week) active.push("chaotic week (maximize convenience)");
-    if (active.length) parts.push(`This week's context: ${active.join("; ")}.`);
+    if (context.newborn_in_house) active.push("newborn in house");
+    if (context.guests_visiting) active.push("guests visiting");
+    if (context.sports_week) active.push("sports week");
+    if (context.one_parent_traveling) active.push("one parent traveling");
+    if (context.budget_week) active.push("budget-tight");
+    if (context.low_cleanup_week) active.push("low-cleanup");
+    if (context.sick_week) active.push("sick week");
+    if (context.high_protein_week) active.push("high-protein");
+    if (context.chaotic_week) active.push("chaotic week");
+    if (active.length) parts.push(`Additional stored context flags: ${active.join("; ")}.`);
   }
 
-  if (lovedMeals.length) parts.push(`Previously loved meals: ${lovedMeals.slice(0, 10).join(", ")}.`);
-  if (dislikedMeals.length) parts.push(`Previously disliked/refused meals: ${dislikedMeals.slice(0, 10).join(", ")}.`);
+  // ── Historical data ──
+  if (lovedMeals.length) parts.push(`\n❤️ Previously LOVED meals (consider including again or variations): ${lovedMeals.slice(0, 10).join(", ")}.`);
+  if (dislikedMeals.length) parts.push(`👎 Previously DISLIKED meals (avoid these or similar): ${dislikedMeals.slice(0, 10).join(", ")}.`);
 
+  // ── Saved meals with frequency ──
   if (savedMeals.length) {
     const includedMeals = savedMeals.filter((m: any) => m.include_in_plan !== false);
     if (includedMeals.length) {
       const frequencyLabel: Record<string, string> = {
-        every_week: "MUST include every week",
+        every_week: "MUST include every week — this is a family staple",
         every_other_week: "include roughly every other week",
         once_a_month: "include about once a month",
         occasionally: "include occasionally when it fits",
       };
-      const mealList = includedMeals.map((m: any) => {
-        const desc = m.meal_description ? ` (${m.meal_description})` : "";
-        const freq = frequencyLabel[m.frequency] || "include when possible";
-        return `- ${m.meal_name}${desc} → ${freq}`;
-      }).join("\n");
-      parts.push(`\nSAVED FAMILY MEALS — The family has specifically saved these meals with inclusion preferences. Respect their frequency settings:\n${mealList}`);
+      parts.push(`\n📋 SAVED FAMILY MEALS — These are meals the family has explicitly saved and wants in their rotation. Respect their frequency preferences:`);
+      for (const m of includedMeals) {
+        const desc = m.meal_description ? ` — "${m.meal_description}"` : "";
+        const freq = frequencyLabel[(m as any).frequency] || "include when possible";
+        parts.push(`  - ${m.meal_name}${desc} → ${freq}`);
+      }
 
       const mustInclude = includedMeals.filter((m: any) => m.frequency === "every_week");
       if (mustInclude.length) {
-        parts.push(`⚠️ The following meals MUST appear in this week's plan: ${mustInclude.map((m: any) => m.meal_name).join(", ")}.`);
+        parts.push(`\n⚠️ MANDATORY: These meals MUST appear this week: ${mustInclude.map((m: any) => `"${m.meal_name}"`).join(", ")}. Failing to include them will result in a bad plan.`);
       }
     }
   }
 
-  // Check-in behavioral insights
+  // ── Check-in behavioral insights ──
   if (checkinInsights.length > 0) {
-    parts.push(`\nIMPORTANT — Recent evening check-in data from the family (use this to adapt the plan):`);
+    parts.push(`\n📊 BEHAVIORAL DATA — Recent evening check-ins from the family (use to adapt the plan):`);
 
     const dayPatterns: Record<number, { tags: Record<string, number>; effortTooMuch: number; total: number }> = {};
     const globalTags: Record<string, number> = {};
@@ -437,50 +505,83 @@ function buildPrompt(
     for (const [dayIdx, pattern] of Object.entries(dayPatterns)) {
       const dayName = dayNames[Number(dayIdx)];
       const notes: string[] = [];
-      if (pattern.effortTooMuch > 0) notes.push("felt like too much effort");
-      if (pattern.tags["kids_refused"] > 0) notes.push("kids refused the meal");
-      if (pattern.tags["ordered_out"] > 0) notes.push("family ordered out instead of cooking");
-      if (pattern.tags["easy_win"] > 0) notes.push("was an easy win");
-      if (pattern.tags["everyone_liked"] > 0) notes.push("everyone liked it");
+      if (pattern.effortTooMuch > 0) notes.push("felt like too much effort → use an easier meal");
+      if (pattern.tags["kids_refused"] > 0) notes.push("kids refused → use a kid-friendly meal");
+      if (pattern.tags["ordered_out"] > 0) notes.push("family ordered out → consider making this a takeout night");
+      if (pattern.tags["easy_win"] > 0) notes.push("was an easy win → keep it simple");
+      if (pattern.tags["everyone_liked"] > 0) notes.push("everyone liked it → similar style works");
       if (pattern.tags["great_leftovers"] > 0) notes.push("produced great leftovers");
-      if (pattern.tags["not_again"] > 0) notes.push("family said not again");
-      if (notes.length) parts.push(`- ${dayName}: ${notes.join(", ")} (${pattern.total} check-in${pattern.total > 1 ? "s" : ""})`);
+      if (pattern.tags["not_again"] > 0) notes.push("family said not again → avoid similar meals");
+      if (notes.length) parts.push(`  ${dayName}: ${notes.join("; ")} (${pattern.total} data points)`);
     }
 
     const totalCheckins = checkinInsights.length;
-    if (globalTags["too_much_work"] > totalCheckins * 0.3) {
-      parts.push(`Overall pattern: meals feel like too much work. Prefer simpler, lower-effort meals.`);
-    }
-    if (globalTags["ordered_out"] > totalCheckins * 0.3) {
-      parts.push(`Overall pattern: family frequently orders out. Consider adding more takeout/easy nights.`);
-    }
-    if (globalTags["kids_refused"] > totalCheckins * 0.25) {
-      parts.push(`Overall pattern: kids frequently refuse meals. Prioritize kid-friendly options.`);
-    }
-    if (globalTags["easy_win"] > totalCheckins * 0.3) {
-      parts.push(`Overall pattern: easy wins are valued. Keep meals simple and approachable.`);
-    }
+    if (globalTags["too_much_work"] > totalCheckins * 0.3) parts.push(`  📉 Pattern: meals often feel like too much work → simplify across the board.`);
+    if (globalTags["ordered_out"] > totalCheckins * 0.3) parts.push(`  📉 Pattern: family frequently orders out → add more takeout/easy nights.`);
+    if (globalTags["kids_refused"] > totalCheckins * 0.25) parts.push(`  📉 Pattern: kids frequently refuse meals → heavily prioritize kid-friendly options.`);
+    if (globalTags["easy_win"] > totalCheckins * 0.3) parts.push(`  📈 Pattern: easy wins are valued → keep meals simple and approachable.`);
   }
 
+  // ── Leftover policy ──
   if (!setup) {
-    parts.push(`Include at least 1 leftover night reusing a previous cooked meal.`);
+    parts.push(`\nInclude at least 1 leftover night reusing a previous cooked meal.`);
   } else if (!setup.leftover_days?.length) {
-    parts.push(`The user selected NO leftover nights. Do NOT include any days with meal_mode "leftovers". All non-takeout days should be meal_mode "cook".`);
+    parts.push(`\nThe user selected NO leftover nights. Do NOT include any days with meal_mode "leftovers". All non-takeout days should be meal_mode "cook".`);
   }
-  parts.push(`Include realistic nutrition estimates per meal (calories, protein_g, carbs_g, fat_g). Nutrition should be PER SINGLE SERVING.`);
-  parts.push(`IMPORTANT — Ingredient quantities must be for ONE SINGLE SERVING (the app will scale them by number of servings). Use sensible household units (e.g. "1" chicken breast, "0.5" lb ground turkey, "1" cup rice, "2" tbsp olive oil, "1" clove garlic). Keep units in the "unit" field, numeric amounts in "quantity".`);
-  parts.push(`For each meal, provide detailed step-by-step cooking instructions with 6-10 steps. Include prep details (how to cut, season, marinate), cooking temperatures and times, and plating/serving suggestions. Be specific enough that a beginner cook could follow along.`);
-  parts.push(`Generate a matching grocery list organized by category.`);
-  parts.push(`Assess reality_score (0-100) based on how realistic the plan is given the family's context. Factor in:
-- Number of cook nights vs convenience nights (more cook nights = lower score for busy families)
-- Average prep time relative to cooking_time_tolerance
-- Whether the plan respects weekly context flags (newborn, chaotic week, etc.)
-- Balance of nutrition across the week
-- Whether past check-in patterns suggest the family can handle this plan
-A score of 90+ means very easy week. 70-89 is realistic. 50-69 is ambitious. Below 50 is likely unsustainable.`);
+
+  // ── Recipe quality requirements ──
+  parts.push(`
+--- RECIPE QUALITY REQUIREMENTS ---
+
+MEAL NAMES: Use specific, appetizing recipe names. 
+  ✅ Good: "Honey-Garlic Chicken Thighs with Roasted Broccoli", "One-Pot Creamy Tuscan Sausage Pasta"
+  ❌ Bad: "Chicken Dinner", "Pasta", "Fish and Veggies"
+
+MEAL DESCRIPTIONS: 1-2 sentences describing the dish, key flavors, and what makes it appealing. Should make the family excited to cook it.
+
+VARIETY RULES:
+  - Never repeat the same primary protein on consecutive days
+  - Vary cooking methods (roast, sauté, grill, simmer, bake, stir-fry)
+  - Mix cuisines across the week — don't cluster the same cuisine on consecutive days
+  - Include at least one vegetable-forward meal per week (unless health goal dictates otherwise)
+  - Balance rich/indulgent meals with lighter ones
+
+INGREDIENTS: Per single serving. Use practical quantities:
+  ✅ "1" chicken breast, "0.5" lb ground turkey, "2" tbsp olive oil, "1" cup rice
+  Include ALL ingredients — don't skip seasonings, oils, or garnishes
+  Group logically: proteins first, then produce, then pantry/seasonings
+
+INSTRUCTIONS: 6-10 detailed steps per recipe:
+  1. Start with ingredient prep (dice, mince, slice — specify sizes)
+  2. Include exact temperatures ("Preheat oven to 425°F")
+  3. Include cooking times ("Sauté for 3-4 minutes until golden")
+  4. Include sensory cues ("until onions are translucent", "until internal temp reaches 165°F")
+  5. End with plating/serving suggestions
+  6. If relevant, note what can be prepped ahead
+
+NUTRITION: Per single serving. Must be realistic:
+  - Calories: typically 400-700 for a dinner
+  - Protein: 20-45g for meat-based, 12-25g for vegetarian
+  - Include fiber_g when possible
+
+GROCERY LIST:
+  - Combine duplicate ingredients across meals
+  - Use realistic quantities for a family
+  - Categorize correctly (produce, protein, dairy, pantry, frozen, snacks)
+  - Don't include items a family would typically already have (salt, pepper, basic oil) unless specified in ingredients`);
+
+  // ── Reality score ──
+  parts.push(`
+REALITY SCORE (0-100): How achievable is this plan?
+  90-100: Very easy week — lots of quick meals, minimal effort
+  70-89: Realistic — good balance of cooking and convenience
+  50-69: Ambitious — some challenging meals, might feel like a lot
+  Below 50: Likely unsustainable — too many complex meals for the family's situation
+
+Factor in: cook nights vs convenience, prep times vs tolerance, weekly context, family composition, and behavioral patterns.`);
 
   if (isPartial) {
-    parts.push(`\nREMINDER: Generate EXACTLY ${planDayCount} days with day_of_week values: ${planDayIndices.join(", ")}. Do NOT generate days outside this range.`);
+    parts.push(`\n🔴 FINAL REMINDER: Generate EXACTLY ${planDayCount} days with day_of_week values: ${planDayIndices.join(", ")}. Do NOT generate days outside this range.`);
   }
 
   return parts.join("\n");
