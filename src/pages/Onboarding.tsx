@@ -169,13 +169,6 @@ const Onboarding = () => {
     }
   };
 
-  const getNextMonday = () => {
-    const d = new Date();
-    const day = d.getDay();
-    const diff = day === 0 ? 1 : day === 1 ? 0 : 8 - day;
-    d.setDate(d.getDate() + diff);
-    return d.toISOString().split("T")[0];
-  };
 
   const canProceed = () => {
     if (step === 0) return true;
