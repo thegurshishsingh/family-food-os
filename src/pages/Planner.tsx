@@ -493,6 +493,7 @@ const Planner = () => {
               todayDow={todayDow}
               onChooseFullWeek={handleChooseFullWeek}
               onChoosePartialWeek={handleChoosePartialWeek}
+              recommended={(preferences as any)?.plan_preference as "full_week" | "partial_week" | null}
             />
           </div>
         )}
