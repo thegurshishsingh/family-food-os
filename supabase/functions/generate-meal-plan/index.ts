@@ -515,93 +515,117 @@ function buildPrompt(
     }
   }
 
-  // ── Check-in behavioral insights ──
+  // ── Check-in behavioral insights (implicit + explicit signals) ──
   if (checkinInsights.length > 0) {
-    parts.push(`\n📊 BEHAVIORAL DATA — Recent evening check-ins from the family (use to adapt the plan):`);
+    parts.push(`\n📊 BEHAVIORAL DATA — Recent evening check-ins. YOUR ADVANTAGE IS HERE — use these signals to adapt the plan intelligently:`);
 
-    const dayPatterns: Record<number, { tags: Record<string, number>; effortTooMuch: number; total: number }> = {};
+    const dayPatterns: Record<number, { tags: Record<string, number>; effortTooMuch: number; effortEasy: number; total: number }> = {};
     const globalTags: Record<string, number> = {};
+    let totalEffortTooMuch = 0;
+    let totalEffortEasy = 0;
 
     for (const ci of checkinInsights) {
       if (!dayPatterns[ci.day_of_week]) {
-        dayPatterns[ci.day_of_week] = { tags: {}, effortTooMuch: 0, total: 0 };
+        dayPatterns[ci.day_of_week] = { tags: {}, effortTooMuch: 0, effortEasy: 0, total: 0 };
       }
       const dp = dayPatterns[ci.day_of_week];
       dp.total++;
-      if (ci.effort_level === "too_much") dp.effortTooMuch++;
+      if (ci.effort_level === "too_much") { dp.effortTooMuch++; totalEffortTooMuch++; }
+      if (ci.effort_level === "easy") { dp.effortEasy++; totalEffortEasy++; }
       for (const tag of ci.tags) {
         dp.tags[tag] = (dp.tags[tag] || 0) + 1;
         globalTags[tag] = (globalTags[tag] || 0) + 1;
       }
     }
 
+    // Per-day behavioral signals
+    parts.push(`\n  EXPLICIT SIGNALS (user-reported per day):`);
     for (const [dayIdx, pattern] of Object.entries(dayPatterns)) {
       const dayName = dayNames[Number(dayIdx)];
       const notes: string[] = [];
-      if (pattern.effortTooMuch > 0) notes.push("felt like too much effort → use an easier meal");
-      if (pattern.tags["kids_refused"] > 0) notes.push("kids refused → use a kid-friendly meal");
-      if (pattern.tags["ordered_out"] > 0) notes.push("family ordered out → consider making this a takeout night");
-      if (pattern.tags["easy_win"] > 0) notes.push("was an easy win → keep it simple");
-      if (pattern.tags["everyone_liked"] > 0) notes.push("everyone liked it → similar style works");
-      if (pattern.tags["great_leftovers"] > 0) notes.push("produced great leftovers");
-      if (pattern.tags["not_again"] > 0) notes.push("family said not again → avoid similar meals");
-      if (notes.length) parts.push(`  ${dayName}: ${notes.join("; ")} (${pattern.total} data points)`);
+      if (pattern.effortTooMuch > 0) notes.push(`felt too hard ${pattern.effortTooMuch}x → SIMPLIFY this day`);
+      if (pattern.effortEasy > 0) notes.push(`felt easy ${pattern.effortEasy}x → this day can handle moderate complexity`);
+      if (pattern.tags["kids_refused"] > 0) notes.push(`kids refused ${pattern.tags["kids_refused"]}x → kid-friendly REQUIRED`);
+      if (pattern.tags["ordered_out"] > 0) notes.push(`ordered out ${pattern.tags["ordered_out"]}x → consider making this a takeout night`);
+      if (pattern.tags["easy_win"] > 0) notes.push(`easy win ${pattern.tags["easy_win"]}x → keep it simple`);
+      if (pattern.tags["everyone_liked"] > 0) notes.push(`everyone liked ${pattern.tags["everyone_liked"]}x → this style works`);
+      if (pattern.tags["great_leftovers"] > 0) notes.push(`good leftovers → cook extra the day before`);
+      if (pattern.tags["not_again"] > 0) notes.push(`said "not again" ${pattern.tags["not_again"]}x → avoid similar meals`);
+      if (pattern.tags["cooked_it"] > 0) notes.push(`actually cooked ${pattern.tags["cooked_it"]}x`);
+      if (notes.length) parts.push(`    ${dayName}: ${notes.join("; ")} (${pattern.total} data points)`);
     }
 
+    // Implicit pattern detection
     const totalCheckins = checkinInsights.length;
-    if (globalTags["too_much_work"] > totalCheckins * 0.3) parts.push(`  📉 Pattern: meals often feel like too much work → simplify across the board.`);
-    if (globalTags["ordered_out"] > totalCheckins * 0.3) parts.push(`  📉 Pattern: family frequently orders out → add more takeout/easy nights.`);
-    if (globalTags["kids_refused"] > totalCheckins * 0.25) parts.push(`  📉 Pattern: kids frequently refuse meals → heavily prioritize kid-friendly options.`);
-    if (globalTags["easy_win"] > totalCheckins * 0.3) parts.push(`  📈 Pattern: easy wins are valued → keep meals simple and approachable.`);
-  }
+    parts.push(`\n  IMPLICIT PATTERNS (derived — use to shape the whole plan):`);
 
-  // ── Leftover policy ──
-  if (!setup) {
-    parts.push(`\nInclude at least 1 leftover night reusing a previous cooked meal.`);
-  } else if (!setup.leftover_days?.length) {
-    parts.push(`\nThe user selected NO leftover nights. Do NOT include any days with meal_mode "leftovers". All non-takeout days should be meal_mode "cook".`);
+    if (totalEffortTooMuch > totalCheckins * 0.3) {
+      parts.push(`    ⚠️ EFFORT OVERLOAD: ${Math.round(totalEffortTooMuch/totalCheckins*100)}% of meals felt too hard → reduce average prep time by 25%, favor one-pan/one-pot meals`);
+    }
+    if (totalEffortEasy > totalCheckins * 0.5) {
+      parts.push(`    ✅ EFFORT COMFORT: Family handles easy meals well → can introduce 1-2 moderately challenging meals on weekends`);
+    }
+    if (globalTags["ordered_out"] > totalCheckins * 0.3) {
+      parts.push(`    📦 HIGH TAKEOUT TENDENCY: Family orders out ${Math.round((globalTags["ordered_out"]||0)/totalCheckins*100)}% of the time → add extra takeout/easy nights, reduce cook nights`);
+    }
+    if (globalTags["kids_refused"] > totalCheckins * 0.25) {
+      parts.push(`    👶 KID RESISTANCE PATTERN: Kids refuse ${Math.round((globalTags["kids_refused"]||0)/totalCheckins*100)}% of meals → increase kid-friendly ratio to 80%+, avoid unfamiliar flavors`);
+    }
+    if (globalTags["easy_win"] > totalCheckins * 0.3) {
+      parts.push(`    ⭐ EASY WINS VALUED: Family thrives on simple meals → keep 70%+ of cook nights under 25 min prep`);
+    }
+    if (globalTags["everyone_liked"] > totalCheckins * 0.4) {
+      parts.push(`    ❤️ HIGH SATISFACTION: Family generally enjoys their meals → current difficulty level is good, maintain it`);
+    }
+    if (globalTags["cooked_it"] && globalTags["ordered_out"]) {
+      const cookRate = Math.round((globalTags["cooked_it"] / (globalTags["cooked_it"] + globalTags["ordered_out"])) * 100);
+      parts.push(`    📊 COOK-THROUGH RATE: ${cookRate}% — ${cookRate > 70 ? "strong execution, plan is calibrated well" : cookRate > 50 ? "moderate — simplify further to improve follow-through" : "low — plan is likely too ambitious, drastically simplify"}`);
+    }
   }
 
   // ── Recipe quality requirements ──
   parts.push(`
 --- RECIPE QUALITY REQUIREMENTS ---
 
-MEAL NAMES: Use specific, appetizing recipe names. 
-  ✅ Good: "Honey-Garlic Chicken Thighs with Roasted Broccoli", "One-Pot Creamy Tuscan Sausage Pasta"
-  ❌ Bad: "Chicken Dinner", "Pasta", "Fish and Veggies"
+MEAL NAMES: Use specific, appetizing recipe names that make families excited to cook.
+  ✅ "Honey-Garlic Chicken Thighs with Roasted Broccoli", "One-Pot Creamy Tuscan Sausage Pasta"
+  ❌ "Chicken Dinner", "Pasta", "Fish and Veggies"
 
-MEAL DESCRIPTIONS: 1-2 sentences describing the dish, key flavors, and what makes it appealing. Should make the family excited to cook it.
+MEAL DESCRIPTIONS: 1-2 sentences — key flavors, what makes it appealing, and why it works for this day of the week.
+
+SMART INGREDIENT OVERLAP: Actively plan ingredient reuse across meals. Note in the meal description when ingredients overlap (e.g., "Uses the same cilantro and lime from Tuesday's tacos").
 
 VARIETY RULES:
   - Never repeat the same primary protein on consecutive days
-  - Vary cooking methods (roast, sauté, grill, simmer, bake, stir-fry)
-  - Mix cuisines across the week — don't cluster the same cuisine on consecutive days
-  - Include at least one vegetable-forward meal per week (unless health goal dictates otherwise)
+  - Vary cooking methods across the week
+  - Mix cuisines — don't cluster same cuisine on consecutive days
+  - Include at least one vegetable-forward meal per week
   - Balance rich/indulgent meals with lighter ones
+  - Monday should be the easiest meal of the week
 
-INGREDIENTS: Per single serving. Use practical quantities:
+INGREDIENTS: Per single serving. Practical quantities:
   ✅ "1" chicken breast, "0.5" lb ground turkey, "2" tbsp olive oil, "1" cup rice
   Include ALL ingredients — don't skip seasonings, oils, or garnishes
-  Group logically: proteins first, then produce, then pantry/seasonings
+  Group: proteins first, then produce, then pantry/seasonings
 
-INSTRUCTIONS: 6-10 detailed steps per recipe:
+INSTRUCTIONS: 6-10 detailed steps:
   1. Start with ingredient prep (dice, mince, slice — specify sizes)
   2. Include exact temperatures ("Preheat oven to 425°F")
-  3. Include cooking times ("Sauté for 3-4 minutes until golden")
-  4. Include sensory cues ("until onions are translucent", "until internal temp reaches 165°F")
+  3. Include cooking times ("Sauté 3-4 minutes until golden")
+  4. Include sensory cues ("until onions are translucent", "internal temp 165°F")
   5. End with plating/serving suggestions
-  6. If relevant, note what can be prepped ahead
+  6. Note what can be prepped ahead if relevant
 
-NUTRITION: Per single serving. Must be realistic:
-  - Calories: typically 400-700 for a dinner
-  - Protein: 20-45g for meat-based, 12-25g for vegetarian
-  - Include fiber_g when possible
+NUTRITION: Per single serving, realistic ranges:
+  - Calories: 400-700 for dinner
+  - Protein: 20-45g meat-based, 12-25g vegetarian
+  - Include fiber_g
 
 GROCERY LIST:
-  - Combine duplicate ingredients across meals
-  - Use realistic quantities for a family
-  - Categorize correctly (produce, protein, dairy, pantry, frozen, snacks)
-  - Don't include items a family would typically already have (salt, pepper, basic oil) unless specified in ingredients`);
+  - COMBINE duplicate ingredients across meals (this is critical for ingredient reuse strategy)
+  - Use realistic family-sized quantities
+  - Categorize: produce, protein, dairy, pantry, frozen, snacks
+  - Skip pantry staples families always have (salt, pepper, basic oil) unless in ingredients`);
 
   // ── Reality score ──
   parts.push(`
