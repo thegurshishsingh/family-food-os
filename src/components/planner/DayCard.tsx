@@ -256,21 +256,40 @@ const DayCard = ({
             )}
           </div>
 
-          {/* Mobile quick actions */}
+          {/* Mobile action bar — always visible, clear tap targets */}
           {!editing && isMobile && (
-            <div className="flex items-center gap-1 mt-1.5 -ml-1">
+            <div className="flex items-center gap-1.5 mt-2 -ml-0.5">
+              <button
+                onClick={() => onSwapMeal(day)}
+                disabled={day.is_locked || isSwapping}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-accent/10 text-accent-foreground/80 hover:bg-accent/20 active:scale-95 transition-all disabled:opacity-30"
+              >
+                {isSwapping ? (
+                  <div className="w-3 h-3 border-[1.5px] border-accent-foreground/60 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Shuffle className="w-3 h-3" />
+                )}
+                Swap
+              </button>
+              <button
+                onClick={() => onToggleLock(day)}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all active:scale-95 ${
+                  day.is_locked
+                    ? "bg-primary/10 text-primary"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                {day.is_locked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+                {day.is_locked ? "Locked" : "Lock"}
+              </button>
               <button
                 onClick={startEditing}
                 disabled={day.is_locked}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] text-muted-foreground hover:bg-muted transition-colors disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-muted/50 text-muted-foreground hover:bg-muted active:scale-95 transition-all disabled:opacity-30"
               >
                 <Pencil className="w-3 h-3" />
                 Edit
               </button>
-              <span className="text-muted-foreground/30 text-[10px]">·</span>
-              <span className="text-[10px] text-muted-foreground/50 italic">
-                Swipe · Hold for details
-              </span>
             </div>
           )}
 
