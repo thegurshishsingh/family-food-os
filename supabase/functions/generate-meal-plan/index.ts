@@ -126,7 +126,7 @@ Return ONLY valid JSON, no markdown.`;
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [
-            { role: "system", content: "You are a family meal planning assistant. Return ONLY valid JSON, no markdown." },
+            { role: "system", content: systemPrompt },
             { role: "user", content: prompt },
           ],
           tools: [{
