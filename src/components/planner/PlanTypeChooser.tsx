@@ -34,7 +34,13 @@ const PlanTypeChooser = ({ remainingDays, todayDow, onChooseFullWeek, onChoosePa
       </div>
 
       {/* Option: Plan next week */}
-      <button onClick={onChooseFullWeek} className="w-full text-left group">
+      <motion.button
+        onClick={onChooseFullWeek}
+        className="w-full text-left group"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.15 }}
+      >
         <Card className={`transition-all group-hover:shadow-md ${recommended === "full_week" ? "border-primary/40 bg-primary/[0.03] shadow-sm" : "border-primary/20 hover:border-primary/40"}`}>
           <CardContent className="p-4 flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -53,10 +59,16 @@ const PlanTypeChooser = ({ remainingDays, todayDow, onChooseFullWeek, onChoosePa
             </div>
           </CardContent>
         </Card>
-      </button>
+      </motion.button>
 
       {/* Option: Plan remaining days */}
-      <button onClick={onChoosePartialWeek} className="w-full text-left group">
+      <motion.button
+        onClick={onChoosePartialWeek}
+        className="w-full text-left group"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+      >
         <Card className={`transition-all group-hover:shadow-md ${recommended === "partial_week" ? "border-primary/40 bg-primary/[0.03] shadow-sm" : "border-border hover:border-primary/30"}`}>
           <CardContent className="p-4 flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-accent/50 flex items-center justify-center shrink-0 mt-0.5">
@@ -75,7 +87,7 @@ const PlanTypeChooser = ({ remainingDays, todayDow, onChooseFullWeek, onChoosePa
             </div>
           </CardContent>
         </Card>
-      </button>
+      </motion.button>
     </motion.div>
   );
 };
