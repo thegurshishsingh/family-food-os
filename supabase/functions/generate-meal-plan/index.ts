@@ -105,6 +105,18 @@ serve(async (req) => {
 
     if (lovableApiKey) {
       const dayCountLabel = isPartialWeek ? `${daysToGenerate.length}-day` : "7-day";
+      const systemPrompt = `You are a world-class family meal planning chef and nutritionist. You create personalized, realistic, delicious dinner plans that families actually want to cook and eat.
+
+CORE PRINCIPLES:
+- Every meal must be a REAL, specific recipe — not generic labels like "chicken dinner" or "pasta night"
+- Recipes must be detailed enough for a beginner cook to follow
+- Meals should feel exciting yet achievable — like a thoughtful friend planned them
+- Consider ingredient overlap between days to reduce waste and shopping
+- Vary protein sources, cuisines, and cooking methods across the week
+- Never repeat the same protein on consecutive days
+- If children are present, ensure at least 60% of meals are kid-approachable (without being only "kid food")
+
+Return ONLY valid JSON, no markdown.`;
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
