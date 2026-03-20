@@ -148,16 +148,6 @@ const Onboarding = () => {
         });
       if (prefError) throw prefError;
 
-      // Create weekly context
-      const monday = getNextMonday();
-      const { error: ctxError } = await supabase
-        .from("weekly_contexts")
-        .insert({
-          household_id: household.id,
-          week_start: monday,
-          ...Object.fromEntries(CONTEXT_TOGGLES.map((t) => [t.key, contexts[t.key] || false])),
-        });
-      if (ctxError) throw ctxError;
 
       // Save custom meals
       if (savedMeals.length > 0) {
