@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { ChefHat, RefreshCw, ArrowRight } from "lucide-react";
+import SwipeCoachMark from "@/components/planner/SwipeCoachMark";
 import RealityScore from "@/components/planner/RealityScore";
 import TimeSavedRecap from "@/components/planner/TimeSavedRecap";
 import WeeklySummary from "@/components/planner/WeeklySummary";
