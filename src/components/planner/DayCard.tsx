@@ -24,6 +24,7 @@ interface DayCardProps {
   householdSize?: number;
   checkedIn?: boolean;
   isSavedMeal?: boolean;
+  isFirst?: boolean;
   onSwapMeal: (day: PlanDay) => void;
   onToggleLock: (day: PlanDay) => void;
   onCycleMealMode: (day: PlanDay) => void;
@@ -35,6 +36,7 @@ interface DayCardProps {
   onDrop: (dayId: string) => void;
   onDragEnd: () => void;
   onCheckedIn?: (dayId: string) => void;
+  onMobileDragStart?: (dayId: string) => void;
 }
 
 const SWIPE_THRESHOLD = 60;
