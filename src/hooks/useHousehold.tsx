@@ -25,6 +25,7 @@ export type HouseholdPreferences = {
   grocery_store: string | null;
   delivery_preference: string;
   health_goal: string;
+  plan_preference: string | null;
 };
 
 export const useHousehold = () => {

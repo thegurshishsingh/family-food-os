@@ -173,6 +173,7 @@ const Planner = () => {
       setShowPlanTypeChooser(false);
     } else {
       // Case B: 3 or fewer days (Thu-Sun) → show choice modal
+      // Always show chooser, but highlight saved preference
       setShowPlanTypeChooser(true);
       setSelectedPlanType(null);
     }
@@ -492,6 +493,7 @@ const Planner = () => {
               todayDow={todayDow}
               onChooseFullWeek={handleChooseFullWeek}
               onChoosePartialWeek={handleChoosePartialWeek}
+              recommended={(preferences as any)?.plan_preference as "full_week" | "partial_week" | null}
             />
           </div>
         )}

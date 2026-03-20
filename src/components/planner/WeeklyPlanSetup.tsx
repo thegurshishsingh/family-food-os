@@ -620,7 +620,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                   {generating ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Building your plan...
+                      {isPartialWeek ? "Building your quick plan..." : "Building your weekly plan..."}
                     </>
                   ) : (
                     <>
