@@ -205,7 +205,7 @@ const SwapMealDialog = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { setSelectedIndex(null); onOpenChange(false); }}
+              onClick={() => { setSelectedIndex(null); setPreviewIndex(null); onOpenChange(false); }}
               disabled={confirming}
               className="h-9 text-xs"
             >
