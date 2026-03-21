@@ -185,7 +185,7 @@ const SwapMealDialog = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => { setSelectedIndex(null); onRegenerate(); }}
+            onClick={() => { setSelectedIndex(null); setPreviewIndex(null); onRegenerate(); }}
             disabled={confirming || regenerating}
             className="gap-1.5 text-muted-foreground text-xs h-9"
           >
