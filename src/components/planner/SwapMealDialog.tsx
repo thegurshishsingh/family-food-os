@@ -45,12 +45,39 @@ const SwapMealDialog = ({
   regenerating,
 }: SwapMealDialogProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const didLongPress = useRef(false);
 
   const handleConfirm = () => {
     if (selectedIndex !== null) {
       onSelect(suggestions[selectedIndex]);
     }
   };
+
+  const startLongPress = useCallback((index: number) => {
+    didLongPress.current = false;
+    longPressTimer.current = setTimeout(() => {
+      didLongPress.current = true;
+      setPreviewIndex(index);
+      if (navigator.vibrate) navigator.vibrate(20);
+    }, 500);
+  }, []);
+
+  const cancelLongPress = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleCardClick = useCallback((index: number) => {
+    if (didLongPress.current) {
+      didLongPress.current = false;
+      return;
+    }
+    if (!confirming) setSelectedIndex(index);
+  }, [confirming]);
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!confirming) { setSelectedIndex(null); onOpenChange(o); } }}>
