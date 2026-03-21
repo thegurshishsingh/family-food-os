@@ -613,6 +613,13 @@ const Planner = () => {
         )}
       </div>
 
+      <MobileReorderSheet
+        open={reorderSheetOpen}
+        onOpenChange={setReorderSheetOpen}
+        days={days}
+        onReorder={(sourceId, targetId) => handleDrop(targetId)}
+      />
+
       <SwapMealDialog
         open={swapDialogOpen}
         onOpenChange={(o) => { setSwapDialogOpen(o); if (!o) { setSwapSuggestions([]); setSwapDayContext(null); } }}
