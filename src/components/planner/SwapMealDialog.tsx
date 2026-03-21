@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Clock, Flame, Check, RefreshCw, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import RecipePreviewOverlay from "./RecipePreviewOverlay";
 
 export interface MealSuggestion {
   meal_name: string;
@@ -44,6 +45,9 @@ const SwapMealDialog = ({
   regenerating,
 }: SwapMealDialogProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const didLongPress = useRef(false);
 
   const handleConfirm = () => {
     if (selectedIndex !== null) {
@@ -51,9 +55,33 @@ const SwapMealDialog = ({
     }
   };
 
+  const startLongPress = useCallback((index: number) => {
+    didLongPress.current = false;
+    longPressTimer.current = setTimeout(() => {
+      didLongPress.current = true;
+      setPreviewIndex(index);
+      if (navigator.vibrate) navigator.vibrate(20);
+    }, 500);
+  }, []);
+
+  const cancelLongPress = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleCardClick = useCallback((index: number) => {
+    if (didLongPress.current) {
+      didLongPress.current = false;
+      return;
+    }
+    if (!confirming) setSelectedIndex(index);
+  }, [confirming]);
+
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!confirming) { setSelectedIndex(null); onOpenChange(o); } }}>
-      <DialogContent className="max-w-lg sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+    <Dialog open={open} onOpenChange={(o) => { if (!confirming) { setSelectedIndex(null); setPreviewIndex(null); onOpenChange(o); } }}>
+      <DialogContent className="max-w-lg sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0 relative">
         {/* Header */}
         <div className="px-5 pt-5 pb-3 border-b border-border/60">
           <DialogHeader>
@@ -88,7 +116,12 @@ const SwapMealDialog = ({
                         ? "ring-2 ring-primary shadow-md bg-primary/[0.04]"
                         : "hover:shadow-sm hover:border-primary/30 border-border/60"
                     }`}
-                    onClick={() => !confirming && setSelectedIndex(i)}
+                    onClick={() => handleCardClick(i)}
+                    onMouseDown={() => startLongPress(i)}
+                    onMouseUp={cancelLongPress}
+                    onMouseLeave={cancelLongPress}
+                    onTouchStart={() => startLongPress(i)}
+                    onTouchEnd={cancelLongPress}
                   >
                     <div className="flex items-start gap-3">
                       {/* Selection indicator */}
@@ -152,7 +185,7 @@ const SwapMealDialog = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => { setSelectedIndex(null); onRegenerate(); }}
+            onClick={() => { setSelectedIndex(null); setPreviewIndex(null); onRegenerate(); }}
             disabled={confirming || regenerating}
             className="gap-1.5 text-muted-foreground text-xs h-9"
           >
@@ -172,7 +205,7 @@ const SwapMealDialog = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { setSelectedIndex(null); onOpenChange(false); }}
+              onClick={() => { setSelectedIndex(null); setPreviewIndex(null); onOpenChange(false); }}
               disabled={confirming}
               className="h-9 text-xs"
             >
@@ -198,6 +231,16 @@ const SwapMealDialog = ({
             </Button>
           </div>
         </div>
+
+        {/* Long-press recipe preview overlay */}
+        <AnimatePresence>
+          {previewIndex !== null && suggestions[previewIndex] && (
+            <RecipePreviewOverlay
+              meal={suggestions[previewIndex]}
+              onClose={() => setPreviewIndex(null)}
+            />
+          )}
+        </AnimatePresence>
       </DialogContent>
     </Dialog>
   );
