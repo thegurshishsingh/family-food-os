@@ -44,6 +44,7 @@ const Planner = () => {
   const [swapDayContext, setSwapDayContext] = useState<PlanDay | null>(null);
   const [confirmingSwap, setConfirmingSwap] = useState(false);
   const [regeneratingSwap, setRegeneratingSwap] = useState(false);
+  const [reorderSheetOpen, setReorderSheetOpen] = useState(false);
   const [needsNewPlan, setNeedsNewPlan] = useState(false);
   const [showReplanSetup, setShowReplanSetup] = useState(false);
   const [showReplanConfirm, setShowReplanConfirm] = useState(false);
