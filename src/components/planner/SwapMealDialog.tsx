@@ -116,7 +116,12 @@ const SwapMealDialog = ({
                         ? "ring-2 ring-primary shadow-md bg-primary/[0.04]"
                         : "hover:shadow-sm hover:border-primary/30 border-border/60"
                     }`}
-                    onClick={() => !confirming && setSelectedIndex(i)}
+                    onClick={() => handleCardClick(i)}
+                    onMouseDown={() => startLongPress(i)}
+                    onMouseUp={cancelLongPress}
+                    onMouseLeave={cancelLongPress}
+                    onTouchStart={() => startLongPress(i)}
+                    onTouchEnd={cancelLongPress}
                   >
                     <div className="flex items-start gap-3">
                       {/* Selection indicator */}
