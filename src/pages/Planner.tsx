@@ -584,6 +584,7 @@ const Planner = () => {
                 onDrop={handleDrop}
                 onDragEnd={handleDragEnd}
                 onCheckedIn={(dayId) => setCheckedInDays((prev) => new Set([...prev, dayId]))}
+                onMobileDragStart={() => setReorderSheetOpen(true)}
               />
             ))}
           </div>
