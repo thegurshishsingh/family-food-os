@@ -16,6 +16,7 @@ import WeeklySummary from "@/components/planner/WeeklySummary";
 import DayCard from "@/components/planner/DayCard";
 import SwapMealDialog, { type MealSuggestion } from "@/components/planner/SwapMealDialog";
 import DailyDinnerCard from "@/components/planner/DailyDinnerCard";
+import MobileReorderSheet from "@/components/planner/MobileReorderSheet";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
 import WeeklyPlanSetup, { type PlanSetupData, type SavedMealOption } from "@/components/planner/WeeklyPlanSetup";
@@ -43,6 +44,7 @@ const Planner = () => {
   const [swapDayContext, setSwapDayContext] = useState<PlanDay | null>(null);
   const [confirmingSwap, setConfirmingSwap] = useState(false);
   const [regeneratingSwap, setRegeneratingSwap] = useState(false);
+  const [reorderSheetOpen, setReorderSheetOpen] = useState(false);
   const [needsNewPlan, setNeedsNewPlan] = useState(false);
   const [showReplanSetup, setShowReplanSetup] = useState(false);
   const [showReplanConfirm, setShowReplanConfirm] = useState(false);
@@ -582,6 +584,7 @@ const Planner = () => {
                 onDrop={handleDrop}
                 onDragEnd={handleDragEnd}
                 onCheckedIn={(dayId) => setCheckedInDays((prev) => new Set([...prev, dayId]))}
+                onMobileDragStart={() => setReorderSheetOpen(true)}
               />
             ))}
           </div>
@@ -609,6 +612,37 @@ const Planner = () => {
           </div>
         )}
       </div>
+
+      <MobileReorderSheet
+        open={reorderSheetOpen}
+        onOpenChange={setReorderSheetOpen}
+        days={days}
+        onReorder={async (sourceId, targetId) => {
+          const source = days.find(d => d.id === sourceId);
+          const target = days.find(d => d.id === targetId);
+          if (!source || !target || target.is_locked) return;
+          const mealFields = ["meal_name", "meal_description", "meal_mode", "cuisine_type", "prep_time_minutes", "calories", "protein_g", "carbs_g", "fat_g", "fiber_g", "notes", "takeout_budget"] as const;
+          const sourceData: any = {};
+          const targetData: any = {};
+          mealFields.forEach(f => { sourceData[f] = (source as any)[f]; targetData[f] = (target as any)[f]; });
+          setDays(prev => prev.map(d => {
+            if (d.id === sourceId) return { ...d, ...targetData };
+            if (d.id === targetId) return { ...d, ...sourceData };
+            return d;
+          }));
+          const [r1, r2] = await Promise.all([
+            supabase.from("plan_days").update(targetData).eq("id", sourceId),
+            supabase.from("plan_days").update(sourceData).eq("id", targetId),
+          ]);
+          if (r1.error || r2.error) {
+            toast({ variant: "destructive", title: "Reorder failed" });
+            await loadPlan();
+          } else {
+            setDayFeedback(prev => { const n = { ...prev }; delete n[sourceId]; delete n[targetId]; return n; });
+            toast({ title: "Meals swapped!", description: `${DAYS[source.day_of_week]} ↔ ${DAYS[target.day_of_week]}` });
+          }
+        }}
+      />
 
       <SwapMealDialog
         open={swapDialogOpen}
