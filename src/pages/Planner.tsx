@@ -642,6 +642,7 @@ const Planner = () => {
             toast({ title: "Meals swapped!", description: `${DAYS[source.day_of_week]} ↔ ${DAYS[target.day_of_week]}` });
           }
         }}
+      />
 
       <SwapMealDialog
         open={swapDialogOpen}
