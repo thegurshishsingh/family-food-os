@@ -8,6 +8,8 @@ import type { MealSuggestion } from "./SwapMealDialog";
 interface RecipePreviewOverlayProps {
   meal: MealSuggestion;
   onClose: () => void;
+  onSelect?: (meal: MealSuggestion) => void;
+  confirming?: boolean;
 }
 
 const RecipePreviewOverlay = ({ meal, onClose }: RecipePreviewOverlayProps) => {
