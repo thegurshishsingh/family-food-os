@@ -12,7 +12,7 @@ interface RecipePreviewOverlayProps {
   confirming?: boolean;
 }
 
-const RecipePreviewOverlay = ({ meal, onClose }: RecipePreviewOverlayProps) => {
+const RecipePreviewOverlay = ({ meal, onClose, onSelect, confirming }: RecipePreviewOverlayProps) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
