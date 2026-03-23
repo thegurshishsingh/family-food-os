@@ -364,6 +364,7 @@ const Onboarding = () => {
                     </div>
                   </div>
                   <div>
+                    <Label className="text-base font-medium">Health goal</Label>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {HEALTH_GOALS.map((g) => (
                         <button

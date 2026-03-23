@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-recommendations]
 verify_jwt = false
+
+[functions.swap-meal]
+verify_jwt = false
