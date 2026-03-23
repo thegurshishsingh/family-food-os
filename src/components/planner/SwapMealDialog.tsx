@@ -238,6 +238,8 @@ const SwapMealDialog = ({
             <RecipePreviewOverlay
               meal={suggestions[previewIndex]}
               onClose={() => setPreviewIndex(null)}
+              onSelect={(meal) => { setPreviewIndex(null); onSelect(meal); }}
+              confirming={confirming}
             />
           )}
         </AnimatePresence>

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { X, Clock, Flame, ChefHat } from "lucide-react";
+import { X, Clock, Flame, ChefHat, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,9 +8,11 @@ import type { MealSuggestion } from "./SwapMealDialog";
 interface RecipePreviewOverlayProps {
   meal: MealSuggestion;
   onClose: () => void;
+  onSelect?: (meal: MealSuggestion) => void;
+  confirming?: boolean;
 }
 
-const RecipePreviewOverlay = ({ meal, onClose }: RecipePreviewOverlayProps) => {
+const RecipePreviewOverlay = ({ meal, onClose, onSelect, confirming }: RecipePreviewOverlayProps) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -114,9 +116,29 @@ const RecipePreviewOverlay = ({ meal, onClose }: RecipePreviewOverlayProps) => {
         </div>
       </ScrollArea>
 
-      {/* Footer hint */}
-      <div className="px-4 py-2 border-t border-border/60 text-center">
-        <p className="text-[10px] text-muted-foreground">Tap ✕ or outside to close preview</p>
+      {/* Footer */}
+      <div className="px-4 py-2.5 border-t border-border/60 flex items-center justify-between gap-2">
+        <p className="text-[10px] text-muted-foreground">Hold preview</p>
+        {onSelect && (
+          <Button
+            size="sm"
+            className="h-8 text-xs gap-1.5"
+            disabled={confirming}
+            onClick={() => onSelect(meal)}
+          >
+            {confirming ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                Swapping…
+              </>
+            ) : (
+              <>
+                <Check className="w-3.5 h-3.5" />
+                Use this
+              </>
+            )}
+          </Button>
+        )}
       </div>
     </motion.div>
   );
