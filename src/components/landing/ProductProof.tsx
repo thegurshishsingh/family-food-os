@@ -141,7 +141,7 @@ function WeeklyPlanCard({ isMobile, viewport }: { isMobile: boolean; viewport: {
       </div>
       <div className="px-6 py-3 bg-muted/20 border-t border-border/50">
         <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-          <span className="font-medium">3 cook · 1 leftover · 1 out</span>
+          <span className="font-medium">4 cook · 2 leftover · 1 out</span>
           <span className="font-bold text-primary">~2,400 cal avg</span>
         </div>
       </div>
