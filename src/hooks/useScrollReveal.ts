@@ -30,8 +30,8 @@ export function useScrollReveal() {
 
   const viewport = { once: true, amount: 0.05 as const };
 
-  // If fallback triggered, force "visible" as initial state
-  const initialState = fallback ? "visible" : "hidden";
+  // On mobile or after fallback timeout, force visible immediately
+  const initialState = (isMobile || fallback) ? "visible" : "hidden";
 
   return { fadeUp, viewport, initialState, isMobile };
 }
