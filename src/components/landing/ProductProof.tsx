@@ -1,14 +1,6 @@
 import { motion } from "framer-motion";
 import { CalendarDays, Sparkles, TrendingUp, Clock, Utensils, Check } from "lucide-react";
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" as const },
-  }),
-};
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const WEEK_PREVIEW = [
   { day: "Mon", date: "10", mode: "Cook", meal: "Lemon chicken bowls", time: "30 min", modeColor: "bg-primary text-primary-foreground" },
@@ -33,15 +25,17 @@ const LEARNINGS = [
 ];
 
 const ProductProof = () => {
+  const { fadeUp, viewport, initialState, isMobile } = useScrollReveal();
+
   return (
     <section className="py-16 md:py-24 px-4">
       <div className="container max-w-6xl">
         {/* Section header */}
         <motion.div
           className="text-center mb-14 md:mb-16"
-          initial="hidden"
+          initial={initialState}
           whileInView="visible"
-          viewport={{ once: true }}
+          viewport={viewport}
           variants={fadeUp}
           custom={0}
         >
@@ -59,9 +53,9 @@ const ProductProof = () => {
 
           {/* LEFT — Weekly Planner Preview */}
           <motion.div
-            initial="hidden"
+            initial={initialState}
             whileInView="visible"
-            viewport={{ once: true }}
+            viewport={viewport}
             variants={fadeUp}
             custom={1}
             className="flex"
@@ -105,9 +99,9 @@ const ProductProof = () => {
                   <motion.div
                     key={day.day}
                     className="flex items-center gap-4 px-6 py-3 border-b border-border/30 last:border-b-0 group transition-colors hover:bg-muted/15"
-                    initial={{ opacity: 0, x: -6 }}
+                    initial={{ opacity: 0, x: isMobile ? 0 : -6 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
+                    viewport={viewport}
                     transition={{ delay: 0.2 + i * 0.05, duration: 0.3 }}
                   >
                     <div className="w-11 flex items-baseline gap-1.5">
@@ -147,9 +141,9 @@ const ProductProof = () => {
 
           {/* RIGHT — Dinner Check-In */}
           <motion.div
-            initial="hidden"
+            initial={initialState}
             whileInView="visible"
-            viewport={{ once: true }}
+            viewport={viewport}
             variants={fadeUp}
             custom={2}
             className="flex"
@@ -222,9 +216,9 @@ const ProductProof = () => {
                       <motion.div
                         key={item.text}
                         className="flex items-center gap-2.5"
-                        initial={{ opacity: 0, y: 4 }}
+                        initial={{ opacity: 0, y: isMobile ? 0 : 4 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
+                        viewport={viewport}
                         transition={{ delay: 0.4 + i * 0.08 }}
                       >
                         <div className="w-6 h-6 rounded-md bg-muted/40 flex items-center justify-center shrink-0">
