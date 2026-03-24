@@ -33,7 +33,7 @@ const Landing = () => {
       </nav>
 
       {/* Hero */}
-      <section className="pt-28 pb-10 md:pt-44 md:pb-16 px-4">
+      <section className="pt-28 pb-20 md:pt-44 md:pb-16 px-4">
         <div className="container max-w-4xl text-center mx-auto">
           <div>
             <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-sage-light text-primary border border-primary/10">
@@ -47,8 +47,8 @@ const Landing = () => {
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3 leading-relaxed">
             Most apps give you recipes. Family Food OS learns your family — takeout nights, picky eaters, busy Wednesdays — and gets smarter every week.
           </p>
-          <p className="text-sm md:text-base text-muted-foreground/70 max-w-lg mx-auto mb-10">
-            Joins 5 minutes. Learns forever.
+          <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto mb-10">
+            5 minutes to set up. Smarter every week after that.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" className="text-base px-8 h-12 rounded-xl" asChild>

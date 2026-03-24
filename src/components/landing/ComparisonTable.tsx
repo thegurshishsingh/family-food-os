@@ -39,10 +39,10 @@ const ComparisonTable = () => {
       <div className="rounded-xl border border-border overflow-hidden">
         {/* Header */}
         <div className="grid grid-cols-2 bg-muted/30 border-b border-border">
-          <div className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+          <div className="px-4 py-3 text-xs font-extrabold text-foreground/70 uppercase tracking-widest">
             Other apps
           </div>
-          <div className="px-4 py-3 text-xs font-bold text-primary uppercase tracking-widest">
+          <div className="px-4 py-3 text-xs font-extrabold text-primary uppercase tracking-widest">
             Family Food OS
           </div>
         </div>
