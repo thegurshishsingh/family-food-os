@@ -33,40 +33,28 @@ const Landing = () => {
       {/* Hero */}
       <section className="pt-28 pb-10 md:pt-44 md:pb-16 px-4">
         <div className="container max-w-4xl text-center mx-auto">
-          <motion.div initial={initialState} animate="visible" variants={fadeUp} custom={0}>
+          <div>
             <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-sage-light text-primary border border-primary/10">
               The family food system that learns with you every week
             </span>
-          </motion.div>
-          <motion.h1
-            className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-semibold tracking-tight text-foreground leading-[1.1] mb-6"
-            initial={initialState} animate="visible" variants={fadeUp} custom={1}
-          >
+          </div>
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-semibold tracking-tight text-foreground leading-[1.1] mb-6">
             Plan your real week{" "}
             <span className="text-primary">of food.</span>
-          </motion.h1>
-          <motion.p
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3 leading-relaxed"
-            initial={initialState} animate="visible" variants={fadeUp} custom={2}
-          >
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3 leading-relaxed">
             Meals, takeout, leftovers, and groceries. One smart weekly plan
             built around your family's real life — not an ideal one.
-          </motion.p>
-          <motion.p
-            className="text-sm md:text-base text-muted-foreground/70 max-w-lg mx-auto mb-10"
-            initial={initialState} animate="visible" variants={fadeUp} custom={2.5}
-          >
+          </p>
+          <p className="text-sm md:text-base text-muted-foreground/70 max-w-lg mx-auto mb-10">
             Built for busy families who need fewer decisions at the end of the day.
-          </motion.p>
-          <motion.div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-            initial={initialState} animate="visible" variants={fadeUp} custom={3}
-          >
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" className="text-base px-8 h-12 rounded-xl" asChild>
               <Link to="/signup">Start planning for free <ArrowRight className="w-4 h-4 ml-2" /></Link>
             </Button>
             <p className="text-sm text-muted-foreground">No credit card required</p>
-          </motion.div>
+          </div>
         </div>
       </section>
 
