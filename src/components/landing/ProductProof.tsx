@@ -36,7 +36,7 @@ const ProductProof = () => {
       <div className="container max-w-6xl">
         {/* Section header */}
         <motion.div
-          className="text-center mb-14 md:mb-16"
+          className="text-center mb-6 md:mb-8"
           initial={initialState}
           whileInView="visible"
           viewport={viewport}
