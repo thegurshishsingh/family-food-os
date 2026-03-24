@@ -116,6 +116,8 @@ const Landing = () => {
         </div>
       </section>
 
+      <div className="container max-w-5xl px-4"><hr className="border-border/60" /></div>
+
       {/* Value props */}
       <section className="py-12 md:py-20 px-4 bg-card/50 border-y border-border">
         <div className="container max-w-5xl">
