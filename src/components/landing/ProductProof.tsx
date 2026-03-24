@@ -103,7 +103,7 @@ function WeeklyPlanCard({ isMobile, viewport }: { isMobile: boolean; viewport: {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.15em] mb-1">Your Week</p>
-            <h3 className="text-[17px] font-serif font-semibold text-foreground leading-tight">March 10 – 14</h3>
+            <h3 className="text-[17px] font-serif font-semibold text-foreground leading-tight">March 10 – 16</h3>
           </div>
           <div className="flex items-center gap-1.5 pl-3 pr-3.5 py-1.5 rounded-full bg-primary/8 text-primary text-[11px] font-bold border border-primary/15 tracking-wide">
             <TrendingUp className="w-3 h-3" />

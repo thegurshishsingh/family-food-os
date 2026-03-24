@@ -64,6 +64,8 @@ const Landing = () => {
 
       <ProductProof />
 
+      <div className="container max-w-5xl px-4"><hr className="border-border/60" /></div>
+
       {/* How it works */}
       <section className="py-12 md:py-20 px-4">
         <div className="container max-w-5xl">
@@ -114,6 +116,8 @@ const Landing = () => {
         </div>
       </section>
 
+      <div className="container max-w-5xl px-4"><hr className="border-border/60" /></div>
+
       {/* Value props */}
       <section className="py-12 md:py-20 px-4 bg-card/50 border-y border-border">
         <div className="container max-w-5xl">
@@ -152,6 +156,8 @@ const Landing = () => {
           <ComparisonTable />
         </div>
       </section>
+
+      <div className="container max-w-3xl px-4"><hr className="border-border/60" /></div>
 
       {/* Audience callout */}
       <section className="py-12 md:py-20 px-4">
