@@ -64,7 +64,7 @@ const ProductProof = () => {
           <p className="text-center text-lg md:text-xl font-serif font-semibold text-foreground mb-6">
             The 10-second habit that makes every week better than the last.
           </p>
-          <div className="max-w-xl mx-auto">
+          <div className="max-w-2xl mx-auto">
             <DinnerCheckInCard isMobile={isMobile} viewport={viewport} />
           </div>
         </motion.div>
