@@ -54,7 +54,7 @@ const ProductProof = () => {
 
         {/* Dinner Check-In moved FIRST with headline */}
         <motion.div
-          className="mb-10"
+          className="mb-6"
           initial={initialState}
           whileInView="visible"
           viewport={viewport}
