@@ -154,7 +154,7 @@ const Landing = () => {
       </section>
 
       {/* Audience callout */}
-      <section className="py-20 md:py-28 px-4">
+      <section className="py-12 md:py-20 px-4">
         <div className="container max-w-3xl text-center">
           <motion.div initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
             <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-6">
