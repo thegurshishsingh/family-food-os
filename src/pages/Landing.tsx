@@ -115,9 +115,9 @@ const Landing = () => {
       </section>
 
       {/* Value props */}
-      <section className="py-20 md:py-28 px-4 bg-card/50 border-y border-border">
+      <section className="py-12 md:py-20 px-4 bg-card/50 border-y border-border">
         <div className="container max-w-5xl">
-          <motion.div className="text-center mb-16" initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
+          <motion.div className="text-center mb-12" initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
             <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-4">
               Not another recipe app.
             </h2>
