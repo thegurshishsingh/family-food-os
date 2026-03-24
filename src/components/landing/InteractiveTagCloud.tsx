@@ -36,16 +36,18 @@ const InteractiveTagCloud = () => {
         ))}
       </div>
       <AnimatePresence mode="wait">
-        <motion.p
+        <motion.div
           key={selected}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.2 }}
-          className="text-center text-base md:text-lg text-foreground/80 font-medium italic max-w-xl mx-auto mb-10"
+          className="max-w-xl mx-auto mb-10 bg-card border border-border rounded-xl px-4 py-3"
         >
-          "{TAG_EXAMPLES[selected]}"
-        </motion.p>
+          <p className="text-center text-base md:text-lg text-foreground/80 font-medium italic">
+            "{TAG_EXAMPLES[selected]}"
+          </p>
+        </motion.div>
       </AnimatePresence>
     </div>
   );

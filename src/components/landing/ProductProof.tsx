@@ -98,7 +98,7 @@ const ProductProof = () => {
 
 function WeeklyPlanCard({ isMobile, viewport }: { isMobile: boolean; viewport: { once: boolean; amount: number } }) {
   return (
-    <div className="rounded-2xl border border-border/80 bg-card shadow-[0_4px_32px_-8px_hsl(var(--foreground)/0.08),0_1px_3px_0_hsl(var(--foreground)/0.04)] overflow-hidden flex flex-col w-full">
+    <div className="rounded-2xl border border-border/80 bg-card shadow-[0_4px_32px_-8px_hsl(var(--foreground)/0.08),0_1px_3px_0_hsl(var(--foreground)/0.04)] overflow-hidden flex flex-col w-full min-h-[406px]">
       <div className="px-6 pt-5 pb-4 border-b border-border/60 bg-card">
         <div className="flex items-center justify-between">
           <div>
