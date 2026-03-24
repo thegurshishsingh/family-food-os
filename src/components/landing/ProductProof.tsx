@@ -10,6 +10,8 @@ const WEEK_PREVIEW = [
   { day: "Wed", date: "12", mode: "Takeout", meal: "Family sushi takeout", time: "—", modeColor: "bg-accent text-accent-foreground" },
   { day: "Thu", date: "13", mode: "Cook", meal: "Sheet pan salmon", time: "25 min", modeColor: "bg-primary text-primary-foreground" },
   { day: "Fri", date: "14", mode: "Dine Out", meal: "Dinner out", time: "—", modeColor: "bg-warm text-primary-foreground" },
+  { day: "Sat", date: "15", mode: "Cook", meal: "Slow cooker chili", time: "15 min", modeColor: "bg-primary text-primary-foreground" },
+  { day: "Sun", date: "16", mode: "Leftovers", meal: "Leftover chili nachos", time: "10 min", modeColor: "bg-secondary text-secondary-foreground" },
 ];
 
 const CHECKIN_CHIPS = [
