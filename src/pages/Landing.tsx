@@ -33,7 +33,7 @@ const Landing = () => {
       </nav>
 
       {/* Hero */}
-      <section className="pt-28 pb-20 md:pt-44 md:pb-16 px-4">
+      <section className="pt-28 pb-12 md:pt-36 md:pb-14 px-4">
         <div className="container max-w-4xl text-center mx-auto">
           <div>
             <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-sage-light text-primary border border-primary/10">
@@ -65,9 +65,9 @@ const Landing = () => {
       <ProductProof />
 
       {/* How it works */}
-      <section className="py-20 md:py-28 px-4">
+      <section className="py-12 md:py-20 px-4">
         <div className="container max-w-5xl">
-          <motion.div className="text-center mb-16" initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
+          <motion.div className="text-center mb-12" initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
             <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-4">
               How it works
             </h2>
@@ -115,9 +115,9 @@ const Landing = () => {
       </section>
 
       {/* Value props */}
-      <section className="py-20 md:py-28 px-4 bg-card/50 border-y border-border">
+      <section className="py-12 md:py-20 px-4 bg-card/50 border-y border-border">
         <div className="container max-w-5xl">
-          <motion.div className="text-center mb-16" initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
+          <motion.div className="text-center mb-12" initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
             <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-4">
               Not another recipe app.
             </h2>
@@ -154,7 +154,7 @@ const Landing = () => {
       </section>
 
       {/* Audience callout */}
-      <section className="py-20 md:py-28 px-4">
+      <section className="py-12 md:py-20 px-4">
         <div className="container max-w-3xl text-center">
           <motion.div initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
             <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-6">
