@@ -10,6 +10,8 @@ const WEEK_PREVIEW = [
   { day: "Wed", date: "12", mode: "Takeout", meal: "Family sushi takeout", time: "—", modeColor: "bg-accent text-accent-foreground" },
   { day: "Thu", date: "13", mode: "Cook", meal: "Sheet pan salmon", time: "25 min", modeColor: "bg-primary text-primary-foreground" },
   { day: "Fri", date: "14", mode: "Dine Out", meal: "Dinner out", time: "—", modeColor: "bg-warm text-primary-foreground" },
+  { day: "Sat", date: "15", mode: "Cook", meal: "Slow cooker chili", time: "15 min", modeColor: "bg-primary text-primary-foreground" },
+  { day: "Sun", date: "16", mode: "Leftovers", meal: "Leftover chili nachos", time: "10 min", modeColor: "bg-secondary text-secondary-foreground" },
 ];
 
 const CHECKIN_CHIPS = [
@@ -139,7 +141,7 @@ function WeeklyPlanCard({ isMobile, viewport }: { isMobile: boolean; viewport: {
       </div>
       <div className="px-6 py-3 bg-muted/20 border-t border-border/50">
         <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-          <span className="font-medium">3 cook · 1 leftover · 1 out</span>
+          <span className="font-medium">4 cook · 2 leftover · 1 out</span>
           <span className="font-bold text-primary">~2,400 cal avg</span>
         </div>
       </div>
