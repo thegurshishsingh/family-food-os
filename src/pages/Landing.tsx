@@ -157,6 +157,8 @@ const Landing = () => {
         </div>
       </section>
 
+      <div className="container max-w-3xl px-4"><hr className="border-border/60" /></div>
+
       {/* Audience callout */}
       <section className="py-12 md:py-20 px-4">
         <div className="container max-w-3xl text-center">
