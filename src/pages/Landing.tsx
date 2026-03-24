@@ -3,18 +3,11 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChefHat, CalendarDays, ShoppingCart, Repeat, Users, Brain, ArrowRight, CheckCircle2 } from "lucide-react";
 import ProductProof from "@/components/landing/ProductProof";
-
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" as const },
-  }),
-};
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Landing = () => {
+  const { fadeUp, viewport, initialState } = useScrollReveal();
+
   return (
     <div className="min-h-screen bg-background max-w-full overflow-x-hidden">
       {/* Nav */}
@@ -40,34 +33,34 @@ const Landing = () => {
       {/* Hero */}
       <section className="pt-28 pb-10 md:pt-44 md:pb-16 px-4">
         <div className="container max-w-4xl text-center mx-auto">
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}>
+          <motion.div initial={initialState} animate="visible" variants={fadeUp} custom={0}>
             <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-sage-light text-primary border border-primary/10">
               The family food system that learns with you every week
             </span>
           </motion.div>
           <motion.h1
             className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-semibold tracking-tight text-foreground leading-[1.1] mb-6"
-            initial="hidden" animate="visible" variants={fadeUp} custom={1}
+            initial={initialState} animate="visible" variants={fadeUp} custom={1}
           >
             Plan your real week{" "}
             <span className="text-primary">of food.</span>
           </motion.h1>
           <motion.p
             className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3 leading-relaxed"
-            initial="hidden" animate="visible" variants={fadeUp} custom={2}
+            initial={initialState} animate="visible" variants={fadeUp} custom={2}
           >
             Meals, takeout, leftovers, and groceries. One smart weekly plan
             built around your family's real life — not an ideal one.
           </motion.p>
           <motion.p
             className="text-sm md:text-base text-muted-foreground/70 max-w-lg mx-auto mb-10"
-            initial="hidden" animate="visible" variants={fadeUp} custom={2.5}
+            initial={initialState} animate="visible" variants={fadeUp} custom={2.5}
           >
             Built for busy families who need fewer decisions at the end of the day.
           </motion.p>
           <motion.div
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
-            initial="hidden" animate="visible" variants={fadeUp} custom={3}
+            initial={initialState} animate="visible" variants={fadeUp} custom={3}
           >
             <Button size="lg" className="text-base px-8 h-12 rounded-xl" asChild>
               <Link to="/signup">Start planning for free <ArrowRight className="w-4 h-4 ml-2" /></Link>
@@ -82,7 +75,7 @@ const Landing = () => {
       {/* How it works */}
       <section className="py-20 md:py-28 px-4">
         <div className="container max-w-5xl">
-          <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
+          <motion.div className="text-center mb-16" initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
             <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-4">
               How it works
             </h2>
@@ -115,7 +108,7 @@ const Landing = () => {
               <motion.div
                 key={item.step}
                 className="relative p-5 sm:p-8 rounded-2xl bg-card border border-border"
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i + 1}
+                initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={i + 1}
               >
                 <span className="text-5xl font-serif font-bold text-primary/10 absolute top-4 right-6">{item.step}</span>
                 <div className="w-12 h-12 rounded-xl bg-sage-light flex items-center justify-center mb-5">
@@ -132,7 +125,7 @@ const Landing = () => {
       {/* Value props */}
       <section className="py-20 md:py-28 px-4 bg-card/50 border-y border-border">
         <div className="container max-w-5xl">
-          <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
+          <motion.div className="text-center mb-16" initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
             <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-4">
               Not another recipe app.
             </h2>
@@ -151,7 +144,7 @@ const Landing = () => {
               <motion.div
                 key={item.title}
                 className="flex gap-5 p-6 rounded-xl bg-background border border-border"
-                initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={i + 1}
+                initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={i + 1}
               >
                 <div className="w-10 h-10 rounded-lg bg-warm-light flex items-center justify-center shrink-0 mt-1">
                   <item.icon className="w-5 h-5 text-accent" />
@@ -169,7 +162,7 @@ const Landing = () => {
       {/* Audience callout */}
       <section className="py-20 md:py-28 px-4">
         <div className="container max-w-3xl text-center">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={0}>
+          <motion.div initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
             <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-6">
               Built for families like yours
             </h2>
