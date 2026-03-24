@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChefHat, CalendarDays, ShoppingCart, Repeat, Users, Brain, ArrowRight, CheckCircle2 } from "lucide-react";
 import ProductProof from "@/components/landing/ProductProof";
+import ComparisonTable from "@/components/landing/ComparisonTable";
+import InteractiveTagCloud from "@/components/landing/InteractiveTagCloud";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Landing = () => {
@@ -35,7 +37,7 @@ const Landing = () => {
         <div className="container max-w-4xl text-center mx-auto">
           <div>
             <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-sage-light text-primary border border-primary/10">
-              The family food system that learns with you every week
+              Not a meal planner. A food operating system.
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-semibold tracking-tight text-foreground leading-[1.1] mb-6">
@@ -43,18 +45,20 @@ const Landing = () => {
             <span className="text-primary">of food.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3 leading-relaxed">
-            Meals, takeout, leftovers, and groceries. One smart weekly plan
-            built around your family's real life — not an ideal one.
+            Most apps give you recipes. Family Food OS learns your family — takeout nights, picky eaters, busy Wednesdays — and gets smarter every week.
           </p>
           <p className="text-sm md:text-base text-muted-foreground/70 max-w-lg mx-auto mb-10">
-            Built for busy families who need fewer decisions at the end of the day.
+            Joins 5 minutes. Learns forever.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" className="text-base px-8 h-12 rounded-xl" asChild>
               <Link to="/signup">Start planning for free <ArrowRight className="w-4 h-4 ml-2" /></Link>
             </Button>
-            <p className="text-sm text-muted-foreground">No credit card required</p>
           </div>
+          {/* Social proof */}
+          <p className="text-sm text-muted-foreground/60 mt-5">
+            Joined by 200+ families in early access · No credit card required
+          </p>
         </div>
       </section>
 
@@ -84,7 +88,7 @@ const Landing = () => {
                 step: "02",
                 icon: Brain,
                 title: "Get your weekly plan",
-                desc: "AI generates a realistic mix of home-cooked meals, leftovers, takeout, and easy fallbacks — tailored to your actual week.",
+                desc: "The system builds your week — a realistic mix of cook nights, leftover nights, and takeout slots based on your actual schedule, energy, and what your family likes.",
               },
               {
                 step: "03",
@@ -144,6 +148,8 @@ const Landing = () => {
               </motion.div>
             ))}
           </div>
+
+          <ComparisonTable />
         </div>
       </section>
 
@@ -154,31 +160,22 @@ const Landing = () => {
             <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-6">
               Built for families like yours
             </h2>
-            <div className="flex flex-wrap justify-center gap-2.5 mb-8">
-              {[
-                "Newborn at home",
-                "Toddler phase",
-                "Picky eaters",
-                "Sports week",
-                "Guests visiting",
-                "One parent traveling",
-                "Budget-tight week",
-                "High-protein goals",
-                "Low-cleanup mode",
-              ].map((tag) => (
-                <span key={tag} className="px-4 py-2 rounded-full text-sm bg-sage-light text-primary border border-primary/10">
-                  {tag}
-                </span>
-              ))}
-            </div>
+          </motion.div>
+
+          <InteractiveTagCloud />
+
+          <motion.div initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={1}>
             <p className="text-muted-foreground text-lg leading-relaxed mb-10">
               Every week is different. Family Food OS adapts your plan based on
               what's actually happening in your household — no judgment, just
               practical help.
             </p>
             <Button size="lg" className="text-base px-8 h-12 rounded-xl" asChild>
-              <Link to="/signup">Get your first weekly plan <ArrowRight className="w-4 h-4 ml-2" /></Link>
+              <Link to="/signup">Start your first real week of food <ArrowRight className="w-4 h-4 ml-2" /></Link>
             </Button>
+            <p className="text-sm text-muted-foreground/60 mt-4">
+              Free to start. No credit card. Your first plan is ready in 5 minutes.
+            </p>
           </motion.div>
         </div>
       </section>
