@@ -33,7 +33,7 @@ const Landing = () => {
       </nav>
 
       {/* Hero */}
-      <section className="pt-28 pb-20 md:pt-44 md:pb-16 px-4">
+      <section className="pt-28 pb-12 md:pt-36 md:pb-14 px-4">
         <div className="container max-w-4xl text-center mx-auto">
           <div>
             <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-sage-light text-primary border border-primary/10">
