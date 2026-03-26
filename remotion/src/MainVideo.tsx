@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill } from "remotion";
+import { AbsoluteFill, Audio, staticFile } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { wipe } from "@remotion/transitions/wipe";
@@ -13,8 +13,10 @@ import { Scene5Close } from "./scenes/Scene5Close";
 export const MainVideo: React.FC = () => {
   return (
     <AbsoluteFill>
+      {/* Background music */}
+      <Audio src={staticFile("audio/bg-music.wav")} volume={0.5} />
+
       <TransitionSeries>
-        {/* Scene 0: Hook - 30 frames */}
         <TransitionSeries.Sequence durationInFrames={50}>
           <Scene0Hook />
         </TransitionSeries.Sequence>
@@ -24,7 +26,6 @@ export const MainVideo: React.FC = () => {
           timing={linearTiming({ durationInFrames: 20 })}
         />
 
-        {/* Scene 1: Problem - 120 frames */}
         <TransitionSeries.Sequence durationInFrames={140}>
           <Scene1Problem />
         </TransitionSeries.Sequence>
@@ -34,7 +35,6 @@ export const MainVideo: React.FC = () => {
           timing={linearTiming({ durationInFrames: 30 })}
         />
 
-        {/* Scene 2: Shift - 120 frames */}
         <TransitionSeries.Sequence durationInFrames={145}>
           <Scene2Shift />
         </TransitionSeries.Sequence>
@@ -44,7 +44,6 @@ export const MainVideo: React.FC = () => {
           timing={linearTiming({ durationInFrames: 25 })}
         />
 
-        {/* Scene 3: Weekly Plan - 210 frames */}
         <TransitionSeries.Sequence durationInFrames={240}>
           <Scene3WeeklyPlan />
         </TransitionSeries.Sequence>
@@ -54,7 +53,6 @@ export const MainVideo: React.FC = () => {
           timing={linearTiming({ durationInFrames: 30 })}
         />
 
-        {/* Scene 4: Learning - 150 frames */}
         <TransitionSeries.Sequence durationInFrames={175}>
           <Scene4Learning />
         </TransitionSeries.Sequence>
@@ -64,7 +62,6 @@ export const MainVideo: React.FC = () => {
           timing={linearTiming({ durationInFrames: 25 })}
         />
 
-        {/* Scene 5: Close - 150 frames */}
         <TransitionSeries.Sequence durationInFrames={175}>
           <Scene5Close />
         </TransitionSeries.Sequence>

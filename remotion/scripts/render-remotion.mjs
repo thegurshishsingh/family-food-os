@@ -27,14 +27,14 @@ const composition = await selectComposition({
   puppeteerInstance: browser,
 });
 
-console.log(`Rendering ${composition.durationInFrames} frames at ${composition.fps}fps...`);
+console.log(`Rendering ${composition.durationInFrames} frames at ${composition.fps}fps (with audio)...`);
 await renderMedia({
   composition,
   serveUrl: bundled,
   codec: "h264",
-  outputLocation: "/mnt/documents/familyfoodOS-product-video.mp4",
+  outputLocation: "/mnt/documents/familyfoodOS-product-video-v2.mp4",
   puppeteerInstance: browser,
-  muted: true,
+  muted: false,
   concurrency: 1,
   crf: 18,
   onProgress: ({ progress }) => {
@@ -44,5 +44,5 @@ await renderMedia({
   },
 });
 
-console.log("Done! Output: /mnt/documents/familyfoodOS-product-video.mp4");
+console.log("Done! Output: /mnt/documents/familyfoodOS-product-video-v2.mp4");
 await browser.close({ silent: false });
