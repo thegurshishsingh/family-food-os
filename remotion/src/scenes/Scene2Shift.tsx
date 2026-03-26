@@ -36,7 +36,7 @@ export const Scene2Shift: React.FC = () => {
     <AbsoluteFill style={{ backgroundColor: "#FAF8F5" }}>
       <FloatingBlobs opacity={0.2} />
       <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-        <div style={{ width: 850, textAlign: "center" }}>
+        <div style={{ width: 920, textAlign: "center" }}>
           {/* Eyebrow */}
           <div style={{ opacity: eyebrowOp, transform: `translateY(${eyebrowY}px)`, marginBottom: 20 }}>
             <span style={{
@@ -89,32 +89,62 @@ export const Scene2Shift: React.FC = () => {
             })}
           </div>
 
-          {/* Tags */}
-          <div style={{ display: "flex", flexWrap: "wrap" as const, justifyContent: "center", gap: 14 }}>
-            {TAGS.map((tag, i) => {
-              const delay = 60 + i * 18;
-              const prog = spring({ frame: frame - delay, fps, config: { damping: 14, stiffness: 160 } });
-              const op = interpolate(prog, [0, 1], [0, 1]);
-              const y = interpolate(prog, [0, 1], [20, 0]);
-              return (
-                <div
-                  key={i}
-                  style={{
-                    opacity: op,
-                    transform: `translateY(${y}px)`,
-                    background: SAGE_LIGHT,
-                    color: SAGE_DARK,
-                    fontFamily: dmSans,
-                    fontSize: 24,
-                    fontWeight: 600,
-                    padding: "14px 28px",
-                    borderRadius: 50,
-                  }}
-                >
-                  {tag}
-                </div>
-              );
-            })}
+          {/* Tags — two rows, spread wide, slower stagger */}
+          <div style={{ display: "flex", flexDirection: "column" as const, gap: 16, alignItems: "center" }}>
+            {/* Row 1: first 3 tags */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 16, width: "100%" }}>
+              {TAGS.slice(0, 3).map((tag, i) => {
+                const delay = 55 + i * 24;
+                const prog = spring({ frame: frame - delay, fps, config: { damping: 16, stiffness: 140 } });
+                const op = interpolate(prog, [0, 1], [0, 1]);
+                const y = interpolate(prog, [0, 1], [24, 0]);
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      opacity: op,
+                      transform: `translateY(${y}px)`,
+                      background: SAGE_LIGHT,
+                      color: SAGE_DARK,
+                      fontFamily: dmSans,
+                      fontSize: 26,
+                      fontWeight: 600,
+                      padding: "16px 32px",
+                      borderRadius: 50,
+                    }}
+                  >
+                    {tag}
+                  </div>
+                );
+              })}
+            </div>
+            {/* Row 2: last 2 tags */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
+              {TAGS.slice(3).map((tag, i) => {
+                const delay = 55 + (i + 3) * 24;
+                const prog = spring({ frame: frame - delay, fps, config: { damping: 16, stiffness: 140 } });
+                const op = interpolate(prog, [0, 1], [0, 1]);
+                const y = interpolate(prog, [0, 1], [24, 0]);
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      opacity: op,
+                      transform: `translateY(${y}px)`,
+                      background: SAGE_LIGHT,
+                      color: SAGE_DARK,
+                      fontFamily: dmSans,
+                      fontSize: 26,
+                      fontWeight: 600,
+                      padding: "16px 32px",
+                      borderRadius: 50,
+                    }}
+                  >
+                    {tag}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </AbsoluteFill>
