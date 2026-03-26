@@ -51,7 +51,7 @@ await browser.close({ silent: false });
 
 // Mux audio with system ffmpeg
 const audioPath = path.resolve(__dirname, "../public/audio/bg-music.mp3");
-const outputPath = "/mnt/documents/familyfoodOS-product-video-v3.mp4";
+const outputPath = "/mnt/documents/familyfoodOS-product-video-v4.mp4";
 
 console.log("Muxing audio with system ffmpeg...");
 execSync(
