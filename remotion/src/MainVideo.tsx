@@ -14,7 +14,7 @@ export const MainVideo: React.FC = () => {
   return (
     <AbsoluteFill>
       {/* Background music */}
-      <Audio src={staticFile("audio/bg-music.wav")} volume={0.5} />
+      <Audio src={staticFile("audio/bg-music.mp3")} volume={0.5} />
 
       <TransitionSeries>
         <TransitionSeries.Sequence durationInFrames={50}>
@@ -35,7 +35,7 @@ export const MainVideo: React.FC = () => {
           timing={linearTiming({ durationInFrames: 30 })}
         />
 
-        <TransitionSeries.Sequence durationInFrames={145}>
+        <TransitionSeries.Sequence durationInFrames={175}>
           <Scene2Shift />
         </TransitionSeries.Sequence>
 
