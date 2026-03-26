@@ -2,6 +2,7 @@ import { bundle } from "@remotion/bundler";
 import { renderMedia, selectComposition, openBrowser } from "@remotion/renderer";
 import path from "path";
 import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -27,22 +28,35 @@ const composition = await selectComposition({
   puppeteerInstance: browser,
 });
 
-console.log(`Rendering ${composition.durationInFrames} frames at ${composition.fps}fps (with audio)...`);
+const videoOnly = "/tmp/video-only.mp4";
+
+console.log(`Rendering ${composition.durationInFrames} frames (video only)...`);
 await renderMedia({
   composition,
   serveUrl: bundled,
   codec: "h264",
-  outputLocation: "/mnt/documents/familyfoodOS-product-video-v2.mp4",
+  outputLocation: videoOnly,
   puppeteerInstance: browser,
-  muted: false,
+  muted: true,
   concurrency: 1,
   crf: 18,
   onProgress: ({ progress }) => {
-    if (Math.round(progress * 100) % 10 === 0) {
+    if (Math.round(progress * 100) % 20 === 0) {
       console.log(`Progress: ${Math.round(progress * 100)}%`);
     }
   },
 });
 
-console.log("Done! Output: /mnt/documents/familyfoodOS-product-video-v2.mp4");
 await browser.close({ silent: false });
+
+// Mux audio with system ffmpeg
+const audioPath = path.resolve(__dirname, "../public/audio/bg-music.wav");
+const outputPath = "/mnt/documents/familyfoodOS-product-video-v2.mp4";
+
+console.log("Muxing audio with system ffmpeg...");
+execSync(
+  `ffmpeg -y -i "${videoOnly}" -i "${audioPath}" -c:v copy -c:a aac -b:a 192k -filter:a "volume=0.4" -shortest "${outputPath}"`,
+  { stdio: "inherit" }
+);
+
+console.log(`Done! Output: ${outputPath}`);
