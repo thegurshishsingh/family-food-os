@@ -43,7 +43,7 @@ const CelebrationBurst = () => {
   );
 };
 
-const WeeklyDinnerProgress = ({ days, checkedInDays }: WeeklyDinnerProgressProps) => {
+const WeeklyDinnerProgress = ({ days, checkedInDays, onRetroCheckin }: WeeklyDinnerProgressProps) => {
   const jsDay = new Date().getDay();
   const todayDow = jsDay === 0 ? 6 : jsDay - 1;
   const prevCountRef = useRef<number | null>(null);
