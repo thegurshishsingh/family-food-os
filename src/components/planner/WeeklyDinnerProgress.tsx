@@ -1,12 +1,13 @@
 import { useMemo, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, Sparkles } from "lucide-react";
+import { CheckCircle2, Sparkles, Plus } from "lucide-react";
 import { type PlanDay } from "./types";
 
 interface WeeklyDinnerProgressProps {
   days: PlanDay[];
   checkedInDays: Set<string>;
+  onRetroCheckin?: (day: PlanDay) => void;
 }
 
 const SHORT_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -42,7 +43,7 @@ const CelebrationBurst = () => {
   );
 };
 
-const WeeklyDinnerProgress = ({ days, checkedInDays }: WeeklyDinnerProgressProps) => {
+const WeeklyDinnerProgress = ({ days, checkedInDays, onRetroCheckin }: WeeklyDinnerProgressProps) => {
   const jsDay = new Date().getDay();
   const todayDow = jsDay === 0 ? 6 : jsDay - 1;
   const prevCountRef = useRef<number | null>(null);
@@ -143,10 +144,17 @@ const WeeklyDinnerProgress = ({ days, checkedInDays }: WeeklyDinnerProgressProps
               const isToday = i === todayDow;
               const justCompleted = justCompletedDay === i;
 
+              const isPast = i < todayDow;
+              const canRetroCheckin = isPast && !isComplete && !!day && !!onRetroCheckin;
+
               return (
                 <div key={i} className="flex flex-col items-center gap-2 flex-1 min-w-0">
                   <div className="relative">
-                    <motion.div
+                    <motion.button
+                      type="button"
+                      disabled={!canRetroCheckin}
+                      onClick={() => canRetroCheckin && day && onRetroCheckin(day)}
+                      title={canRetroCheckin ? `Check in for ${label}` : undefined}
                       className={`
                         rounded-full border-2 flex items-center justify-center transition-colors duration-300
                         ${isToday ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 sm:w-5 sm:h-5"}
@@ -155,6 +163,8 @@ const WeeklyDinnerProgress = ({ days, checkedInDays }: WeeklyDinnerProgressProps
                             ? "bg-primary border-primary"
                             : isToday
                             ? "border-primary/50 bg-primary/10"
+                            : canRetroCheckin
+                            ? "border-primary/30 bg-primary/5 cursor-pointer hover:border-primary/60 hover:bg-primary/10 active:scale-110"
                             : "border-border bg-background"
                         }
                       `}
@@ -174,7 +184,10 @@ const WeeklyDinnerProgress = ({ days, checkedInDays }: WeeklyDinnerProgressProps
                           <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary-foreground" />
                         </motion.div>
                       )}
-                    </motion.div>
+                      {canRetroCheckin && (
+                        <Plus className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-primary/40" />
+                      )}
+                    </motion.button>
                     <AnimatePresence>
                       {justCompleted && (
                         <motion.div
@@ -193,6 +206,8 @@ const WeeklyDinnerProgress = ({ days, checkedInDays }: WeeklyDinnerProgressProps
                         ? "font-semibold text-foreground"
                         : isComplete
                         ? "font-medium text-primary"
+                        : canRetroCheckin
+                        ? "font-medium text-primary/60 cursor-pointer"
                         : "text-muted-foreground"
                     }`}
                   >
