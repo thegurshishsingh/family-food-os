@@ -7,6 +7,7 @@ import { type PlanDay } from "./types";
 interface WeeklyDinnerProgressProps {
   days: PlanDay[];
   checkedInDays: Set<string>;
+  onRetroCheckin?: (day: PlanDay) => void;
 }
 
 const SHORT_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
