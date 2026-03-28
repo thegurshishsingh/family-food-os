@@ -2,6 +2,7 @@ import { useMemo, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2, Sparkles, Plus } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { type PlanDay } from "./types";
 
 interface WeeklyDinnerProgressProps {
