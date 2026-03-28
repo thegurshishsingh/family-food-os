@@ -305,11 +305,14 @@ const Planner = () => {
       const { data, error } = await supabase.functions.invoke("swap-meal", {
         body: { plan_day_id: day.id, household_id: household.id },
       });
+      console.log("[SwapMeal] response data:", data, "error:", error);
       if (error) throw error;
       if (data?.suggestions?.length) {
+        console.log("[SwapMeal] setting suggestions:", data.suggestions.length);
         setSwapSuggestions(data.suggestions);
         setSwapDialogOpen(true);
       } else {
+        console.log("[SwapMeal] no suggestions in data:", data);
         toast({ variant: "destructive", title: "No suggestions returned" });
       }
     } catch (err: any) {
