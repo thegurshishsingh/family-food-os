@@ -2,6 +2,7 @@ import { useMemo, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2, Sparkles, Plus } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { type PlanDay } from "./types";
 
 interface WeeklyDinnerProgressProps {
@@ -150,44 +151,54 @@ const WeeklyDinnerProgress = ({ days, checkedInDays, onRetroCheckin }: WeeklyDin
               return (
                 <div key={i} className="flex flex-col items-center gap-2 flex-1 min-w-0">
                   <div className="relative">
-                    <motion.button
-                      type="button"
-                      disabled={!canRetroCheckin}
-                      onClick={() => canRetroCheckin && day && onRetroCheckin(day)}
-                      title={canRetroCheckin ? `Check in for ${label}` : undefined}
-                      className={`
-                        rounded-full border-2 flex items-center justify-center transition-colors duration-300
-                        ${isToday ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 sm:w-5 sm:h-5"}
-                        ${
-                          isComplete
-                            ? "bg-primary border-primary"
-                            : isToday
-                            ? "border-primary/50 bg-primary/10"
-                            : canRetroCheckin
-                            ? "border-primary/30 bg-primary/5 cursor-pointer hover:border-primary/60 hover:bg-primary/10 active:scale-110"
-                            : "border-border bg-background"
-                        }
-                      `}
-                      initial={false}
-                      animate={
-                        justCompleted
-                          ? { scale: [1, 1.4, 1], transition: { duration: 0.4 } }
-                          : {}
-                      }
-                    >
-                      {isComplete && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                        >
-                          <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary-foreground" />
-                        </motion.div>
-                      )}
-                      {canRetroCheckin && (
-                        <Plus className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-primary/40" />
-                      )}
-                    </motion.button>
+                    <TooltipProvider delayDuration={300}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <motion.button
+                            type="button"
+                            disabled={!canRetroCheckin}
+                            onClick={() => canRetroCheckin && day && onRetroCheckin(day)}
+                            className={`
+                              rounded-full border-2 flex items-center justify-center transition-colors duration-300
+                              ${isToday ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 sm:w-5 sm:h-5"}
+                              ${
+                                isComplete
+                                  ? "bg-primary border-primary"
+                                  : isToday
+                                  ? "border-primary/50 bg-primary/10"
+                                  : canRetroCheckin
+                                  ? "border-primary/30 bg-primary/5 cursor-pointer hover:border-primary/60 hover:bg-primary/10 active:scale-110"
+                                  : "border-border bg-background"
+                              }
+                            `}
+                            initial={false}
+                            animate={
+                              justCompleted
+                                ? { scale: [1, 1.4, 1], transition: { duration: 0.4 } }
+                                : {}
+                            }
+                          >
+                            {isComplete && (
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                              >
+                                <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary-foreground" />
+                              </motion.div>
+                            )}
+                            {canRetroCheckin && (
+                              <Plus className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-primary/40" />
+                            )}
+                          </motion.button>
+                        </TooltipTrigger>
+                        {canRetroCheckin && (
+                          <TooltipContent side="top" className="text-xs">
+                            Tap to check in for {label}
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
                     <AnimatePresence>
                       {justCompleted && (
                         <motion.div
