@@ -690,6 +690,20 @@ const Planner = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {household && (
+        <RetroCheckInDialog
+          open={!!retroCheckinDay}
+          onOpenChange={(o) => { if (!o) setRetroCheckinDay(null); }}
+          day={retroCheckinDay}
+          householdId={household.id}
+          onCheckedIn={(dayId) => {
+            setCheckedInDays((prev) => new Set([...prev, dayId]));
+            setRetroCheckinDay(null);
+            toast({ title: `${DAYS[retroCheckinDay?.day_of_week ?? 0]} checked in!`, description: "Retroactive check-in recorded." });
+          }}
+        />
+      )}
     </AppLayout>
   );
 };
