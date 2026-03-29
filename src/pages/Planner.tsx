@@ -21,6 +21,7 @@ import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
 import WeeklyPlanSetup, { type PlanSetupData, type SavedMealOption } from "@/components/planner/WeeklyPlanSetup";
 import PlanTypeChooser from "@/components/planner/PlanTypeChooser";
+import RetroCheckInDialog from "@/components/planner/RetroCheckInDialog";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
 
 type PlanType = "full_week" | "partial_week" | null;
@@ -49,6 +50,7 @@ const Planner = () => {
   const [showReplanSetup, setShowReplanSetup] = useState(false);
   const [showReplanConfirm, setShowReplanConfirm] = useState(false);
   const [generationMessage, setGenerationMessage] = useState("");
+  const [retroCheckinDay, setRetroCheckinDay] = useState<PlanDay | null>(null);
 
   // Smart week detection state
   const [showPlanTypeChooser, setShowPlanTypeChooser] = useState(false);
@@ -534,20 +536,8 @@ const Planner = () => {
         {/* 2. Weekly Dinner Progress */}
         {plan && days.length > 0 && (
           <div className="mb-4">
-            <WeeklyDinnerProgress days={days} checkedInDays={checkedInDays} onRetroCheckin={async (day) => {
-              if (!household) return;
-              const { error } = await supabase.from("evening_checkins").insert({
-                plan_day_id: day.id,
-                household_id: household.id,
-                effort_level: "easy",
-                tags: ["retro_checkin"],
-              });
-              if (!error) {
-                setCheckedInDays((prev) => new Set([...prev, day.id]));
-                toast({ title: `${DAYS[day.day_of_week]} checked in!`, description: "Retroactive check-in recorded." });
-              } else {
-                toast({ variant: "destructive", title: "Check-in failed", description: error.message });
-              }
+            <WeeklyDinnerProgress days={days} checkedInDays={checkedInDays} onRetroCheckin={(day) => {
+              setRetroCheckinDay(day);
             }} />
           </div>
         )}
@@ -700,6 +690,20 @@ const Planner = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {household && (
+        <RetroCheckInDialog
+          open={!!retroCheckinDay}
+          onOpenChange={(o) => { if (!o) setRetroCheckinDay(null); }}
+          day={retroCheckinDay}
+          householdId={household.id}
+          onCheckedIn={(dayId) => {
+            setCheckedInDays((prev) => new Set([...prev, dayId]));
+            setRetroCheckinDay(null);
+            toast({ title: `${DAYS[retroCheckinDay?.day_of_week ?? 0]} checked in!`, description: "Retroactive check-in recorded." });
+          }}
+        />
+      )}
     </AppLayout>
   );
 };
