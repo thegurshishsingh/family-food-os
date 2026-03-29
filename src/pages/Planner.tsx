@@ -536,20 +536,8 @@ const Planner = () => {
         {/* 2. Weekly Dinner Progress */}
         {plan && days.length > 0 && (
           <div className="mb-4">
-            <WeeklyDinnerProgress days={days} checkedInDays={checkedInDays} onRetroCheckin={async (day) => {
-              if (!household) return;
-              const { error } = await supabase.from("evening_checkins").insert({
-                plan_day_id: day.id,
-                household_id: household.id,
-                effort_level: "easy",
-                tags: ["retro_checkin"],
-              });
-              if (!error) {
-                setCheckedInDays((prev) => new Set([...prev, day.id]));
-                toast({ title: `${DAYS[day.day_of_week]} checked in!`, description: "Retroactive check-in recorded." });
-              } else {
-                toast({ variant: "destructive", title: "Check-in failed", description: error.message });
-              }
+            <WeeklyDinnerProgress days={days} checkedInDays={checkedInDays} onRetroCheckin={(day) => {
+              setRetroCheckinDay(day);
             }} />
           </div>
         )}
