@@ -50,6 +50,7 @@ const Planner = () => {
   const [showReplanSetup, setShowReplanSetup] = useState(false);
   const [showReplanConfirm, setShowReplanConfirm] = useState(false);
   const [generationMessage, setGenerationMessage] = useState("");
+  const [retroCheckinDay, setRetroCheckinDay] = useState<PlanDay | null>(null);
 
   // Smart week detection state
   const [showPlanTypeChooser, setShowPlanTypeChooser] = useState(false);
