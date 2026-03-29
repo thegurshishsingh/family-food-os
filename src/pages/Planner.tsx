@@ -21,6 +21,7 @@ import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
 import WeeklyPlanSetup, { type PlanSetupData, type SavedMealOption } from "@/components/planner/WeeklyPlanSetup";
 import PlanTypeChooser from "@/components/planner/PlanTypeChooser";
+import RetroCheckInDialog from "@/components/planner/RetroCheckInDialog";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
 
 type PlanType = "full_week" | "partial_week" | null;
