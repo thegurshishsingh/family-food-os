@@ -63,12 +63,17 @@ const Landing = () => {
           </p>
         </div>
         {/* Inline Dinner Check-In demo */}
-        <div className="max-w-2xl mx-auto mt-12">
+        <motion.div
+          className="max-w-2xl mx-auto mt-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5, ease: "easeOut" }}
+        >
           <p className="text-center text-sm text-muted-foreground mb-4">
             After every dinner, it learns. Here's what that looks like.
           </p>
           <DinnerCheckInPreview />
-        </div>
+        </motion.div>
       </section>
 
       <ProductProof />
