@@ -56,6 +56,14 @@ const Landing = () => {
             Families save 4+ hours of dinner decisions every week · No credit card required
           </p>
         </div>
+        {/* Inline Dinner Check-In demo */}
+        <div className="max-w-2xl mx-auto mt-12">
+          <p className="text-center text-sm text-muted-foreground mb-4">
+            After every dinner, it learns. Here's what that looks like.
+          </p>
+          <DinnerCheckInPreview />
+        </div>
+        </div>
       </section>
 
       <ProductProof />
