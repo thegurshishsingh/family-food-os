@@ -177,7 +177,7 @@ const Landing = () => {
 
           <motion.div initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={1}>
             <p className="text-muted-foreground text-lg leading-relaxed mb-10">
-              Every week is different. Family Food OS adapts your plan based on
+              Every week is different. Family Food OS adapts your dinner plan based on
               what's actually happening in your household — no judgment, just
               practical help.
             </p>

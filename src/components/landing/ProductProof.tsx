@@ -48,7 +48,7 @@ const ProductProof = () => {
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
             Most meal apps stop at planning. Family Food OS keeps learning after
-            dinner, so each week fits your family better.
+            dinner, so each week's dinners fit your family better.
           </p>
         </motion.div>
 
