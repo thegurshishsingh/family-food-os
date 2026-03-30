@@ -52,6 +52,11 @@ const Landing = () => {
             5 minutes to set up. Smarter every week after that.
           </p>
 ...
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button size="lg" className="text-base px-8 h-12 rounded-xl" asChild>
+              <Link to="/signup">Start planning for free <ArrowRight className="w-4 h-4 ml-2" /></Link>
+            </Button>
+          </div>
           {/* Social proof */}
           <p className="text-sm text-muted-foreground/60 mt-5">
             Families save 4+ hours of dinner decisions every week · No credit card required
@@ -63,7 +68,6 @@ const Landing = () => {
             After every dinner, it learns. Here's what that looks like.
           </p>
           <DinnerCheckInPreview />
-        </div>
         </div>
       </section>
 
