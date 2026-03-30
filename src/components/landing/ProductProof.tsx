@@ -52,23 +52,6 @@ const ProductProof = () => {
           </p>
         </motion.div>
 
-        {/* Dinner Check-In moved FIRST with headline */}
-        <motion.div
-          className="mb-6"
-          initial={initialState}
-          whileInView="visible"
-          viewport={viewport}
-          variants={fadeUp}
-          custom={1}
-        >
-          <p className="text-center text-lg md:text-xl font-serif font-semibold text-foreground mb-6">
-            The 10-second habit that makes every week better than the last.
-          </p>
-          <div className="max-w-2xl mx-auto">
-            <DinnerCheckInCard isMobile={isMobile} viewport={viewport} />
-          </div>
-        </motion.div>
-
         {/* Weekly Planner Preview */}
         <motion.div
           initial={initialState}
