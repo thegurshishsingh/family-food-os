@@ -14,19 +14,6 @@ const WEEK_PREVIEW = [
   { day: "Sun", date: "16", mode: "Leftovers", meal: "Leftover chili nachos", time: "10 min", modeColor: "bg-secondary text-secondary-foreground" },
 ];
 
-const CHECKIN_CHIPS = [
-  { label: "Cooked it", active: true },
-  { label: "Ordered out instead", active: false },
-  { label: "Kids liked it", active: true },
-  { label: "Too much work", active: false },
-  { label: "Great leftovers", active: false },
-];
-
-const LEARNINGS = [
-  { icon: CalendarDays, text: "Wednesdays often become takeout" },
-  { icon: Utensils, text: "Kids prefer low-spice meals" },
-  { icon: Clock, text: "Thursdays should stay under 25 min" },
-];
 
 const ProductProof = () => {
   const { fadeUp, viewport, initialState, isMobile } = useScrollReveal();
