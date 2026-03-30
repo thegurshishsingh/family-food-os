@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { CalendarDays, Sparkles, TrendingUp, Clock, Utensils, Check, ArrowRight } from "lucide-react";
+import { TrendingUp, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
