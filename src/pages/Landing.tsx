@@ -37,27 +37,23 @@ const Landing = () => {
         <div className="container max-w-4xl text-center mx-auto">
           <div>
             <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-sage-light text-primary border border-primary/10">
-              Not a meal planner. A food operating system.
+              Built to learn your family. Not just feed them recipes.
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-semibold tracking-tight text-foreground leading-[1.1] mb-6">
-            Plan your real week{" "}
-            <span className="text-primary">of food.</span>
+            Dinner, <span className="text-primary">handled.</span>{" "}
+            Every single week.
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3 leading-relaxed">
-            Most apps give you recipes. Family Food OS learns your family — takeout nights, picky eaters, busy Wednesdays — and gets smarter every week.
+            Most families spend 30 minutes every night figuring out dinner. Family Food OS learns your family and handles it for you — automatically.
           </p>
           <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto mb-10">
             5 minutes to set up. Smarter every week after that.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" className="text-base px-8 h-12 rounded-xl" asChild>
-              <Link to="/signup">Start planning for free <ArrowRight className="w-4 h-4 ml-2" /></Link>
-            </Button>
-          </div>
+...
           {/* Social proof */}
           <p className="text-sm text-muted-foreground/60 mt-5">
-            Joined by 200+ families in early access · No credit card required
+            Families save 4+ hours of dinner decisions every week · No credit card required
           </p>
         </div>
       </section>
