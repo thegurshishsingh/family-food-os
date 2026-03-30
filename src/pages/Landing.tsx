@@ -5,6 +5,7 @@ import { ChefHat, CalendarDays, ShoppingCart, Repeat, Users, Brain, ArrowRight, 
 import ProductProof from "@/components/landing/ProductProof";
 import ComparisonTable from "@/components/landing/ComparisonTable";
 import InteractiveTagCloud from "@/components/landing/InteractiveTagCloud";
+import DinnerCheckInPreview from "@/components/landing/DinnerCheckInPreview";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Landing = () => {
