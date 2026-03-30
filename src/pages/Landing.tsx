@@ -131,7 +131,7 @@ const Landing = () => {
               Not another recipe app.
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-              This is a weekly food operating system built for how families actually eat.
+              This is a weekly dinner system built for how families actually eat.
             </p>
           </motion.div>
 
