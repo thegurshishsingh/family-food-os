@@ -9,17 +9,14 @@ import heroFoodIllustration from "@/assets/hero-food-illustration.png";
 const HeroSection = () => {
   return (
     <section className="pt-28 pb-8 md:pt-36 md:pb-16 px-4 relative overflow-hidden">
-      {/* Floating food illustration — background decorative element */}
-      <motion.img
+      {/* Food illustration — background decorative element */}
+      <img
         src={heroFoodIllustration}
         alt=""
         aria-hidden="true"
         width={420}
         height={420}
         className="absolute -right-16 -top-4 w-[320px] md:w-[420px] opacity-[0.18] pointer-events-none select-none hidden sm:block"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 0.18, scale: 1, y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
-        transition={{ duration: 1 }}
       />
 
       <div className="container max-w-6xl mx-auto relative z-10">
