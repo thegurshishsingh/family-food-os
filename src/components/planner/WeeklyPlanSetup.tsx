@@ -100,6 +100,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
 
   const canAdvance = () => {
     if (step === "takeout" && takeoutCount > 0 && takeoutDays.length < takeoutCount) return false;
+    if (step === "dine_out" && dineOutCount > 0 && dineOutDays.length < dineOutCount) return false;
     if (step === "leftovers" && leftoverCount > 0 && leftoverDays.length < leftoverCount) return false;
     return true;
   };
