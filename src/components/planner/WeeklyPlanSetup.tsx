@@ -94,8 +94,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
   const stepIdx = activeSteps.indexOf(step);
 
   // Days already taken by takeout or leftovers
-  const takenDays = new Set([...takeoutDays, ...leftoverDays]);
-  const availableDaysForMeals = availableDayIndices.filter(i => !takenDays.has(i));
+  const takenDays = new Set([...takeoutDays, ...dineOutDays, ...leftoverDays]);
   // Days already assigned to a saved meal
   const assignedDays = new Set(Object.values(savedMealDayAssignments));
 
