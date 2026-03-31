@@ -658,6 +658,7 @@ Include a reality_message that's warm and specific — e.g., "Monday and Wednesd
 function generateMockPlan(household: any, prefs: any, context: any, setup?: any, daysToGenerate?: number[]) {
   const isHard = context?.newborn_in_house || context?.chaotic_week || context?.sick_week || setup?.week_intensity === "busy";
   const takeoutDays = new Set(setup?.takeout_days || []);
+  const dineOutDays = new Set(setup?.dine_out_days || []);
   const leftoverDays = new Set(setup?.leftover_days || []);
   const takeoutCount = takeoutDays.size || prefs?.preferred_takeout_frequency || 1;
   const activeDays = daysToGenerate || [0, 1, 2, 3, 4, 5, 6];
@@ -691,13 +692,15 @@ function generateMockPlan(household: any, prefs: any, context: any, setup?: any,
     let mode = "cook";
     if (takeoutDays.has(i)) {
       mode = "takeout";
+    } else if (dineOutDays.has(i)) {
+      mode = "dine_out";
     } else if (leftoverDays.has(i)) {
       mode = "leftovers";
     } else if (!takeoutDays.size && !setup?.takeout_days && !isPartial && i === 4 && takeoutCount >= 1) {
       mode = "takeout";
     } else if (!leftoverDays.size && !setup && !isPartial && i === 2) {
       mode = "leftovers";
-    } else if (isHard && cookIdx === 1 && !takeoutDays.has(i) && !leftoverDays.has(i)) {
+    } else if (isHard && cookIdx === 1 && !takeoutDays.has(i) && !dineOutDays.has(i) && !leftoverDays.has(i)) {
       mode = "emergency";
     }
 
