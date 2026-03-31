@@ -247,7 +247,7 @@ const Planner = () => {
     }
   };
 
-  const generatePlan = async (setupData?: PlanSetupData) => {
+  const generatePlan = async (setupData?: PlanSetupData, isReplan?: boolean) => {
     if (!household) return;
     setGenerating(true);
     try {
@@ -262,6 +262,7 @@ const Planner = () => {
           locked_saved_meals: setupData.lockedSavedMeals,
           saved_meal_day_assignments: setupData.savedMealDayAssignments,
           week_context_tags: setupData.weekContextTags,
+          is_replan: !!isReplan,
         };
         if (setupData.partialWeek) {
           body.setup.partial_week = setupData.partialWeek;
