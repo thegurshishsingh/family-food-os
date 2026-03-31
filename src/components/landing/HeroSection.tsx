@@ -26,7 +26,7 @@ const HeroSection = () => {
         height={420}
         className="absolute -right-16 -top-4 w-[320px] md:w-[420px] opacity-[0.08] pointer-events-none select-none hidden sm:block"
         initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 0.08, scale: 1, ...floatAnimation }}
+        animate={{ opacity: 0.08, scale: 1, y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
         transition={{ duration: 1 }}
       />
 
