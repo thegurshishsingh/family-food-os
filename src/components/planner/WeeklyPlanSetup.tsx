@@ -619,6 +619,12 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                           <span className="font-medium text-foreground">{takeoutDays.map((d) => DAYS[d].slice(0, 3)).join(", ")}</span>
                         </div>
                       )}
+                      {dineOutCount > 0 && (
+                        <div className="flex justify-between text-xs sm:text-sm">
+                          <span className="text-muted-foreground">Dine out</span>
+                          <span className="font-medium text-foreground">{dineOutDays.map((d) => DAYS[d].slice(0, 3)).join(", ")}</span>
+                        </div>
+                      )}
                       {leftoverCount > 0 && (
                         <div className="flex justify-between text-xs sm:text-sm">
                           <span className="text-muted-foreground">Leftovers</span>
