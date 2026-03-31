@@ -17,6 +17,8 @@ import { DAYS } from "./types";
 export interface PlanSetupData {
   takeoutCount: number;
   takeoutDays: number[];
+  dineOutCount: number;
+  dineOutDays: number[];
   leftoverCount: number;
   leftoverDays: number[];
   specialMeals: string[];
