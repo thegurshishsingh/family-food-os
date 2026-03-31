@@ -507,8 +507,8 @@ const Planner = () => {
         {/* Weekly plan setup (shown after plan type selection or for Mon-Wed auto) */}
         {((needsNewPlan && !plan && selectedPlanType) || showReplanSetup) ? (
           <div className="mb-6">
-            <WeeklyPlanSetup
-              onGenerate={(data) => { setShowReplanSetup(false); generatePlan(data); }}
+    <WeeklyPlanSetup
+              onGenerate={(data) => { setShowReplanSetup(false); generatePlan(data, showReplanSetup); }}
               generating={generating}
               householdName={household?.name}
               savedMeals={savedMealsList}
