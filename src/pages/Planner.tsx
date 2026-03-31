@@ -255,6 +255,7 @@ const Planner = () => {
       if (setupData) {
         body.setup = {
           takeout_days: setupData.takeoutDays,
+          dine_out_days: setupData.dineOutDays,
           leftover_days: setupData.leftoverDays,
           special_meals: setupData.specialMeals,
           week_intensity: setupData.weekIntensity,

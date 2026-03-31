@@ -379,6 +379,9 @@ function buildPrompt(
     if (setup.takeout_days?.length) {
       parts.push(`\n🛍️ TAKEOUT NIGHTS (user-selected, MANDATORY): ${setup.takeout_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "takeout". For takeout days, suggest a specific cuisine or restaurant type (e.g., "Thai Takeout", "Pizza Delivery") — not just "Takeout".`);
     }
+    if (setup.dine_out_days?.length) {
+      parts.push(`\n🍽️ DINE OUT NIGHTS (user-selected, MANDATORY): ${setup.dine_out_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "dine_out". Suggest a specific restaurant type or cuisine experience (e.g., "Italian Bistro Night", "Family Sushi Dinner"). Include an estimated calorie count and budget. Do NOT include ingredients or cooking instructions for dine-out nights.`);
+    }
     if (setup.leftover_days?.length) {
       parts.push(`♻️ LEFTOVER NIGHTS (user-selected, MANDATORY): ${setup.leftover_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "leftovers". Name the leftover meal based on what was cooked the day before (e.g., "Leftover Chicken Fajita Bowls").`);
     }
