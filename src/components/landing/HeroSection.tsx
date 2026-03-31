@@ -142,7 +142,7 @@ const HeroSection = () => {
             width={240}
             height={240}
             className="w-[240px] opacity-25"
-            animate={floatAnimation}
+            animate={{ y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
           />
         </motion.div>
       </div>
