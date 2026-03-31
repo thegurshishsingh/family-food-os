@@ -162,6 +162,8 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
     const data: PlanSetupData = {
       takeoutCount,
       takeoutDays,
+      dineOutCount,
+      dineOutDays,
       leftoverCount,
       leftoverDays,
       specialMeals,
