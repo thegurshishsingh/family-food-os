@@ -3,11 +3,34 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
+import heroFoodIllustration from "@/assets/hero-food-illustration.png";
+
+const floatAnimation = {
+  y: [0, -10, 0] as number[],
+  transition: {
+    duration: 4,
+    repeat: Infinity,
+    ease: "easeInOut" as const,
+  },
+};
 
 const HeroSection = () => {
   return (
-    <section className="pt-28 pb-8 md:pt-36 md:pb-16 px-4">
-      <div className="container max-w-6xl mx-auto">
+    <section className="pt-28 pb-8 md:pt-36 md:pb-16 px-4 relative overflow-hidden">
+      {/* Floating food illustration — background decorative element */}
+      <motion.img
+        src={heroFoodIllustration}
+        alt=""
+        aria-hidden="true"
+        width={420}
+        height={420}
+        className="absolute -right-16 -top-4 w-[320px] md:w-[420px] opacity-[0.08] pointer-events-none select-none hidden sm:block"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 0.08, scale: 1, y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
+        transition={{ duration: 1 }}
+      />
+
+      <div className="container max-w-6xl mx-auto relative z-10">
         <div className="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
           {/* Left — Copy */}
           <motion.div
@@ -79,21 +102,49 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Right — Check-in card */}
+          {/* Right — Check-in card with food illustration accent */}
           <motion.div
             initial={{ opacity: 0, y: 30, rotate: 1 }}
             animate={{ opacity: 1, y: 0, rotate: 0 }}
             transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
             className="relative"
           >
+            {/* Food illustration behind the card */}
+            <motion.img
+              src={heroFoodIllustration}
+              alt="Colorful family dinner illustration"
+              width={280}
+              height={280}
+              className="absolute -top-16 -right-10 w-[200px] md:w-[280px] opacity-20 pointer-events-none select-none z-0 hidden md:block"
+              animate={{ y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
+            />
             <div className="absolute -top-4 -left-4 text-4xl opacity-60 select-none hidden md:block">🫶</div>
             <div className="absolute -bottom-3 -right-3 text-3xl opacity-50 select-none hidden md:block">✨</div>
-            <p className="text-center text-xs text-muted-foreground/60 mb-3 font-medium">
+            <p className="text-center text-xs text-muted-foreground/60 mb-3 font-medium relative z-10">
               ↓ After dinner, it learns in 10 seconds
             </p>
-            <DinnerCheckInPreview />
+            <div className="relative z-10">
+              <DinnerCheckInPreview />
+            </div>
           </motion.div>
         </div>
+
+        {/* Mobile food illustration — shown below content */}
+        <motion.div
+          className="flex justify-center mt-8 sm:hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 0.6 }}
+        >
+          <motion.img
+            src={heroFoodIllustration}
+            alt="Colorful family dinner illustration"
+            width={240}
+            height={240}
+            className="w-[240px] opacity-25"
+            animate={{ y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
+          />
+        </motion.div>
       </div>
     </section>
   );
