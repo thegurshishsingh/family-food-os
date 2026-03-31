@@ -68,6 +68,8 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
 
   const [takeoutCount, setTakeoutCount] = useState(0);
   const [takeoutDays, setTakeoutDays] = useState<number[]>([]);
+  const [dineOutCount, setDineOutCount] = useState(0);
+  const [dineOutDays, setDineOutDays] = useState<number[]>([]);
   const [leftoverCount, setLeftoverCount] = useState(0);
   const [leftoverDays, setLeftoverDays] = useState<number[]>([]);
   const [lockedSavedMeals, setLockedSavedMeals] = useState<string[]>([]);
