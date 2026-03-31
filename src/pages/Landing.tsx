@@ -1,11 +1,16 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ChefHat, CalendarDays, ShoppingCart, Repeat, Users, Brain, ArrowRight, CheckCircle2 } from "lucide-react";
+import { ChefHat } from "lucide-react";
+import HeroSection from "@/components/landing/HeroSection";
+import TheStruggle from "@/components/landing/TheStruggle";
 import ProductProof from "@/components/landing/ProductProof";
-import ComparisonTable from "@/components/landing/ComparisonTable";
+import HowItWorksPlayful from "@/components/landing/HowItWorksPlayful";
+import WhyDifferent from "@/components/landing/WhyDifferent";
 import InteractiveTagCloud from "@/components/landing/InteractiveTagCloud";
-import DinnerCheckInPreview from "@/components/landing/DinnerCheckInPreview";
+import FamilyVoices from "@/components/landing/FamilyVoices";
+import FinalCTA from "@/components/landing/FinalCTA";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const Landing = () => {
@@ -33,175 +38,45 @@ const Landing = () => {
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="pt-28 pb-12 md:pt-36 md:pb-14 px-4">
-        <div className="container max-w-4xl text-center mx-auto">
-          <div>
-            <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full bg-sage-light text-primary border border-primary/10">
-              Built to learn your family. Not just feed them recipes.
-            </span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-semibold tracking-tight text-foreground leading-[1.1] mb-6">
-            Dinner, <span className="text-primary">handled.</span>{" "}
-            Every single week.
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3 leading-relaxed">
-            Most families spend 30 minutes every night figuring out dinner. Family Food OS learns your family and handles it for you — automatically.
-          </p>
-          <p className="text-sm md:text-base text-muted-foreground max-w-lg mx-auto mb-10">
-            5 minutes to set up. Smarter every week after that.
-          </p>
-...
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" className="text-base px-8 h-12 rounded-xl" asChild>
-              <Link to="/signup">Start planning for free <ArrowRight className="w-4 h-4 ml-2" /></Link>
-            </Button>
-          </div>
-          {/* Social proof */}
-          <p className="text-sm text-muted-foreground/60 mt-5">
-            Families save 4+ hours of dinner decisions every week · No credit card required
-          </p>
-        </div>
-        {/* Inline Dinner Check-In demo */}
-        <motion.div
-          className="max-w-2xl mx-auto mt-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5, ease: "easeOut" }}
-        >
-          <p className="text-center text-sm text-muted-foreground mb-4">
-            After every dinner, it learns. Here's what that looks like.
-          </p>
-          <DinnerCheckInPreview />
-        </motion.div>
-      </section>
+      <HeroSection />
+
+      {/* Divider */}
+      <div className="container max-w-4xl px-4"><hr className="border-border/40" /></div>
+
+      <TheStruggle />
 
       <ProductProof />
 
-      <div className="container max-w-5xl px-4"><hr className="border-border/60" /></div>
+      <HowItWorksPlayful />
 
-      {/* How it works */}
-      <section className="py-12 md:py-20 px-4">
-        <div className="container max-w-5xl">
-          <motion.div className="text-center mb-12" initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
-            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-4">
-              How it works
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-              Three steps to a week that actually makes sense.
-            </p>
-          </motion.div>
+      <WhyDifferent />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12">
-            {[
-              {
-                step: "01",
-                icon: Users,
-                title: "Tell us about your family",
-                desc: "Kids' ages, food preferences, allergies, budget, and how much cooking you can realistically handle this week.",
-              },
-              {
-                step: "02",
-                icon: Brain,
-                title: "Get your weekly plan",
-                desc: "The system builds your week — a realistic mix of cook nights, leftover nights, and takeout slots based on your actual schedule, energy, and what your family likes.",
-              },
-              {
-                step: "03",
-                icon: ShoppingCart,
-                title: "Shop with a smart list",
-                desc: "Your grocery list auto-adjusts for takeout nights, leftover days, and guest count. No waste, no guesswork.",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={item.step}
-                className="relative p-5 sm:p-8 rounded-2xl bg-card border border-border"
-                initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={i + 1}
-              >
-                <span className="text-5xl font-serif font-bold text-primary/10 absolute top-4 right-6">{item.step}</span>
-                <div className="w-12 h-12 rounded-xl bg-sage-light flex items-center justify-center mb-5">
-                  <item.icon className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-serif font-semibold text-foreground mb-3">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Divider */}
+      <div className="container max-w-4xl px-4"><hr className="border-border/40" /></div>
 
-      <div className="container max-w-5xl px-4"><hr className="border-border/60" /></div>
-
-      {/* Value props */}
-      <section className="py-12 md:py-20 px-4 bg-card/50 border-y border-border">
-        <div className="container max-w-5xl">
-          <motion.div className="text-center mb-12" initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
-            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-4">
-              Not another recipe app.
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-              This is a weekly dinner system built for how families actually eat.
-            </p>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 gap-6">
-            {[
-              { icon: CalendarDays, title: "Week-first planning", desc: "The core object is your week — not a recipe. Plan around real life: work trips, guests, sick days, sports." },
-              { icon: Repeat, title: "Smart leftovers & swaps", desc: "The system knows when Tuesday's roast becomes Wednesday's tacos. Swap any meal in one tap." },
-              { icon: ShoppingCart, title: "Adaptive grocery lists", desc: "Groceries adjust automatically when you switch to takeout or mark a leftover night." },
-              { icon: CheckCircle2, title: "Reality Score™", desc: "Planning 6 cook nights with a newborn? We'll gently flag that and suggest adjustments." },
-            ].map((item, i) => (
-              <motion.div
-                key={item.title}
-                className="flex gap-5 p-6 rounded-xl bg-background border border-border"
-                initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={i + 1}
-              >
-                <div className="w-10 h-10 rounded-lg bg-warm-light flex items-center justify-center shrink-0 mt-1">
-                  <item.icon className="w-5 h-5 text-accent" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-serif font-semibold text-foreground mb-1.5">{item.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <ComparisonTable />
-        </div>
-      </section>
-
-      <div className="container max-w-3xl px-4"><hr className="border-border/60" /></div>
-
-      {/* Audience callout */}
+      {/* Family situations */}
       <section className="py-12 md:py-20 px-4">
         <div className="container max-w-3xl text-center">
           <motion.div initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
-            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-6">
-              Built for families like yours
+            <span className="text-3xl mb-3 block">🎯</span>
+            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-3">
+              Built for your kind of week
             </h2>
+            <p className="text-muted-foreground text-base max-w-md mx-auto mb-8">
+              Tap a situation to see how the plan adapts.
+            </p>
           </motion.div>
 
           <InteractiveTagCloud />
-
-          <motion.div initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={1}>
-            <p className="text-muted-foreground text-lg leading-relaxed mb-10">
-              Every week is different. Family Food OS adapts your dinner plan based on
-              what's actually happening in your household — no judgment, just
-              practical help.
-            </p>
-            <Button size="lg" className="text-base px-8 h-12 rounded-xl" asChild>
-              <Link to="/signup">Start your first real week of food <ArrowRight className="w-4 h-4 ml-2" /></Link>
-            </Button>
-            <p className="text-sm text-muted-foreground/60 mt-4">
-              Free to start. No credit card. Your first plan is ready in 5 minutes.
-            </p>
-          </motion.div>
         </div>
       </section>
 
+      <FamilyVoices />
+
+      <FinalCTA />
+
       {/* Footer */}
-      <footer className="py-12 border-t border-border bg-card/50">
+      <footer className="py-10 border-t border-border bg-card/50">
         <div className="container px-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
@@ -210,7 +85,7 @@ const Landing = () => {
             <span className="font-serif text-lg font-semibold text-foreground">Family Food OS</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Family Food OS. Plan your real week.
+            © {new Date().getFullYear()} Family Food OS · Made with 🫶 for busy families
           </p>
         </div>
       </footer>
