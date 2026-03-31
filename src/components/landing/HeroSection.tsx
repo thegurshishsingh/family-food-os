@@ -5,14 +5,6 @@ import { ArrowRight } from "lucide-react";
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
 import heroFoodIllustration from "@/assets/hero-food-illustration.png";
 
-const floatAnimation = {
-  y: [0, -10, 0] as number[],
-  transition: {
-    duration: 4,
-    repeat: Infinity,
-    ease: "easeInOut" as const,
-  },
-};
 
 const HeroSection = () => {
   return (
