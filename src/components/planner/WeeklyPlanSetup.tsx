@@ -248,6 +248,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
             <DialogHeader className="mb-4 sm:mb-5">
               <DialogTitle className="text-base sm:text-lg font-serif">
                 {step === "takeout" && "Takeout nights"}
+                {step === "dine_out" && "Dine out nights"}
                 {step === "leftovers" && "Leftover nights"}
                 {step === "saved" && "Include saved meals"}
                 {step === "specials" && "Special meal requests"}
