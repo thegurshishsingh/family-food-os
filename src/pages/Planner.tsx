@@ -247,7 +247,7 @@ const Planner = () => {
     }
   };
 
-  const generatePlan = async (setupData?: PlanSetupData) => {
+  const generatePlan = async (setupData?: PlanSetupData, isReplan?: boolean) => {
     if (!household) return;
     setGenerating(true);
     try {
@@ -262,6 +262,7 @@ const Planner = () => {
           locked_saved_meals: setupData.lockedSavedMeals,
           saved_meal_day_assignments: setupData.savedMealDayAssignments,
           week_context_tags: setupData.weekContextTags,
+          is_replan: !!isReplan,
         };
         if (setupData.partialWeek) {
           body.setup.partial_week = setupData.partialWeek;
@@ -480,8 +481,20 @@ const Planner = () => {
           )}
         </div>
 
+        {/* Generating plan spinner (shown at top during replan) */}
+        {generating && plan && (
+          <div className="mb-4">
+            <Card className="border-primary/20 bg-primary/[0.03]">
+              <CardContent className="py-6 flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm font-medium text-foreground">Creating your plan…</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Generation confirmation message */}
-        {generationMessage && (
+        {generationMessage && !generating && (
           <div className="mb-4">
             <Card className="border-primary/20 bg-primary/[0.03]">
               <CardContent className="py-3 px-5">
@@ -507,8 +520,8 @@ const Planner = () => {
         {/* Weekly plan setup (shown after plan type selection or for Mon-Wed auto) */}
         {((needsNewPlan && !plan && selectedPlanType) || showReplanSetup) ? (
           <div className="mb-6">
-            <WeeklyPlanSetup
-              onGenerate={(data) => { setShowReplanSetup(false); generatePlan(data); }}
+    <WeeklyPlanSetup
+              onGenerate={(data) => { setShowReplanSetup(false); generatePlan(data, showReplanSetup); }}
               generating={generating}
               householdName={household?.name}
               savedMeals={savedMealsList}

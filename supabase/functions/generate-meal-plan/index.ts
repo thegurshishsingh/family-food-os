@@ -43,9 +43,10 @@ serve(async (req) => {
       .eq("household_id", household_id)
       .single();
 
-    // Determine week_start based on partial vs full week
+    // Determine week_start based on partial vs full week or replan
     const isPartialWeek = setup?.partial_week?.startDay !== undefined;
-    const monday = isPartialWeek ? getCurrentMonday() : getNextMonday();
+    const isReplan = setup?.is_replan === true;
+    const monday = (isPartialWeek || isReplan) ? getCurrentMonday() : getNextMonday();
 
     const { data: context } = await supabaseClient
       .from("weekly_contexts")
