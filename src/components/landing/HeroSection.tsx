@@ -117,22 +117,16 @@ const HeroSection = () => {
           </motion.div>
         </div>
 
-        {/* Mobile food illustration — shown below content */}
-        <motion.div
-          className="flex justify-center mt-8 sm:hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-        >
-          <motion.img
+        {/* Mobile food illustration */}
+        <div className="flex justify-center mt-8 sm:hidden">
+          <img
             src={heroFoodIllustration}
             alt="Colorful family dinner illustration"
             width={240}
             height={240}
             className="w-[240px] opacity-40"
-            animate={{ y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
           />
-        </motion.div>
+        </div>
       </div>
     </section>
   );
