@@ -3,22 +3,10 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
-import heroFoodIllustration from "@/assets/hero-food-illustration.png";
-
 
 const HeroSection = () => {
   return (
     <section className="pt-28 pb-8 md:pt-36 md:pb-16 px-4 relative overflow-hidden">
-      {/* Food illustration — background decorative element */}
-      <img
-        src={heroFoodIllustration}
-        alt=""
-        aria-hidden="true"
-        width={420}
-        height={420}
-        className="absolute -right-16 -top-4 w-[320px] md:w-[420px] opacity-[0.18] pointer-events-none select-none hidden sm:block"
-      />
-
       <div className="container max-w-6xl mx-auto relative z-10">
         <div className="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
           {/* Left — Copy */}
@@ -91,21 +79,13 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Right — Check-in card with food illustration accent */}
+          {/* Right — Check-in card */}
           <motion.div
             initial={{ opacity: 0, y: 30, rotate: 1 }}
             animate={{ opacity: 1, y: 0, rotate: 0 }}
             transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
             className="relative"
           >
-            {/* Food illustration behind the card */}
-            <img
-              src={heroFoodIllustration}
-              alt="Colorful family dinner illustration"
-              width={280}
-              height={280}
-              className="absolute -top-16 -right-10 w-[200px] md:w-[280px] opacity-40 pointer-events-none select-none z-0 hidden md:block"
-            />
             <div className="absolute -top-4 -left-4 text-4xl opacity-60 select-none hidden md:block">🫶</div>
             <div className="absolute -bottom-3 -right-3 text-3xl opacity-50 select-none hidden md:block">✨</div>
             <p className="text-center text-xs text-muted-foreground/60 mb-3 font-medium relative z-10">
@@ -115,17 +95,6 @@ const HeroSection = () => {
               <DinnerCheckInPreview />
             </div>
           </motion.div>
-        </div>
-
-        {/* Mobile food illustration */}
-        <div className="flex justify-center mt-8 sm:hidden">
-          <img
-            src={heroFoodIllustration}
-            alt="Colorful family dinner illustration"
-            width={240}
-            height={240}
-            className="w-[240px] opacity-40"
-          />
         </div>
       </div>
     </section>
