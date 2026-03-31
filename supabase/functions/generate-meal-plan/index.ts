@@ -634,7 +634,7 @@ GROCERY LIST:
   if (!setup) {
     parts.push(`\nInclude at least 1 leftover night reusing a previous cooked meal.`);
   } else if (!setup.leftover_days?.length) {
-    parts.push(`\nThe user selected NO leftover nights. Do NOT include any days with meal_mode "leftovers". All non-takeout days should be meal_mode "cook".`);
+    parts.push(`\nThe user selected NO leftover nights. Do NOT include any days with meal_mode "leftovers". All non-takeout, non-dine-out days should be meal_mode "cook".`);
   }
 
   // ── Reality score ──
