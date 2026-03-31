@@ -389,7 +389,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                         <div className="flex flex-wrap gap-1.5 sm:gap-2">
                           {availableDayIndices.map((i) => {
                             const selected = leftoverDays.includes(i);
-                            const taken = takeoutDays.includes(i);
+                            const taken = takeoutDays.includes(i) || dineOutDays.includes(i);
                             const disabled = taken || (!selected && leftoverDays.length >= leftoverCount);
                             return (
                               <button
@@ -399,7 +399,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                                 className={`px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium border transition-all
                                   ${selected ? "border-primary bg-primary/10 text-primary" : disabled ? "border-border bg-muted/30 text-muted-foreground/40" : "border-border bg-card text-foreground hover:border-primary/30"}`}
                               >
-                                {DAYS[i].slice(0, 3)}{taken ? " 🛍" : ""}
+                                {DAYS[i].slice(0, 3)}{taken ? " 🍽" : ""}
                               </button>
                             );
                           })}
