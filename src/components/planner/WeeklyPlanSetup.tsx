@@ -187,7 +187,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
     { value: "busy" as const, label: "Busy week", desc: "Quick & easy meals" },
   ];
 
-  const cookNights = totalPlanDays - takeoutCount - leftoverCount;
+  const cookNights = totalPlanDays - takeoutCount - dineOutCount - leftoverCount;
 
   const frequencyLabel: Record<string, string> = {
     every_week: "Weekly",
@@ -196,9 +196,10 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
     occasionally: "Occasional",
   };
 
-  // Max takeout/leftover counts depend on available days
-  const maxTakeout = Math.min(2, Math.max(0, totalPlanDays - 1));
-  const maxLeftover = Math.min(2, Math.max(0, totalPlanDays - takeoutCount - 1));
+  // Max counts depend on available days
+  const maxTakeout = Math.min(3, Math.max(0, totalPlanDays - 1));
+  const maxDineOut = Math.min(2, Math.max(0, totalPlanDays - takeoutCount - 1));
+  const maxLeftover = Math.min(2, Math.max(0, totalPlanDays - takeoutCount - dineOutCount - 1));
 
   const bannerLabel = planLabel || "this week's dinners";
   const buttonLabel = planLabel ? `Generate ${planLabel.toLowerCase()}` : "Generate this week's plan";
