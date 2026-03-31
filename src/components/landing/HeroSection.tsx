@@ -24,9 +24,9 @@ const HeroSection = () => {
         aria-hidden="true"
         width={420}
         height={420}
-        className="absolute -right-16 -top-4 w-[320px] md:w-[420px] opacity-[0.08] pointer-events-none select-none hidden sm:block"
+        className="absolute -right-16 -top-4 w-[320px] md:w-[420px] opacity-[0.18] pointer-events-none select-none hidden sm:block"
         initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 0.08, scale: 1, y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
+        animate={{ opacity: 0.18, scale: 1, y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
         transition={{ duration: 1 }}
       />
 
@@ -115,7 +115,7 @@ const HeroSection = () => {
               alt="Colorful family dinner illustration"
               width={280}
               height={280}
-              className="absolute -top-16 -right-10 w-[200px] md:w-[280px] opacity-20 pointer-events-none select-none z-0 hidden md:block"
+              className="absolute -top-16 -right-10 w-[200px] md:w-[280px] opacity-40 pointer-events-none select-none z-0 hidden md:block"
               animate={{ y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
             />
             <div className="absolute -top-4 -left-4 text-4xl opacity-60 select-none hidden md:block">🫶</div>
@@ -141,7 +141,7 @@ const HeroSection = () => {
             alt="Colorful family dinner illustration"
             width={240}
             height={240}
-            className="w-[240px] opacity-25"
+            className="w-[240px] opacity-40"
             animate={{ y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
           />
         </motion.div>
