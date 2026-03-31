@@ -116,7 +116,7 @@ const HeroSection = () => {
               width={280}
               height={280}
               className="absolute -top-16 -right-10 w-[200px] md:w-[280px] opacity-20 pointer-events-none select-none z-0 hidden md:block"
-              animate={floatAnimation}
+              animate={{ y: [0, -10, 0], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const } }}
             />
             <div className="absolute -top-4 -left-4 text-4xl opacity-60 select-none hidden md:block">🫶</div>
             <div className="absolute -bottom-3 -right-3 text-3xl opacity-50 select-none hidden md:block">✨</div>
