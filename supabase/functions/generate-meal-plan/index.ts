@@ -338,7 +338,7 @@ function buildPrompt(
   lovedMeals: string[], dislikedMeals: string[],
   savedMeals: { meal_name: string; meal_description: string | null }[],
   checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[],
-  setup?: { takeout_days?: number[]; leftover_days?: number[]; special_meals?: string[]; week_intensity?: string; locked_saved_meals?: string[]; saved_meal_day_assignments?: Record<string, number>; week_context_tags?: string[]; partial_week?: { startDay: number; dayCount: number } },
+  setup?: { takeout_days?: number[]; dine_out_days?: number[]; leftover_days?: number[]; special_meals?: string[]; week_intensity?: string; locked_saved_meals?: string[]; saved_meal_day_assignments?: Record<string, number>; week_context_tags?: string[]; partial_week?: { startDay: number; dayCount: number } },
 ) {
   const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -378,6 +378,9 @@ function buildPrompt(
   if (setup) {
     if (setup.takeout_days?.length) {
       parts.push(`\n🛍️ TAKEOUT NIGHTS (user-selected, MANDATORY): ${setup.takeout_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "takeout". For takeout days, suggest a specific cuisine or restaurant type (e.g., "Thai Takeout", "Pizza Delivery") — not just "Takeout".`);
+    }
+    if (setup.dine_out_days?.length) {
+      parts.push(`\n🍽️ DINE OUT NIGHTS (user-selected, MANDATORY): ${setup.dine_out_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "dine_out". Suggest a specific restaurant type or cuisine experience (e.g., "Italian Bistro Night", "Family Sushi Dinner"). Include an estimated calorie count and budget. Do NOT include ingredients or cooking instructions for dine-out nights.`);
     }
     if (setup.leftover_days?.length) {
       parts.push(`♻️ LEFTOVER NIGHTS (user-selected, MANDATORY): ${setup.leftover_days.map((d: number) => dayNames[d]).join(", ")}. These days MUST be meal_mode "leftovers". Name the leftover meal based on what was cooked the day before (e.g., "Leftover Chicken Fajita Bowls").`);
@@ -631,7 +634,7 @@ GROCERY LIST:
   if (!setup) {
     parts.push(`\nInclude at least 1 leftover night reusing a previous cooked meal.`);
   } else if (!setup.leftover_days?.length) {
-    parts.push(`\nThe user selected NO leftover nights. Do NOT include any days with meal_mode "leftovers". All non-takeout days should be meal_mode "cook".`);
+    parts.push(`\nThe user selected NO leftover nights. Do NOT include any days with meal_mode "leftovers". All non-takeout, non-dine-out days should be meal_mode "cook".`);
   }
 
   // ── Reality score ──
@@ -655,6 +658,7 @@ Include a reality_message that's warm and specific — e.g., "Monday and Wednesd
 function generateMockPlan(household: any, prefs: any, context: any, setup?: any, daysToGenerate?: number[]) {
   const isHard = context?.newborn_in_house || context?.chaotic_week || context?.sick_week || setup?.week_intensity === "busy";
   const takeoutDays = new Set(setup?.takeout_days || []);
+  const dineOutDays = new Set(setup?.dine_out_days || []);
   const leftoverDays = new Set(setup?.leftover_days || []);
   const takeoutCount = takeoutDays.size || prefs?.preferred_takeout_frequency || 1;
   const activeDays = daysToGenerate || [0, 1, 2, 3, 4, 5, 6];
@@ -688,13 +692,15 @@ function generateMockPlan(household: any, prefs: any, context: any, setup?: any,
     let mode = "cook";
     if (takeoutDays.has(i)) {
       mode = "takeout";
+    } else if (dineOutDays.has(i)) {
+      mode = "dine_out";
     } else if (leftoverDays.has(i)) {
       mode = "leftovers";
     } else if (!takeoutDays.size && !setup?.takeout_days && !isPartial && i === 4 && takeoutCount >= 1) {
       mode = "takeout";
     } else if (!leftoverDays.size && !setup && !isPartial && i === 2) {
       mode = "leftovers";
-    } else if (isHard && cookIdx === 1 && !takeoutDays.has(i) && !leftoverDays.has(i)) {
+    } else if (isHard && cookIdx === 1 && !takeoutDays.has(i) && !dineOutDays.has(i) && !leftoverDays.has(i)) {
       mode = "emergency";
     }
 
@@ -703,17 +709,17 @@ function generateMockPlan(household: any, prefs: any, context: any, setup?: any,
     days.push({
       day_of_week: i,
       meal_mode: mode,
-      meal_name: mode === "takeout" ? "Pizza Night" : mode === "leftovers" ? `Leftover ${meals[(cookIdx - 1 + meals.length) % meals.length].name}` : mode === "emergency" ? "Frozen Pizza + Salad" : meal.name,
-      meal_description: mode === "takeout" ? "Order from your favorite local spot" : mode === "leftovers" ? "Use up what's in the fridge" : mode === "emergency" ? "Quick freezer meal for hectic nights" : meal.desc,
-      cuisine_type: mode === "takeout" ? "Various" : meal.cuisine,
-      prep_time_minutes: mode === "cook" ? (isHard || isPartial ? Math.min(meal.prep, 20) : meal.prep) : mode === "emergency" ? 10 : 5,
-      calories: mode === "takeout" ? 700 : mode === "emergency" ? 450 : meal.cal,
-      protein_g: mode === "takeout" ? 25 : mode === "emergency" ? 15 : meal.p,
-      carbs_g: mode === "takeout" ? 80 : mode === "emergency" ? 55 : meal.c,
-      fat_g: mode === "takeout" ? 30 : mode === "emergency" ? 20 : meal.f,
+      meal_name: mode === "takeout" ? "Pizza Night" : mode === "dine_out" ? "Family Italian Dinner" : mode === "leftovers" ? `Leftover ${meals[(cookIdx - 1 + meals.length) % meals.length].name}` : mode === "emergency" ? "Frozen Pizza + Salad" : meal.name,
+      meal_description: mode === "takeout" ? "Order from your favorite local spot" : mode === "dine_out" ? "Enjoy a relaxed dinner out with the family" : mode === "leftovers" ? "Use up what's in the fridge" : mode === "emergency" ? "Quick freezer meal for hectic nights" : meal.desc,
+      cuisine_type: mode === "takeout" ? "Various" : mode === "dine_out" ? "Italian" : meal.cuisine,
+      prep_time_minutes: mode === "cook" ? (isHard || isPartial ? Math.min(meal.prep, 20) : meal.prep) : mode === "emergency" ? 10 : 0,
+      calories: mode === "takeout" ? 700 : mode === "dine_out" ? 750 : mode === "emergency" ? 450 : meal.cal,
+      protein_g: mode === "takeout" ? 25 : mode === "dine_out" ? 30 : mode === "emergency" ? 15 : meal.p,
+      carbs_g: mode === "takeout" ? 80 : mode === "dine_out" ? 85 : mode === "emergency" ? 55 : meal.c,
+      fat_g: mode === "takeout" ? 30 : mode === "dine_out" ? 32 : mode === "emergency" ? 20 : meal.f,
       fiber_g: 8,
       notes: null,
-      takeout_budget: mode === "takeout" ? 35 : null,
+      takeout_budget: mode === "takeout" ? 35 : mode === "dine_out" ? 60 : null,
     });
 
     if (mode === "cook") cookIdx++;
