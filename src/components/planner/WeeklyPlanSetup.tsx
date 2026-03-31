@@ -315,6 +315,53 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                   </div>
                 )}
 
+                {/* Step: Dine Out */}
+                {step === "dine_out" && (
+                  <div className="space-y-4">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Any nights you'd like to dine out{isPartialWeek ? " during these days" : " this week"}?
+                    </p>
+                    <div className="flex gap-2">
+                      {Array.from({ length: maxDineOut + 1 }, (_, n) => n).map((n) => (
+                        <button
+                          key={n}
+                          onClick={() => { setDineOutCount(n); if (n === 0) setDineOutDays([]); }}
+                          className={`flex-1 py-2.5 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-medium border transition-all
+                            ${dineOutCount === n
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border bg-card text-foreground hover:border-primary/30"
+                            }`}
+                        >
+                          {n === 0 ? "No dine out" : `${n} night${n > 1 ? "s" : ""}`}
+                        </button>
+                      ))}
+                    </div>
+                    {dineOutCount > 0 && (
+                      <div>
+                        <p className="text-[11px] sm:text-xs text-muted-foreground mb-2">Which day{dineOutCount > 1 ? "s" : ""}?</p>
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                          {availableDayIndices.map((i) => {
+                            const selected = dineOutDays.includes(i);
+                            const taken = takeoutDays.includes(i);
+                            const disabled = taken || (!selected && dineOutDays.length >= dineOutCount);
+                            return (
+                              <button
+                                key={i}
+                                disabled={disabled}
+                                onClick={() => toggleDay(i, dineOutDays, setDineOutDays, dineOutCount)}
+                                className={`px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium border transition-all
+                                  ${selected ? "border-primary bg-primary/10 text-primary" : disabled ? "border-border bg-muted/30 text-muted-foreground/40" : "border-border bg-card text-foreground hover:border-primary/30"}`}
+                              >
+                                {DAYS[i].slice(0, 3)}{taken ? " 🛍" : ""}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Step: Leftovers */}
                 {step === "leftovers" && (
                   <div className="space-y-4">
