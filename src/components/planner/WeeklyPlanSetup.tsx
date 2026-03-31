@@ -59,7 +59,7 @@ const WEEK_CONTEXT_OPTIONS = [
   { value: "newborn_in_house", label: "Newborn at home", emoji: "👶", desc: "Very easy meals" },
 ];
 
-const ALL_STEPS = ["takeout", "leftovers", "saved", "specials", "context", "intensity", "confirm"] as const;
+const ALL_STEPS = ["takeout", "dine_out", "leftovers", "saved", "specials", "context", "intensity", "confirm"] as const;
 type Step = typeof ALL_STEPS[number];
 
 const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [], planningDays, planLabel }: WeeklyPlanSetupProps) => {
