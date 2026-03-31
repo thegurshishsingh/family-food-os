@@ -481,8 +481,20 @@ const Planner = () => {
           )}
         </div>
 
+        {/* Generating plan spinner (shown at top during replan) */}
+        {generating && plan && (
+          <div className="mb-4">
+            <Card className="border-primary/20 bg-primary/[0.03]">
+              <CardContent className="py-6 flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm font-medium text-foreground">Creating your plan…</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Generation confirmation message */}
-        {generationMessage && (
+        {generationMessage && !generating && (
           <div className="mb-4">
             <Card className="border-primary/20 bg-primary/[0.03]">
               <CardContent className="py-3 px-5">
