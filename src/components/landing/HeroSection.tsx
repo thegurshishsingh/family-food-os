@@ -7,6 +7,21 @@ import DinnerCheckInPreview from "./DinnerCheckInPreview";
 const HeroSection = () => {
   return (
     <section className="pt-28 pb-8 md:pt-36 md:pb-16 px-4 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        {/* Large soft gradient blob — top right */}
+        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-primary/[0.06] blur-3xl" />
+        {/* Warm accent blob — bottom left */}
+        <div className="absolute -bottom-40 -left-24 w-[420px] h-[420px] rounded-full bg-accent/[0.05] blur-3xl" />
+        {/* Small sage circle — mid left */}
+        <div className="absolute top-1/3 left-[8%] w-20 h-20 rounded-full border-2 border-primary/[0.08] hidden md:block" />
+        {/* Dotted ring — right side */}
+        <div className="absolute top-[15%] right-[12%] w-14 h-14 rounded-full border-2 border-dashed border-accent/[0.12] hidden md:block" />
+        {/* Tiny filled dot */}
+        <div className="absolute bottom-[30%] left-[15%] w-3 h-3 rounded-full bg-primary/[0.12] hidden md:block" />
+        <div className="absolute top-[20%] right-[25%] w-2 h-2 rounded-full bg-accent/[0.15] hidden md:block" />
+      </div>
+
       <div className="container max-w-6xl mx-auto relative z-10">
         <div className="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
           {/* Left — Copy */}
