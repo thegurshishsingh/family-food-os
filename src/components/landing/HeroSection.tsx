@@ -26,7 +26,7 @@ const HeroSection = () => {
       </div>
 
       <div className="container max-w-6xl mx-auto relative z-10">
-        <div className="grid md:grid-cols-[1fr,auto] gap-6 md:gap-10 items-center">
+        <div className="grid md:grid-cols-[1fr,1fr] gap-6 md:gap-8 items-center">
           {/* Left — Copy */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
