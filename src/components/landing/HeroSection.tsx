@@ -187,7 +187,7 @@ const HeroSection = () => {
 
             {/* Right column — System Learning card */}
             <motion.div
-              className="self-end mb-10 shrink-0"
+              className="self-end mb-10 shrink-0 hidden lg:block"
               animate={{ y: [0, -7, 0] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
             >
