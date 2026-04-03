@@ -98,7 +98,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
-            className="hidden md:grid grid-cols-[130px_190px_140px] grid-rows-[auto_1fr_auto] gap-x-3 gap-y-2 items-center justify-center"
+            className="hidden md:flex items-center justify-center gap-3"
           >
             {/* Row 1: empty | streak badge | empty */}
             <div />
