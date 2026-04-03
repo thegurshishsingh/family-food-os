@@ -229,7 +229,7 @@ const HeroSection = () => {
 
             {/* Floating badge — Streak (top-right) */}
             <motion.div
-              className="absolute right-6 md:right-4 -top-1 md:top-[1%] z-20"
+              className="absolute right-[20%] md:right-[15%] -top-1 md:top-[1%] z-20"
               initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.3, duration: 0.4 }}
