@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { TrendingUp, ArrowRight, Utensils, Package, Store, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { MidPageDecorations } from "./FloatingFoodDecorations";
 
 const WEEK_PREVIEW = [
   { day: "Mon", date: "10", mode: "Cook", meal: "Lemon chicken bowls", time: "30 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
