@@ -6,7 +6,7 @@ import DinnerCheckInPreview from "./DinnerCheckInPreview";
 
 const HeroSection = () => {
   return (
-    <section className="pt-24 pb-6 md:pt-32 md:pb-10 px-4 relative overflow-hidden gradient-mesh">
+    <section className="pt-24 pb-6 md:pt-32 md:pb-10 px-4 relative gradient-mesh">
       {/* Ambient orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-primary/10 via-sky/8 to-transparent blur-3xl animate-pulse-soft" />
