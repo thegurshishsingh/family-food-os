@@ -1,20 +1,25 @@
 import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { Snowflake, Search, HelpCircle, ShoppingCart, Flame, Lightbulb } from "lucide-react";
 
 const SCENES = [
-  { time: "4:45 PM", emoji: "😩", text: "\"Ugh, I forgot to defrost the chicken.\"" },
-  { time: "5:10 PM", emoji: "📱", text: "Scrolling through 400 saved recipes... nothing sounds good." },
-  { time: "5:25 PM", emoji: "🤷", text: "\"Kids, what do you want?\" — \"NUGGETS!\" (for the 4th time)." },
-  { time: "5:40 PM", emoji: "🛒", text: "Emergency grocery run. Again." },
-  { time: "6:15 PM", emoji: "😤", text: "Cooking something nobody asked for while everyone's hangry." },
+  { time: "4:45 PM", icon: Snowflake, color: "from-sky to-primary", text: "\"Ugh, I forgot to defrost the chicken.\"" },
+  { time: "5:10 PM", icon: Search, color: "from-violet to-primary", text: "Scrolling through 400 saved recipes... nothing sounds good." },
+  { time: "5:25 PM", icon: HelpCircle, color: "from-coral to-accent", text: "\"Kids, what do you want?\" — \"NUGGETS!\" (for the 4th time)." },
+  { time: "5:40 PM", icon: ShoppingCart, color: "from-lemon to-accent", text: "Emergency grocery run. Again." },
+  { time: "6:15 PM", icon: Flame, color: "from-coral to-destructive", text: "Cooking something nobody asked for while everyone's hangry." },
 ];
 
 const TheStruggle = () => {
   const { fadeUp, viewport, initialState } = useScrollReveal();
 
   return (
-    <section className="py-12 md:py-20 px-4">
-      <div className="container max-w-3xl">
+    <section className="py-12 md:py-20 px-4 relative">
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-gradient-to-b from-coral/5 to-transparent blur-3xl" />
+      </div>
+
+      <div className="container max-w-3xl relative z-10">
         <motion.div
           className="text-center mb-10"
           initial={initialState}
@@ -23,7 +28,9 @@ const TheStruggle = () => {
           variants={fadeUp}
           custom={0}
         >
-          <span className="text-4xl mb-3 block">🫠</span>
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-coral/15 to-accent/10 mb-4">
+            <Flame className="w-6 h-6 text-coral" />
+          </div>
           <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-3">
             Sound familiar?
           </h2>
@@ -36,7 +43,7 @@ const TheStruggle = () => {
           {SCENES.map((scene, i) => (
             <motion.div
               key={i}
-              className="flex items-start gap-4 p-4 rounded-xl bg-card border border-border hover:border-primary/20 transition-colors"
+              className="flex items-start gap-4 p-4 rounded-xl glass-card hover:shadow-md transition-all"
               initial={initialState}
               whileInView="visible"
               viewport={viewport}
@@ -46,7 +53,9 @@ const TheStruggle = () => {
               <span className="text-xs font-mono text-muted-foreground/50 mt-1 shrink-0 w-14">
                 {scene.time}
               </span>
-              <span className="text-xl shrink-0">{scene.emoji}</span>
+              <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${scene.color} flex items-center justify-center shrink-0`}>
+                <scene.icon className="w-4 h-4 text-primary-foreground" />
+              </div>
               <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                 {scene.text}
               </p>
@@ -62,8 +71,10 @@ const TheStruggle = () => {
           variants={fadeUp}
           custom={6}
         >
-          <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary/8 border border-primary/15">
-            <span className="text-lg">💡</span>
+          <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full glass-strong">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-sky flex items-center justify-center">
+              <Lightbulb className="w-3 h-3 text-primary-foreground" />
+            </div>
             <span className="text-sm font-semibold text-primary">
               What if dinner was already figured out before 5pm?
             </span>
