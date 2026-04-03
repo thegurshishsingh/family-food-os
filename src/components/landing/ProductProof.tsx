@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { TrendingUp, ArrowRight, Utensils, Package, Store, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { MidPageDecorations } from "./FloatingFoodDecorations";
 
 const WEEK_PREVIEW = [
   { day: "Mon", date: "10", mode: "Cook", meal: "Lemon chicken bowls", time: "30 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
@@ -20,7 +19,6 @@ const ProductProof = () => {
 
   return (
     <section className="py-10 md:py-14 px-4 relative">
-      <MidPageDecorations />
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full bg-gradient-to-r from-primary/5 to-transparent blur-3xl" />
       </div>

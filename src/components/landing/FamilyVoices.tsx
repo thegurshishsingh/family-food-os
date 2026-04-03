@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Quote, Star } from "lucide-react";
-import { BottomPageDecorations } from "./FloatingFoodDecorations";
 
 const VOICES = [
   {
@@ -32,7 +31,6 @@ const FamilyVoices = () => {
 
   return (
     <section className="py-10 md:py-14 px-4 relative overflow-hidden">
-      <BottomPageDecorations />
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] rounded-full bg-gradient-to-b from-primary/4 via-violet/3 to-transparent blur-3xl" />
       </div>
