@@ -19,7 +19,6 @@ const ProductProof = () => {
 
   return (
     <section className="py-10 md:py-14 px-4 relative">
-      <MidPageDecorations />
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full bg-gradient-to-r from-primary/5 to-transparent blur-3xl" />
       </div>
