@@ -102,7 +102,7 @@ const HeroSection = () => {
           >
             {/* Left column — Weekly Plan card */}
             <motion.div
-              className="self-start mt-12 shrink-0"
+              className="self-start mt-12 shrink-0 hidden lg:block"
               animate={{ y: [0, -6, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             >
