@@ -110,7 +110,7 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
-            className="relative flex items-center justify-center w-full md:w-[420px]"
+            className="relative flex items-center justify-center w-full"
           >
             {/* Ambient glow behind phone */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
