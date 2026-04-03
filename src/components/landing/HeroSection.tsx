@@ -194,7 +194,7 @@ const HeroSection = () => {
 
             {/* Floating glass card — System Learning (right) */}
             <motion.div
-              className="absolute right-0 md:right-2 bottom-[20%] z-20 hidden md:block"
+              className="absolute right-[2%] md:right-[5%] bottom-[20%] z-20 hidden md:block"
               initial={{ opacity: 0, x: 20, scale: 0.95 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               transition={{ delay: 1.1, duration: 0.5 }}
