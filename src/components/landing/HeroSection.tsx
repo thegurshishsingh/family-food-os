@@ -6,7 +6,7 @@ import DinnerCheckInPreview from "./DinnerCheckInPreview";
 
 const HeroSection = () => {
   return (
-    <section className="pt-24 pb-6 md:pt-32 md:pb-10 px-4 relative gradient-mesh">
+    <section className="pt-24 pb-2 md:pt-28 md:pb-4 px-4 relative gradient-mesh">
       {/* Ambient orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-primary/10 via-sky/8 to-transparent blur-3xl animate-pulse-soft" />
@@ -14,7 +14,7 @@ const HeroSection = () => {
       </div>
 
       <div className="container max-w-6xl mx-auto relative z-10">
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
           {/* Left — Copy */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -93,130 +93,164 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Right — Phone mockup with floating glass screens */}
+          {/* Right — Phone + floating cards */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
-            className="relative flex items-center justify-center min-h-[480px] md:min-h-[540px]"
+            className="hidden md:flex items-center justify-center gap-3"
           >
-            {/* Ambient glow behind phone */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-[240px] h-[440px] md:w-[260px] md:h-[480px] rounded-[40px] bg-gradient-to-b from-primary/12 via-primary/6 to-accent/8 blur-[50px]" />
-            </div>
+            {/* Left column — Weekly Plan card */}
+            <motion.div
+              className="self-start mt-12 shrink-0 hidden lg:block"
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <div className="relative w-[120px]">
+                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-primary/30 via-sky/25 to-accent/20 blur-[0.5px]" />
+                <div className="relative rounded-xl glass-strong p-2.5 shadow-lg">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="w-4 h-4 rounded bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center">
+                      <CalendarDays className="w-2.5 h-2.5 text-primary-foreground" />
+                    </div>
+                    <span className="text-[9px] font-bold text-foreground">This Week</span>
+                  </div>
+                  <div className="space-y-1">
+                    {[
+                      { day: "Mon", icon: Utensils, mode: "Cook", g: "from-primary to-sage-dark" },
+                      { day: "Tue", icon: Package, mode: "Leftover", g: "from-sky to-primary" },
+                      { day: "Wed", icon: Store, mode: "Takeout", g: "from-coral to-accent" },
+                    ].map((d) => (
+                      <div key={d.day} className="flex items-center gap-1">
+                        <span className="text-[7px] font-bold text-muted-foreground w-5">{d.day}</span>
+                        <span className={`inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[6px] font-bold uppercase text-primary-foreground bg-gradient-to-r ${d.g}`}>
+                          <d.icon className="w-1.5 h-1.5" />
+                          {d.mode}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-1 text-[7px] font-bold text-primary">
+                    <TrendingUp className="w-2 h-2" />
+                    Reality: 84
+                  </div>
+                </div>
+              </div>
+            </motion.div>
 
-            {/* Phone frame — narrower, taller like a real phone */}
-            <div className="relative z-10 w-[220px] md:w-[240px]" style={{ perspective: "800px" }}>
-              <div
-                className="rounded-[28px] bg-gradient-to-b from-foreground/85 to-foreground/75 p-[2.5px] shadow-2xl"
-                style={{ transform: "rotateY(-3deg) rotateX(2deg)" }}
+            {/* Center — Phone with streak badge */}
+            <div className="flex flex-col items-center gap-2 shrink-0">
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
               >
-                <div className="rounded-[26px] bg-background overflow-hidden">
-                  {/* Status bar */}
-                  <div className="flex items-center justify-between px-4 pt-2 pb-1">
-                    <span className="text-[9px] font-semibold text-foreground/60">9:41</span>
-                    <div className="w-16 h-4 bg-foreground/85 rounded-full" />
-                    <div className="flex items-center gap-0.5">
-                      <div className="w-3 h-1.5 border border-foreground/40 rounded-sm">
-                        <div className="w-1.5 h-full bg-primary/50 rounded-sm" />
+                <div className="relative inline-block">
+                  <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-coral/30 via-lemon/20 to-accent/25 blur-[0.5px]" />
+                  <div className="relative rounded-lg glass-strong px-3 py-1.5 shadow-md">
+                    <div className="flex items-center gap-1.5">
+                      <Flame className="w-3.5 h-3.5 text-coral" />
+                      <span className="text-[10px] font-bold text-foreground">5-day streak</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <div className="relative w-[200px]" style={{ perspective: "800px" }}>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
+                  <div className="w-[200px] h-[400px] rounded-[40px] bg-gradient-to-b from-primary/15 via-sky/8 to-accent/10 blur-[50px]" />
+                </div>
+                <div
+                  className="rounded-[24px] p-[2px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]"
+                  style={{
+                    transform: "rotateY(-3deg) rotateX(1deg)",
+                    background: "linear-gradient(145deg, hsl(var(--foreground)/0.8), hsl(var(--foreground)/0.6), hsl(var(--foreground)/0.7))",
+                  }}
+                >
+                  <div className="rounded-[22px] bg-background overflow-hidden">
+                    <div className="flex items-center justify-between px-3.5 pt-1.5 pb-0.5">
+                      <span className="text-[8px] font-semibold text-foreground/60">9:41</span>
+                      <div className="w-14 h-3.5 bg-foreground/85 rounded-full" />
+                      <div className="w-2.5 h-1.5 border border-foreground/40 rounded-[2px]">
+                        <div className="w-1.5 h-full bg-primary/50 rounded-[1px]" />
                       </div>
                     </div>
-                  </div>
-
-                  {/* Phone content */}
-                  <div className="px-1.5 pb-2 pt-0.5">
-                    <DinnerCheckInPreview />
-                  </div>
-
-                  {/* Home indicator */}
-                  <div className="flex justify-center pb-1.5">
-                    <div className="w-20 h-[3px] bg-foreground/20 rounded-full" />
+                    <div className="px-1 pb-1.5 pt-0.5">
+                      <DinnerCheckInPreview />
+                    </div>
+                    <div className="flex justify-center pb-1">
+                      <div className="w-16 h-[3px] bg-foreground/20 rounded-full" />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Floating glass card — Weekly Plan (left) */}
+            {/* Right column — System Learning card */}
             <motion.div
-              className="absolute -left-2 md:-left-8 top-[12%] z-20 hidden md:block"
-              initial={{ opacity: 0, x: -20, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ delay: 0.9, duration: 0.5 }}
+              className="self-end mb-10 shrink-0 hidden lg:block"
+              animate={{ y: [0, -7, 0] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
             >
-              <div className="w-[150px] rounded-xl glass-strong p-2.5 shadow-lg border border-border/15">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <div className="w-4 h-4 rounded bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center">
-                    <CalendarDays className="w-2.5 h-2.5 text-primary-foreground" />
-                  </div>
-                  <span className="text-[9px] font-bold text-foreground">This Week</span>
-                </div>
-                <div className="space-y-1">
-                  {[
-                    { day: "Mon", icon: Utensils, mode: "Cook", gradient: "from-primary to-sage-dark" },
-                    { day: "Tue", icon: Package, mode: "Leftovers", gradient: "from-primary/70 to-primary" },
-                    { day: "Wed", icon: Store, mode: "Takeout", gradient: "from-accent to-primary" },
-                  ].map((d) => (
-                    <div key={d.day} className="flex items-center gap-1.5">
-                      <span className="text-[8px] font-bold text-muted-foreground w-5">{d.day}</span>
-                      <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[7px] font-bold uppercase text-primary-foreground bg-gradient-to-r ${d.gradient}`}>
-                        <d.icon className="w-2 h-2" />
-                        {d.mode}
-                      </span>
+              <div className="relative w-[130px]">
+                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-sky/30 via-primary/20 to-accent/25 blur-[0.5px]" />
+                <div className="relative rounded-xl glass-strong p-2.5 shadow-lg">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <div className="w-4 h-4 rounded bg-gradient-to-br from-sky to-primary flex items-center justify-center">
+                      <Sparkles className="w-2.5 h-2.5 text-primary-foreground" />
                     </div>
-                  ))}
-                </div>
-                <div className="mt-1.5 flex items-center gap-1 text-[8px] font-bold text-primary">
-                  <TrendingUp className="w-2.5 h-2.5" />
-                  Reality: 84
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Floating glass card — System Learning (right) */}
-            <motion.div
-              className="absolute -right-2 md:-right-6 bottom-[16%] z-20 hidden md:block"
-              initial={{ opacity: 0, x: 20, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ delay: 1.1, duration: 0.5 }}
-            >
-              <div className="w-[155px] rounded-xl glass-strong p-2.5 shadow-lg border border-border/15">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <div className="w-4 h-4 rounded bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center">
-                    <Sparkles className="w-2.5 h-2.5 text-primary-foreground" />
+                    <span className="text-[8px] font-bold text-foreground">System Learning</span>
                   </div>
-                  <span className="text-[9px] font-bold text-foreground">System Learning</span>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[8px] text-muted-foreground leading-snug flex items-center gap-1">
-                    <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
-                    Kids prefer low-spice meals
-                  </p>
-                  <p className="text-[8px] text-muted-foreground leading-snug flex items-center gap-1">
-                    <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
-                    Wed → takeout night works
-                  </p>
-                  <p className="text-[8px] text-muted-foreground leading-snug flex items-center gap-1">
-                    <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
-                    Thu meals under 25 min
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-[7px] text-muted-foreground leading-snug flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-sky shrink-0" />
+                      Kids prefer low-spice
+                    </p>
+                    <p className="text-[7px] text-muted-foreground leading-snug flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
+                      Wed → takeout works
+                    </p>
+                    <p className="text-[7px] text-muted-foreground leading-snug flex items-center gap-1">
+                      <span className="w-1 h-1 rounded-full bg-accent shrink-0" />
+                      Thu under 25 min
+                    </p>
+                  </div>
                 </div>
               </div>
             </motion.div>
+          </motion.div>
 
-            {/* Floating badge — Streak (top-right) */}
-            <motion.div
-              className="absolute right-4 md:right-2 -top-1 md:top-[3%] z-20"
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.3, duration: 0.4 }}
-            >
-              <div className="rounded-lg glass-strong px-2.5 py-1.5 shadow-md border border-border/15">
-                <div className="flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 text-coral" />
-                  <span className="text-[10px] font-bold text-foreground">5-day streak</span>
+          {/* Mobile — just phone, no floating cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="md:hidden flex justify-center"
+          >
+            <div className="w-[200px]" style={{ perspective: "800px" }}>
+              <div
+                className="rounded-[24px] p-[2px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]"
+                style={{
+                  transform: "rotateY(-3deg) rotateX(1deg)",
+                  background: "linear-gradient(145deg, hsl(var(--foreground)/0.8), hsl(var(--foreground)/0.6), hsl(var(--foreground)/0.7))",
+                }}
+              >
+                <div className="rounded-[22px] bg-background overflow-hidden">
+                  <div className="flex items-center justify-between px-3.5 pt-1.5 pb-0.5">
+                    <span className="text-[8px] font-semibold text-foreground/60">9:41</span>
+                    <div className="w-14 h-3.5 bg-foreground/85 rounded-full" />
+                    <div className="w-2.5 h-1.5 border border-foreground/40 rounded-[2px]">
+                      <div className="w-1.5 h-full bg-primary/50 rounded-[1px]" />
+                    </div>
+                  </div>
+                  <div className="px-1 pb-1.5 pt-0.5">
+                    <DinnerCheckInPreview />
+                  </div>
+                  <div className="flex justify-center pb-1">
+                    <div className="w-16 h-[3px] bg-foreground/20 rounded-full" />
+                  </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </div>
