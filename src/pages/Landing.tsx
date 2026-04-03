@@ -5,6 +5,7 @@ import TheStruggle from "@/components/landing/TheStruggle";
 import ProductProof from "@/components/landing/ProductProof";
 import HowItWorksPlayful from "@/components/landing/HowItWorksPlayful";
 import WhyDifferent from "@/components/landing/WhyDifferent";
+import ComparisonTable from "@/components/landing/ComparisonTable";
 import InteractiveTagCloud from "@/components/landing/InteractiveTagCloud";
 import FamilyVoices from "@/components/landing/FamilyVoices";
 import FinalCTA from "@/components/landing/FinalCTA";
@@ -40,11 +41,6 @@ const Landing = () => {
 
       <HeroSection />
 
-      {/* Glass Divider */}
-      <div className="container max-w-4xl px-4">
-        <div className="h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
-      </div>
-
       <TheStruggle />
 
       <ProductProof />
@@ -53,25 +49,22 @@ const Landing = () => {
 
       <WhyDifferent />
 
-      {/* Glass Divider */}
-      <div className="container max-w-4xl px-4">
-        <div className="h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
-      </div>
+      <ComparisonTable />
 
       {/* Family situations */}
-      <section className="py-12 md:py-20 px-4 relative">
+      <section className="py-10 md:py-14 px-4 relative">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
           <div className="absolute bottom-0 left-1/4 w-[500px] h-[300px] rounded-full bg-gradient-to-t from-sky/5 to-transparent blur-3xl" />
         </div>
         <div className="container max-w-3xl text-center relative z-10">
           <motion.div initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-sky/15 to-primary/10 mb-4">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-sky/15 to-primary/10 mb-3">
               <Target className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-3">
+            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-2">
               Built for your kind of week
             </h2>
-            <p className="text-muted-foreground text-base max-w-md mx-auto mb-8">
+            <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
               Tap a situation to see how the plan adapts.
             </p>
           </motion.div>
@@ -85,7 +78,7 @@ const Landing = () => {
       <FinalCTA />
 
       {/* Glass Footer */}
-      <footer className="py-10 border-t border-border/30 glass">
+      <footer className="py-8 border-t border-border/30 glass">
         <div className="container px-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center shadow-sm">

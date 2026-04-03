@@ -3,32 +3,30 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, Flame, ShoppingCart, Brain, Sparkles } from "lucide-react";
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
+import { HeroFoodDecorations } from "./FloatingFoodDecorations";
 
 const HeroSection = () => {
   return (
-    <section className="pt-28 pb-8 md:pt-36 md:pb-16 px-4 relative overflow-hidden gradient-mesh">
+    <section className="pt-24 pb-6 md:pt-32 md:pb-10 px-4 relative overflow-hidden gradient-mesh">
       {/* Animated decorative orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-primary/10 via-sky/8 to-transparent blur-3xl animate-pulse-soft" />
         <div className="absolute -bottom-32 -left-16 w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-coral/8 via-accent/6 to-transparent blur-3xl animate-pulse-soft" style={{ animationDelay: "2s" }} />
         <div className="absolute top-1/4 right-1/4 w-[200px] h-[200px] rounded-full bg-gradient-to-bl from-violet/6 to-transparent blur-3xl animate-pulse-soft" style={{ animationDelay: "3s" }} />
-
-        {/* Floating glass orbs */}
-        <div className="hidden md:block absolute top-[18%] left-[6%] w-16 h-16 rounded-full glass animate-float opacity-60" />
-        <div className="hidden md:block absolute top-[60%] right-[8%] w-10 h-10 rounded-full glass animate-float-slow opacity-40" />
-        <div className="hidden md:block absolute bottom-[20%] left-[20%] w-6 h-6 rounded-full bg-gradient-to-r from-coral to-accent opacity-30 animate-float" style={{ animationDelay: "1s" }} />
-        <div className="hidden md:block absolute top-[30%] right-[18%] w-4 h-4 rounded-full bg-gradient-to-r from-sky to-primary opacity-25 animate-float-slow" style={{ animationDelay: "2s" }} />
       </div>
 
+      {/* Floating food decorations */}
+      <HeroFoodDecorations />
+
       <div className="container max-w-6xl mx-auto relative z-10">
-        <div className="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Left — Copy */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-center gap-2 mb-5">
+            <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center">
                 <Brain className="w-4 h-4 text-primary-foreground" />
               </div>
@@ -37,7 +35,7 @@ const HeroSection = () => {
               </span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground leading-[1.08] mb-5">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground leading-[1.08] mb-4">
               Dinner,{" "}
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent">handled</span>
@@ -55,12 +53,12 @@ const HeroSection = () => {
               </span>
             </h1>
 
-            <p className="text-lg text-muted-foreground leading-relaxed mb-3 max-w-lg">
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-2 max-w-lg">
               Most families spend 30 minutes every night figuring out dinner.
               Family Food OS learns your family and handles it for you — automatically.
             </p>
 
-            <p className="text-sm text-muted-foreground/70 mb-8 flex items-center gap-1.5">
+            <p className="text-sm text-muted-foreground/70 mb-6 flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-primary/60" />
               5 minutes to set up · Smarter every week after that
             </p>
@@ -76,8 +74,8 @@ const HeroSection = () => {
               </p>
             </div>
 
-            {/* Social proof with glass pills */}
-            <div className="mt-6 flex items-center gap-3">
+            {/* Social proof */}
+            <div className="mt-5 flex items-center gap-3">
               <div className="flex -space-x-2">
                 {[
                   { icon: Flame, bg: "from-coral to-accent" },
@@ -100,16 +98,17 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Right — Check-in card with glass frame */}
+          {/* Right — Check-in card with liquid glass frame */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6, ease: "easeOut" }}
             className="relative"
           >
-            {/* Glass frame behind */}
-            <div className="absolute -inset-3 rounded-3xl glass opacity-50 hidden md:block" />
-            <p className="text-center text-xs text-muted-foreground/60 mb-3 font-medium relative z-10 flex items-center justify-center gap-1.5">
+            {/* Liquid glass border glow */}
+            <div className="absolute -inset-[2px] rounded-[18px] bg-gradient-to-br from-primary/30 via-sky/20 to-violet/20 blur-[1px] hidden md:block" />
+            <div className="absolute -inset-4 rounded-3xl glass opacity-40 hidden md:block" />
+            <p className="text-center text-xs text-muted-foreground/60 mb-2 font-medium relative z-10 flex items-center justify-center gap-1.5">
               <Sparkles className="w-3 h-3 text-primary/50" />
               After dinner, it learns in 10 seconds
             </p>
