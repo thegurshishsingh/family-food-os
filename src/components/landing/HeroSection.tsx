@@ -1,18 +1,16 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Clock, Flame, ShoppingCart, Brain, Sparkles, TrendingUp, CalendarDays, Utensils, Package } from "lucide-react";
+import { ArrowRight, Clock, Flame, ShoppingCart, Brain, Sparkles, TrendingUp, CalendarDays, Utensils, Package, Store } from "lucide-react";
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
-import { HeroFoodDecorations } from "./FloatingFoodDecorations";
 
 const HeroSection = () => {
   return (
-    <section className="pt-24 pb-6 md:pt-32 md:pb-10 px-4 relative overflow-hidden gradient-mesh">
-      {/* Animated decorative orbs */}
+    <section className="pt-24 pb-6 md:pt-32 md:pb-10 px-4 relative gradient-mesh">
+      {/* Ambient orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-primary/10 via-sky/8 to-transparent blur-3xl animate-pulse-soft" />
         <div className="absolute -bottom-32 -left-16 w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-coral/8 via-accent/6 to-transparent blur-3xl animate-pulse-soft" style={{ animationDelay: "2s" }} />
-        <div className="absolute top-1/4 right-1/4 w-[200px] h-[200px] rounded-full bg-gradient-to-bl from-violet/6 to-transparent blur-3xl animate-pulse-soft" style={{ animationDelay: "3s" }} />
       </div>
 
       <div className="container max-w-6xl mx-auto relative z-10">
@@ -37,7 +35,7 @@ const HeroSection = () => {
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent">handled</span>
                 <motion.span
-                  className="absolute -bottom-1 left-0 w-full h-[3px] bg-gradient-to-r from-primary/50 to-sky/30 rounded-full"
+                  className="absolute -bottom-1 left-0 w-full h-[3px] bg-gradient-to-r from-primary/50 to-primary/20 rounded-full"
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
                   transition={{ delay: 0.8, duration: 0.4 }}
@@ -76,9 +74,9 @@ const HeroSection = () => {
               <div className="flex -space-x-2">
                 {[
                   { icon: Flame, bg: "from-coral to-accent" },
-                  { icon: ShoppingCart, bg: "from-primary to-sky" },
-                  { icon: Sparkles, bg: "from-violet to-primary" },
-                  { icon: Clock, bg: "from-lemon to-accent" },
+                  { icon: ShoppingCart, bg: "from-primary to-sage-dark" },
+                  { icon: Sparkles, bg: "from-primary to-sky" },
+                  { icon: Clock, bg: "from-accent to-primary" },
                 ].map((item, i) => (
                   <span
                     key={i}
@@ -100,126 +98,122 @@ const HeroSection = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
-            className="relative flex items-center justify-center"
+            className="relative flex items-center justify-center min-h-[480px] md:min-h-[540px]"
           >
-            {/* Floating food decorations around the phone */}
-            <HeroFoodDecorations />
-
             {/* Ambient glow behind phone */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-[320px] h-[420px] md:w-[380px] md:h-[500px] rounded-[40px] bg-gradient-to-br from-primary/15 via-sky/10 to-violet/12 blur-[60px]" />
+              <div className="w-[240px] h-[440px] md:w-[260px] md:h-[480px] rounded-[40px] bg-gradient-to-b from-primary/12 via-primary/6 to-accent/8 blur-[50px]" />
             </div>
 
-            {/* Phone frame */}
-            <div className="relative z-10 w-[280px] md:w-[300px]">
-              {/* Phone bezel */}
-              <div className="rounded-[32px] bg-gradient-to-b from-foreground/90 to-foreground/80 p-[3px] shadow-2xl shadow-foreground/20">
-                <div className="rounded-[29px] bg-background overflow-hidden">
+            {/* Phone frame — narrower, taller like a real phone */}
+            <div className="relative z-10 w-[220px] md:w-[240px]" style={{ perspective: "800px" }}>
+              <div
+                className="rounded-[28px] bg-gradient-to-b from-foreground/85 to-foreground/75 p-[2.5px] shadow-2xl"
+                style={{ transform: "rotateY(-3deg) rotateX(2deg)" }}
+              >
+                <div className="rounded-[26px] bg-background overflow-hidden">
                   {/* Status bar */}
-                  <div className="flex items-center justify-between px-5 pt-2.5 pb-1.5 bg-gradient-to-b from-primary/5 to-transparent">
-                    <span className="text-[10px] font-semibold text-foreground/70">9:41</span>
-                    <div className="w-20 h-5 bg-foreground/90 rounded-full mx-auto" /> {/* Notch */}
-                    <div className="flex items-center gap-1">
-                      <div className="w-3.5 h-2 border border-foreground/50 rounded-sm">
-                        <div className="w-2 h-full bg-primary/60 rounded-sm" />
+                  <div className="flex items-center justify-between px-4 pt-2 pb-1">
+                    <span className="text-[9px] font-semibold text-foreground/60">9:41</span>
+                    <div className="w-16 h-4 bg-foreground/85 rounded-full" />
+                    <div className="flex items-center gap-0.5">
+                      <div className="w-3 h-1.5 border border-foreground/40 rounded-sm">
+                        <div className="w-1.5 h-full bg-primary/50 rounded-sm" />
                       </div>
                     </div>
                   </div>
 
-                  {/* Phone content — DinnerCheckIn */}
-                  <div className="px-2 pb-3 pt-1">
+                  {/* Phone content */}
+                  <div className="px-1.5 pb-2 pt-0.5">
                     <DinnerCheckInPreview />
+                  </div>
+
+                  {/* Home indicator */}
+                  <div className="flex justify-center pb-1.5">
+                    <div className="w-20 h-[3px] bg-foreground/20 rounded-full" />
                   </div>
                 </div>
               </div>
-              {/* Phone bottom bar */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-28 h-1 bg-foreground/30 rounded-full" />
             </div>
 
             {/* Floating glass card — Weekly Plan (left) */}
             <motion.div
-              className="absolute -left-6 md:-left-12 top-[15%] z-20 hidden md:block"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1, duration: 0.5 }}
+              className="absolute -left-2 md:-left-8 top-[12%] z-20 hidden md:block"
+              initial={{ opacity: 0, x: -20, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ delay: 0.9, duration: 0.5 }}
             >
-              <div className="relative">
-                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-primary/25 via-sky/15 to-transparent blur-[0.5px]" />
-                <div className="relative w-[160px] rounded-xl glass-strong p-3 shadow-lg border border-border/20">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <div className="w-5 h-5 rounded-md bg-gradient-to-br from-primary to-sky flex items-center justify-center">
-                      <CalendarDays className="w-2.5 h-2.5 text-primary-foreground" />
+              <div className="w-[150px] rounded-xl glass-strong p-2.5 shadow-lg border border-border/15">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="w-4 h-4 rounded bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center">
+                    <CalendarDays className="w-2.5 h-2.5 text-primary-foreground" />
+                  </div>
+                  <span className="text-[9px] font-bold text-foreground">This Week</span>
+                </div>
+                <div className="space-y-1">
+                  {[
+                    { day: "Mon", icon: Utensils, mode: "Cook", gradient: "from-primary to-sage-dark" },
+                    { day: "Tue", icon: Package, mode: "Leftovers", gradient: "from-primary/70 to-primary" },
+                    { day: "Wed", icon: Store, mode: "Takeout", gradient: "from-accent to-primary" },
+                  ].map((d) => (
+                    <div key={d.day} className="flex items-center gap-1.5">
+                      <span className="text-[8px] font-bold text-muted-foreground w-5">{d.day}</span>
+                      <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[7px] font-bold uppercase text-primary-foreground bg-gradient-to-r ${d.gradient}`}>
+                        <d.icon className="w-2 h-2" />
+                        {d.mode}
+                      </span>
                     </div>
-                    <span className="text-[10px] font-bold text-foreground">This Week</span>
-                  </div>
-                  <div className="space-y-1">
-                    {[
-                      { day: "Mon", icon: Utensils, mode: "Cook", gradient: "from-primary to-sage-dark" },
-                      { day: "Tue", icon: Package, mode: "Leftovers", gradient: "from-sky to-primary" },
-                      { day: "Wed", icon: Utensils, mode: "Cook", gradient: "from-primary to-sage-dark" },
-                    ].map((d) => (
-                      <div key={d.day} className="flex items-center gap-1.5">
-                        <span className="text-[9px] font-bold text-muted-foreground w-6">{d.day}</span>
-                        <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase text-primary-foreground bg-gradient-to-r ${d.gradient}`}>
-                          <d.icon className="w-2 h-2" />
-                          {d.mode}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-2 flex items-center gap-1 text-[9px] font-bold text-primary">
-                    <TrendingUp className="w-2.5 h-2.5" />
-                    Reality: 84
-                  </div>
+                  ))}
+                </div>
+                <div className="mt-1.5 flex items-center gap-1 text-[8px] font-bold text-primary">
+                  <TrendingUp className="w-2.5 h-2.5" />
+                  Reality: 84
                 </div>
               </div>
             </motion.div>
 
-            {/* Floating glass card — Learning (right) */}
+            {/* Floating glass card — System Learning (right) */}
             <motion.div
-              className="absolute -right-4 md:-right-10 bottom-[18%] z-20 hidden md:block"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
+              className="absolute -right-2 md:-right-6 bottom-[16%] z-20 hidden md:block"
+              initial={{ opacity: 0, x: 20, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ delay: 1.1, duration: 0.5 }}
             >
-              <div className="relative">
-                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-violet/25 via-coral/15 to-transparent blur-[0.5px]" />
-                <div className="relative w-[170px] rounded-xl glass-strong p-3 shadow-lg border border-border/20">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <div className="w-5 h-5 rounded-md bg-gradient-to-br from-violet to-primary flex items-center justify-center">
-                      <Sparkles className="w-2.5 h-2.5 text-primary-foreground" />
-                    </div>
-                    <span className="text-[10px] font-bold text-foreground">System Learning</span>
+              <div className="w-[155px] rounded-xl glass-strong p-2.5 shadow-lg border border-border/15">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <div className="w-4 h-4 rounded bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center">
+                    <Sparkles className="w-2.5 h-2.5 text-primary-foreground" />
                   </div>
-                  <div className="space-y-1.5">
-                    <p className="text-[9px] text-muted-foreground leading-snug">
-                      🧒 Kids prefer low-spice meals
-                    </p>
-                    <p className="text-[9px] text-muted-foreground leading-snug">
-                      📅 Wed → takeout night works
-                    </p>
-                    <p className="text-[9px] text-muted-foreground leading-snug">
-                      ⏱ Thu meals under 25 min
-                    </p>
-                  </div>
+                  <span className="text-[9px] font-bold text-foreground">System Learning</span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[8px] text-muted-foreground leading-snug flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
+                    Kids prefer low-spice meals
+                  </p>
+                  <p className="text-[8px] text-muted-foreground leading-snug flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
+                    Wed → takeout night works
+                  </p>
+                  <p className="text-[8px] text-muted-foreground leading-snug flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
+                    Thu meals under 25 min
+                  </p>
                 </div>
               </div>
             </motion.div>
 
-            {/* Floating glass card — Streak (top-right) */}
+            {/* Floating badge — Streak (top-right) */}
             <motion.div
-              className="absolute right-2 md:right-0 -top-2 md:top-[2%] z-20"
-              initial={{ opacity: 0, y: -15 }}
+              className="absolute right-4 md:right-2 -top-1 md:top-[3%] z-20"
+              initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.4, duration: 0.5 }}
+              transition={{ delay: 1.3, duration: 0.4 }}
             >
-              <div className="relative">
-                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-coral/20 via-lemon/15 to-transparent blur-[0.5px]" />
-                <div className="relative rounded-xl glass-strong px-3 py-2 shadow-lg border border-border/20">
-                  <div className="flex items-center gap-1.5">
-                    <Flame className="w-4 h-4 text-coral" />
-                    <span className="text-[11px] font-bold text-foreground">5-day streak</span>
-                  </div>
+              <div className="rounded-lg glass-strong px-2.5 py-1.5 shadow-md border border-border/15">
+                <div className="flex items-center gap-1.5">
+                  <Flame className="w-3.5 h-3.5 text-coral" />
+                  <span className="text-[10px] font-bold text-foreground">5-day streak</span>
                 </div>
               </div>
             </motion.div>
