@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles } from "lucide-react";
 
 const TAG_EXAMPLES: Record<string, string> = {
   "Newborn at home": "3 meals under 20 min, 2 takeout nights, zero Sunday prep required.",
@@ -25,10 +26,10 @@ const InteractiveTagCloud = () => {
           <button
             key={tag}
             onClick={() => setSelected(tag)}
-            className={`px-4 py-2 rounded-full text-sm border transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-full text-sm transition-all cursor-pointer ${
               selected === tag
-                ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                : "bg-sage-light text-primary border-primary/10 hover:border-primary/30"
+                ? "bg-gradient-to-r from-primary to-sage-dark text-primary-foreground shadow-md"
+                : "glass text-foreground/70 hover:text-foreground hover:shadow-sm"
             }`}
           >
             {tag}
@@ -42,11 +43,14 @@ const InteractiveTagCloud = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.2 }}
-          className="max-w-xl mx-auto mb-10 bg-card border border-border rounded-xl px-4 py-3"
+          className="max-w-xl mx-auto mb-10 glass-card rounded-xl px-4 py-3"
         >
-          <p className="text-center text-base md:text-lg text-foreground/80 font-medium italic">
-            "{TAG_EXAMPLES[selected]}"
-          </p>
+          <div className="flex items-start gap-2">
+            <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            <p className="text-base md:text-lg text-foreground/80 font-medium italic">
+              "{TAG_EXAMPLES[selected]}"
+            </p>
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>
