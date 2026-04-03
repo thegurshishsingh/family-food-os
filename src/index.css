@@ -54,6 +54,16 @@
     --warm-light: 28 50% 94%;
     --cream: 40 30% 96%;
     --charcoal: 30 10% 12%;
+
+    /* New design tokens */
+    --coral: 12 80% 62%;
+    --coral-light: 12 60% 94%;
+    --sky: 200 70% 55%;
+    --sky-light: 200 50% 94%;
+    --violet: 262 50% 58%;
+    --violet-light: 262 40% 94%;
+    --lemon: 48 90% 60%;
+    --lemon-light: 48 60% 94%;
   }
 
   .dark {
@@ -101,6 +111,15 @@
     --warm-light: 28 30% 16%;
     --cream: 30 10% 12%;
     --charcoal: 40 15% 92%;
+
+    --coral: 12 70% 55%;
+    --coral-light: 12 40% 16%;
+    --sky: 200 60% 48%;
+    --sky-light: 200 30% 16%;
+    --violet: 262 40% 50%;
+    --violet-light: 262 30% 16%;
+    --lemon: 48 70% 50%;
+    --lemon-light: 48 40% 16%;
   }
 }
 
@@ -116,5 +135,46 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Fraunces', serif;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: hsla(var(--background), 0.6);
+    backdrop-filter: blur(16px) saturate(1.5);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    border: 1px solid hsla(var(--foreground), 0.06);
+    box-shadow: 
+      0 4px 30px hsla(var(--foreground), 0.04),
+      inset 0 1px 0 hsla(var(--primary-foreground), 0.5);
+  }
+
+  .glass-strong {
+    background: hsla(var(--background), 0.75);
+    backdrop-filter: blur(24px) saturate(1.8);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8);
+    border: 1px solid hsla(var(--foreground), 0.08);
+    box-shadow: 
+      0 8px 40px hsla(var(--foreground), 0.06),
+      inset 0 1px 0 hsla(var(--primary-foreground), 0.6);
+  }
+
+  .glass-card {
+    background: hsla(var(--card), 0.65);
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    border: 1px solid hsla(var(--foreground), 0.05);
+    box-shadow: 
+      0 4px 24px hsla(var(--foreground), 0.04),
+      0 1px 3px hsla(var(--foreground), 0.02),
+      inset 0 1px 0 hsla(var(--primary-foreground), 0.4);
+  }
+
+  .gradient-mesh {
+    background: 
+      radial-gradient(ellipse 80% 60% at 10% 20%, hsla(var(--primary), 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 80% at 90% 80%, hsla(var(--coral), 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse 70% 50% at 50% 50%, hsla(var(--sky), 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 60% at 80% 10%, hsla(var(--violet), 0.05) 0%, transparent 50%);
   }
 }
