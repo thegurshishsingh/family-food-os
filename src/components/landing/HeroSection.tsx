@@ -4,18 +4,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, Flame, ShoppingCart, Brain, Sparkles, TrendingUp, CalendarDays, Utensils, Package, Store } from "lucide-react";
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
 
-const floatAnimation = (delay: number, y: number = 8) => ({
-  animate: {
-    y: [0, -y, 0],
-    transition: {
-      duration: 4,
-      repeat: Infinity,
-      ease: "easeInOut" as const,
-      delay,
-    },
-  },
-});
-
 const HeroSection = () => {
   return (
     <section className="pt-24 pb-2 md:pt-28 md:pb-4 px-4 relative gradient-mesh">
@@ -26,7 +14,7 @@ const HeroSection = () => {
       </div>
 
       <div className="container max-w-6xl mx-auto relative z-10">
-        <div className="grid md:grid-cols-[1fr,1fr] gap-6 md:gap-8 items-center">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
           {/* Left — Copy */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -105,64 +93,41 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Right — Phone mockup with floating glass screens */}
+          {/* Right — Phone + floating cards composition */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
-            className="relative flex items-center justify-center w-full min-h-[420px] md:min-h-[480px]"
+            className="hidden md:grid grid-cols-[140px_200px_150px] grid-rows-[auto_1fr_auto] gap-x-2 gap-y-3 items-center justify-center"
           >
-            {/* Ambient glow behind phone */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-[200px] h-[380px] md:w-[220px] md:h-[420px] rounded-[40px] bg-gradient-to-b from-primary/15 via-sky/8 to-accent/10 blur-[50px]" />
-            </div>
-
-            {/* Phone frame — true phone proportions ~9:19.5 */}
-            <div className="relative z-10 w-[190px] md:w-[200px]" style={{ perspective: "800px" }}>
-              <div
-                className="rounded-[24px] p-[2px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]"
-                style={{
-                  transform: "rotateY(-4deg) rotateX(2deg)",
-                  background: "linear-gradient(145deg, hsl(var(--foreground)/0.8), hsl(var(--foreground)/0.6), hsl(var(--foreground)/0.7))",
-                }}
-              >
-                <div className="rounded-[22px] bg-background overflow-hidden">
-                  {/* Status bar */}
-                  <div className="flex items-center justify-between px-3.5 pt-1.5 pb-0.5">
-                    <span className="text-[8px] font-semibold text-foreground/60">9:41</span>
-                    <div className="w-14 h-3.5 bg-foreground/85 rounded-full" />
-                    <div className="flex items-center gap-0.5">
-                      <div className="w-2.5 h-1.5 border border-foreground/40 rounded-[2px]">
-                        <div className="w-1.5 h-full bg-primary/50 rounded-[1px]" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Phone content */}
-                  <div className="px-1 pb-1.5 pt-0.5">
-                    <DinnerCheckInPreview />
-                  </div>
-
-                  {/* Home indicator */}
-                  <div className="flex justify-center pb-1">
-                    <div className="w-16 h-[3px] bg-foreground/20 rounded-full" />
+            {/* Row 1: empty | streak badge | empty */}
+            <div />
+            <motion.div
+              className="justify-self-center"
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+            >
+              <div className="relative inline-block">
+                <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-coral/30 via-lemon/20 to-accent/25 blur-[0.5px]" />
+                <div className="relative rounded-lg glass-strong px-3 py-1.5 shadow-md">
+                  <div className="flex items-center gap-1.5">
+                    <Flame className="w-3.5 h-3.5 text-coral" />
+                    <span className="text-[10px] font-bold text-foreground">5-day streak</span>
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
+            <div />
 
-            {/* Floating glass card — Weekly Plan (left) */}
+            {/* Row 2: weekly plan | phone | system learning */}
             <motion.div
-              className="absolute left-[2%] md:left-[5%] top-[8%] z-20 hidden md:block"
-              initial={{ opacity: 0, x: -20, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ delay: 0.9, duration: 0.5 }}
-              {...floatAnimation(0, 6)}
+              className="self-start mt-4"
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             >
               <div className="relative">
-                {/* Gradient border */}
-                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-primary/30 via-sky/20 to-accent/15 blur-[0.5px]" />
-                <div className="relative w-[140px] rounded-xl glass-strong p-2.5 shadow-lg">
+                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-primary/30 via-sky/25 to-accent/20 blur-[0.5px]" />
+                <div className="relative rounded-xl glass-strong p-2.5 shadow-lg">
                   <div className="flex items-center gap-1.5 mb-2">
                     <div className="w-4 h-4 rounded bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center">
                       <CalendarDays className="w-2.5 h-2.5 text-primary-foreground" />
@@ -192,17 +157,44 @@ const HeroSection = () => {
               </div>
             </motion.div>
 
-            {/* Floating glass card — System Learning (right) */}
+            {/* Phone */}
+            <div className="relative" style={{ perspective: "800px" }}>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
+                <div className="w-[200px] h-[400px] rounded-[40px] bg-gradient-to-b from-primary/15 via-sky/8 to-accent/10 blur-[50px]" />
+              </div>
+              <div
+                className="rounded-[24px] p-[2px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]"
+                style={{
+                  transform: "rotateY(-3deg) rotateX(1deg)",
+                  background: "linear-gradient(145deg, hsl(var(--foreground)/0.8), hsl(var(--foreground)/0.6), hsl(var(--foreground)/0.7))",
+                }}
+              >
+                <div className="rounded-[22px] bg-background overflow-hidden">
+                  <div className="flex items-center justify-between px-3.5 pt-1.5 pb-0.5">
+                    <span className="text-[8px] font-semibold text-foreground/60">9:41</span>
+                    <div className="w-14 h-3.5 bg-foreground/85 rounded-full" />
+                    <div className="w-2.5 h-1.5 border border-foreground/40 rounded-[2px]">
+                      <div className="w-1.5 h-full bg-primary/50 rounded-[1px]" />
+                    </div>
+                  </div>
+                  <div className="px-1 pb-1.5 pt-0.5">
+                    <DinnerCheckInPreview />
+                  </div>
+                  <div className="flex justify-center pb-1">
+                    <div className="w-16 h-[3px] bg-foreground/20 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <motion.div
-              className="absolute right-[2%] md:right-[5%] bottom-[20%] z-20 hidden md:block"
-              initial={{ opacity: 0, x: 20, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{ delay: 1.1, duration: 0.5 }}
-              {...floatAnimation(1.5, 7)}
+              className="self-end mb-6"
+              animate={{ y: [0, -7, 0] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
             >
               <div className="relative">
-                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-sky/25 via-primary/15 to-accent/20 blur-[0.5px]" />
-                <div className="relative w-[150px] rounded-xl glass-strong p-2.5 shadow-lg">
+                <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-sky/30 via-primary/20 to-accent/25 blur-[0.5px]" />
+                <div className="relative rounded-xl glass-strong p-2.5 shadow-lg">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <div className="w-4 h-4 rounded bg-gradient-to-br from-sky to-primary flex items-center justify-center">
                       <Sparkles className="w-2.5 h-2.5 text-primary-foreground" />
@@ -226,25 +218,40 @@ const HeroSection = () => {
                 </div>
               </div>
             </motion.div>
+          </motion.div>
 
-            {/* Floating badge — Streak (top-right) */}
-            <motion.div
-              className="absolute right-[20%] md:right-[15%] -top-1 md:top-[1%] z-20"
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.3, duration: 0.4 }}
-              {...floatAnimation(0.8, 5)}
-            >
-              <div className="relative">
-                <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-coral/25 via-lemon/15 to-accent/20 blur-[0.5px]" />
-                <div className="relative rounded-lg glass-strong px-2.5 py-1.5 shadow-md">
-                  <div className="flex items-center gap-1.5">
-                    <Flame className="w-3.5 h-3.5 text-coral" />
-                    <span className="text-[10px] font-bold text-foreground">5-day streak</span>
+          {/* Mobile — just phone, no floating cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="md:hidden flex justify-center"
+          >
+            <div className="w-[200px]" style={{ perspective: "800px" }}>
+              <div
+                className="rounded-[24px] p-[2px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]"
+                style={{
+                  transform: "rotateY(-3deg) rotateX(1deg)",
+                  background: "linear-gradient(145deg, hsl(var(--foreground)/0.8), hsl(var(--foreground)/0.6), hsl(var(--foreground)/0.7))",
+                }}
+              >
+                <div className="rounded-[22px] bg-background overflow-hidden">
+                  <div className="flex items-center justify-between px-3.5 pt-1.5 pb-0.5">
+                    <span className="text-[8px] font-semibold text-foreground/60">9:41</span>
+                    <div className="w-14 h-3.5 bg-foreground/85 rounded-full" />
+                    <div className="w-2.5 h-1.5 border border-foreground/40 rounded-[2px]">
+                      <div className="w-1.5 h-full bg-primary/50 rounded-[1px]" />
+                    </div>
+                  </div>
+                  <div className="px-1 pb-1.5 pt-0.5">
+                    <DinnerCheckInPreview />
+                  </div>
+                  <div className="flex justify-center pb-1">
+                    <div className="w-16 h-[3px] bg-foreground/20 rounded-full" />
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </div>
