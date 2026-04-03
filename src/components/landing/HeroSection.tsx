@@ -93,39 +93,20 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Right — Phone + floating cards composition */}
+          {/* Right — Phone + floating cards */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
             className="hidden md:flex items-center justify-center gap-3"
           >
-            {/* Row 1: empty | streak badge | empty */}
-            <div />
+            {/* Left column — Weekly Plan card */}
             <motion.div
-              className="justify-self-center"
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-            >
-              <div className="relative inline-block">
-                <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-coral/30 via-lemon/20 to-accent/25 blur-[0.5px]" />
-                <div className="relative rounded-lg glass-strong px-3 py-1.5 shadow-md">
-                  <div className="flex items-center gap-1.5">
-                    <Flame className="w-3.5 h-3.5 text-coral" />
-                    <span className="text-[10px] font-bold text-foreground">5-day streak</span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-            <div />
-
-            {/* Row 2: weekly plan | phone | system learning */}
-            <motion.div
-              className="self-start mt-4"
+              className="self-start mt-12 shrink-0"
               animate={{ y: [0, -6, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             >
-              <div className="relative">
+              <div className="relative w-[120px]">
                 <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-primary/30 via-sky/25 to-accent/20 blur-[0.5px]" />
                 <div className="relative rounded-xl glass-strong p-2.5 shadow-lg">
                   <div className="flex items-center gap-1.5 mb-2">
@@ -136,83 +117,101 @@ const HeroSection = () => {
                   </div>
                   <div className="space-y-1">
                     {[
-                      { day: "Mon", icon: Utensils, mode: "Cook", gradient: "from-primary to-sage-dark" },
-                      { day: "Tue", icon: Package, mode: "Leftovers", gradient: "from-sky to-primary" },
-                      { day: "Wed", icon: Store, mode: "Takeout", gradient: "from-coral to-accent" },
+                      { day: "Mon", icon: Utensils, mode: "Cook", g: "from-primary to-sage-dark" },
+                      { day: "Tue", icon: Package, mode: "Leftover", g: "from-sky to-primary" },
+                      { day: "Wed", icon: Store, mode: "Takeout", g: "from-coral to-accent" },
                     ].map((d) => (
-                      <div key={d.day} className="flex items-center gap-1.5">
-                        <span className="text-[8px] font-bold text-muted-foreground w-5">{d.day}</span>
-                        <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[7px] font-bold uppercase text-primary-foreground bg-gradient-to-r ${d.gradient}`}>
-                          <d.icon className="w-2 h-2" />
+                      <div key={d.day} className="flex items-center gap-1">
+                        <span className="text-[7px] font-bold text-muted-foreground w-5">{d.day}</span>
+                        <span className={`inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[6px] font-bold uppercase text-primary-foreground bg-gradient-to-r ${d.g}`}>
+                          <d.icon className="w-1.5 h-1.5" />
                           {d.mode}
                         </span>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-1.5 flex items-center gap-1 text-[8px] font-bold text-primary">
-                    <TrendingUp className="w-2.5 h-2.5" />
+                  <div className="mt-1.5 flex items-center gap-1 text-[7px] font-bold text-primary">
+                    <TrendingUp className="w-2 h-2" />
                     Reality: 84
                   </div>
                 </div>
               </div>
             </motion.div>
 
-            {/* Phone */}
-            <div className="relative" style={{ perspective: "800px" }}>
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
-                <div className="w-[200px] h-[400px] rounded-[40px] bg-gradient-to-b from-primary/15 via-sky/8 to-accent/10 blur-[50px]" />
-              </div>
-              <div
-                className="rounded-[24px] p-[2px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]"
-                style={{
-                  transform: "rotateY(-3deg) rotateX(1deg)",
-                  background: "linear-gradient(145deg, hsl(var(--foreground)/0.8), hsl(var(--foreground)/0.6), hsl(var(--foreground)/0.7))",
-                }}
+            {/* Center — Phone with streak badge */}
+            <div className="flex flex-col items-center gap-2 shrink-0">
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
               >
-                <div className="rounded-[22px] bg-background overflow-hidden">
-                  <div className="flex items-center justify-between px-3.5 pt-1.5 pb-0.5">
-                    <span className="text-[8px] font-semibold text-foreground/60">9:41</span>
-                    <div className="w-14 h-3.5 bg-foreground/85 rounded-full" />
-                    <div className="w-2.5 h-1.5 border border-foreground/40 rounded-[2px]">
-                      <div className="w-1.5 h-full bg-primary/50 rounded-[1px]" />
+                <div className="relative inline-block">
+                  <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-coral/30 via-lemon/20 to-accent/25 blur-[0.5px]" />
+                  <div className="relative rounded-lg glass-strong px-3 py-1.5 shadow-md">
+                    <div className="flex items-center gap-1.5">
+                      <Flame className="w-3.5 h-3.5 text-coral" />
+                      <span className="text-[10px] font-bold text-foreground">5-day streak</span>
                     </div>
                   </div>
-                  <div className="px-1 pb-1.5 pt-0.5">
-                    <DinnerCheckInPreview />
-                  </div>
-                  <div className="flex justify-center pb-1">
-                    <div className="w-16 h-[3px] bg-foreground/20 rounded-full" />
+                </div>
+              </motion.div>
+
+              <div className="relative w-[200px]" style={{ perspective: "800px" }}>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
+                  <div className="w-[200px] h-[400px] rounded-[40px] bg-gradient-to-b from-primary/15 via-sky/8 to-accent/10 blur-[50px]" />
+                </div>
+                <div
+                  className="rounded-[24px] p-[2px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]"
+                  style={{
+                    transform: "rotateY(-3deg) rotateX(1deg)",
+                    background: "linear-gradient(145deg, hsl(var(--foreground)/0.8), hsl(var(--foreground)/0.6), hsl(var(--foreground)/0.7))",
+                  }}
+                >
+                  <div className="rounded-[22px] bg-background overflow-hidden">
+                    <div className="flex items-center justify-between px-3.5 pt-1.5 pb-0.5">
+                      <span className="text-[8px] font-semibold text-foreground/60">9:41</span>
+                      <div className="w-14 h-3.5 bg-foreground/85 rounded-full" />
+                      <div className="w-2.5 h-1.5 border border-foreground/40 rounded-[2px]">
+                        <div className="w-1.5 h-full bg-primary/50 rounded-[1px]" />
+                      </div>
+                    </div>
+                    <div className="px-1 pb-1.5 pt-0.5">
+                      <DinnerCheckInPreview />
+                    </div>
+                    <div className="flex justify-center pb-1">
+                      <div className="w-16 h-[3px] bg-foreground/20 rounded-full" />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* Right column — System Learning card */}
             <motion.div
-              className="self-end mb-6"
+              className="self-end mb-10 shrink-0"
               animate={{ y: [0, -7, 0] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
             >
-              <div className="relative">
+              <div className="relative w-[130px]">
                 <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-sky/30 via-primary/20 to-accent/25 blur-[0.5px]" />
                 <div className="relative rounded-xl glass-strong p-2.5 shadow-lg">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <div className="w-4 h-4 rounded bg-gradient-to-br from-sky to-primary flex items-center justify-center">
                       <Sparkles className="w-2.5 h-2.5 text-primary-foreground" />
                     </div>
-                    <span className="text-[9px] font-bold text-foreground">System Learning</span>
+                    <span className="text-[8px] font-bold text-foreground">System Learning</span>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[8px] text-muted-foreground leading-snug flex items-center gap-1">
+                    <p className="text-[7px] text-muted-foreground leading-snug flex items-center gap-1">
                       <span className="w-1 h-1 rounded-full bg-sky shrink-0" />
-                      Kids prefer low-spice meals
+                      Kids prefer low-spice
                     </p>
-                    <p className="text-[8px] text-muted-foreground leading-snug flex items-center gap-1">
+                    <p className="text-[7px] text-muted-foreground leading-snug flex items-center gap-1">
                       <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
-                      Wed → takeout night works
+                      Wed → takeout works
                     </p>
-                    <p className="text-[8px] text-muted-foreground leading-snug flex items-center gap-1">
+                    <p className="text-[7px] text-muted-foreground leading-snug flex items-center gap-1">
                       <span className="w-1 h-1 rounded-full bg-accent shrink-0" />
-                      Thu meals under 25 min
+                      Thu under 25 min
                     </p>
                   </div>
                 </div>
