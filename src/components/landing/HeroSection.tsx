@@ -153,7 +153,7 @@ const HeroSection = () => {
 
             {/* Floating glass card — Weekly Plan (left) */}
             <motion.div
-              className="absolute left-0 md:left-2 top-[8%] z-20 hidden md:block"
+              className="absolute left-[2%] md:left-[5%] top-[8%] z-20 hidden md:block"
               initial={{ opacity: 0, x: -20, scale: 0.95 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               transition={{ delay: 0.9, duration: 0.5 }}
