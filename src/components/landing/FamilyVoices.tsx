@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Quote, Star } from "lucide-react";
-import { BottomPageDecorations } from "./FloatingFoodDecorations";
 
 const VOICES = [
   {
