@@ -121,6 +121,15 @@ const PhoneMockup = () => (
 );
 
 const HeroSection = () => {
+  const [wordIndex, setWordIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWordIndex((prev) => (prev + 1) % rotatingWords.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="pt-24 pb-2 md:pt-28 md:pb-4 px-4 relative gradient-mesh">
       {/* Ambient orbs */}
