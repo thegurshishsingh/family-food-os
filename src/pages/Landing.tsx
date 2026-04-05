@@ -115,7 +115,7 @@ const Landing = () => {
               <p className="font-semibold text-foreground text-xs uppercase tracking-wider">Legal</p>
               <a href="#" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Privacy Policy</a>
               <a href="#" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Terms of Service</a>
-              <p className="text-[11px] text-muted-foreground/50 pt-2">
+              <p className="text-[11px] text-muted-foreground/50 pt-2 text-green-700">
                 Your family's data is never sold. Ever.
               </p>
             </div>
