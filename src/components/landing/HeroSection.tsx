@@ -67,8 +67,8 @@ const SystemLearningCard = () => (
 
 const StreakBadge = () => (
   <div className="relative inline-block">
-    <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-coral/40 via-lemon/25 to-accent/30 blur-[0.5px]" />
-    <div className="relative rounded-lg glass-strong px-3 py-1.5 shadow-md">
+    <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-coral/20 via-border/40 to-accent/15" />
+    <div className="relative rounded-lg bg-background/95 backdrop-blur-sm border border-border/50 px-3 py-1.5 shadow-md">
       <div className="flex items-center gap-1.5">
         <Flame className="w-4 h-4 text-coral" />
         <span className="text-[11px] font-bold text-foreground">5-day streak 🔥</span>
