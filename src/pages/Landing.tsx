@@ -61,7 +61,7 @@ const Landing = () => {
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-sky/15 to-primary/10 mb-3">
               <Target className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-2">
+            <h2 className="text-xl md:text-3xl font-serif font-semibold text-foreground mb-2">
               Built for your kind of week
             </h2>
             <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
@@ -77,18 +77,58 @@ const Landing = () => {
 
       <FinalCTA />
 
-      {/* Glass Footer */}
-      <footer className="py-8 border-t border-border/30 glass">
-        <div className="container px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center shadow-sm">
-              <ChefHat className="w-3.5 h-3.5 text-primary-foreground" />
+      {/* Footer */}
+      <footer className="py-10 border-t border-border/30 glass">
+        <div className="container px-4 max-w-5xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {/* Brand + founding story */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center shadow-sm">
+                  <ChefHat className="w-3.5 h-3.5 text-primary-foreground" />
+                </div>
+                <span className="font-serif text-lg font-semibold text-foreground">Family Food OS</span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Built by parents who were tired of 5 pm chaos. We created the dinner system we wished existed — so every family can reclaim their evenings.
+              </p>
             </div>
-            <span className="font-serif text-lg font-semibold text-foreground">Family Food OS</span>
+
+            {/* Links */}
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="space-y-2">
+                <p className="font-semibold text-foreground text-xs uppercase tracking-wider">Product</p>
+                <a href="#how-it-works" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">How it works</a>
+                <a href="#why-different" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Why we're different</a>
+                <Link to="/signup" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Get started</Link>
+              </div>
+              <div className="space-y-2">
+                <p className="font-semibold text-foreground text-xs uppercase tracking-wider">Support</p>
+                <a href="mailto:hello@familyfoodOS.com" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Contact us</a>
+                <a href="#faq" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">FAQ</a>
+                <a href="#" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">About</a>
+              </div>
+            </div>
+
+            {/* Legal + trust */}
+            <div className="space-y-2">
+              <p className="font-semibold text-foreground text-xs uppercase tracking-wider">Legal</p>
+              <a href="#" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Privacy Policy</a>
+              <a href="#" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Terms of Service</a>
+              <p className="text-[11px] text-muted-foreground/50 pt-2">
+                Your family's data is never sold. Ever.
+              </p>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Family Food OS · Made with care for busy families
-          </p>
+
+          <div className="border-t border-border/20 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground/60">
+              © {new Date().getFullYear()} Family Food OS · Made with care for busy families
+            </p>
+            <p className="text-[11px] text-muted-foreground/40">
+              Dinner doesn't have to be stressful. 💚
+            </p>
+          </div>
         </div>
       </footer>
     </div>

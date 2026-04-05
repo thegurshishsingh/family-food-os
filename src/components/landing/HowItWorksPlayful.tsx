@@ -47,7 +47,7 @@ const HowItWorksPlayful = () => {
           variants={fadeUp}
           custom={0}
         >
-          <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-2">
+          <h2 className="text-xl md:text-3xl font-serif font-semibold text-foreground mb-2">
             Here's how it actually works
           </h2>
           <p className="text-muted-foreground text-sm max-w-md mx-auto">
