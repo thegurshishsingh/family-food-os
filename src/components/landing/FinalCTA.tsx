@@ -41,6 +41,13 @@ const FinalCTA = () => {
           <p className="text-xs text-muted-foreground/50 mt-3">
             No credit card needed · Set up in 5 minutes · Cancel anytime
           </p>
+          <p className="text-xs text-muted-foreground/40 mt-4">
+            Questions? Reach us at{" "}
+            <a href="mailto:hello@familyfoodOS.com" className="text-primary/70 hover:text-primary underline underline-offset-2 transition-colors">
+              hello@familyfoodOS.com
+            </a>
+            {" "}— we're parents too, we get it.
+          </p>
         </motion.div>
       </div>
     </section>

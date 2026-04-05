@@ -31,7 +31,7 @@ const TheStruggle = () => {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-coral/15 to-accent/10 mb-3">
             <Flame className="w-6 h-6 text-coral" />
           </div>
-          <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-2">
+          <h2 className="text-xl md:text-3xl font-serif font-semibold text-foreground mb-2">
             Sound familiar?
           </h2>
           <p className="text-muted-foreground text-sm">
