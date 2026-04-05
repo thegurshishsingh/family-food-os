@@ -152,10 +152,8 @@ const HeroSection = () => {
               </span>
             </h1>
 
-            <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-2 max-w-lg">
-              Most families spend 30 minutes every night figuring out dinner.
-              Family Food OS learns your family and handles it for you — automatically.
-            </p>
+
+
 
             <ul className="space-y-1.5 mb-4 max-w-lg">
               {[
