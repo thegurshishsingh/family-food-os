@@ -6,13 +6,12 @@ import { ArrowRight, Clock, Flame, Brain, Sparkles, TrendingUp, CalendarDays, Ut
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
 
 const rotatingWords = [
-  "Dinner",
+  "Dinner decisions",
   "Sports nights",
   "Picky eaters",
   "Leftover overload",
   "Grocery runs",
   "Takeout traps",
-  "Dinner decisions",
   "Busy weeknights",
 ];
 
