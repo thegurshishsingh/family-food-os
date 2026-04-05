@@ -5,7 +5,7 @@ import TheStruggle from "@/components/landing/TheStruggle";
 import ProductProof from "@/components/landing/ProductProof";
 import HowItWorksPlayful from "@/components/landing/HowItWorksPlayful";
 import WhyDifferent from "@/components/landing/WhyDifferent";
-import ComparisonTable from "@/components/landing/ComparisonTable";
+
 import InteractiveTagCloud from "@/components/landing/InteractiveTagCloud";
 import FamilyVoices from "@/components/landing/FamilyVoices";
 import FinalCTA from "@/components/landing/FinalCTA";
