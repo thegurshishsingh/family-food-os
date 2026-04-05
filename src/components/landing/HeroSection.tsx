@@ -1,8 +1,20 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, Flame, Brain, Sparkles, TrendingUp, CalendarDays, Utensils, Package, Store } from "lucide-react";
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
+
+const rotatingWords = [
+  "Dinner",
+  "Sports nights",
+  "Picky eaters",
+  "Leftover overload",
+  "Grocery runs",
+  "Takeout traps",
+  "Dinner decisions",
+  "Busy weeknights",
+];
 
 const WeeklyPlanCard = () => (
   <div className="relative w-[140px]">
@@ -109,6 +121,15 @@ const PhoneMockup = () => (
 );
 
 const HeroSection = () => {
+  const [wordIndex, setWordIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWordIndex((prev) => (prev + 1) % rotatingWords.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="pt-24 pb-2 md:pt-28 md:pb-4 px-4 relative gradient-mesh">
       {/* Ambient orbs */}
@@ -135,9 +156,23 @@ const HeroSection = () => {
             </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground leading-[1.08] mb-4">
-              Dinner,{" "}
+              <span className="relative inline-block h-[1.15em] overflow-hidden align-bottom" style={{ minWidth: "3ch" }}>
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={wordIndex}
+                    className="inline-block bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent"
+                    initial={{ y: "100%", opacity: 0 }}
+                    animate={{ y: "0%", opacity: 1 }}
+                    exit={{ y: "-100%", opacity: 0 }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    {rotatingWords[wordIndex]}
+                  </motion.span>
+                </AnimatePresence>
+              </span>
+              ,{" "}
               <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent">handled</span>
+                <span>handled</span>
                 <motion.span
                   className="absolute -bottom-1 left-0 w-full h-[3px] bg-gradient-to-r from-primary/50 to-primary/20 rounded-full"
                   initial={{ scaleX: 0 }}
