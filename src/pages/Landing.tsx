@@ -61,7 +61,7 @@ const Landing = () => {
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-sky/15 to-primary/10 mb-3">
               <Target className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-2">
+            <h2 className="text-xl md:text-3xl font-serif font-semibold text-foreground mb-2">
               Built for your kind of week
             </h2>
             <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
