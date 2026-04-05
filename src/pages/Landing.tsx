@@ -49,7 +49,7 @@ const Landing = () => {
 
       <WhyDifferent />
 
-      <ComparisonTable />
+      
 
       {/* Family situations */}
       <section className="py-10 md:py-14 px-4 relative">
