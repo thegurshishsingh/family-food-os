@@ -181,8 +181,8 @@ const HeroSection = () => {
               transition={{ delay: 1, duration: 0.4 }}
             >
               <div className="relative inline-flex">
-                <div className="absolute -inset-[1px] rounded-full bg-gradient-to-r from-primary/40 via-coral/30 to-sky/35 blur-[0.5px]" />
-                <div className="relative inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-strong shadow-md">
+                <div className="absolute -inset-[1px] rounded-full bg-gradient-to-r from-primary/20 via-border/40 to-sky/15" />
+                <div className="relative inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-background/95 backdrop-blur-sm border border-border/50 shadow-md">
                   <div className="flex -space-x-1.5">
                     {[
                       { icon: Clock, bg: "from-primary to-sage-dark" },
