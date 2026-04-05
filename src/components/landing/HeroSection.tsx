@@ -157,6 +157,19 @@ const HeroSection = () => {
               Family Food OS learns your family and handles it for you — automatically.
             </p>
 
+            <ul className="space-y-1.5 mb-4 max-w-lg">
+              {[
+                { icon: CalendarDays, text: "Automatic weekly plan: cook, leftovers, takeout, dine out." },
+                { icon: Brain, text: "Learns your family: picky eaters, sports nights, budgets." },
+                { icon: Sparkles, text: "Groceries and leftovers optimized so you waste less food." },
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <item.icon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>{item.text}</span>
+                </li>
+              ))}
+            </ul>
+
             <p className="text-sm text-muted-foreground/70 mb-6 flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-primary/60" />
               5 minutes to set up · Smarter every week after that
