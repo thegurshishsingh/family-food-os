@@ -1,8 +1,20 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, Flame, Brain, Sparkles, TrendingUp, CalendarDays, Utensils, Package, Store } from "lucide-react";
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
+
+const rotatingWords = [
+  "Dinner",
+  "Sports nights",
+  "Picky eaters",
+  "Leftover overload",
+  "Grocery runs",
+  "Takeout traps",
+  "Dinner decisions",
+  "Busy weeknights",
+];
 
 const WeeklyPlanCard = () => (
   <div className="relative w-[140px]">
