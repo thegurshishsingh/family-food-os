@@ -39,8 +39,8 @@ const WeeklyPlanCard = () => (
 
 const SystemLearningCard = () => (
   <div className="relative w-[150px]">
-    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-sky/40 via-primary/25 to-accent/30 blur-[0.5px]" />
-    <div className="relative rounded-xl glass-strong p-3 shadow-lg">
+    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-sky/20 via-border/40 to-primary/15" />
+    <div className="relative rounded-xl bg-background/95 backdrop-blur-sm border border-border/50 p-3 shadow-lg">
       <div className="flex items-center gap-1.5 mb-2">
         <div className="w-5 h-5 rounded bg-gradient-to-br from-sky to-primary flex items-center justify-center">
           <Sparkles className="w-3 h-3 text-primary-foreground" />
