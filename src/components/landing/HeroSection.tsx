@@ -198,7 +198,7 @@ const HeroSection = () => {
                     ))}
                   </div>
                   <p className="text-xs font-semibold text-foreground">
-                    Families save <span className="text-primary">4+ hrs</span> of dinner decisions every week
+                    Families save <span className="text-primary">2+ hrs</span> of dinner decisions every week
                   </p>
                 </div>
               </div>
