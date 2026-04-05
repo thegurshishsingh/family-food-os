@@ -6,8 +6,8 @@ import DinnerCheckInPreview from "./DinnerCheckInPreview";
 
 const WeeklyPlanCard = () => (
   <div className="relative w-[140px]">
-    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-primary/40 via-sky/30 to-accent/25 blur-[0.5px]" />
-    <div className="relative rounded-xl glass-strong p-3 shadow-lg">
+    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-primary/20 via-border/40 to-primary/15" />
+    <div className="relative rounded-xl bg-background/95 backdrop-blur-sm border border-border/50 p-3 shadow-lg">
       <div className="flex items-center gap-1.5 mb-2">
         <div className="w-5 h-5 rounded bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center">
           <CalendarDays className="w-3 h-3 text-primary-foreground" />
@@ -39,8 +39,8 @@ const WeeklyPlanCard = () => (
 
 const SystemLearningCard = () => (
   <div className="relative w-[150px]">
-    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-sky/40 via-primary/25 to-accent/30 blur-[0.5px]" />
-    <div className="relative rounded-xl glass-strong p-3 shadow-lg">
+    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-sky/20 via-border/40 to-primary/15" />
+    <div className="relative rounded-xl bg-background/95 backdrop-blur-sm border border-border/50 p-3 shadow-lg">
       <div className="flex items-center gap-1.5 mb-2">
         <div className="w-5 h-5 rounded bg-gradient-to-br from-sky to-primary flex items-center justify-center">
           <Sparkles className="w-3 h-3 text-primary-foreground" />
@@ -67,8 +67,8 @@ const SystemLearningCard = () => (
 
 const StreakBadge = () => (
   <div className="relative inline-block">
-    <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-coral/40 via-lemon/25 to-accent/30 blur-[0.5px]" />
-    <div className="relative rounded-lg glass-strong px-3 py-1.5 shadow-md">
+    <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-coral/20 via-border/40 to-accent/15" />
+    <div className="relative rounded-lg bg-background/95 backdrop-blur-sm border border-border/50 px-3 py-1.5 shadow-md">
       <div className="flex items-center gap-1.5">
         <Flame className="w-4 h-4 text-coral" />
         <span className="text-[11px] font-bold text-foreground">5-day streak 🔥</span>
@@ -181,8 +181,8 @@ const HeroSection = () => {
               transition={{ delay: 1, duration: 0.4 }}
             >
               <div className="relative inline-flex">
-                <div className="absolute -inset-[1px] rounded-full bg-gradient-to-r from-primary/40 via-coral/30 to-sky/35 blur-[0.5px]" />
-                <div className="relative inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-strong shadow-md">
+                <div className="absolute -inset-[1px] rounded-full bg-gradient-to-r from-primary/20 via-border/40 to-sky/15" />
+                <div className="relative inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-background/95 backdrop-blur-sm border border-border/50 shadow-md">
                   <div className="flex -space-x-1.5">
                     {[
                       { icon: Clock, bg: "from-primary to-sage-dark" },
@@ -198,7 +198,7 @@ const HeroSection = () => {
                     ))}
                   </div>
                   <p className="text-xs font-semibold text-foreground">
-                    Families save <span className="text-primary">4+ hrs</span> of dinner decisions every week
+                    Families save <span className="text-primary">2+ hrs</span> of dinner decisions every week
                   </p>
                 </div>
               </div>
