@@ -13,6 +13,7 @@ const rotatingWords = [
   "Grocery runs",
   "Takeout traps",
   "Busy weeknights",
+  "5 pm panic",
 ];
 
 const WeeklyPlanCard = () => (
@@ -244,7 +245,7 @@ const HeroSection = () => {
                     ))}
                   </div>
                   <p className="text-xs font-semibold text-foreground">
-                    Families save <span className="text-primary">2+ hrs</span> of dinner decisions every week
+                    Families spend <span className="text-primary">$4,700/yr</span> on takeout driven by "what's for dinner?" <span className="text-primary font-bold">We fix the question.</span>
                   </p>
                 </div>
               </div>
