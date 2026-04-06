@@ -154,22 +154,23 @@ const HeroSection = () => {
               </span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground leading-[1.08] mb-4">
-              <span className="relative inline-block h-[1.25em] overflow-hidden align-bottom pb-[0.1em]" style={{ minWidth: "3ch" }}>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground leading-[1.15] mb-4">
+              <span className="relative inline-block h-[1.3em] overflow-hidden align-bottom" style={{ minWidth: "3ch" }}>
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={wordIndex}
-                    className="inline-block bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent"
+                    className="inline-block"
+                    style={{ paddingBottom: "0.25em" }}
                     initial={{ y: "100%", opacity: 0 }}
                     animate={{ y: "0%", opacity: 1 }}
                     exit={{ y: "-100%", opacity: 0 }}
                     transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    {rotatingWords[wordIndex]}
+                    <span className="bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent">{rotatingWords[wordIndex]}</span>
+                    <span className="text-foreground">,</span>
                   </motion.span>
                 </AnimatePresence>
-              </span>
-              ,{" "}
+              </span>{" "}
               <span className="relative inline-block">
                 <span>handled</span>
                 <motion.span
