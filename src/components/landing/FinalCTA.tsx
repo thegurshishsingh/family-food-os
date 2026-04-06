@@ -30,8 +30,7 @@ const FinalCTA = () => {
             <span className="bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent">Already handled.</span>
           </h2>
           <p className="text-muted-foreground text-base max-w-md mx-auto mb-6 leading-relaxed">
-            Join hundreds of families who stopped stressing about dinner and
-            started enjoying it again.
+            Join our founding families
           </p>
           <Button size="lg" className="text-base px-10 h-14 rounded-xl text-lg bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.5)]" asChild>
             <Link to="/signup">
