@@ -155,7 +155,7 @@ const HeroSection = () => {
             </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground leading-[1.08] mb-4">
-              <span className="relative inline-block h-[1.25em] overflow-hidden align-bottom pb-[0.1em]" style={{ minWidth: "3ch" }}>
+              <span className="relative inline-block h-[1.4em] overflow-hidden align-bottom pb-[0.15em]" style={{ minWidth: "3ch" }}>
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={wordIndex}
