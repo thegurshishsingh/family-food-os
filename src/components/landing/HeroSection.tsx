@@ -245,9 +245,18 @@ const HeroSection = () => {
                       </span>
                     ))}
                   </div>
-                  <p className="text-xs font-semibold text-foreground">
-                    Families spend <span className="text-primary">$4,700/yr</span> on takeout driven by "what's for dinner?" <span className="text-primary font-bold">We fix the question.</span>
-                  </p>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <p className="text-xs font-semibold text-foreground cursor-help">
+                          Families spend <span className="text-primary">$4,000/yr</span> on takeouts and restaurants. Most of it on nights when dinner just wasn't planned. <span className="text-primary font-bold">We fix the planning.</span>
+                        </p>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[240px] text-center">
+                        <p className="text-xs">Source: BLS Consumer Expenditure Survey, 2024</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             </motion.div>
