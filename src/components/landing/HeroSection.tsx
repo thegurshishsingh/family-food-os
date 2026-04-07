@@ -249,7 +249,7 @@ const HeroSection = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <p className="text-xs font-semibold text-foreground cursor-help">
-                          Families spend <span className="text-primary">$4,000/yr</span> on takeouts and restaurants. Most of it on nights when dinner just wasn't planned. <span className="text-primary font-bold">We fix the planning.</span>
+                          Families reclaim <span className="text-primary">2+ hours</span> of dinner stress every week.
                         </p>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="max-w-[240px] text-center">
