@@ -59,6 +59,64 @@ const WEEK_CONTEXT_OPTIONS = [
   { value: "newborn_in_house", label: "Newborn at home", emoji: "👶", desc: "Very easy meals" },
 ];
 
+// Seasonal produce and meal ideas by month
+const SEASONAL_DATA: Record<number, { produce: { name: string; emoji: string }[]; mealIdeas: string[] }> = {
+  0: { // January
+    produce: [{ name: "Citrus", emoji: "🍊" }, { name: "Kale", emoji: "🥬" }, { name: "Sweet Potatoes", emoji: "🍠" }, { name: "Squash", emoji: "🎃" }, { name: "Turnips", emoji: "🥔" }, { name: "Beets", emoji: "🫒" }],
+    mealIdeas: ["Roasted butternut squash soup", "Citrus-glazed salmon", "Kale & white bean stew"],
+  },
+  1: { // February
+    produce: [{ name: "Brussels Sprouts", emoji: "🥦" }, { name: "Cabbage", emoji: "🥬" }, { name: "Leeks", emoji: "🧅" }, { name: "Turnips", emoji: "🥔" }, { name: "Grapefruit", emoji: "🍊" }, { name: "Parsnips", emoji: "🥕" }],
+    mealIdeas: ["Braised cabbage with sausage", "Leek & potato soup", "Roasted Brussels sprouts pasta"],
+  },
+  2: { // March
+    produce: [{ name: "Artichokes", emoji: "🌿" }, { name: "Asparagus", emoji: "🌱" }, { name: "Peas", emoji: "🫛" }, { name: "Spinach", emoji: "🍃" }, { name: "Radishes", emoji: "🔴" }, { name: "Green Onions", emoji: "🧅" }],
+    mealIdeas: ["Spring pea risotto", "Asparagus & lemon pasta", "Spinach & artichoke frittata"],
+  },
+  3: { // April
+    produce: [{ name: "Spinach", emoji: "🍃" }, { name: "Mangoes", emoji: "🥭" }, { name: "Radishes", emoji: "🔴" }, { name: "Peas", emoji: "🫛" }, { name: "Strawberries", emoji: "🍓" }, { name: "Asparagus", emoji: "🌱" }, { name: "Artichoke", emoji: "🌿" }, { name: "Kale", emoji: "🥬" }, { name: "Arugula", emoji: "🥗" }, { name: "Pineapple", emoji: "🍍" }],
+    mealIdeas: ["Strawberry spinach salad with grilled chicken", "Mango shrimp tacos", "Asparagus & pea spring pasta"],
+  },
+  4: { // May
+    produce: [{ name: "Strawberries", emoji: "🍓" }, { name: "Cherries", emoji: "🍒" }, { name: "Zucchini", emoji: "🥒" }, { name: "Snap Peas", emoji: "🫛" }, { name: "Apricots", emoji: "🍑" }, { name: "Fava Beans", emoji: "🫘" }],
+    mealIdeas: ["Grilled zucchini & halloumi skewers", "Cherry tomato & snap pea stir-fry", "Strawberry basil chicken salad"],
+  },
+  5: { // June
+    produce: [{ name: "Tomatoes", emoji: "🍅" }, { name: "Peaches", emoji: "🍑" }, { name: "Blueberries", emoji: "🫐" }, { name: "Corn", emoji: "🌽" }, { name: "Bell Peppers", emoji: "🫑" }, { name: "Cucumbers", emoji: "🥒" }],
+    mealIdeas: ["Grilled peach & burrata salad", "Fresh corn & tomato tacos", "Blueberry BBQ chicken"],
+  },
+  6: { // July
+    produce: [{ name: "Watermelon", emoji: "🍉" }, { name: "Tomatoes", emoji: "🍅" }, { name: "Corn", emoji: "🌽" }, { name: "Green Beans", emoji: "🫘" }, { name: "Peaches", emoji: "🍑" }, { name: "Eggplant", emoji: "🍆" }],
+    mealIdeas: ["Caprese with heirloom tomatoes", "Grilled corn & black bean bowls", "Eggplant parmesan"],
+  },
+  7: { // August
+    produce: [{ name: "Tomatoes", emoji: "🍅" }, { name: "Peppers", emoji: "🫑" }, { name: "Figs", emoji: "🫒" }, { name: "Melons", emoji: "🍈" }, { name: "Plums", emoji: "🫐" }, { name: "Basil", emoji: "🌿" }],
+    mealIdeas: ["Fresh tomato basil pasta", "Stuffed bell peppers", "Fig & prosciutto flatbread"],
+  },
+  8: { // September
+    produce: [{ name: "Apples", emoji: "🍎" }, { name: "Grapes", emoji: "🍇" }, { name: "Pumpkin", emoji: "🎃" }, { name: "Sweet Potatoes", emoji: "🍠" }, { name: "Cauliflower", emoji: "🥦" }, { name: "Pears", emoji: "🍐" }],
+    mealIdeas: ["Apple cider pork chops", "Roasted pumpkin curry", "Cauliflower mac & cheese"],
+  },
+  9: { // October
+    produce: [{ name: "Pumpkin", emoji: "🎃" }, { name: "Cranberries", emoji: "🔴" }, { name: "Apples", emoji: "🍎" }, { name: "Brussels Sprouts", emoji: "🥦" }, { name: "Squash", emoji: "🧡" }, { name: "Beets", emoji: "🫒" }],
+    mealIdeas: ["Butternut squash mac & cheese", "Cranberry chicken with roasted beets", "Pumpkin & sage risotto"],
+  },
+  10: { // November
+    produce: [{ name: "Sweet Potatoes", emoji: "🍠" }, { name: "Pomegranate", emoji: "🔴" }, { name: "Pears", emoji: "🍐" }, { name: "Parsnips", emoji: "🥕" }, { name: "Turnips", emoji: "🥔" }, { name: "Kale", emoji: "🥬" }],
+    mealIdeas: ["Sweet potato & black bean chili", "Pomegranate glazed chicken", "Kale & pear harvest salad"],
+  },
+  11: { // December
+    produce: [{ name: "Citrus", emoji: "🍊" }, { name: "Pomegranate", emoji: "🔴" }, { name: "Cranberries", emoji: "🫐" }, { name: "Winter Squash", emoji: "🎃" }, { name: "Chestnuts", emoji: "🌰" }, { name: "Parsnips", emoji: "🥕" }],
+    mealIdeas: ["Citrus herb roast chicken", "Cranberry walnut stuffed squash", "Chestnut & mushroom pasta"],
+  },
+};
+
+const getSeasonalData = () => {
+  const month = new Date().getMonth();
+  const monthName = new Date().toLocaleString("en-US", { month: "long" });
+  return { ...SEASONAL_DATA[month], monthName };
+};
+
 const ALL_STEPS = ["takeout", "dine_out", "leftovers", "saved", "specials", "context", "intensity", "confirm"] as const;
 type Step = typeof ALL_STEPS[number];
 
