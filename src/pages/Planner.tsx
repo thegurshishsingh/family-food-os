@@ -112,12 +112,34 @@ const Planner = () => {
 
   const loadPlan = async () => {
     if (!household) return;
-    const { data: plans } = await supabase
+    // Calculate this week's Monday string
+    const now = new Date();
+    const dayNow = now.getDay();
+    const diffNow = dayNow === 0 ? -6 : 1 - dayNow;
+    const thisMonday = new Date(now);
+    thisMonday.setDate(now.getDate() + diffNow);
+    const thisMondayStr = `${thisMonday.getFullYear()}-${String(thisMonday.getMonth() + 1).padStart(2, "0")}-${String(thisMonday.getDate()).padStart(2, "0")}`;
+
+    // First try to find a plan for exactly this week
+    let { data: plans } = await supabase
       .from("weekly_plans")
       .select("*")
       .eq("household_id", household.id)
-      .order("week_start", { ascending: false })
+      .eq("week_start", thisMondayStr)
+      .order("created_at", { ascending: false })
       .limit(1);
+
+    // If no exact match, fall back to the most recent plan that is current or future
+    if (!plans || plans.length === 0) {
+      const result = await supabase
+        .from("weekly_plans")
+        .select("*")
+        .eq("household_id", household.id)
+        .gte("week_start", thisMondayStr)
+        .order("week_start", { ascending: true })
+        .limit(1);
+      plans = result.data;
+    }
 
     if (plans && plans.length > 0) {
       const p = plans[0] as any;
