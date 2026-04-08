@@ -309,7 +309,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 {step === "dine_out" && "Dine out nights"}
                 {step === "leftovers" && "Leftover nights"}
                 {step === "saved" && "Include saved meals"}
-                {step === "specials" && "Special meal requests"}
+                {step === "specials" && "Special & seasonal requests"}
                 {step === "context" && "What's happening this week?"}
                 {step === "intensity" && "Week intensity"}
                 {step === "confirm" && "Ready to generate"}
