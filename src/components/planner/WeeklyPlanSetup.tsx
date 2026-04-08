@@ -133,6 +133,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
   const [lockedSavedMeals, setLockedSavedMeals] = useState<string[]>([]);
   const [savedMealDayAssignments, setSavedMealDayAssignments] = useState<Record<string, number>>({});
   const [specialMeals, setSpecialMeals] = useState<string[]>([]);
+  const [selectedProduce, setSelectedProduce] = useState<string[]>([]);
   const [mealInput, setMealInput] = useState("");
   const [weekIntensity, setWeekIntensity] = useState<"relaxed" | "normal" | "busy">("normal");
   const [weekContextTags, setWeekContextTags] = useState<string[]>([]);
@@ -224,7 +225,10 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
       dineOutDays,
       leftoverCount,
       leftoverDays,
-      specialMeals,
+      specialMeals: [
+        ...specialMeals,
+        ...(selectedProduce.length > 0 ? [`Use seasonal produce: ${selectedProduce.join(", ")}`] : []),
+      ],
       weekIntensity,
       lockedSavedMeals,
       savedMealDayAssignments,
@@ -576,15 +580,32 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                             </p>
                           </div>
                           <div className="flex flex-wrap gap-1.5">
-                            {seasonal.produce.map((item) => (
-                              <span
-                                key={item.name}
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-[10px] sm:text-[11px] font-medium text-primary"
-                              >
-                                {item.emoji} {item.name}
-                              </span>
-                            ))}
+                            {seasonal.produce.map((item) => {
+                              const isSelected = selectedProduce.includes(item.name);
+                              return (
+                                <button
+                                  key={item.name}
+                                  onClick={() => {
+                                    setSelectedProduce(prev =>
+                                      isSelected ? prev.filter(p => p !== item.name) : [...prev, item.name]
+                                    );
+                                  }}
+                                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] sm:text-[11px] font-medium transition-all
+                                    ${isSelected
+                                      ? "bg-primary text-primary-foreground ring-2 ring-primary/30"
+                                      : "bg-primary/10 text-primary hover:bg-primary/20"
+                                    }`}
+                                >
+                                  {item.emoji} {item.name}
+                                </button>
+                              );
+                            })}
                           </div>
+                          {selectedProduce.length > 0 && (
+                            <p className="text-[10px] text-primary/70 mt-1">
+                              {selectedProduce.length} selected — we'll build meals around these
+                            </p>
+                          )}
                           <div className="border-t border-primary/10 pt-2">
                             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1.5">Try a seasonal meal idea:</p>
                             <div className="flex flex-wrap gap-1.5">
@@ -619,7 +640,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                         <Input
                           value={mealInput}
                           onChange={(e) => setMealInput(e.target.value)}
-                          placeholder="e.g. Taco night, birthday cake"
+                          placeholder="e.g. Taco Tuesday, kid-friendly pasta night"
                           className="text-xs sm:text-sm"
                           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSpecialMeal(); } }}
                         />
@@ -752,6 +773,12 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                               return assignedDay !== undefined ? `${m} (${DAYS[assignedDay].slice(0, 3)})` : m;
                             }).join(", ")}
                           </span>
+                        </div>
+                      )}
+                      {selectedProduce.length > 0 && (
+                        <div className="flex justify-between text-xs sm:text-sm gap-2">
+                          <span className="text-muted-foreground shrink-0">Seasonal produce</span>
+                          <span className="font-medium text-foreground text-right">{selectedProduce.join(", ")}</span>
                         </div>
                       )}
                       {specialMeals.length > 0 && (
