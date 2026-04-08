@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { ArrowRight, ArrowLeft, ChefHat, Loader2, X, Plus, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowLeft, ChefHat, Loader2, X, Plus, Sparkles, Leaf } from "lucide-react";
 import { DAYS } from "./types";
 
 export interface PlanSetupData {
@@ -58,6 +58,64 @@ const WEEK_CONTEXT_OPTIONS = [
   { value: "high_protein_week", label: "High protein", emoji: "💪", desc: "Protein-focused" },
   { value: "newborn_in_house", label: "Newborn at home", emoji: "👶", desc: "Very easy meals" },
 ];
+
+// Seasonal produce and meal ideas by month
+const SEASONAL_DATA: Record<number, { produce: { name: string; emoji: string }[]; mealIdeas: string[] }> = {
+  0: { // January
+    produce: [{ name: "Citrus", emoji: "🍊" }, { name: "Kale", emoji: "🥬" }, { name: "Sweet Potatoes", emoji: "🍠" }, { name: "Squash", emoji: "🎃" }, { name: "Turnips", emoji: "🥔" }, { name: "Beets", emoji: "🫒" }],
+    mealIdeas: ["Roasted butternut squash soup", "Citrus-glazed salmon", "Kale & white bean stew"],
+  },
+  1: { // February
+    produce: [{ name: "Brussels Sprouts", emoji: "🥦" }, { name: "Cabbage", emoji: "🥬" }, { name: "Leeks", emoji: "🧅" }, { name: "Turnips", emoji: "🥔" }, { name: "Grapefruit", emoji: "🍊" }, { name: "Parsnips", emoji: "🥕" }],
+    mealIdeas: ["Braised cabbage with sausage", "Leek & potato soup", "Roasted Brussels sprouts pasta"],
+  },
+  2: { // March
+    produce: [{ name: "Artichokes", emoji: "🌿" }, { name: "Asparagus", emoji: "🌱" }, { name: "Peas", emoji: "🫛" }, { name: "Spinach", emoji: "🍃" }, { name: "Radishes", emoji: "🔴" }, { name: "Green Onions", emoji: "🧅" }],
+    mealIdeas: ["Spring pea risotto", "Asparagus & lemon pasta", "Spinach & artichoke frittata"],
+  },
+  3: { // April
+    produce: [{ name: "Spinach", emoji: "🍃" }, { name: "Mangoes", emoji: "🥭" }, { name: "Radishes", emoji: "🔴" }, { name: "Peas", emoji: "🫛" }, { name: "Strawberries", emoji: "🍓" }, { name: "Asparagus", emoji: "🌱" }, { name: "Artichoke", emoji: "🌿" }, { name: "Kale", emoji: "🥬" }, { name: "Arugula", emoji: "🥗" }, { name: "Pineapple", emoji: "🍍" }],
+    mealIdeas: ["Strawberry spinach salad with grilled chicken", "Mango shrimp tacos", "Asparagus & pea spring pasta"],
+  },
+  4: { // May
+    produce: [{ name: "Strawberries", emoji: "🍓" }, { name: "Cherries", emoji: "🍒" }, { name: "Zucchini", emoji: "🥒" }, { name: "Snap Peas", emoji: "🫛" }, { name: "Apricots", emoji: "🍑" }, { name: "Fava Beans", emoji: "🫘" }],
+    mealIdeas: ["Grilled zucchini & halloumi skewers", "Cherry tomato & snap pea stir-fry", "Strawberry basil chicken salad"],
+  },
+  5: { // June
+    produce: [{ name: "Tomatoes", emoji: "🍅" }, { name: "Peaches", emoji: "🍑" }, { name: "Blueberries", emoji: "🫐" }, { name: "Corn", emoji: "🌽" }, { name: "Bell Peppers", emoji: "🫑" }, { name: "Cucumbers", emoji: "🥒" }],
+    mealIdeas: ["Grilled peach & burrata salad", "Fresh corn & tomato tacos", "Blueberry BBQ chicken"],
+  },
+  6: { // July
+    produce: [{ name: "Watermelon", emoji: "🍉" }, { name: "Tomatoes", emoji: "🍅" }, { name: "Corn", emoji: "🌽" }, { name: "Green Beans", emoji: "🫘" }, { name: "Peaches", emoji: "🍑" }, { name: "Eggplant", emoji: "🍆" }],
+    mealIdeas: ["Caprese with heirloom tomatoes", "Grilled corn & black bean bowls", "Eggplant parmesan"],
+  },
+  7: { // August
+    produce: [{ name: "Tomatoes", emoji: "🍅" }, { name: "Peppers", emoji: "🫑" }, { name: "Figs", emoji: "🫒" }, { name: "Melons", emoji: "🍈" }, { name: "Plums", emoji: "🫐" }, { name: "Basil", emoji: "🌿" }],
+    mealIdeas: ["Fresh tomato basil pasta", "Stuffed bell peppers", "Fig & prosciutto flatbread"],
+  },
+  8: { // September
+    produce: [{ name: "Apples", emoji: "🍎" }, { name: "Grapes", emoji: "🍇" }, { name: "Pumpkin", emoji: "🎃" }, { name: "Sweet Potatoes", emoji: "🍠" }, { name: "Cauliflower", emoji: "🥦" }, { name: "Pears", emoji: "🍐" }],
+    mealIdeas: ["Apple cider pork chops", "Roasted pumpkin curry", "Cauliflower mac & cheese"],
+  },
+  9: { // October
+    produce: [{ name: "Pumpkin", emoji: "🎃" }, { name: "Cranberries", emoji: "🔴" }, { name: "Apples", emoji: "🍎" }, { name: "Brussels Sprouts", emoji: "🥦" }, { name: "Squash", emoji: "🧡" }, { name: "Beets", emoji: "🫒" }],
+    mealIdeas: ["Butternut squash mac & cheese", "Cranberry chicken with roasted beets", "Pumpkin & sage risotto"],
+  },
+  10: { // November
+    produce: [{ name: "Sweet Potatoes", emoji: "🍠" }, { name: "Pomegranate", emoji: "🔴" }, { name: "Pears", emoji: "🍐" }, { name: "Parsnips", emoji: "🥕" }, { name: "Turnips", emoji: "🥔" }, { name: "Kale", emoji: "🥬" }],
+    mealIdeas: ["Sweet potato & black bean chili", "Pomegranate glazed chicken", "Kale & pear harvest salad"],
+  },
+  11: { // December
+    produce: [{ name: "Citrus", emoji: "🍊" }, { name: "Pomegranate", emoji: "🔴" }, { name: "Cranberries", emoji: "🫐" }, { name: "Winter Squash", emoji: "🎃" }, { name: "Chestnuts", emoji: "🌰" }, { name: "Parsnips", emoji: "🥕" }],
+    mealIdeas: ["Citrus herb roast chicken", "Cranberry walnut stuffed squash", "Chestnut & mushroom pasta"],
+  },
+};
+
+const getSeasonalData = () => {
+  const month = new Date().getMonth();
+  const monthName = new Date().toLocaleString("en-US", { month: "long" });
+  return { ...SEASONAL_DATA[month], monthName };
+};
 
 const ALL_STEPS = ["takeout", "dine_out", "leftovers", "saved", "specials", "context", "intensity", "confirm"] as const;
 type Step = typeof ALL_STEPS[number];
@@ -251,7 +309,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 {step === "dine_out" && "Dine out nights"}
                 {step === "leftovers" && "Leftover nights"}
                 {step === "saved" && "Include saved meals"}
-                {step === "specials" && "Special meal requests"}
+                {step === "specials" && "Special & seasonal requests"}
                 {step === "context" && "What's happening this week?"}
                 {step === "intensity" && "Week intensity"}
                 {step === "confirm" && "Ready to generate"}
@@ -499,24 +557,78 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                   </div>
                 )}
 
-                {/* Step: Special meals */}
+                {/* Step: Special & Seasonal meals */}
                 {step === "specials" && (
                   <div className="space-y-4">
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Is there any meal you want to include{isPartialWeek ? "" : " this week"}?
+                      Add a special request or try something seasonal{isPartialWeek ? "" : " this week"}.
                     </p>
-                    <div className="flex gap-2">
-                      <Input
-                        value={mealInput}
-                        onChange={(e) => setMealInput(e.target.value)}
-                        placeholder="e.g. Taco night"
-                        className="text-xs sm:text-sm"
-                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSpecialMeal(); } }}
-                      />
-                      <Button variant="outline" size="icon" onClick={addSpecialMeal} disabled={!mealInput.trim()} className="shrink-0">
-                        <Plus className="w-4 h-4" />
-                      </Button>
+
+                    {/* Seasonal section */}
+                    {(() => {
+                      const seasonal = getSeasonalData();
+                      return (
+                        <div className="rounded-xl border border-primary/20 bg-primary/[0.04] p-3 space-y-2.5">
+                          <div className="flex items-center gap-2">
+                            <Leaf className="w-4 h-4 text-primary" />
+                            <p className="text-xs sm:text-sm font-medium text-foreground">
+                              What's in season — {seasonal.monthName}
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {seasonal.produce.map((item) => (
+                              <span
+                                key={item.name}
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-[10px] sm:text-[11px] font-medium text-primary"
+                              >
+                                {item.emoji} {item.name}
+                              </span>
+                            ))}
+                          </div>
+                          <div className="border-t border-primary/10 pt-2">
+                            <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1.5">Try a seasonal meal idea:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {seasonal.mealIdeas.map((idea) => (
+                                <button
+                                  key={idea}
+                                  onClick={() => {
+                                    if (specialMeals.length < 5 && !specialMeals.includes(idea)) {
+                                      setSpecialMeals([...specialMeals, idea]);
+                                    }
+                                  }}
+                                  disabled={specialMeals.includes(idea)}
+                                  className={`text-[10px] sm:text-xs px-2.5 py-1.5 rounded-lg border transition-all
+                                    ${specialMeals.includes(idea)
+                                      ? "border-primary/30 bg-primary/10 text-primary"
+                                      : "border-border bg-card text-foreground hover:border-primary/30 hover:bg-primary/5"
+                                    }`}
+                                >
+                                  + {idea}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Custom input */}
+                    <div>
+                      <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1.5">Or add your own request:</p>
+                      <div className="flex gap-2">
+                        <Input
+                          value={mealInput}
+                          onChange={(e) => setMealInput(e.target.value)}
+                          placeholder="e.g. Taco night, birthday cake"
+                          className="text-xs sm:text-sm"
+                          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSpecialMeal(); } }}
+                        />
+                        <Button variant="outline" size="icon" onClick={addSpecialMeal} disabled={!mealInput.trim()} className="shrink-0">
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
+
                     {specialMeals.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 sm:gap-2">
                         {specialMeals.map((m, i) => (
