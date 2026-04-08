@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { GripVertical, Lock, Check } from "lucide-react";
+import { ArrowLeftRight, Lock, Check } from "lucide-react";
 import { DAYS, MODE_CONFIG, type PlanDay } from "./types";
 
 interface MobileReorderSheetProps {
@@ -14,69 +14,50 @@ interface MobileReorderSheetProps {
 
 const MobileReorderSheet = ({ open, onOpenChange, days, onReorder }: MobileReorderSheetProps) => {
   const [orderedDays, setOrderedDays] = useState<PlanDay[]>([]);
-  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
-  const [overIndex, setOverIndex] = useState<number | null>(null);
-  const touchStartY = useRef(0);
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  // Sync when opening
   const handleOpenChange = useCallback((o: boolean) => {
-    if (o) setOrderedDays([...days]);
-    else {
-      setDraggingIndex(null);
-      setOverIndex(null);
+    if (o) {
+      setOrderedDays([...days]);
+      setSelectedIndex(null);
     }
     onOpenChange(o);
   }, [days, onOpenChange]);
 
-  const handleTouchStart = (index: number, e: React.TouchEvent) => {
-    if (orderedDays[index].is_locked) return;
-    touchStartY.current = e.touches[0].clientY;
-    setDraggingIndex(index);
-    if (navigator.vibrate) navigator.vibrate(15);
-  };
+  const handleTap = (index: number) => {
+    const day = orderedDays[index];
+    if (day.is_locked) return;
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (draggingIndex === null) return;
-    const currentY = e.touches[0].clientY;
-
-    // Find which item we're over
-    for (let i = 0; i < itemRefs.current.length; i++) {
-      const el = itemRefs.current[i];
-      if (!el) continue;
-      const rect = el.getBoundingClientRect();
-      if (currentY >= rect.top && currentY <= rect.bottom && i !== draggingIndex) {
-        setOverIndex(i);
+    if (selectedIndex === null) {
+      // First tap — select this day
+      setSelectedIndex(index);
+      if (navigator.vibrate) navigator.vibrate(15);
+    } else if (selectedIndex === index) {
+      // Tap same day — deselect
+      setSelectedIndex(null);
+    } else {
+      // Second tap — swap with selected day
+      const targetDay = orderedDays[index];
+      if (targetDay.is_locked) {
+        setSelectedIndex(null);
         return;
       }
+
+      const sourceDay = orderedDays[selectedIndex];
+      const mealFields: (keyof PlanDay)[] = ["meal_name", "meal_description", "meal_mode", "cuisine_type", "prep_time_minutes", "calories", "protein_g", "carbs_g", "fat_g", "fiber_g", "notes", "takeout_budget"];
+      const sourceData: any = {};
+      const targetData: any = {};
+      mealFields.forEach(f => { sourceData[f] = (sourceDay as any)[f]; targetData[f] = (targetDay as any)[f]; });
+
+      const newOrder = [...orderedDays];
+      newOrder[selectedIndex] = { ...newOrder[selectedIndex], ...targetData };
+      newOrder[index] = { ...newOrder[index], ...sourceData };
+      setOrderedDays(newOrder);
+
+      onReorder(sourceDay.id, targetDay.id);
+      if (navigator.vibrate) navigator.vibrate(20);
+      setSelectedIndex(null);
     }
-    setOverIndex(null);
-  };
-
-  const handleTouchEnd = () => {
-    if (draggingIndex !== null && overIndex !== null && draggingIndex !== overIndex) {
-      const sourceDay = orderedDays[draggingIndex];
-      const targetDay = orderedDays[overIndex];
-
-      if (!targetDay.is_locked) {
-        // Swap in local state for visual feedback
-        const newOrder = [...orderedDays];
-        // Swap meal data between the two positions
-        const mealFields: (keyof PlanDay)[] = ["meal_name", "meal_description", "meal_mode", "cuisine_type", "prep_time_minutes", "calories", "protein_g", "carbs_g", "fat_g", "fiber_g", "notes", "takeout_budget"];
-        const sourceData: any = {};
-        const targetData: any = {};
-        mealFields.forEach(f => { sourceData[f] = (sourceDay as any)[f]; targetData[f] = (targetDay as any)[f]; });
-        newOrder[draggingIndex] = { ...newOrder[draggingIndex], ...targetData };
-        newOrder[overIndex] = { ...newOrder[overIndex], ...sourceData };
-        setOrderedDays(newOrder);
-
-        // Persist
-        onReorder(sourceDay.id, targetDay.id);
-        if (navigator.vibrate) navigator.vibrate(20);
-      }
-    }
-    setDraggingIndex(null);
-    setOverIndex(null);
   };
 
   return (
@@ -85,46 +66,36 @@ const MobileReorderSheet = ({ open, onOpenChange, days, onReorder }: MobileReord
         <DrawerHeader className="pb-2">
           <DrawerTitle className="font-serif text-lg">Reorder Meals</DrawerTitle>
           <DrawerDescription className="text-sm">
-            Hold and drag a meal to swap it with another day.
+            {selectedIndex !== null
+              ? `Now tap another day to swap with ${DAYS[orderedDays[selectedIndex].day_of_week].slice(0, 3)}'s meal.`
+              : "Tap a meal to select it, then tap another to swap."}
           </DrawerDescription>
         </DrawerHeader>
 
-        <div
-          className="px-4 pb-6 space-y-1.5 overflow-y-auto"
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
+        <div className="px-4 pb-6 space-y-1.5 overflow-y-auto">
           {orderedDays.map((day, i) => {
             const mode = MODE_CONFIG[day.meal_mode];
             const Icon = mode.icon;
-            const isDragging = draggingIndex === i;
-            const isOver = overIndex === i;
+            const isSelected = selectedIndex === i;
             const isLocked = !!day.is_locked;
 
             return (
-              <div
+              <button
                 key={day.id}
-                ref={(el) => { itemRefs.current[i] = el; }}
+                type="button"
+                onClick={() => handleTap(i)}
+                disabled={isLocked}
                 className={`
-                  flex items-center gap-3 rounded-xl px-3 py-3 transition-all select-none
-                  ${isDragging ? "bg-primary/10 scale-[1.02] shadow-md z-10 relative" : ""}
-                  ${isOver && !isLocked ? "ring-2 ring-primary/40 bg-primary/[0.04]" : ""}
-                  ${isLocked ? "opacity-50" : ""}
-                  ${!isDragging && !isOver ? "bg-card border border-border/60" : ""}
+                  w-full flex items-center gap-3 rounded-xl px-3 py-3 transition-all text-left
+                  ${isSelected ? "bg-primary/10 ring-2 ring-primary shadow-md" : "bg-card border border-border/60"}
+                  ${isLocked ? "opacity-50 cursor-not-allowed" : "active:scale-[0.98]"}
                 `}
               >
-                {/* Drag handle */}
-                <div
-                  className={`touch-none p-1.5 rounded-lg transition-colors ${
-                    isLocked ? "text-muted-foreground/30" : "text-muted-foreground active:text-primary active:bg-primary/10"
-                  }`}
-                  onTouchStart={(e) => handleTouchStart(i, e)}
-                >
-                  {isLocked ? (
-                    <Lock className="w-4 h-4" />
-                  ) : (
-                    <GripVertical className="w-4 h-4" />
-                  )}
+                {/* Swap icon */}
+                <div className={`p-1.5 rounded-lg transition-colors ${
+                  isSelected ? "text-primary" : isLocked ? "text-muted-foreground/30" : "text-muted-foreground"
+                }`}>
+                  {isLocked ? <Lock className="w-4 h-4" /> : <ArrowLeftRight className="w-4 h-4" />}
                 </div>
 
                 {/* Day label */}
@@ -146,12 +117,18 @@ const MobileReorderSheet = ({ open, onOpenChange, days, onReorder }: MobileReord
                   </p>
                 </div>
 
+                {isSelected && (
+                  <Badge className="text-[10px] shrink-0 bg-primary text-primary-foreground">
+                    Selected
+                  </Badge>
+                )}
+
                 {isLocked && (
                   <Badge variant="outline" className="text-[10px] shrink-0 gap-1">
                     <Lock className="w-2.5 h-2.5" /> Locked
                   </Badge>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
