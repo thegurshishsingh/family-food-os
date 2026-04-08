@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ChefHat, CalendarDays, ShoppingCart, Heart, Settings, LogOut, User, History, MessageCircle } from "lucide-react";
+import { CalendarDays, ShoppingCart, Heart, Settings, LogOut, User, History, MessageCircle } from "lucide-react";
+import Logo from "@/components/Logo";
 
 const NAV = [
   { to: "/planner", label: "Weekly Plan", icon: CalendarDays },
@@ -50,9 +51,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container flex items-center justify-between h-14 px-4">
           <Link to="/planner" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-              <ChefHat className="w-3.5 h-3.5 text-primary-foreground" />
-            </div>
+            <Logo size="sm" showText={false} />
             <span className="font-serif text-lg font-semibold text-foreground hidden sm:inline">Family Food OS</span>
           </Link>
           <div className="flex items-center gap-1">
