@@ -23,7 +23,7 @@ const Logo = ({ size = "md", showText = true, className = "" }: LogoProps) => (
     <img
       src={logoImg}
       alt="Family Food OS"
-      className={`${sizeMap[size]} rounded-lg object-cover`}
+      className={`${sizeMap[size]} rounded-lg object-cover text-primary`}
     />
     {showText && (
       <span className={`font-serif ${textSizeMap[size]} font-semibold text-foreground`}>
