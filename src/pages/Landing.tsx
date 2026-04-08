@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { ChefHat, Target } from "lucide-react";
+import { Target } from "lucide-react";
+import Logo from "@/components/Logo";
 import HeroSection from "@/components/landing/HeroSection";
 import TheStruggle from "@/components/landing/TheStruggle";
 import ProductProof from "@/components/landing/ProductProof";
@@ -23,10 +24,7 @@ const Landing = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border/30">
         <div className="container flex items-center justify-between h-16 px-4 md:px-8">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center shadow-md">
-              <ChefHat className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="font-serif text-xl font-semibold text-foreground">Family Food OS</span>
+            <Logo size="md" />
           </Link>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>
@@ -83,12 +81,7 @@ const Landing = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             {/* Brand + founding story */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center shadow-sm">
-                  <ChefHat className="w-3.5 h-3.5 text-primary-foreground" />
-                </div>
-                <span className="font-serif text-lg font-semibold text-foreground">Family Food OS</span>
-              </div>
+              <Logo size="sm" />
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Built by parents who were tired of 5 pm chaos. We created the dinner system we wished existed — so every family can reclaim their evenings.
               </p>

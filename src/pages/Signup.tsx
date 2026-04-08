@@ -5,7 +5,8 @@ import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChefHat, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import Logo from "@/components/Logo";
 import { useToast } from "@/hooks/use-toast";
 
 const Signup = () => {
@@ -47,12 +48,7 @@ const Signup = () => {
           <ArrowLeft className="w-4 h-4" /> Back to home
         </Link>
 
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <ChefHat className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <span className="font-serif text-xl font-semibold">Family Food OS</span>
-        </div>
+        <Logo size="md" className="mb-2" />
         <h1 className="text-2xl font-serif font-semibold mb-1">Create your account</h1>
         <p className="text-muted-foreground text-sm mb-8">Start planning your family's real week of food</p>
 

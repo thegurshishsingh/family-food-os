@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChefHat, ArrowRight, ArrowLeft, Check, Plus, X, CalendarDays } from "lucide-react";
+import { ArrowRight, ArrowLeft, Check, Plus, X, CalendarDays } from "lucide-react";
+import Logo from "@/components/Logo";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -187,12 +188,7 @@ const Onboarding = () => {
       {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
         <div className="container max-w-2xl px-4 py-4">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-              <ChefHat className="w-3.5 h-3.5 text-primary-foreground" />
-            </div>
-            <span className="font-serif text-lg font-semibold">Family Food OS</span>
-          </div>
+          <Logo size="sm" className="mb-3" />
           <div className="flex gap-2">
             {STEPS.map((_, i) => (
               <div key={i} className={`h-1.5 flex-1 rounded-full transition-colors ${i <= step ? "bg-primary" : "bg-muted"}`} />
