@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChefHat, ArrowRight, ArrowLeft, Check, Plus, X } from "lucide-react";
+import { ChefHat, ArrowRight, ArrowLeft, Check, Plus, X, CalendarDays } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -485,6 +486,20 @@ const Onboarding = () => {
                       maxLength={500}
                       onKeyDown={(e) => { if (e.key === "Enter") addMeal(); }}
                     />
+                    <div className="flex items-center gap-2">
+                      <CalendarDays className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <Select value={newMealFreq} onValueChange={setNewMealFreq}>
+                        <SelectTrigger className="h-10 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="every_week">Every week</SelectItem>
+                          <SelectItem value="every_other_week">Every other week</SelectItem>
+                          <SelectItem value="once_a_month">Once a month</SelectItem>
+                          <SelectItem value="occasionally">Occasionally</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Button variant="outline" onClick={addMeal} disabled={!newMealName.trim()} className="gap-2">
                       <Plus className="w-4 h-4" /> Add meal
                     </Button>
@@ -499,6 +514,7 @@ const Onboarding = () => {
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-sm text-foreground truncate">{m.name}</p>
                             {m.description && <p className="text-xs text-muted-foreground truncate">{m.description}</p>}
+                            <p className="text-xs text-muted-foreground mt-0.5 capitalize">{m.frequency.replace(/_/g, " ")}</p>
                           </div>
                           <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeMeal(i)}>
                             <X className="w-3.5 h-3.5 text-muted-foreground" />

@@ -453,6 +453,9 @@ function buildPrompt(
     if (prefs.weekly_grocery_budget) {
       parts.push(`💰 Weekly grocery budget: $${prefs.weekly_grocery_budget}. Keep total grocery list cost reasonable within this budget.`);
     }
+    if (prefs.grocery_store) {
+      parts.push(`🏪 PREFERRED GROCERY STORE: ${prefs.grocery_store}. When suggesting ingredients, prefer items and brands commonly available at this store. Tailor the grocery list to what this store typically carries.`);
+    }
     if (prefs.cooking_time_tolerance) {
       const toleranceMap: Record<string, string> = {
         minimal: "⏱️ Cooking time: MINIMAL (15 min max). Every meal must be ultra-quick.",
