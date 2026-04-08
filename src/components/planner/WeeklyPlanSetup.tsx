@@ -601,6 +601,11 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                               );
                             })}
                           </div>
+                          {selectedProduce.length > 0 && (
+                            <p className="text-[10px] text-primary/70 mt-1">
+                              {selectedProduce.length} selected — we'll build meals around these
+                            </p>
+                          )}
                           <div className="border-t border-primary/10 pt-2">
                             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1.5">Try a seasonal meal idea:</p>
                             <div className="flex flex-wrap gap-1.5">
