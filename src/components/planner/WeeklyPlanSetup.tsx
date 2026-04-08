@@ -225,7 +225,10 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
       dineOutDays,
       leftoverCount,
       leftoverDays,
-      specialMeals,
+      specialMeals: [
+        ...specialMeals,
+        ...(selectedProduce.length > 0 ? [`Use seasonal produce: ${selectedProduce.join(", ")}`] : []),
+      ],
       weekIntensity,
       lockedSavedMeals,
       savedMealDayAssignments,
@@ -577,14 +580,26 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                             </p>
                           </div>
                           <div className="flex flex-wrap gap-1.5">
-                            {seasonal.produce.map((item) => (
-                              <span
-                                key={item.name}
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-[10px] sm:text-[11px] font-medium text-primary"
-                              >
-                                {item.emoji} {item.name}
-                              </span>
-                            ))}
+                            {seasonal.produce.map((item) => {
+                              const isSelected = selectedProduce.includes(item.name);
+                              return (
+                                <button
+                                  key={item.name}
+                                  onClick={() => {
+                                    setSelectedProduce(prev =>
+                                      isSelected ? prev.filter(p => p !== item.name) : [...prev, item.name]
+                                    );
+                                  }}
+                                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] sm:text-[11px] font-medium transition-all
+                                    ${isSelected
+                                      ? "bg-primary text-primary-foreground ring-2 ring-primary/30"
+                                      : "bg-primary/10 text-primary hover:bg-primary/20"
+                                    }`}
+                                >
+                                  {item.emoji} {item.name}
+                                </button>
+                              );
+                            })}
                           </div>
                           <div className="border-t border-primary/10 pt-2">
                             <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1.5">Try a seasonal meal idea:</p>
@@ -620,7 +635,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                         <Input
                           value={mealInput}
                           onChange={(e) => setMealInput(e.target.value)}
-                          placeholder="e.g. Taco night, birthday cake"
+                          placeholder="e.g. Taco Tuesday, kid-friendly pasta night"
                           className="text-xs sm:text-sm"
                           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSpecialMeal(); } }}
                         />
