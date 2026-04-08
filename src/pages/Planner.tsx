@@ -102,7 +102,11 @@ const Planner = () => {
     const diff = day === 0 ? -6 : 1 - day;
     const monday = new Date(now);
     monday.setDate(now.getDate() + diff);
-    const mondayStr = monday.toISOString().split("T")[0];
+    // Use local date parts to avoid UTC timezone offset issues
+    const y = monday.getFullYear();
+    const m = String(monday.getMonth() + 1).padStart(2, "0");
+    const d = String(monday.getDate()).padStart(2, "0");
+    const mondayStr = `${y}-${m}-${d}`;
     return planWeekStart >= mondayStr;
   };
 

@@ -436,7 +436,7 @@ function buildPrompt(
   if (prefs) {
     parts.push(`\n--- HOUSEHOLD PREFERENCES (from profile — apply to every plan) ---`);
     if (prefs.cuisines_liked?.length) {
-      parts.push(`PREFERRED CUISINES: ${prefs.cuisines_liked.join(", ")}. Heavily favor these cuisines — at least 70% of cook nights should draw from these.`);
+      parts.push(`PREFERRED CUISINES: ${prefs.cuisines_liked.join(", ")}. ONLY use these cuisines for cook nights. Do NOT use any cuisine outside this list unless no other option fits.`);
     }
     if (prefs.cuisines_disliked?.length) {
       parts.push(`AVOID CUISINES: ${prefs.cuisines_disliked.join(", ")}. Do NOT use these cuisines at all.`);
