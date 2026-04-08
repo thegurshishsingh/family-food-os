@@ -133,6 +133,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
   const [lockedSavedMeals, setLockedSavedMeals] = useState<string[]>([]);
   const [savedMealDayAssignments, setSavedMealDayAssignments] = useState<Record<string, number>>({});
   const [specialMeals, setSpecialMeals] = useState<string[]>([]);
+  const [selectedProduce, setSelectedProduce] = useState<string[]>([]);
   const [mealInput, setMealInput] = useState("");
   const [weekIntensity, setWeekIntensity] = useState<"relaxed" | "normal" | "busy">("normal");
   const [weekContextTags, setWeekContextTags] = useState<string[]>([]);
