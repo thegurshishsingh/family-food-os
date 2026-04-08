@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChefHat, ArrowRight, ArrowLeft, Check, Plus, X } from "lucide-react";
+import { ChefHat, ArrowRight, ArrowLeft, Check, Plus, X, CalendarDays } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -73,9 +74,10 @@ const Onboarding = () => {
   const [deliveryPref, setDeliveryPref] = useState("in-store");
 
   // Step 4 - Custom meals
-  const [savedMeals, setSavedMeals] = useState<{ name: string; description: string }[]>([]);
+  const [savedMeals, setSavedMeals] = useState<{ name: string; description: string; frequency: string }[]>([]);
   const [newMealName, setNewMealName] = useState("");
   const [newMealDesc, setNewMealDesc] = useState("");
+  const [newMealFreq, setNewMealFreq] = useState("every_week");
 
 
   const toggleInList = (list: string[], item: string, setter: (v: string[]) => void) => {
@@ -85,9 +87,10 @@ const Onboarding = () => {
   const addMeal = () => {
     const trimmed = newMealName.trim().slice(0, 200);
     if (!trimmed) return;
-    setSavedMeals((prev) => [...prev, { name: trimmed, description: newMealDesc.trim().slice(0, 500) }]);
+    setSavedMeals((prev) => [...prev, { name: trimmed, description: newMealDesc.trim().slice(0, 500), frequency: newMealFreq }]);
     setNewMealName("");
     setNewMealDesc("");
+    setNewMealFreq("every_week");
   };
 
   const removeMeal = (idx: number) => {
@@ -157,6 +160,7 @@ const Onboarding = () => {
             household_id: household.id,
             meal_name: m.name,
             meal_description: m.description || null,
+            frequency: m.frequency,
           })));
         if (mealsError) throw mealsError;
       }
@@ -308,6 +312,7 @@ const Onboarding = () => {
                   </div>
                   <div>
                     <Label className="text-base font-medium">Allergies</Label>
+                    <p className="text-sm text-muted-foreground mt-1">Select presets or add your own</p>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {ALLERGIES.map((a) => (
                         <button
@@ -320,6 +325,30 @@ const Onboarding = () => {
                           {a}
                         </button>
                       ))}
+                      {allergies.filter(a => !ALLERGIES.includes(a)).map((a) => (
+                        <button
+                          key={a}
+                          onClick={() => setAllergies(allergies.filter(x => x !== a))}
+                          className="px-4 py-2 rounded-full text-sm border bg-destructive text-destructive-foreground border-destructive flex items-center gap-1.5"
+                        >
+                          ⚠️ {a} <X className="w-3.5 h-3.5" />
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 mt-3 max-w-sm">
+                      <Input
+                        placeholder="Add custom allergy..."
+                        maxLength={50}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            const val = (e.target as HTMLInputElement).value.trim();
+                            if (val && !allergies.includes(val)) {
+                              setAllergies([...allergies, val]);
+                              (e.target as HTMLInputElement).value = "";
+                            }
+                          }
+                        }}
+                      />
                     </div>
                   </div>
                   <div>
@@ -457,6 +486,20 @@ const Onboarding = () => {
                       maxLength={500}
                       onKeyDown={(e) => { if (e.key === "Enter") addMeal(); }}
                     />
+                    <div className="flex items-center gap-2">
+                      <CalendarDays className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <Select value={newMealFreq} onValueChange={setNewMealFreq}>
+                        <SelectTrigger className="h-10 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="every_week">Every week</SelectItem>
+                          <SelectItem value="every_other_week">Every other week</SelectItem>
+                          <SelectItem value="once_a_month">Once a month</SelectItem>
+                          <SelectItem value="occasionally">Occasionally</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Button variant="outline" onClick={addMeal} disabled={!newMealName.trim()} className="gap-2">
                       <Plus className="w-4 h-4" /> Add meal
                     </Button>
@@ -471,6 +514,7 @@ const Onboarding = () => {
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-sm text-foreground truncate">{m.name}</p>
                             {m.description && <p className="text-xs text-muted-foreground truncate">{m.description}</p>}
+                            <p className="text-xs text-muted-foreground mt-0.5 capitalize">{m.frequency.replace(/_/g, " ")}</p>
                           </div>
                           <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeMeal(i)}>
                             <X className="w-3.5 h-3.5 text-muted-foreground" />

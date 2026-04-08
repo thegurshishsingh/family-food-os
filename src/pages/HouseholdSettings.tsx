@@ -258,13 +258,35 @@ const HouseholdSettings = () => {
               </div>
               <div>
                 <Label className="text-sm font-medium">Allergies</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Select presets or add your own</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {ALLERGIES.map((a) => (
                     <button key={a} onClick={() => toggleInList(allergies, a, setAllergyList)}
                       className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${allergies.includes(a) ? "bg-destructive text-destructive-foreground border-destructive" : "bg-background text-foreground border-border hover:bg-muted"}`}>
                       {a}
                     </button>
-                    ))}
+                  ))}
+                  {allergies.filter(a => !ALLERGIES.includes(a)).map((a) => (
+                    <button key={a} onClick={() => setAllergyList(allergies.filter(x => x !== a))}
+                      className="px-3 py-1.5 rounded-full text-xs border bg-destructive text-destructive-foreground border-destructive flex items-center gap-1">
+                      ⚠️ {a} <X className="w-3 h-3" />
+                    </button>
+                  ))}
+                  </div>
+                  <div className="flex gap-2 mt-3 max-w-xs">
+                    <Input
+                      placeholder="Add custom allergy..."
+                      maxLength={50}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          const val = (e.target as HTMLInputElement).value.trim();
+                          if (val && !allergies.includes(val)) {
+                            setAllergyList([...allergies, val]);
+                            (e.target as HTMLInputElement).value = "";
+                          }
+                        }
+                      }}
+                    />
                   </div>
                 </div>
               <div>
