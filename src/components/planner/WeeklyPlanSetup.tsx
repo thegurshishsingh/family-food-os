@@ -770,6 +770,12 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                           </span>
                         </div>
                       )}
+                      {selectedProduce.length > 0 && (
+                        <div className="flex justify-between text-xs sm:text-sm gap-2">
+                          <span className="text-muted-foreground shrink-0">Seasonal produce</span>
+                          <span className="font-medium text-foreground text-right">{selectedProduce.join(", ")}</span>
+                        </div>
+                      )}
                       {specialMeals.length > 0 && (
                         <div className="flex justify-between text-xs sm:text-sm gap-2">
                           <span className="text-muted-foreground shrink-0">Special requests</span>
