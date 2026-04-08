@@ -140,7 +140,7 @@ const DayCard = ({
           {!day.is_locked && isMobile && (
             <button
               className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground/60 active:text-primary active:bg-primary/10 transition-colors shrink-0 sm:hidden"
-              onTouchStart={() => onMobileDragStart?.(day.id)}
+              onClick={() => onMobileDragStart?.(day.id)}
             >
               <ArrowUpDown className="w-3.5 h-3.5" />
             </button>
