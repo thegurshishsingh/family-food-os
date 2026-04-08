@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { ArrowRight, ArrowLeft, ChefHat, Loader2, X, Plus, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowLeft, ChefHat, Loader2, X, Plus, Sparkles, Leaf } from "lucide-react";
 import { DAYS } from "./types";
 
 export interface PlanSetupData {
