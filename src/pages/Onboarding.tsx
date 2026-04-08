@@ -73,9 +73,10 @@ const Onboarding = () => {
   const [deliveryPref, setDeliveryPref] = useState("in-store");
 
   // Step 4 - Custom meals
-  const [savedMeals, setSavedMeals] = useState<{ name: string; description: string }[]>([]);
+  const [savedMeals, setSavedMeals] = useState<{ name: string; description: string; frequency: string }[]>([]);
   const [newMealName, setNewMealName] = useState("");
   const [newMealDesc, setNewMealDesc] = useState("");
+  const [newMealFreq, setNewMealFreq] = useState("every_week");
 
 
   const toggleInList = (list: string[], item: string, setter: (v: string[]) => void) => {
@@ -85,9 +86,10 @@ const Onboarding = () => {
   const addMeal = () => {
     const trimmed = newMealName.trim().slice(0, 200);
     if (!trimmed) return;
-    setSavedMeals((prev) => [...prev, { name: trimmed, description: newMealDesc.trim().slice(0, 500) }]);
+    setSavedMeals((prev) => [...prev, { name: trimmed, description: newMealDesc.trim().slice(0, 500), frequency: newMealFreq }]);
     setNewMealName("");
     setNewMealDesc("");
+    setNewMealFreq("every_week");
   };
 
   const removeMeal = (idx: number) => {
@@ -157,6 +159,7 @@ const Onboarding = () => {
             household_id: household.id,
             meal_name: m.name,
             meal_description: m.description || null,
+            frequency: m.frequency,
           })));
         if (mealsError) throw mealsError;
       }
@@ -308,6 +311,7 @@ const Onboarding = () => {
                   </div>
                   <div>
                     <Label className="text-base font-medium">Allergies</Label>
+                    <p className="text-sm text-muted-foreground mt-1">Select presets or add your own</p>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {ALLERGIES.map((a) => (
                         <button
@@ -320,6 +324,30 @@ const Onboarding = () => {
                           {a}
                         </button>
                       ))}
+                      {allergies.filter(a => !ALLERGIES.includes(a)).map((a) => (
+                        <button
+                          key={a}
+                          onClick={() => setAllergies(allergies.filter(x => x !== a))}
+                          className="px-4 py-2 rounded-full text-sm border bg-destructive text-destructive-foreground border-destructive flex items-center gap-1.5"
+                        >
+                          ⚠️ {a} <X className="w-3.5 h-3.5" />
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 mt-3 max-w-sm">
+                      <Input
+                        placeholder="Add custom allergy..."
+                        maxLength={50}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            const val = (e.target as HTMLInputElement).value.trim();
+                            if (val && !allergies.includes(val)) {
+                              setAllergies([...allergies, val]);
+                              (e.target as HTMLInputElement).value = "";
+                            }
+                          }
+                        }}
+                      />
                     </div>
                   </div>
                   <div>
