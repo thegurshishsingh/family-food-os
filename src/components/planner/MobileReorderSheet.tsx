@@ -17,7 +17,7 @@ const MobileReorderSheet = ({ open, onOpenChange, days, onReorder }: MobileReord
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   // Sync orderedDays when sheet opens or days change while open
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       setOrderedDays([...days]);
       setSelectedIndex(null);
