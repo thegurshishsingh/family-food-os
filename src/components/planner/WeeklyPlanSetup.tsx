@@ -557,24 +557,78 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                   </div>
                 )}
 
-                {/* Step: Special meals */}
+                {/* Step: Special & Seasonal meals */}
                 {step === "specials" && (
                   <div className="space-y-4">
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Is there any meal you want to include{isPartialWeek ? "" : " this week"}?
+                      Add a special request or try something seasonal{isPartialWeek ? "" : " this week"}.
                     </p>
-                    <div className="flex gap-2">
-                      <Input
-                        value={mealInput}
-                        onChange={(e) => setMealInput(e.target.value)}
-                        placeholder="e.g. Taco night"
-                        className="text-xs sm:text-sm"
-                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSpecialMeal(); } }}
-                      />
-                      <Button variant="outline" size="icon" onClick={addSpecialMeal} disabled={!mealInput.trim()} className="shrink-0">
-                        <Plus className="w-4 h-4" />
-                      </Button>
+
+                    {/* Seasonal section */}
+                    {(() => {
+                      const seasonal = getSeasonalData();
+                      return (
+                        <div className="rounded-xl border border-primary/20 bg-primary/[0.04] p-3 space-y-2.5">
+                          <div className="flex items-center gap-2">
+                            <Leaf className="w-4 h-4 text-primary" />
+                            <p className="text-xs sm:text-sm font-medium text-foreground">
+                              What's in season — {seasonal.monthName}
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {seasonal.produce.map((item) => (
+                              <span
+                                key={item.name}
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-[10px] sm:text-[11px] font-medium text-primary"
+                              >
+                                {item.emoji} {item.name}
+                              </span>
+                            ))}
+                          </div>
+                          <div className="border-t border-primary/10 pt-2">
+                            <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1.5">Try a seasonal meal idea:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {seasonal.mealIdeas.map((idea) => (
+                                <button
+                                  key={idea}
+                                  onClick={() => {
+                                    if (specialMeals.length < 5 && !specialMeals.includes(idea)) {
+                                      setSpecialMeals([...specialMeals, idea]);
+                                    }
+                                  }}
+                                  disabled={specialMeals.includes(idea)}
+                                  className={`text-[10px] sm:text-xs px-2.5 py-1.5 rounded-lg border transition-all
+                                    ${specialMeals.includes(idea)
+                                      ? "border-primary/30 bg-primary/10 text-primary"
+                                      : "border-border bg-card text-foreground hover:border-primary/30 hover:bg-primary/5"
+                                    }`}
+                                >
+                                  + {idea}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Custom input */}
+                    <div>
+                      <p className="text-[10px] sm:text-[11px] text-muted-foreground mb-1.5">Or add your own request:</p>
+                      <div className="flex gap-2">
+                        <Input
+                          value={mealInput}
+                          onChange={(e) => setMealInput(e.target.value)}
+                          placeholder="e.g. Taco night, birthday cake"
+                          className="text-xs sm:text-sm"
+                          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSpecialMeal(); } }}
+                        />
+                        <Button variant="outline" size="icon" onClick={addSpecialMeal} disabled={!mealInput.trim()} className="shrink-0">
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
+
                     {specialMeals.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 sm:gap-2">
                         {specialMeals.map((m, i) => (
