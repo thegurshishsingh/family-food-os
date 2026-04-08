@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,13 +16,17 @@ const MobileReorderSheet = ({ open, onOpenChange, days, onReorder }: MobileReord
   const [orderedDays, setOrderedDays] = useState<PlanDay[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  const handleOpenChange = useCallback((o: boolean) => {
-    if (o) {
+  // Sync orderedDays when sheet opens or days change while open
+  useEffect(() => {
+    if (open) {
       setOrderedDays([...days]);
       setSelectedIndex(null);
     }
+  }, [open, days]);
+
+  const handleOpenChange = useCallback((o: boolean) => {
     onOpenChange(o);
-  }, [days, onOpenChange]);
+  }, [onOpenChange]);
 
   const handleTap = (index: number) => {
     const day = orderedDays[index];
