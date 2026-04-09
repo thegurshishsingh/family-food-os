@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Download } from "lucide-react";
+import { ShoppingCart, Download, ArrowLeftRight } from "lucide-react";
 
 type GroceryItem = {
   id: string;
@@ -138,6 +138,11 @@ const Groceries = () => {
                       </span>
                       {item.quantity && (
                         <span className="text-xs text-muted-foreground">{item.quantity}</span>
+                      )}
+                      {item.source === "swap" && (
+                        <Badge variant="outline" className="text-[10px] border-primary/40 text-primary gap-0.5">
+                          <ArrowLeftRight className="w-2.5 h-2.5" /> swapped
+                        </Badge>
                       )}
                       {item.is_staple && (
                         <Badge variant="outline" className="text-xs">staple</Badge>
