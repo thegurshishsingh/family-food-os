@@ -16,6 +16,7 @@ type GroceryItem = {
   quantity: string | null;
   is_checked: boolean;
   is_staple: boolean;
+  source: string;
 };
 
 const CATEGORY_ORDER = ["produce", "protein", "dairy", "pantry", "frozen", "snacks", "household"];

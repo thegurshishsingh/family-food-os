@@ -97,6 +97,7 @@ serve(async (req) => {
           category: categorizeIngredient(ing.name),
           is_checked: false,
           is_staple: false,
+          source: "swap",
         }));
         const { error: insertErr } = await supabaseClient.from("grocery_items").insert(groceryRows);
         if (insertErr) console.error(`[swap-meal] Failed to insert groceries:`, insertErr.message);
