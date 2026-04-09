@@ -80,7 +80,7 @@ serve(async (req) => {
             .from("grocery_items")
             .delete()
             .eq("plan_id", planId)
-            .ilike("item_name", `%${name}%`);
+            .ilike("item_name", name);
           if (delErr) console.error(`[swap-meal] Failed to delete grocery "${name}":`, delErr.message);
           else console.log(`[swap-meal] Deleted grocery "${name}", count=${count}`);
         }
