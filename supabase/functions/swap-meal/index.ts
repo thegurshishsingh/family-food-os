@@ -67,25 +67,28 @@ serve(async (req) => {
       if (updateError) throw updateError;
 
       // ── Sync grocery list ──
-      // Remove old grocery items that were from the old meal (match by plan_id)
-      // Then add new ones from the selected meal's ingredients
       const planId = currentDay.plan_id;
       const oldIngredients = (currentDay.ingredients as any[]) || [];
-      const oldItemNames = oldIngredients.map((ing: any) => ing.name?.toLowerCase()).filter(Boolean);
+      const oldItemNames = oldIngredients.map((ing: any) => ing.name?.toLowerCase().trim()).filter(Boolean);
 
+      console.log(`[swap-meal] Grocery sync: planId=${planId}, old ingredients=${oldItemNames.length}`);
+
+      // Delete old meal's grocery items using case-insensitive + trimmed matching
       if (oldItemNames.length > 0) {
-        // Delete old meal's grocery items (best-effort match by name)
         for (const name of oldItemNames) {
-          await supabaseClient
+          const { error: delErr, count } = await supabaseClient
             .from("grocery_items")
             .delete()
             .eq("plan_id", planId)
-            .ilike("item_name", name);
+            .ilike("item_name", `%${name}%`);
+          if (delErr) console.error(`[swap-meal] Failed to delete grocery "${name}":`, delErr.message);
+          else console.log(`[swap-meal] Deleted grocery "${name}", count=${count}`);
         }
       }
 
       // Insert new meal's ingredients as grocery items
       const newIngredients = (selected_meal.ingredients as any[]) || [];
+      console.log(`[swap-meal] Inserting ${newIngredients.length} new grocery items`);
       if (newIngredients.length > 0) {
         const groceryRows = newIngredients.map((ing: any) => ({
           plan_id: planId,
@@ -95,7 +98,9 @@ serve(async (req) => {
           is_checked: false,
           is_staple: false,
         }));
-        await supabaseClient.from("grocery_items").insert(groceryRows);
+        const { error: insertErr } = await supabaseClient.from("grocery_items").insert(groceryRows);
+        if (insertErr) console.error(`[swap-meal] Failed to insert groceries:`, insertErr.message);
+        else console.log(`[swap-meal] Inserted ${groceryRows.length} grocery items successfully`);
       }
 
       return new Response(JSON.stringify({ success: true, meal: selected_meal }), {
