@@ -98,6 +98,7 @@ export type Database = {
           item_name: string
           plan_id: string
           quantity: string | null
+          source: string
         }
         Insert: {
           category?: string
@@ -108,6 +109,7 @@ export type Database = {
           item_name: string
           plan_id: string
           quantity?: string | null
+          source?: string
         }
         Update: {
           category?: string
@@ -118,6 +120,7 @@ export type Database = {
           item_name?: string
           plan_id?: string
           quantity?: string | null
+          source?: string
         }
         Relationships: [
           {
