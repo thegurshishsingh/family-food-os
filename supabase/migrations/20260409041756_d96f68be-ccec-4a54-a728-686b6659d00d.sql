@@ -1,0 +1,1 @@
+ALTER TABLE public.grocery_items ADD COLUMN source text NOT NULL DEFAULT 'plan';
