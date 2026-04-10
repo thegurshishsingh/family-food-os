@@ -146,6 +146,9 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
       try { localStorage.setItem(`ffos_milestone_ack_${householdId}`, String(milestone.hours)); } catch {}
     }
   };
+  // Don't render anything for first-week users
+  if (!result) return null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
