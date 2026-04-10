@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ArrowRight, ChevronDown, Sparkles, Award, X } from "lucide-react";
+import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { computeTimeSaved, formatHours, type TimeSavedResult } from "@/lib/timeSaved";
 import { getHumanRewards, type HumanReward } from "@/lib/humanReward";
@@ -60,6 +60,7 @@ function ConfettiParticle({ delay, x, color }: { delay: number; x: number; color
 const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan, onViewDetails, generating }: TimeSavedRecapProps) => {
   const [result, setResult] = useState<TimeSavedResult | null>(null);
   const [cumulativeMinutes, setCumulativeMinutes] = useState(0);
+  const [isFirstWeek, setIsFirstWeek] = useState(false);
   const [totalWeeks, setTotalWeeks] = useState(1);
   const [showEstimation, setShowEstimation] = useState(false);
   const [showMilestone, setShowMilestone] = useState(false);
@@ -103,11 +104,13 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
     const pastWeeks = Math.max(0, weeks - 1); // exclude current week
     setTotalWeeks(weeks);
 
-    // If this is the user's first plan, don't show the recap
+    // If this is the user's first plan, show welcome instead
     if (pastWeeks === 0) {
+      setIsFirstWeek(true);
       setResult(null);
       return;
     }
+    setIsFirstWeek(false);
 
     const computed = computeTimeSaved(days, {
       hasGroceryList: (groceryCount || 0) > 0,
@@ -146,7 +149,47 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
       try { localStorage.setItem(`ffos_milestone_ack_${householdId}`, String(milestone.hours)); } catch {}
     }
   };
-  // Don't render anything for first-week users
+  // First-week welcome card
+  if (isFirstWeek) {
+    const plannedCount = days.filter(d => d.meal_name).length;
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="mb-12"
+      >
+        <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-card via-card to-background/40 px-6 py-10 sm:px-12 sm:py-14 text-center">
+          <div
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[320px] h-[320px] rounded-full pointer-events-none"
+            style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.06) 0%, transparent 70%)" }}
+          />
+          <div className="relative z-10">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: [0, 1.15, 1] }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-5"
+            >
+              <Rocket className="w-7 h-7 text-primary" />
+            </motion.div>
+            <h3 className="text-2xl sm:text-3xl font-serif font-semibold text-foreground mb-2">
+              Welcome to your first week!
+            </h3>
+            <p className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto mb-6">
+              You've got {plannedCount} dinner{plannedCount !== 1 ? "s" : ""} planned — nice start.
+              Complete this week and check in on your meals to unlock your first <span className="font-medium text-foreground">Weekly Recap</span> with personalized time-saved insights.
+            </p>
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground/70">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Your recap will appear here next week</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
   if (!result) return null;
 
   return (
