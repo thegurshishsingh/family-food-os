@@ -93,13 +93,21 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
       checkinCount = count || 0;
     }
 
+    // Count past completed plans (exclude current plan)
     const { data: allPlans } = await supabase
       .from("weekly_plans")
       .select("id")
       .eq("household_id", householdId);
 
     const weeks = allPlans?.length || 1;
+    const pastWeeks = Math.max(0, weeks - 1); // exclude current week
     setTotalWeeks(weeks);
+
+    // If this is the user's first plan, don't show the recap
+    if (pastWeeks === 0) {
+      setResult(null);
+      return;
+    }
 
     const computed = computeTimeSaved(days, {
       hasGroceryList: (groceryCount || 0) > 0,
@@ -108,6 +116,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
     });
 
     setResult(computed);
+    // Cumulative = this week + estimate for past completed weeks
     setCumulativeMinutes(computed.totalMinutesSaved * weeks);
   };
 
