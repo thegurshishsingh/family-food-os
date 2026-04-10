@@ -104,11 +104,13 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
     const pastWeeks = Math.max(0, weeks - 1); // exclude current week
     setTotalWeeks(weeks);
 
-    // If this is the user's first plan, don't show the recap
+    // If this is the user's first plan, show welcome instead
     if (pastWeeks === 0) {
+      setIsFirstWeek(true);
       setResult(null);
       return;
     }
+    setIsFirstWeek(false);
 
     const computed = computeTimeSaved(days, {
       hasGroceryList: (groceryCount || 0) > 0,
