@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
+import MobileLayout from "@/components/MobileLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -77,16 +78,16 @@ const Groceries = () => {
 
   if (loading) {
     return (
-      <AppLayout>
+      <MobileLayout title="Groceries"><AppLayout>
         <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
+      </AppLayout></MobileLayout>
     );
   }
 
   return (
-    <AppLayout>
+    <MobileLayout title="Groceries"><AppLayout>
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -155,7 +156,7 @@ const Groceries = () => {
           </div>
         )}
       </div>
-    </AppLayout>
+    </AppLayout></MobileLayout>
   );
 };
 

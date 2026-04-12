@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
+import MobileLayout from "@/components/MobileLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -239,18 +240,18 @@ const FamilyProfile = () => {
 
   if (loading) {
     return (
-      <AppLayout>
+      <MobileLayout title="Community"><AppLayout>
         <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
+      </AppLayout></MobileLayout>
     );
   }
 
   const hasData = planDays.length > 0;
 
   return (
-    <AppLayout>
+    <MobileLayout title="Community"><AppLayout>
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -495,7 +496,7 @@ const FamilyProfile = () => {
           </motion.div>
         )}
       </div>
-    </AppLayout>
+    </AppLayout></MobileLayout>
   );
 };
 

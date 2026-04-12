@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
+import MobileLayout from "@/components/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -200,16 +201,16 @@ const CheckIn = () => {
 
   if (loading || hhLoading) {
     return (
-      <AppLayout>
+      <MobileLayout title="Check-in"><AppLayout>
         <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
+      </AppLayout></MobileLayout>
     );
   }
 
   return (
-    <AppLayout>
+    <MobileLayout title="Check-in"><AppLayout>
       <div className="max-w-md mx-auto py-4">
         <AnimatePresence mode="wait">
           {/* No meal */}
@@ -421,7 +422,7 @@ const CheckIn = () => {
           )}
         </AnimatePresence>
       </div>
-    </AppLayout>
+    </AppLayout></MobileLayout>
   );
 };
 
