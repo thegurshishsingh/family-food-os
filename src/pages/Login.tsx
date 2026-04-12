@@ -31,11 +31,24 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/planner",
-    });
-    if (result?.error) {
-      toast({ variant: "destructive", title: "Google login failed", description: String(result.error) });
+    if (Capacitor.isNativePlatform()) {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: "com.familyfoodos.app://login-callback",
+          skipBrowserRedirect: false,
+        },
+      });
+      if (error) {
+        toast({ variant: "destructive", title: "Google login failed", description: error.message });
+      }
+    } else {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin + "/planner",
+      });
+      if (result?.error) {
+        toast({ variant: "destructive", title: "Google login failed", description: String(result.error) });
+      }
     }
   };
 
