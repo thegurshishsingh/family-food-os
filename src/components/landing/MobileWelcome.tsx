@@ -25,7 +25,7 @@ const MobileWelcome = () => {
   }, []);
 
   return (
-    <div className="block md:hidden min-h-screen bg-background flex flex-col items-center justify-between px-6 py-12 safe-top safe-bottom">
+    <div className="block md:hidden min-h-screen bg-background flex flex-col items-center justify-between px-6 py-12 safe-top safe-bottom overflow-y-auto">
       {/* Top: Logo */}
       <motion.div
         className="flex flex-col items-center gap-3 pt-8"
