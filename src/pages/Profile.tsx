@@ -104,16 +104,16 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <AppLayout>
+      <MobileLayout title="Profile"><AppLayout>
         <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
+      </AppLayout></MobileLayout>
     );
   }
 
   return (
-    <AppLayout>
+    <MobileLayout title="Profile"><AppLayout>
       <div className="max-w-lg mx-auto">
         <h1 className="text-2xl font-serif font-semibold text-foreground mb-6">Your Profile</h1>
 
@@ -174,7 +174,7 @@ const Profile = () => {
           </CardContent>
         </Card>
       </div>
-    </AppLayout>
+    </AppLayout></MobileLayout>
   );
 };
 

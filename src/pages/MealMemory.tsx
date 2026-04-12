@@ -52,16 +52,16 @@ const MealMemory = () => {
 
   if (loading) {
     return (
-      <AppLayout>
+      <MobileLayout title="Meal Memory"><AppLayout>
         <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
+      </AppLayout></MobileLayout>
     );
   }
 
   return (
-    <AppLayout>
+    <MobileLayout title="Meal Memory"><AppLayout>
       <div className="max-w-3xl mx-auto">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
           <div>
@@ -116,7 +116,7 @@ const MealMemory = () => {
           </Tabs>
         )}
       </div>
-    </AppLayout>
+    </AppLayout></MobileLayout>
   );
 };
 

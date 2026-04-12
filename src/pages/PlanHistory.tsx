@@ -70,16 +70,16 @@ const PlanHistory = () => {
 
   if (loading || hhLoading) {
     return (
-      <AppLayout>
+      <MobileLayout title="History"><AppLayout>
         <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
+      </AppLayout></MobileLayout>
     );
   }
 
   return (
-    <AppLayout>
+    <MobileLayout title="History"><AppLayout>
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground mb-2">Plan History</h1>
         <p className="text-muted-foreground text-sm mb-8">Browse your past weekly plans and see how your meals have evolved.</p>
@@ -209,7 +209,7 @@ const PlanHistory = () => {
           </>
         )}
       </div>
-    </AppLayout>
+    </AppLayout></MobileLayout>
   );
 };
 

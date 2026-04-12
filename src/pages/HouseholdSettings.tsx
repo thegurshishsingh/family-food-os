@@ -158,16 +158,16 @@ const HouseholdSettings = () => {
 
   if (hhLoading) {
     return (
-      <AppLayout>
+      <MobileLayout title="Settings"><AppLayout>
         <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
+      </AppLayout></MobileLayout>
     );
   }
 
   return (
-    <AppLayout>
+    <MobileLayout title="Settings"><AppLayout>
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground">Household Settings</h1>
@@ -464,7 +464,7 @@ const HouseholdSettings = () => {
           </Card>
         </div>
       </div>
-    </AppLayout>
+    </AppLayout></MobileLayout>
   );
 };
 
