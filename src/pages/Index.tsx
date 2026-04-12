@@ -5,9 +5,6 @@ import MobileWelcome from "@/components/landing/MobileWelcome";
 const Index = () => {
   const isMobile = useIsMobile();
 
-  // Show undefined state briefly while detecting
-  if (isMobile === undefined) return null;
-
   return isMobile ? <MobileWelcome /> : <Landing />;
 };
 
