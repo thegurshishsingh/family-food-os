@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
+import MobileLayout from "@/components/MobileLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
