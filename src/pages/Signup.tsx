@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
@@ -34,11 +35,24 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = async () => {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/onboarding",
-    });
-    if (result?.error) {
-      toast({ variant: "destructive", title: "Google signup failed", description: String(result.error) });
+    if (Capacitor.isNativePlatform()) {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: "com.familyfoodos.app://login-callback",
+          skipBrowserRedirect: false,
+        },
+      });
+      if (error) {
+        toast({ variant: "destructive", title: "Google signup failed", description: error.message });
+      }
+    } else {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin + "/onboarding",
+      });
+      if (result?.error) {
+        toast({ variant: "destructive", title: "Google signup failed", description: String(result.error) });
+      }
     }
   };
 
