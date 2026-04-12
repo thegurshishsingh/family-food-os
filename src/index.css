@@ -179,6 +179,28 @@
   }
 }
 
+/* Safe area for iPhone notch and home indicator */
+.safe-top { padding-top: env(safe-area-inset-top, 0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* Prevent bounce scrolling on iOS */
+html, body { overscroll-behavior: none; }
+
+/* Fix input zoom on iOS - must be 16px minimum */
+@media (max-width: 768px) {
+  input, select, textarea { font-size: 16px !important; }
+}
+
+/* Remove hover effects on mobile - they get stuck */
+@media (hover: none) {
+  *:hover { background-color: inherit !important; }
+}
+
+/* Minimum tap target size for mobile */
+@media (max-width: 768px) {
+  button, a { min-height: 44px; }
+}
+
 /* PWA safe area support for iPhone notch/dynamic island */
 @supports (padding: env(safe-area-inset-top)) {
   body {
