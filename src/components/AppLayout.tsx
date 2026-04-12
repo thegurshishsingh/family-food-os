@@ -47,8 +47,8 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top nav */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      {/* Top nav — hidden on mobile, replaced by TopBar + BottomNav */}
+      <nav className="hidden md:block sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container flex items-center justify-between h-14 px-4">
           <Link to="/planner" className="flex items-center gap-2">
             <Logo size="sm" showText={false} />
