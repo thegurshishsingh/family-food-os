@@ -185,8 +185,8 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Progress bar — desktop */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border hidden md:block">
+      {/* Progress bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
         <div className="container max-w-2xl px-4 py-4">
           <Logo size="sm" className="mb-3" />
           <div className="flex gap-2">
@@ -195,20 +195,6 @@ const Onboarding = () => {
             ))}
           </div>
           <p className="text-xs text-muted-foreground mt-2">Step {step + 1} of {STEPS.length} · {STEPS[step].title}</p>
-        </div>
-      </div>
-
-      {/* Progress dots — mobile */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border block md:hidden safe-top">
-        <div className="flex items-center justify-center gap-2 py-4">
-          {STEPS.map((_, i) => (
-            <div
-              key={i}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                i === step ? "bg-primary w-6" : i < step ? "bg-primary" : "bg-muted"
-              }`}
-            />
-          ))}
         </div>
       </div>
 
@@ -541,8 +527,8 @@ const Onboarding = () => {
         </div>
       </div>
 
-      {/* Bottom nav — desktop */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border py-4 px-4 hidden md:block">
+      {/* Bottom nav */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border py-4 px-4">
         <div className="container max-w-2xl flex justify-between">
           <Button variant="ghost" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>
             <ArrowLeft className="w-4 h-4 mr-1" /> Back
@@ -554,26 +540,6 @@ const Onboarding = () => {
           ) : (
             <Button onClick={handleComplete} disabled={loading}>
               {loading ? "Setting up..." : "Generate my weekly plan"} <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Bottom nav — mobile */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border py-4 px-6 block md:hidden safe-bottom">
-        <div className="flex gap-3">
-          {step > 0 && (
-            <Button variant="outline" onClick={() => setStep(Math.max(0, step - 1))} className="h-14 px-6 rounded-xl">
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          )}
-          {step < STEPS.length - 1 ? (
-            <Button onClick={() => setStep(step + 1)} disabled={!canProceed()} className="flex-1 h-14 text-base font-semibold rounded-xl">
-              Continue
-            </Button>
-          ) : (
-            <Button onClick={handleComplete} disabled={loading} className="flex-1 h-14 text-base font-semibold rounded-xl">
-              {loading ? "Setting up..." : "Generate Plan"}
             </Button>
           )}
         </div>

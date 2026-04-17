@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
-import MobileLayout from "@/components/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -476,19 +475,19 @@ const Planner = () => {
 
   if (loading || hhLoading) {
     return (
-      <MobileLayout title="This Week"><AppLayout>
+      <AppLayout>
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-muted-foreground">Loading your plan...</p>
           </div>
         </div>
-      </AppLayout></MobileLayout>
+      </AppLayout>
     );
   }
 
   return (
-    <MobileLayout title="This Week"><AppLayout>
+    <AppLayout>
       <div className="max-w-5xl mx-auto overflow-x-hidden w-full">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
@@ -745,7 +744,7 @@ const Planner = () => {
           }}
         />
       )}
-    </AppLayout></MobileLayout>
+    </AppLayout>
   );
 };
 

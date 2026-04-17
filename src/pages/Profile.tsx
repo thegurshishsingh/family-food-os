@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
-import MobileLayout from "@/components/MobileLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -104,16 +103,16 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <MobileLayout title="Profile"><AppLayout>
+      <AppLayout>
         <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout></MobileLayout>
+      </AppLayout>
     );
   }
 
   return (
-    <MobileLayout title="Profile"><AppLayout>
+    <AppLayout>
       <div className="max-w-lg mx-auto">
         <h1 className="text-2xl font-serif font-semibold text-foreground mb-6">Your Profile</h1>
 
@@ -174,7 +173,7 @@ const Profile = () => {
           </CardContent>
         </Card>
       </div>
-    </AppLayout></MobileLayout>
+    </AppLayout>
   );
 };
 

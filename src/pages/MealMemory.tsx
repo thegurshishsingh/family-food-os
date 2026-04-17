@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
-import MobileLayout from "@/components/MobileLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -52,16 +51,16 @@ const MealMemory = () => {
 
   if (loading) {
     return (
-      <MobileLayout title="Meal Memory"><AppLayout>
+      <AppLayout>
         <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout></MobileLayout>
+      </AppLayout>
     );
   }
 
   return (
-    <MobileLayout title="Meal Memory"><AppLayout>
+    <AppLayout>
       <div className="max-w-3xl mx-auto">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
           <div>
@@ -116,7 +115,7 @@ const MealMemory = () => {
           </Tabs>
         )}
       </div>
-    </AppLayout></MobileLayout>
+    </AppLayout>
   );
 };
 
