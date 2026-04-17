@@ -19,7 +19,7 @@ const Signup = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { emailRedirectTo: window.location.origin + "/onboarding" },
@@ -27,6 +27,16 @@ const Signup = () => {
     setLoading(false);
     if (error) {
       toast({ variant: "destructive", title: "Signup failed", description: error.message });
+      return;
+    }
+    // If email confirmation is required, session will be null
+    if (!data.session) {
+      toast({
+        title: "Check your email",
+        description: "We sent you a verification link. Click it to activate your account.",
+      });
+      setEmail("");
+      setPassword("");
     } else {
       navigate("/onboarding");
     }
