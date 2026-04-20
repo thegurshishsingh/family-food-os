@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Target } from "lucide-react";
 import Logo from "@/components/Logo";
+import footerScene from "@/assets/footer-dinner-scene.jpg";
 import HeroSection from "@/components/landing/HeroSection";
 import TheStruggle from "@/components/landing/TheStruggle";
 import ProductProof from "@/components/landing/ProductProof";
@@ -75,52 +76,86 @@ const Landing = () => {
 
       <FinalCTA />
 
-      {/* Footer */}
-      <footer className="py-10 border-t border-border/30 glass">
-        <div className="container px-4 max-w-5xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-            {/* Brand + founding story */}
-            <div className="space-y-3">
-              <Logo size="sm" />
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Built by parents who were tired of 5 pm chaos. We created the dinner system we wished existed — so every family can reclaim their evenings.
-              </p>
-            </div>
-
-            {/* Links */}
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="space-y-2">
-                <p className="font-semibold text-foreground text-xs uppercase tracking-wider">Product</p>
-                <a href="#how-it-works" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">How it works</a>
-                <a href="#why-different" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Why we're different</a>
-                <Link to="/signup" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Get started</Link>
-              </div>
-              <div className="space-y-2">
-                <p className="font-semibold text-foreground text-xs uppercase tracking-wider">Support</p>
-                <a href="mailto:hello@familyfoodOS.com" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Contact us</a>
-                <a href="#faq" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">FAQ</a>
-                <a href="#" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">About</a>
-              </div>
-            </div>
-
-            {/* Legal + trust */}
-            <div className="space-y-2">
-              <p className="font-semibold text-foreground text-xs uppercase tracking-wider">Legal</p>
-              <a href="#" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Privacy Policy</a>
-              <a href="#" className="block text-muted-foreground hover:text-foreground transition-colors text-xs">Terms of Service</a>
-              <p className="text-[11px] text-muted-foreground/50 pt-2 text-green-700">
-                Your family's data is never sold. Ever.
-              </p>
+      {/* Footer — full-bleed illustrated */}
+      <footer className="relative mt-12">
+        {/* Illustrated scene with overlaid headline */}
+        <div className="relative w-full overflow-hidden" style={{ backgroundColor: "#1a3d2e" }}>
+          <img
+            src={footerScene}
+            alt="A family sharing a warm dinner together at the kitchen table"
+            loading="lazy"
+            width={1920}
+            height={1080}
+            className="w-full h-auto block select-none"
+          />
+          {/* Gradient fade into the dark green base */}
+          <div
+            className="absolute inset-x-0 bottom-0 h-2/3 pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(to bottom, transparent 0%, rgba(26,61,46,0.2) 40%, rgba(26,61,46,0.85) 80%, #1a3d2e 100%)",
+            }}
+            aria-hidden="true"
+          />
+          {/* Headline overlay */}
+          <div className="absolute inset-x-0 bottom-0 px-4 pb-8 md:pb-14">
+            <div className="container max-w-5xl">
+              <h2 className="font-serif font-semibold text-white text-3xl md:text-5xl lg:text-6xl leading-tight max-w-3xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)]">
+                Dinner doesn't have to be stressful. <span aria-hidden="true">💚</span>
+              </h2>
             </div>
           </div>
+        </div>
 
-          <div className="border-t border-border/20 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p className="text-xs text-muted-foreground/60">
-              © {new Date().getFullYear()} Family Food OS · Made with care for busy families
-            </p>
-            <p className="text-[11px] text-muted-foreground/40">
-              Dinner doesn't have to be stressful. 💚
-            </p>
+        {/* Dark base with all link content */}
+        <div className="text-cream/90" style={{ backgroundColor: "#1a3d2e" }}>
+          <div className="container px-4 max-w-5xl py-12 md:py-16">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+              {/* Brand + founding story */}
+              <div className="space-y-3">
+                <div className="[&_*]:text-cream">
+                  <Logo size="sm" />
+                </div>
+                <p className="text-xs text-cream/70 leading-relaxed max-w-xs">
+                  Built by parents who were tired of 5 pm chaos. We created the dinner system we wished existed — so every family can reclaim their evenings.
+                </p>
+              </div>
+
+              {/* Links */}
+              <div className="grid grid-cols-2 gap-6 text-sm">
+                <div className="space-y-2">
+                  <p className="font-semibold text-white text-xs uppercase tracking-wider mb-3">Product</p>
+                  <a href="#how-it-works" className="block text-cream/70 hover:text-white transition-colors text-xs">How it works</a>
+                  <a href="#why-different" className="block text-cream/70 hover:text-white transition-colors text-xs">Why we're different</a>
+                  <Link to="/signup" className="block text-cream/70 hover:text-white transition-colors text-xs">Get started</Link>
+                </div>
+                <div className="space-y-2">
+                  <p className="font-semibold text-white text-xs uppercase tracking-wider mb-3">Support</p>
+                  <a href="mailto:hello@familyfoodOS.com" className="block text-cream/70 hover:text-white transition-colors text-xs">Contact us</a>
+                  <a href="#faq" className="block text-cream/70 hover:text-white transition-colors text-xs">FAQ</a>
+                  <a href="#" className="block text-cream/70 hover:text-white transition-colors text-xs">About</a>
+                </div>
+              </div>
+
+              {/* Legal + trust */}
+              <div className="space-y-2">
+                <p className="font-semibold text-white text-xs uppercase tracking-wider mb-3">Legal</p>
+                <a href="#" className="block text-cream/70 hover:text-white transition-colors text-xs">Privacy Policy</a>
+                <a href="#" className="block text-cream/70 hover:text-white transition-colors text-xs">Terms of Service</a>
+                <p className="text-[11px] text-sage-light pt-3">
+                  Your family's data is never sold. Ever.
+                </p>
+              </div>
+            </div>
+
+            <div className="border-t border-cream/15 pt-5 flex flex-col sm:flex-row items-center justify-between gap-2">
+              <p className="text-xs text-cream/50">
+                © {new Date().getFullYear()} Family Food OS · Made with care for busy families
+              </p>
+              <p className="text-[11px] text-cream/40">
+                Small change. Big change.
+              </p>
+            </div>
           </div>
         </div>
       </footer>
