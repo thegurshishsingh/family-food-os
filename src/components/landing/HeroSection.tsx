@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, Flame, Brain, Sparkles, TrendingUp, CalendarDays, Utensils, Package, Store } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
+import { GlassCard, IconTile } from "./primitives";
 
 const rotatingWords = [
   "Dinner decisions",
@@ -18,76 +19,67 @@ const rotatingWords = [
 ];
 
 const WeeklyPlanCard = () => (
-  <div className="relative w-[140px]">
-    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-primary/20 via-border/40 to-primary/15" />
-    <div className="relative rounded-xl bg-background/95 backdrop-blur-sm border border-border/50 p-3 shadow-lg">
-      <div className="flex items-center gap-1.5 mb-2">
-        <div className="w-5 h-5 rounded bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center">
-          <CalendarDays className="w-3 h-3 text-primary-foreground" />
-        </div>
-        <span className="text-[11px] font-bold text-foreground">This Week</span>
-      </div>
-      <div className="space-y-1.5">
-        {[
-          { day: "Mon", icon: Utensils, mode: "Cook", g: "from-primary to-sage-dark" },
-          { day: "Tue", icon: Package, mode: "Leftover", g: "from-sky to-primary" },
-          { day: "Wed", icon: Store, mode: "Takeout", g: "from-coral to-accent" },
-        ].map((d) => (
-          <div key={d.day} className="flex items-center gap-1.5">
-            <span className="text-[9px] font-bold text-muted-foreground w-6">{d.day}</span>
-            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase text-primary-foreground bg-gradient-to-r ${d.g}`}>
-              <d.icon className="w-2 h-2" />
-              {d.mode}
-            </span>
-          </div>
-        ))}
-      </div>
-      <div className="mt-2 flex items-center gap-1 text-[9px] font-bold text-primary">
-        <TrendingUp className="w-2.5 h-2.5" />
-        Reality: 84
-      </div>
+  <GlassCard size="md" halo="primary" outerClassName="w-[140px]">
+    <div className="flex items-center gap-1.5 mb-2">
+      <IconTile size="xs" gradient="from-primary to-sage-dark">
+        <CalendarDays className="w-3 h-3 text-primary-foreground" />
+      </IconTile>
+      <span className="text-[11px] font-bold text-foreground">This Week</span>
     </div>
-  </div>
+    <div className="space-y-1.5">
+      {[
+        { day: "Mon", icon: Utensils, mode: "Cook", g: "from-primary to-sage-dark" },
+        { day: "Tue", icon: Package, mode: "Leftover", g: "from-sky to-primary" },
+        { day: "Wed", icon: Store, mode: "Takeout", g: "from-coral to-accent" },
+      ].map((d) => (
+        <div key={d.day} className="flex items-center gap-1.5">
+          <span className="text-[9px] font-bold text-muted-foreground w-6">{d.day}</span>
+          <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-sm text-[8px] font-bold uppercase text-primary-foreground bg-gradient-to-r ${d.g}`}>
+            <d.icon className="w-2 h-2" />
+            {d.mode}
+          </span>
+        </div>
+      ))}
+    </div>
+    <div className="mt-2 flex items-center gap-1 text-[9px] font-bold text-primary">
+      <TrendingUp className="w-2.5 h-2.5" />
+      Reality: 84
+    </div>
+  </GlassCard>
 );
 
 const SystemLearningCard = () => (
-  <div className="relative w-[150px]">
-    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-sky/20 via-border/40 to-primary/15" />
-    <div className="relative rounded-xl bg-background/95 backdrop-blur-sm border border-border/50 p-3 shadow-lg">
-      <div className="flex items-center gap-1.5 mb-2">
-        <div className="w-5 h-5 rounded bg-gradient-to-br from-sky to-primary flex items-center justify-center">
-          <Sparkles className="w-3 h-3 text-primary-foreground" />
-        </div>
-        <span className="text-[10px] font-bold text-foreground">System Learning</span>
-      </div>
-      <div className="space-y-1.5">
-        <p className="text-[9px] text-muted-foreground leading-snug flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-sky shrink-0" />
-          Kids prefer low-spice
-        </p>
-        <p className="text-[9px] text-muted-foreground leading-snug flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-          Wed → takeout works
-        </p>
-        <p className="text-[9px] text-muted-foreground leading-snug flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-          Thu under 25 min
-        </p>
-      </div>
+  <GlassCard size="md" halo="sky" outerClassName="w-[150px]">
+    <div className="flex items-center gap-1.5 mb-2">
+      <IconTile size="xs" gradient="from-sky to-primary">
+        <Sparkles className="w-3 h-3 text-primary-foreground" />
+      </IconTile>
+      <span className="text-[10px] font-bold text-foreground">System Learning</span>
     </div>
-  </div>
+    <div className="space-y-1.5">
+      <p className="text-[9px] text-muted-foreground leading-snug flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-sky shrink-0" />
+        Kids prefer low-spice
+      </p>
+      <p className="text-[9px] text-muted-foreground leading-snug flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+        Wed → takeout works
+      </p>
+      <p className="text-[9px] text-muted-foreground leading-snug flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+        Thu under 25 min
+      </p>
+    </div>
+  </GlassCard>
 );
 
 const StreakBadge = () => (
-  <div className="relative inline-block">
-    <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-br from-coral/20 via-border/40 to-accent/15" />
-    <div className="relative rounded-lg bg-background/95 backdrop-blur-sm border border-border/50 px-3 py-1.5 shadow-md">
-      <div className="flex items-center gap-1.5">
-        <Flame className="w-4 h-4 text-coral" />
-        <span className="text-[11px] font-bold text-foreground">5-day streak 🔥</span>
-      </div>
+  <GlassCard size="sm" halo="coral" padding="xs" outerClassName="inline-block">
+    <div className="flex items-center gap-1.5">
+      <Flame className="w-4 h-4 text-coral" />
+      <span className="text-[11px] font-bold text-foreground">5-day streak 🔥</span>
     </div>
-  </div>
+  </GlassCard>
 );
 
 const PhoneMockup = () => (
@@ -148,9 +140,9 @@ const HeroSection = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center">
+              <IconTile size="md" gradient="from-primary to-sage-dark">
                 <Brain className="w-4 h-4 text-primary-foreground" />
-              </div>
+              </IconTile>
               <span className="inline-block px-3 py-1 text-xs font-bold rounded-full glass uppercase tracking-wider text-primary">
                 Built to learn your family
               </span>

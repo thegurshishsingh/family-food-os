@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { TrendingUp, ArrowRight, Utensils, Package, Store, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { ContentCard } from "./primitives";
 
 const WEEK_PREVIEW = [
   { day: "Mon", date: "10", mode: "Cook", meal: "Lemon chicken bowls", time: "30 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
@@ -67,61 +68,57 @@ const ProductProof = () => {
 
 function WeeklyPlanCard({ isMobile, viewport }: { isMobile: boolean; viewport: { once: boolean; amount: number } }) {
   return (
-    <div className="relative">
-      {/* Liquid glass border */}
-      <div className="absolute -inset-[1px] rounded-[18px] bg-gradient-to-br from-primary/25 via-sky/15 to-accent/20 blur-[0.5px]" />
-      <div className="relative rounded-2xl glass-strong overflow-hidden flex flex-col w-full min-h-[406px] shadow-xl">
-        <div className="px-6 pt-4 pb-3 border-b border-border/40">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.15em] mb-1">Your Week</p>
-              <h3 className="text-[17px] font-serif font-semibold text-foreground leading-tight">March 10 – 16</h3>
-            </div>
-            <div className="flex items-center gap-1.5 pl-3 pr-3.5 py-1.5 rounded-full glass text-primary text-[11px] font-bold tracking-wide">
-              <TrendingUp className="w-3 h-3" />
-              Reality Score: 84
-            </div>
+    <ContentCard halo="primary">
+      <div className="px-6 pt-4 pb-3 border-b border-border/40">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.15em] mb-1">Your Week</p>
+            <h3 className="text-[17px] font-serif font-semibold text-foreground leading-tight">March 10 – 16</h3>
           </div>
-        </div>
-        <div className="flex items-center gap-4 px-6 py-2 border-b border-border/30">
-          <div className="w-11" />
-          <div className="w-[80px]"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Mode</span></div>
-          <div className="flex-1"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Meal</span></div>
-          <div className="w-12 text-right"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Prep</span></div>
-        </div>
-        <div className="flex-1">
-          {WEEK_PREVIEW.map((day, i) => (
-            <motion.div
-              key={day.day}
-              className="flex items-center gap-4 px-6 py-2.5 border-b border-border/20 last:border-b-0 group transition-colors hover:bg-primary/[0.03]"
-              initial={{ opacity: 0, x: isMobile ? 0 : -6 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={viewport}
-              transition={{ delay: 0.2 + i * 0.05, duration: 0.3 }}
-            >
-              <div className="w-11 flex items-baseline gap-1.5">
-                <span className="text-[13px] font-bold text-foreground">{day.day}</span>
-                <span className="text-[10px] text-muted-foreground/60 font-medium">{day.date}</span>
-              </div>
-              <div className="w-[80px]">
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-primary-foreground bg-gradient-to-r ${day.modeGradient}`}>
-                  <day.icon className="w-2.5 h-2.5" />
-                  {day.mode}
-                </span>
-              </div>
-              <span className="text-[13px] text-foreground/80 flex-1 truncate font-medium">{day.meal}</span>
-              <span className="text-[11px] text-muted-foreground/50 w-12 text-right font-medium tabular-nums">{day.time}</span>
-            </motion.div>
-          ))}
-        </div>
-        <div className="px-6 py-2.5 border-t border-border/30">
-          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-            <span className="font-medium">4 cook · 2 leftover · 1 out</span>
-            <span className="font-bold text-primary">~2,400 cal avg</span>
+          <div className="flex items-center gap-1.5 pl-3 pr-3.5 py-1.5 rounded-full glass text-primary text-[11px] font-bold tracking-wide">
+            <TrendingUp className="w-3 h-3" />
+            Reality Score: 84
           </div>
         </div>
       </div>
-    </div>
+      <div className="flex items-center gap-4 px-6 py-2 border-b border-border/30">
+        <div className="w-11" />
+        <div className="w-[80px]"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Mode</span></div>
+        <div className="flex-1"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Meal</span></div>
+        <div className="w-12 text-right"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Prep</span></div>
+      </div>
+      <div className="flex-1 min-h-[280px]">
+        {WEEK_PREVIEW.map((day, i) => (
+          <motion.div
+            key={day.day}
+            className="flex items-center gap-4 px-6 py-2.5 border-b border-border/20 last:border-b-0 group transition-colors hover:bg-primary/[0.03]"
+            initial={{ opacity: 0, x: isMobile ? 0 : -6 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={viewport}
+            transition={{ delay: 0.2 + i * 0.05, duration: 0.3 }}
+          >
+            <div className="w-11 flex items-baseline gap-1.5">
+              <span className="text-[13px] font-bold text-foreground">{day.day}</span>
+              <span className="text-[10px] text-muted-foreground/60 font-medium">{day.date}</span>
+            </div>
+            <div className="w-[80px]">
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-primary-foreground bg-gradient-to-r ${day.modeGradient}`}>
+                <day.icon className="w-2.5 h-2.5" />
+                {day.mode}
+              </span>
+            </div>
+            <span className="text-[13px] text-foreground/80 flex-1 truncate font-medium">{day.meal}</span>
+            <span className="text-[11px] text-muted-foreground/50 w-12 text-right font-medium tabular-nums">{day.time}</span>
+          </motion.div>
+        ))}
+      </div>
+      <div className="px-6 py-2.5 border-t border-border/30">
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+          <span className="font-medium">4 cook · 2 leftover · 1 out</span>
+          <span className="font-bold text-primary">~2,400 cal avg</span>
+        </div>
+      </div>
+    </ContentCard>
   );
 }
 

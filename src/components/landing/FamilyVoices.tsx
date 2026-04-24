@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Quote, Star } from "lucide-react";
+import { IconTile } from "./primitives";
 
 const VOICES = [
   {
@@ -44,9 +45,9 @@ const FamilyVoices = () => {
           variants={fadeUp}
           custom={0}
         >
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-violet/10 mb-3">
+          <IconTile size="xl" gradient="from-primary/15 to-violet/10" className="mb-3">
             <Quote className="w-6 h-6 text-primary" />
-          </div>
+          </IconTile>
           <h2 className="text-xl md:text-3xl font-serif font-semibold text-foreground mb-2">
             Real families, real weeks
           </h2>
