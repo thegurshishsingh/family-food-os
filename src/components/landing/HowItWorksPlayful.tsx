@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Users, Brain, RefreshCw } from "lucide-react";
+import { IconTile } from "./primitives";
 
 const STEPS = [
   {
@@ -68,9 +69,9 @@ const HowItWorksPlayful = () => {
             >
               <div className={`absolute inset-0 rounded-2xl bg-gradient-to-b ${step.glow} opacity-0 group-hover:opacity-100 transition-opacity`} />
               <div className="relative z-10">
-                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br ${step.gradient} mb-3 shadow-lg`}>
+                <IconTile size="xl" gradient={step.gradient} shadow="lg" className="mb-3">
                   <step.icon className="w-5 h-5 text-primary-foreground" />
-                </div>
+                </IconTile>
                 <div className="inline-flex items-center justify-center w-6 h-6 rounded-full glass-strong text-[10px] font-bold mb-2 text-foreground ml-2">
                   {step.num}
                 </div>

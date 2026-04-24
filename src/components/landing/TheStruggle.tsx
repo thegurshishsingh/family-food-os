@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Snowflake, Search, HelpCircle, ShoppingCart, Flame, Lightbulb } from "lucide-react";
+import { ContentCard, IconTile } from "./primitives";
 
 const SCENES = [
   { time: "4:45 PM", icon: Snowflake, color: "from-sky to-primary", text: "\"Ugh, I forgot to defrost the chicken.\"" },
@@ -28,9 +29,9 @@ const TheStruggle = () => {
           variants={fadeUp}
           custom={0}
         >
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-coral/15 to-accent/10 mb-3">
+          <IconTile size="xl" gradient="from-coral/15 to-accent/10" className="mb-3">
             <Flame className="w-6 h-6 text-coral" />
-          </div>
+          </IconTile>
           <h2 className="text-xl md:text-3xl font-serif font-semibold text-foreground mb-2">
             Sound familiar?
           </h2>
@@ -40,32 +41,29 @@ const TheStruggle = () => {
         </motion.div>
 
         {/* Liquid glass bordered container */}
-        <div className="relative">
-          <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-b from-coral/20 via-accent/10 to-transparent blur-[0.5px]" />
-          <div className="relative rounded-2xl glass-strong overflow-hidden">
-            {SCENES.map((scene, i) => (
-              <motion.div
-                key={i}
-                className="flex items-start gap-4 px-5 py-3.5 border-b border-border/20 last:border-b-0 group transition-colors hover:bg-primary/[0.02]"
-                initial={initialState}
-                whileInView="visible"
-                viewport={viewport}
-                variants={fadeUp}
-                custom={i + 1}
-              >
-                <span className="text-xs font-mono text-muted-foreground/50 mt-1 shrink-0 w-14">
-                  {scene.time}
-                </span>
-                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${scene.color} flex items-center justify-center shrink-0`}>
-                  <scene.icon className="w-4 h-4 text-primary-foreground" />
-                </div>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  {scene.text}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+        <ContentCard halo="coral">
+          {SCENES.map((scene, i) => (
+            <motion.div
+              key={i}
+              className="flex items-start gap-4 px-5 py-3.5 border-b border-border/20 last:border-b-0 group transition-colors hover:bg-primary/[0.02]"
+              initial={initialState}
+              whileInView="visible"
+              viewport={viewport}
+              variants={fadeUp}
+              custom={i + 1}
+            >
+              <span className="text-xs font-mono text-muted-foreground/50 mt-1 shrink-0 w-14">
+                {scene.time}
+              </span>
+              <IconTile size="md" gradient={scene.color}>
+                <scene.icon className="w-4 h-4 text-primary-foreground" />
+              </IconTile>
+              <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                {scene.text}
+              </p>
+            </motion.div>
+          ))}
+        </ContentCard>
 
         <motion.div
           className="mt-5 text-center"

@@ -140,9 +140,9 @@ const HeroSection = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-sage-dark flex items-center justify-center">
+              <IconTile size="md" gradient="from-primary to-sage-dark">
                 <Brain className="w-4 h-4 text-primary-foreground" />
-              </div>
+              </IconTile>
               <span className="inline-block px-3 py-1 text-xs font-bold rounded-full glass uppercase tracking-wider text-primary">
                 Built to learn your family
               </span>
