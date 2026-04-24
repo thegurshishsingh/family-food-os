@@ -148,10 +148,10 @@ const Landing = () => {
 
             <div className="border-t border-cream/15 pt-5 flex flex-col sm:flex-row items-center justify-between gap-2">
               <p className="text-xs text-cream/50">
-                © {new Date().getFullYear()} Family Food OS · Made with care for busy families
+                © {new Date().getFullYear()} Family Food OS
               </p>
               <p className="text-[11px] text-cream/40">
-                Small change. Big change.
+                Made with care for busy families
               </p>
             </div>
           </div>
