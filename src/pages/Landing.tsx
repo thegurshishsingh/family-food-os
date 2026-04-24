@@ -97,18 +97,16 @@ const Landing = () => {
             }}
             aria-hidden="true"
           />
-          {/* Headline overlay */}
-          <div className="absolute inset-x-0 bottom-0 px-4 pb-8 md:pb-14">
-            <div className="container max-w-5xl">
-              <h2 className="font-serif font-semibold text-white text-3xl md:text-5xl lg:text-6xl leading-tight max-w-3xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)]">
-                Dinner doesn't have to be stressful. <span aria-hidden="true">💚</span>
-              </h2>
-            </div>
-          </div>
         </div>
 
         {/* Dark base with all link content */}
         <div className="text-cream/90" style={{ backgroundColor: "#1a3d2e" }}>
+          {/* Headline between image and footer content */}
+          <div className="container px-4 max-w-5xl pt-10 md:pt-16">
+            <h2 className="font-serif font-semibold text-white text-3xl md:text-5xl lg:text-6xl leading-tight max-w-3xl">
+              Dinner doesn't have to be stressful. <span aria-hidden="true">💚</span>
+            </h2>
+          </div>
           <div className="container px-4 max-w-5xl py-12 md:py-16">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
               {/* Brand + founding story */}
