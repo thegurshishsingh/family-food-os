@@ -43,6 +43,8 @@ const ALLOWED_ROUNDED = new Set([
   "rounded-[2px]",
   "rounded-[1px]",
   "rounded-[3px]",
+  // 1-px halo around a rounded-2xl (16px) card — used for liquid-glass borders
+  "rounded-[18px]",
 ]);
 
 const FORBIDDEN_COLOR_CLASSES = [
