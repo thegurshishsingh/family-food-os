@@ -96,7 +96,7 @@ const PhoneMockup = () => (
       <div className="w-[200px] h-[400px] rounded-[40px] bg-gradient-to-b from-primary/15 via-sky/8 to-accent/10 blur-[50px]" />
     </div>
     <div
-      className="rounded-[24px] p-[2px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]"
+      className="rounded-[24px] p-[2px] shadow-[0_20px_60px_-15px_hsl(var(--foreground)/0.3)]"
       style={{
         transform: "rotateY(-3deg) rotateX(1deg)",
         background: "linear-gradient(145deg, hsl(var(--foreground)/0.8), hsl(var(--foreground)/0.6), hsl(var(--foreground)/0.7))",
