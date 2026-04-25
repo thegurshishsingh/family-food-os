@@ -23,15 +23,15 @@ const Landing = () => {
     <div className="min-h-screen bg-background max-w-full overflow-x-hidden">
       {/* Glass Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border/30">
-        <div className="container flex items-center justify-between h-16 px-4 md:px-8">
-          <Link to="/" className="flex items-center gap-2">
+        <div className="container flex items-center justify-between h-16 gap-2 px-3 md:px-8">
+          <Link to="/" className="flex items-center gap-2 min-w-0 flex-shrink">
             <Logo size="md" />
           </Link>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild>
+          <div className="flex items-center gap-1.5 md:gap-3 flex-shrink-0">
+            <Button variant="ghost" size="sm" className="px-2.5 md:px-4" asChild>
               <Link to="/login">Log in</Link>
             </Button>
-            <Button className="bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-md" asChild>
+            <Button size="sm" className="px-3 md:px-4 bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-md whitespace-nowrap" asChild>
               <Link to="/signup">Start free <ArrowRight className="w-4 h-4 ml-1" /></Link>
             </Button>
           </div>
