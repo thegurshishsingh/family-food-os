@@ -124,7 +124,7 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="pt-[calc(6rem+env(safe-area-inset-top))] pb-2 md:pt-28 md:pb-4 px-4 relative gradient-mesh">
+    <section className="pt-24 pb-2 md:pt-28 md:pb-4 px-4 relative gradient-mesh">
       {/* Ambient orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-primary/10 via-sky/8 to-transparent blur-3xl animate-pulse-soft" />
