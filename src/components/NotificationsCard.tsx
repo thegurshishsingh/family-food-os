@@ -4,14 +4,50 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
+type TestCategory = "test" | "dinner_reveal" | "evening_checkin" | "weekly_plan_ready";
+
+const CATEGORY_OPTIONS: { value: TestCategory; label: string; title: string; body: string }[] = [
+  {
+    value: "test",
+    label: "Generic test",
+    title: "Hello from Family Food OS 👋",
+    body: "Notifications are working. We'll only ping you when it matters.",
+  },
+  {
+    value: "dinner_reveal",
+    label: "1 PM dinner reveal",
+    title: "Tonight's dinner is ready 🍽️",
+    body: "Tap to see what's on the menu and start prepping.",
+  },
+  {
+    value: "evening_checkin",
+    label: "Evening check-in",
+    title: "How did dinner go? ✨",
+    body: "Take 10 seconds to log tonight — it makes next week smarter.",
+  },
+  {
+    value: "weekly_plan_ready",
+    label: "Weekly plan ready",
+    title: "Next week's plan is ready 📅",
+    body: "Your dinners are set. Take a peek and tweak anything.",
+  },
+];
+
 const NotificationsCard = () => {
   const { user } = useAuth();
-  const { status, busy, subscribe, unsubscribe, sendTest, updatePreferences } =
+  const { status, busy, subscribe, unsubscribe, updatePreferences } =
     usePushNotifications();
   const { toast } = useToast();
 
@@ -20,6 +56,9 @@ const NotificationsCard = () => {
     enabled_evening_checkin: true,
     enabled_weekly_plan_ready: true,
   });
+  const [testCategory, setTestCategory] = useState<TestCategory>("test");
+  const [testStatus, setTestStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [testError, setTestError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user || status !== "subscribed") return;
