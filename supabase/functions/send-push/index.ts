@@ -7,7 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
 type Category =
@@ -30,7 +30,18 @@ const VAPID_PUBLIC = Deno.env.get("VAPID_PUBLIC_KEY") || "";
 const VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY") || "";
 const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "mailto:hello@familyfoodos.com";
 
-webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
+let vapidConfigured = false;
+function ensureVapid(): string | null {
+  if (vapidConfigured) return null;
+  if (!VAPID_PUBLIC || !VAPID_PRIVATE) return "VAPID keys not configured";
+  try {
+    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
+    vapidConfigured = true;
+    return null;
+  } catch (e) {
+    return `Invalid VAPID keys: ${(e as Error).message}`;
+  }
+}
 
 const categoryColumn: Record<Category, string | null> = {
   test: null,
@@ -42,10 +53,16 @@ const categoryColumn: Record<Category, string | null> = {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // GET → return the VAPID public key so the frontend always uses the
+  // server-configured value (avoids client/server key mismatch).
+  if (req.method === "GET") {
+    if (!VAPID_PUBLIC) return json({ error: "VAPID public key not configured" }, 500);
+    return json({ publicKey: VAPID_PUBLIC });
+  }
+
   try {
-    if (!VAPID_PUBLIC || !VAPID_PRIVATE) {
-      return json({ error: "VAPID keys not configured" }, 500);
-    }
+    const vapidErr = ensureVapid();
+    if (vapidErr) return json({ error: vapidErr }, 500);
 
     const body = (await req.json()) as SendBody;
     if (!body.category || !body.title || !body.body) {
