@@ -10,15 +10,21 @@ declare const self: ServiceWorkerGlobalScope;
 // Precache injected by Workbox at build time
 precacheAndRoute(self.__WB_MANIFEST);
 
-// Navigation fallback to offline shell
+// Network-first navigation handler with offline fallback.
+// Previously this served the offline shell on EVERY navigation, which made
+// the app appear offline even when online (e.g. after sign-in redirect).
 const offlineUrl = "/offline.html";
-const navigationHandler = async () => {
+const navigationHandler = async ({ request }: { request: Request }) => {
   try {
-    const cache = await caches.open("offline-fallback");
-    const cached = await cache.match(offlineUrl);
-    if (cached) return cached;
-  } catch {}
-  return new Response("Offline", { status: 200 });
+    return await fetch(request);
+  } catch {
+    try {
+      const cache = await caches.open("offline-fallback");
+      const cached = await cache.match(offlineUrl);
+      if (cached) return cached;
+    } catch {}
+    return new Response("Offline", { status: 503 });
+  }
 };
 registerRoute(
   new NavigationRoute(navigationHandler, {
