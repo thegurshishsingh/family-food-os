@@ -1,13 +1,31 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  VAPID_PUBLIC_KEY,
   arrayBufferToBase64,
   getBrowserTimezone,
   isPushSupported,
   urlBase64ToUint8Array,
 } from "@/lib/push";
 import { useAuth } from "@/hooks/useAuth";
+
+// Fetch the VAPID public key from the server so the client always uses the
+// same key the server signs with. Avoids client/server key mismatch when
+// keys are rotated.
+async function fetchVapidPublicKey(): Promise<string | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke("send-push", {
+      method: "GET",
+    });
+    if (error) {
+      console.error("[push] failed to fetch VAPID public key", error);
+      return null;
+    }
+    return (data as { publicKey?: string })?.publicKey ?? null;
+  } catch (e) {
+    console.error("[push] failed to fetch VAPID public key", e);
+    return null;
+  }
+}
 
 type Status = "loading" | "unsupported" | "denied" | "default" | "subscribed";
 
@@ -51,10 +69,7 @@ export function usePushNotifications() {
       setStatus("unsupported");
       return false;
     }
-    if (!VAPID_PUBLIC_KEY) {
-      console.error("[push] VITE_VAPID_PUBLIC_KEY is not set");
-      return false;
-    }
+    // VAPID public key is fetched from the server below.
     setBusy(true);
     try {
       const permission = await Notification.requestPermission();
@@ -62,10 +77,33 @@ export function usePushNotifications() {
         setStatus(permission === "denied" ? "denied" : "default");
         return false;
       }
+
+      const vapidPublicKey = await fetchVapidPublicKey();
+      if (!vapidPublicKey) {
+        console.error("[push] VAPID public key unavailable");
+        return false;
+      }
+
       const reg = await navigator.serviceWorker.ready;
       let sub = await reg.pushManager.getSubscription();
+
+      // If a subscription exists but was created with a different VAPID key,
+      // it must be re-subscribed (e.g. after key rotation). Unsubscribe and
+      // recreate so the server can encrypt push payloads correctly.
+      if (sub) {
+        const existingKey = arrayBufferToBase64(sub.options.applicationServerKey ?? null);
+        const expectedKey = arrayBufferToBase64(
+          urlBase64ToUint8Array(vapidPublicKey).buffer as ArrayBuffer
+        );
+        if (existingKey !== expectedKey) {
+          await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+          await sub.unsubscribe();
+          sub = null;
+        }
+      }
+
       if (!sub) {
-        const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+        const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
         sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
           // Cast to BufferSource — TS DOM lib types are stricter than the runtime requirement
