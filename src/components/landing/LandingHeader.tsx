@@ -23,10 +23,12 @@ const LandingHeader = () => {
       <div className="container flex items-center justify-between h-16 gap-2 px-3 md:px-8">
         <Link
           to="/"
-          className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden"
+          className="flex items-center gap-2 min-w-0 flex-shrink-0 overflow-hidden"
           aria-label="Family Food OS — Home"
         >
-          <Logo size="md" />
+          {/* Icon-only on narrow viewports, full wordmark from sm (640px) */}
+          <span className="sm:hidden"><Logo size="md" showText={false} /></span>
+          <span className="hidden sm:inline-flex"><Logo size="md" /></span>
         </Link>
 
         <div className="flex items-center gap-1 xs:gap-1.5 md:gap-3 flex-shrink-0">
