@@ -60,8 +60,19 @@ const NotificationsCard = () => {
   const [testStatus, setTestStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [testError, setTestError] = useState<string | null>(null);
   const [testAttempts, setTestAttempts] = useState(0);
+  const [retryCooldownUntil, setRetryCooldownUntil] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
 
   const MAX_TEST_ATTEMPTS = 3; // initial + 2 auto-retries
+  const RETRY_COOLDOWN_MS = 3000;
+  const cooldownRemaining = Math.max(0, retryCooldownUntil - now);
+  const cooldownActive = cooldownRemaining > 0;
+
+  useEffect(() => {
+    if (!cooldownActive) return;
+    const id = window.setInterval(() => setNow(Date.now()), 250);
+    return () => window.clearInterval(id);
+  }, [cooldownActive]);
 
   useEffect(() => {
     if (!user || status !== "subscribed") return;
@@ -148,6 +159,8 @@ const NotificationsCard = () => {
 
     setTestStatus("error");
     setTestError(lastError);
+    setRetryCooldownUntil(Date.now() + RETRY_COOLDOWN_MS);
+    setNow(Date.now());
     toast({
       title: `Test failed after ${MAX_TEST_ATTEMPTS} attempts`,
       description: lastError || "Try again shortly.",
@@ -155,8 +168,16 @@ const NotificationsCard = () => {
     });
   };
 
-  const handleTest = () => attemptTest(1);
-  const handleRetry = () => attemptTest(1);
+  const handleTest = () => {
+    if (cooldownActive) return;
+    attemptTest(1);
+  };
+  const handleRetry = () => {
+    if (cooldownActive) return;
+    setRetryCooldownUntil(Date.now() + RETRY_COOLDOWN_MS);
+    setNow(Date.now());
+    attemptTest(1);
+  };
 
   return (
     <Card>
@@ -286,10 +307,12 @@ const NotificationsCard = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleRetry}
-                    disabled={busy}
+                    disabled={busy || cooldownActive}
                   >
                     <Send className="w-3.5 h-3.5 mr-1.5" />
-                    Retry
+                    {cooldownActive
+                      ? `Retry in ${Math.ceil(cooldownRemaining / 1000)}s`
+                      : "Retry"}
                   </Button>
                 </div>
               )}
