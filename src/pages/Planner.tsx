@@ -19,6 +19,7 @@ import DailyDinnerCard from "@/components/planner/DailyDinnerCard";
 import MobileReorderSheet from "@/components/planner/MobileReorderSheet";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
+import NotificationsNudge from "@/components/planner/NotificationsNudge";
 import WeeklyPlanSetup, { type PlanSetupData, type SavedMealOption } from "@/components/planner/WeeklyPlanSetup";
 import PlanTypeChooser from "@/components/planner/PlanTypeChooser";
 import RetroCheckInDialog from "@/components/planner/RetroCheckInDialog";
