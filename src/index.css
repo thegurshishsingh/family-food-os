@@ -64,6 +64,18 @@
     --violet-light: 262 40% 94%;
     --lemon: 48 90% 60%;
     --lemon-light: 48 60% 94%;
+
+    /* Header sizing tokens — single source of truth for nav layout.
+     * Update here to keep header buttons stable across locales.
+     * Hero top padding must remain >= --header-height. */
+    --header-height: 4rem;                /* 64px nav bar */
+    --header-btn-height: 2.25rem;         /* 36px (h-9) */
+    --header-cta-w-xxs: 6rem;             /* 96px  — <390px ("Start") */
+    --header-cta-w-xs: 8.25rem;           /* 132px — ≥390px ("Start free") */
+    --header-cta-w-md: 9.25rem;           /* 148px — ≥768px */
+    --header-login-max-xs: 5.5rem;        /* 88px  */
+    --header-login-max-md: 7.5rem;        /* 120px */
+    --header-icon-btn: 2.25rem;           /* 36px square icon button */
   }
 
   .dark {
