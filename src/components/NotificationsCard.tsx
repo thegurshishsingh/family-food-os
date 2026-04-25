@@ -286,7 +286,7 @@ const NotificationsCard = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleRetry}
-                    disabled={busy || testStatus === "sending"}
+                    disabled={busy}
                   >
                     <Send className="w-3.5 h-3.5 mr-1.5" />
                     Retry
