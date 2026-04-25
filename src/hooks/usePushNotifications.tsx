@@ -69,10 +69,7 @@ export function usePushNotifications() {
       setStatus("unsupported");
       return false;
     }
-    if (!VAPID_PUBLIC_KEY) {
-      console.error("[push] VITE_VAPID_PUBLIC_KEY is not set");
-      return false;
-    }
+    // VAPID public key is fetched from the server below.
     setBusy(true);
     try {
       const permission = await Notification.requestPermission();
