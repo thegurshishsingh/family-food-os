@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => ({
           },
         ],
       },
-      includeAssets: ["apple-touch-icon.png", "pwa-icon-192.png", "pwa-icon-512.png"],
+      includeAssets: ["apple-touch-icon.png", "pwa-icon-192.png", "pwa-icon-512.png", "offline.html"],
       manifest: {
         name: "Family Food OS",
         short_name: "FamilyFoodOS",
