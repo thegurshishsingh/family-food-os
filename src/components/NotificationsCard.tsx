@@ -159,6 +159,8 @@ const NotificationsCard = () => {
 
     setTestStatus("error");
     setTestError(lastError);
+    setRetryCooldownUntil(Date.now() + RETRY_COOLDOWN_MS);
+    setNow(Date.now());
     toast({
       title: `Test failed after ${MAX_TEST_ATTEMPTS} attempts`,
       description: lastError || "Try again shortly.",
@@ -166,8 +168,16 @@ const NotificationsCard = () => {
     });
   };
 
-  const handleTest = () => attemptTest(1);
-  const handleRetry = () => attemptTest(1);
+  const handleTest = () => {
+    if (cooldownActive) return;
+    attemptTest(1);
+  };
+  const handleRetry = () => {
+    if (cooldownActive) return;
+    setRetryCooldownUntil(Date.now() + RETRY_COOLDOWN_MS);
+    setNow(Date.now());
+    attemptTest(1);
+  };
 
   return (
     <Card>
