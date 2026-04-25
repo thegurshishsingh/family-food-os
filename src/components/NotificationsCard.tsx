@@ -201,15 +201,54 @@ const NotificationsCard = () => {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
-              <Button variant="outline" size="sm" onClick={handleTest} disabled={busy}>
-                <Send className="w-3.5 h-3.5 mr-1.5" />
-                Send test
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleDisable} disabled={busy}>
-                <BellOff className="w-3.5 h-3.5 mr-1.5" />
-                Turn off
-              </Button>
+            <div className="space-y-2 pt-3 border-t border-border/50">
+              <Label htmlFor="test-category" className="text-xs text-muted-foreground">
+                Send a test for
+              </Label>
+              <div className="flex flex-wrap items-center gap-2">
+                <Select
+                  value={testCategory}
+                  onValueChange={(v) => {
+                    setTestCategory(v as TestCategory);
+                    setTestStatus("idle");
+                    setTestError(null);
+                  }}
+                >
+                  <SelectTrigger id="test-category" className="h-9 w-[200px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORY_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleTest}
+                  disabled={busy || testStatus === "sending"}
+                >
+                  <Send className="w-3.5 h-3.5 mr-1.5" />
+                  {testStatus === "sending" ? "Sending…" : "Send test"}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleDisable} disabled={busy}>
+                  <BellOff className="w-3.5 h-3.5 mr-1.5" />
+                  Turn off
+                </Button>
+              </div>
+              {testStatus === "success" && (
+                <p className="text-xs text-primary">
+                  ✓ Test sent — check your device in a few seconds.
+                </p>
+              )}
+              {testStatus === "error" && (
+                <p className="text-xs text-destructive">
+                  ✗ Test failed{testError ? `: ${testError}` : ""}. Try again shortly.
+                </p>
+              )}
             </div>
           </div>
         )}
