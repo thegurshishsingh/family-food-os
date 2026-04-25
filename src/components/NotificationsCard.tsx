@@ -59,6 +59,9 @@ const NotificationsCard = () => {
   const [testCategory, setTestCategory] = useState<TestCategory>("test");
   const [testStatus, setTestStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [testError, setTestError] = useState<string | null>(null);
+  const [testAttempts, setTestAttempts] = useState(0);
+
+  const MAX_TEST_ATTEMPTS = 3; // initial + 2 auto-retries
 
   useEffect(() => {
     if (!user || status !== "subscribed") return;
@@ -99,36 +102,61 @@ const NotificationsCard = () => {
     if (ok) toast({ title: "Notifications turned off" });
   };
 
-  const handleTest = async () => {
-    if (!user) return;
-    const opt = CATEGORY_OPTIONS.find((c) => c.value === testCategory) ?? CATEGORY_OPTIONS[0];
-    setTestStatus("sending");
-    setTestError(null);
+  const runTestSend = async (
+    opt: (typeof CATEGORY_OPTIONS)[number]
+  ): Promise<{ ok: true } | { ok: false; message: string }> => {
     const { error } = await supabase.functions.invoke("send-push", {
       body: {
-        user_id: user.id,
+        user_id: user!.id,
         category: opt.value,
         title: opt.title,
         body: opt.body,
         url: "/planner",
       },
     });
-    if (error) {
-      setTestStatus("error");
-      setTestError(error.message ?? "Unknown error");
-      toast({
-        title: "Test failed",
-        description: error.message ?? "Try again shortly.",
-        variant: "destructive",
-      });
-      return;
+    if (error) return { ok: false, message: error.message ?? "Unknown error" };
+    return { ok: true };
+  };
+
+  const attemptTest = async (attemptNumber: number) => {
+    if (!user) return;
+    const opt = CATEGORY_OPTIONS.find((c) => c.value === testCategory) ?? CATEGORY_OPTIONS[0];
+    setTestStatus("sending");
+    setTestError(null);
+    setTestAttempts(attemptNumber);
+
+    let lastError = "";
+    for (let i = attemptNumber; i <= MAX_TEST_ATTEMPTS; i++) {
+      setTestAttempts(i);
+      const result = await runTestSend(opt);
+      if (result.ok) {
+        setTestStatus("success");
+        toast({
+          title: `Test sent: ${opt.label}`,
+          description:
+            i > 1
+              ? `Delivered on attempt ${i}. Check your notifications shortly.`
+              : "Check your notifications in a few seconds.",
+        });
+        return;
+      }
+      lastError = "message" in result ? result.message : "Unknown error";
+      if (i < MAX_TEST_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, 800));
+      }
     }
-    setTestStatus("success");
+
+    setTestStatus("error");
+    setTestError(lastError);
     toast({
-      title: `Test sent: ${opt.label}`,
-      description: "Check your notifications in a few seconds.",
+      title: `Test failed after ${MAX_TEST_ATTEMPTS} attempts`,
+      description: lastError || "Try again shortly.",
+      variant: "destructive",
     });
   };
+
+  const handleTest = () => attemptTest(1);
+  const handleRetry = () => attemptTest(1);
 
   return (
     <Card>
@@ -232,7 +260,11 @@ const NotificationsCard = () => {
                   disabled={busy || testStatus === "sending"}
                 >
                   <Send className="w-3.5 h-3.5 mr-1.5" />
-                  {testStatus === "sending" ? "Sending…" : "Send test"}
+                  {testStatus === "sending"
+                    ? testAttempts > 1
+                      ? `Retrying (${testAttempts}/${MAX_TEST_ATTEMPTS})…`
+                      : "Sending…"
+                    : "Send test"}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={handleDisable} disabled={busy}>
                   <BellOff className="w-3.5 h-3.5 mr-1.5" />
@@ -245,9 +277,21 @@ const NotificationsCard = () => {
                 </p>
               )}
               {testStatus === "error" && (
-                <p className="text-xs text-destructive">
-                  ✗ Test failed{testError ? `: ${testError}` : ""}. Try again shortly.
-                </p>
+                <div className="space-y-2">
+                  <p className="text-xs text-destructive">
+                    ✗ Test failed after {MAX_TEST_ATTEMPTS} attempts
+                    {testError ? `: ${testError}` : ""}.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRetry}
+                    disabled={busy}
+                  >
+                    <Send className="w-3.5 h-3.5 mr-1.5" />
+                    Retry
+                  </Button>
+                </div>
               )}
             </div>
           </div>
