@@ -306,6 +306,26 @@ Return ONLY valid JSON, no markdown.`;
       await supabaseClient.from("grocery_items").insert(groceryInserts);
     }
 
+    // Fire weekly-plan-ready push notification (best effort, non-blocking)
+    try {
+      await fetch(`${supabaseUrl}/functions/v1/send-push`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${supabaseServiceKey}`,
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          category: "weekly_plan_ready",
+          title: "Your weekly plan is ready 🎉",
+          body: "Tap to see what's cooking this week.",
+          url: "/planner",
+        }),
+      });
+    } catch (pushErr) {
+      console.warn("[generate-meal-plan] push notify failed", pushErr);
+    }
+
     return new Response(JSON.stringify({ success: true, plan_id: newPlan.id }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
