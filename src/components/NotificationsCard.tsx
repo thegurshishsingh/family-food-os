@@ -60,8 +60,19 @@ const NotificationsCard = () => {
   const [testStatus, setTestStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [testError, setTestError] = useState<string | null>(null);
   const [testAttempts, setTestAttempts] = useState(0);
+  const [retryCooldownUntil, setRetryCooldownUntil] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
 
   const MAX_TEST_ATTEMPTS = 3; // initial + 2 auto-retries
+  const RETRY_COOLDOWN_MS = 3000;
+  const cooldownRemaining = Math.max(0, retryCooldownUntil - now);
+  const cooldownActive = cooldownRemaining > 0;
+
+  useEffect(() => {
+    if (!cooldownActive) return;
+    const id = window.setInterval(() => setNow(Date.now()), 250);
+    return () => window.clearInterval(id);
+  }, [cooldownActive]);
 
   useEffect(() => {
     if (!user || status !== "subscribed") return;
