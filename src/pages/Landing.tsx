@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Target } from "lucide-react";
+import { Target, LogIn } from "lucide-react";
 import Logo from "@/components/Logo";
 import footerScene from "@/assets/footer-dinner-scene.jpg";
 import HeroSection from "@/components/landing/HeroSection";
