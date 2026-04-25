@@ -100,11 +100,33 @@ const NotificationsCard = () => {
   };
 
   const handleTest = async () => {
-    const ok = await sendTest();
+    if (!user) return;
+    const opt = CATEGORY_OPTIONS.find((c) => c.value === testCategory) ?? CATEGORY_OPTIONS[0];
+    setTestStatus("sending");
+    setTestError(null);
+    const { error } = await supabase.functions.invoke("send-push", {
+      body: {
+        user_id: user.id,
+        category: opt.value,
+        title: opt.title,
+        body: opt.body,
+        url: "/planner",
+      },
+    });
+    if (error) {
+      setTestStatus("error");
+      setTestError(error.message ?? "Unknown error");
+      toast({
+        title: "Test failed",
+        description: error.message ?? "Try again shortly.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setTestStatus("success");
     toast({
-      title: ok ? "Test sent" : "Test failed",
-      description: ok ? "Check your notifications in a few seconds." : "Try again shortly.",
-      variant: ok ? "default" : "destructive",
+      title: `Test sent: ${opt.label}`,
+      description: "Check your notifications in a few seconds.",
     });
   };
 
