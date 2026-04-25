@@ -34,19 +34,19 @@ const LandingHeader = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="hidden xs:inline-flex px-2.5 md:px-4 leading-none"
+            className="hidden xs:inline-flex px-2.5 md:px-4 font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased"
             asChild
           >
-            <Link to="/login">Log in</Link>
+            <Link to="/login" className="leading-[1] inline-flex items-center">Log in</Link>
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="xs:hidden h-9 w-9"
+            className="xs:hidden h-9 w-9 leading-[1]"
             asChild
             aria-label="Log in"
           >
-            <Link to="/login">
+            <Link to="/login" className="inline-flex items-center justify-center leading-[1]">
               <LogIn className="w-4 h-4" />
             </Link>
           </Button>
@@ -54,12 +54,12 @@ const LandingHeader = () => {
           {/* Primary CTA */}
           <Button
             size="sm"
-            className="px-3 md:px-4 bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-md whitespace-nowrap leading-none"
+            className="px-3 md:px-4 bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-md whitespace-nowrap font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased"
             asChild
           >
-            <Link to="/signup">
-              <span className="hidden xs:inline">Start free</span>
-              <span className="xs:hidden">Start</span>
+            <Link to="/signup" className="leading-[1] inline-flex items-center">
+              <span className="hidden xs:inline leading-[1]">Start free</span>
+              <span className="xs:hidden leading-[1]">Start</span>
               <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
           </Button>
