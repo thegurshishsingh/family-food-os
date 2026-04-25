@@ -39,7 +39,7 @@ const LandingHeader = () => {
             className="hidden xs:inline-flex px-2.5 md:px-4 font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased"
             asChild
           >
-            <Link to="/login" className="leading-[1] inline-flex items-center">Anmelden</Link>
+            <Link to="/login" className="leading-[1] inline-flex items-center">Log in</Link>
           </Button>
           <Button
             variant="ghost"
@@ -60,8 +60,8 @@ const LandingHeader = () => {
             asChild
           >
             <Link to="/signup" className="leading-[1] inline-flex items-center">
-              <span className="hidden xs:inline leading-[1]">Kostenlos starten</span>
-              <span className="xs:hidden leading-[1]">Starten</span>
+              <span className="hidden xs:inline leading-[1]">Start free</span>
+              <span className="xs:hidden leading-[1]">Start</span>
               <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
           </Button>
