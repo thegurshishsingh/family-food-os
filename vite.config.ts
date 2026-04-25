@@ -22,7 +22,8 @@ export default defineConfig(({ mode }) => ({
         enabled: false,
       },
       workbox: {
-        navigateFallbackDenylist: [/^\/~oauth/],
+        navigateFallback: "/offline.html",
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/api/, /\/.*\.[a-zA-Z0-9]+$/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
         runtimeCaching: [
           {
@@ -45,7 +46,7 @@ export default defineConfig(({ mode }) => ({
           },
         ],
       },
-      includeAssets: ["apple-touch-icon.png", "pwa-icon-192.png", "pwa-icon-512.png"],
+      includeAssets: ["apple-touch-icon.png", "pwa-icon-192.png", "pwa-icon-512.png", "offline.html"],
       manifest: {
         name: "Family Food OS",
         short_name: "FamilyFoodOS",
