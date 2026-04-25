@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Save, Plus, X, CalendarDays } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import NotificationsCard from "@/components/NotificationsCard";
 
 const CUISINES = ["Italian", "Mexican", "Chinese", "Japanese", "Indian", "Thai", "Mediterranean", "American", "Korean", "French", "Middle Eastern", "Vietnamese"];
 const DIETARY = ["Vegetarian", "Vegan", "Gluten-free", "Dairy-free", "Keto", "Paleo", "Halal", "Kosher", "Low-sodium", "Nut-free"];
@@ -461,6 +462,8 @@ const HouseholdSettings = () => {
               )}
             </CardContent>
           </Card>
+
+          <NotificationsCard />
         </div>
       </div>
     </AppLayout>
