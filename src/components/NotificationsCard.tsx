@@ -4,14 +4,50 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
+type TestCategory = "test" | "dinner_reveal" | "evening_checkin" | "weekly_plan_ready";
+
+const CATEGORY_OPTIONS: { value: TestCategory; label: string; title: string; body: string }[] = [
+  {
+    value: "test",
+    label: "Generic test",
+    title: "Hello from Family Food OS 👋",
+    body: "Notifications are working. We'll only ping you when it matters.",
+  },
+  {
+    value: "dinner_reveal",
+    label: "1 PM dinner reveal",
+    title: "Tonight's dinner is ready 🍽️",
+    body: "Tap to see what's on the menu and start prepping.",
+  },
+  {
+    value: "evening_checkin",
+    label: "Evening check-in",
+    title: "How did dinner go? ✨",
+    body: "Take 10 seconds to log tonight — it makes next week smarter.",
+  },
+  {
+    value: "weekly_plan_ready",
+    label: "Weekly plan ready",
+    title: "Next week's plan is ready 📅",
+    body: "Your dinners are set. Take a peek and tweak anything.",
+  },
+];
+
 const NotificationsCard = () => {
   const { user } = useAuth();
-  const { status, busy, subscribe, unsubscribe, sendTest, updatePreferences } =
+  const { status, busy, subscribe, unsubscribe, updatePreferences } =
     usePushNotifications();
   const { toast } = useToast();
 
@@ -20,6 +56,9 @@ const NotificationsCard = () => {
     enabled_evening_checkin: true,
     enabled_weekly_plan_ready: true,
   });
+  const [testCategory, setTestCategory] = useState<TestCategory>("test");
+  const [testStatus, setTestStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [testError, setTestError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user || status !== "subscribed") return;
@@ -61,11 +100,33 @@ const NotificationsCard = () => {
   };
 
   const handleTest = async () => {
-    const ok = await sendTest();
+    if (!user) return;
+    const opt = CATEGORY_OPTIONS.find((c) => c.value === testCategory) ?? CATEGORY_OPTIONS[0];
+    setTestStatus("sending");
+    setTestError(null);
+    const { error } = await supabase.functions.invoke("send-push", {
+      body: {
+        user_id: user.id,
+        category: opt.value,
+        title: opt.title,
+        body: opt.body,
+        url: "/planner",
+      },
+    });
+    if (error) {
+      setTestStatus("error");
+      setTestError(error.message ?? "Unknown error");
+      toast({
+        title: "Test failed",
+        description: error.message ?? "Try again shortly.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setTestStatus("success");
     toast({
-      title: ok ? "Test sent" : "Test failed",
-      description: ok ? "Check your notifications in a few seconds." : "Try again shortly.",
-      variant: ok ? "default" : "destructive",
+      title: `Test sent: ${opt.label}`,
+      description: "Check your notifications in a few seconds.",
     });
   };
 
@@ -140,15 +201,54 @@ const NotificationsCard = () => {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
-              <Button variant="outline" size="sm" onClick={handleTest} disabled={busy}>
-                <Send className="w-3.5 h-3.5 mr-1.5" />
-                Send test
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleDisable} disabled={busy}>
-                <BellOff className="w-3.5 h-3.5 mr-1.5" />
-                Turn off
-              </Button>
+            <div className="space-y-2 pt-3 border-t border-border/50">
+              <Label htmlFor="test-category" className="text-xs text-muted-foreground">
+                Send a test for
+              </Label>
+              <div className="flex flex-wrap items-center gap-2">
+                <Select
+                  value={testCategory}
+                  onValueChange={(v) => {
+                    setTestCategory(v as TestCategory);
+                    setTestStatus("idle");
+                    setTestError(null);
+                  }}
+                >
+                  <SelectTrigger id="test-category" className="h-9 w-[200px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORY_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleTest}
+                  disabled={busy || testStatus === "sending"}
+                >
+                  <Send className="w-3.5 h-3.5 mr-1.5" />
+                  {testStatus === "sending" ? "Sending…" : "Send test"}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleDisable} disabled={busy}>
+                  <BellOff className="w-3.5 h-3.5 mr-1.5" />
+                  Turn off
+                </Button>
+              </div>
+              {testStatus === "success" && (
+                <p className="text-xs text-primary">
+                  ✓ Test sent — check your device in a few seconds.
+                </p>
+              )}
+              {testStatus === "error" && (
+                <p className="text-xs text-destructive">
+                  ✗ Test failed{testError ? `: ${testError}` : ""}. Try again shortly.
+                </p>
+              )}
             </div>
           </div>
         )}
