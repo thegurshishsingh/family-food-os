@@ -19,8 +19,11 @@ import Logo from "@/components/Logo";
  */
 const LandingHeader = () => {
   return (
-    <nav className="fixed top-[env(safe-area-inset-top)] left-0 right-0 z-50 h-16 glass-strong border-b border-border/30">
-      <div className="container flex h-full items-center justify-between gap-2 px-3 md:px-8">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border/30">
+      <div
+        className="container mx-auto flex items-center justify-between gap-2 px-3 md:px-8 max-w-screen-xl h-16"
+        style={{ paddingTop: "env(safe-area-inset-top)", height: "calc(4rem + env(safe-area-inset-top))" }}
+      >
         <Link
           to="/"
           className="flex items-center gap-2 min-w-0 flex-shrink-0 overflow-hidden"
