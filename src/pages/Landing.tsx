@@ -24,15 +24,24 @@ const Landing = () => {
       {/* Glass Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border/30">
         <div className="container flex items-center justify-between h-16 gap-2 px-3 md:px-8">
-          <Link to="/" className="flex items-center gap-2 min-w-0 flex-shrink">
+          <Link to="/" className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
             <Logo size="md" />
           </Link>
-          <div className="flex items-center gap-1.5 md:gap-3 flex-shrink-0">
-            <Button variant="ghost" size="sm" className="px-2.5 md:px-4" asChild>
+          <div className="flex items-center gap-1 xs:gap-1.5 md:gap-3 flex-shrink-0">
+            <Button variant="ghost" size="sm" className="hidden xs:inline-flex px-2.5 md:px-4" asChild>
               <Link to="/login">Log in</Link>
             </Button>
+            <Button variant="ghost" size="icon" className="xs:hidden h-9 w-9" asChild aria-label="Log in">
+              <Link to="/login">
+                <LogIn className="w-4 h-4" />
+              </Link>
+            </Button>
             <Button size="sm" className="px-3 md:px-4 bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-md whitespace-nowrap" asChild>
-              <Link to="/signup">Start free <ArrowRight className="w-4 h-4 ml-1" /></Link>
+              <Link to="/signup">
+                <span className="hidden xs:inline">Start free</span>
+                <span className="xs:hidden">Start</span>
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Link>
             </Button>
           </div>
         </div>
