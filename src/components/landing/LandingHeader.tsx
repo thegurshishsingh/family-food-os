@@ -21,8 +21,8 @@ const LandingHeader = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border/30 overflow-hidden">
       <div
-        className="container mx-auto flex items-center justify-between gap-2 px-3 md:px-8 max-w-screen-xl flex-nowrap whitespace-nowrap min-w-0"
-        style={{ paddingTop: "env(safe-area-inset-top)", height: "calc(4rem + env(safe-area-inset-top))" }}
+        className="container mx-auto flex items-center justify-between gap-2 px-3 md:px-8 max-w-screen-xl flex-nowrap whitespace-nowrap min-w-0 h-header"
+        style={{ paddingTop: "env(safe-area-inset-top)", height: "calc(var(--header-height) + env(safe-area-inset-top))" }}
       >
         {/* Brand: shrinks first, truncates wordmark, never wraps */}
         <Link
@@ -34,13 +34,13 @@ const LandingHeader = () => {
           <span className="hidden sm:inline-flex min-w-0 max-w-full overflow-hidden [&_*]:truncate"><Logo size="md" /></span>
         </Link>
 
-        {/* Actions: fixed widths, never wrap, never shrink */}
+        {/* Actions: tokenized widths, never wrap, never shrink */}
         <div className="flex items-center gap-1 xs:gap-1.5 md:gap-3 flex-shrink-0 flex-nowrap whitespace-nowrap">
           {/* Log in: full label ≥390px, icon below */}
           <Button
             variant="ghost"
             size="sm"
-            className="hidden xs:inline-flex h-9 max-w-[88px] md:max-w-[120px] px-2.5 md:px-4 font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased whitespace-nowrap overflow-hidden"
+            className="hidden xs:inline-flex h-header-btn max-w-header-login-xs md:max-w-header-login-md px-2.5 md:px-4 font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased whitespace-nowrap overflow-hidden"
             asChild
           >
             <Link to="/login" className="inline-flex h-full items-center justify-center leading-[1] min-w-0 max-w-full truncate">
@@ -50,7 +50,7 @@ const LandingHeader = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="xs:hidden h-9 w-9 flex-shrink-0 leading-[1]"
+            className="xs:hidden h-header-icon w-header-icon flex-shrink-0 leading-[1]"
             asChild
             aria-label="Log in"
           >
@@ -59,10 +59,10 @@ const LandingHeader = () => {
             </Link>
           </Button>
 
-          {/* Primary CTA: stable widths per breakpoint, label truncates */}
+          {/* Primary CTA: tokenized widths per breakpoint, label truncates */}
           <Button
             size="sm"
-            className="h-9 w-[96px] xs:w-[132px] md:w-[148px] px-3 md:px-4 bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-md whitespace-nowrap overflow-hidden font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased flex-shrink-0"
+            className="h-header-btn w-header-cta-xxs xs:w-header-cta-xs md:w-header-cta-md px-3 md:px-4 bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-md whitespace-nowrap overflow-hidden font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased flex-shrink-0"
             asChild
           >
             <Link to="/signup" className="inline-flex h-full w-full items-center justify-center gap-1 leading-[1] min-w-0">
