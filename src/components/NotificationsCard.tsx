@@ -102,36 +102,62 @@ const NotificationsCard = () => {
     if (ok) toast({ title: "Notifications turned off" });
   };
 
-  const handleTest = async () => {
-    if (!user) return;
-    const opt = CATEGORY_OPTIONS.find((c) => c.value === testCategory) ?? CATEGORY_OPTIONS[0];
-    setTestStatus("sending");
-    setTestError(null);
+  const runTestSend = async (
+    opt: (typeof CATEGORY_OPTIONS)[number]
+  ): Promise<{ ok: true } | { ok: false; message: string }> => {
     const { error } = await supabase.functions.invoke("send-push", {
       body: {
-        user_id: user.id,
+        user_id: user!.id,
         category: opt.value,
         title: opt.title,
         body: opt.body,
         url: "/planner",
       },
     });
-    if (error) {
-      setTestStatus("error");
-      setTestError(error.message ?? "Unknown error");
-      toast({
-        title: "Test failed",
-        description: error.message ?? "Try again shortly.",
-        variant: "destructive",
-      });
-      return;
+    if (error) return { ok: false, message: error.message ?? "Unknown error" };
+    return { ok: true };
+  };
+
+  const attemptTest = async (attemptNumber: number) => {
+    if (!user) return;
+    const opt = CATEGORY_OPTIONS.find((c) => c.value === testCategory) ?? CATEGORY_OPTIONS[0];
+    setTestStatus("sending");
+    setTestError(null);
+    setTestAttempts(attemptNumber);
+
+    let lastError = "";
+    for (let i = attemptNumber; i <= MAX_TEST_ATTEMPTS; i++) {
+      setTestAttempts(i);
+      const result = await runTestSend(opt);
+      if (result.ok) {
+        setTestStatus("success");
+        toast({
+          title: `Test sent: ${opt.label}`,
+          description:
+            i > 1
+              ? `Delivered on attempt ${i}. Check your notifications shortly.`
+              : "Check your notifications in a few seconds.",
+        });
+        return;
+      }
+      lastError = result.message;
+      // brief backoff before auto-retry
+      if (i < MAX_TEST_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, 800));
+      }
     }
-    setTestStatus("success");
+
+    setTestStatus("error");
+    setTestError(lastError);
     toast({
-      title: `Test sent: ${opt.label}`,
-      description: "Check your notifications in a few seconds.",
+      title: `Test failed after ${MAX_TEST_ATTEMPTS} attempts`,
+      description: lastError || "Try again shortly.",
+      variant: "destructive",
     });
   };
+
+  const handleTest = () => attemptTest(1);
+  const handleRetry = () => attemptTest(1);
 
   return (
     <Card>
