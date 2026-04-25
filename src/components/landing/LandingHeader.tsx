@@ -23,6 +23,11 @@ interface LandingHeaderProps {
   locale?: string;
 }
 
+/** Shared label classes — every header text node uses this set so no label
+ *  (visible OR breakpoint-hidden) can wrap, overflow, or shift the baseline. */
+const HEADER_LABEL_CLASSES =
+  "inline-block min-w-0 max-w-full truncate whitespace-nowrap overflow-hidden leading-[1] align-middle";
+
 const LandingHeader = ({ locale }: LandingHeaderProps) => {
   const labels = resolveHeaderLabels(locale);
 
@@ -32,31 +37,33 @@ const LandingHeader = ({ locale }: LandingHeaderProps) => {
         className="container mx-auto flex items-center justify-between gap-2 px-3 md:px-8 max-w-screen-xl flex-nowrap whitespace-nowrap min-w-0 h-header"
         style={{ paddingTop: "env(safe-area-inset-top)", height: "calc(var(--header-height) + env(safe-area-inset-top))" }}
       >
-        {/* Brand: shrinks first, truncates wordmark, never wraps */}
+        {/* Brand: shrinks first, wordmark capped by token, never wraps */}
         <Link
           to="/"
           className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden"
           aria-label="Family Food OS — Home"
         >
           <span className="sm:hidden flex-shrink-0"><Logo size="md" showText={false} /></span>
-          <span className="hidden sm:inline-flex min-w-0 max-w-full overflow-hidden [&_*]:truncate"><Logo size="md" /></span>
+          <span className="hidden sm:inline-flex min-w-0 max-w-header-brand-xs md:max-w-header-brand-md overflow-hidden [&_*]:truncate [&_*]:whitespace-nowrap">
+            <Logo size="md" />
+          </span>
         </Link>
 
         {/* Actions: tokenized widths, never wrap, never shrink */}
         <div className="flex items-center gap-1 xs:gap-1.5 md:gap-3 flex-shrink-0 flex-nowrap whitespace-nowrap">
-          {/* Log in: full label ≥390px, icon below */}
+          {/* Log in: token-bounded label width ≥390px, icon below */}
           <Button
             variant="ghost"
             size="sm"
-            className="hidden xs:inline-flex h-header-btn max-w-header-login-xs md:max-w-header-login-md px-2.5 md:px-4 font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased whitespace-nowrap overflow-hidden"
+            className="hidden xs:inline-flex h-header-btn min-w-header-login max-w-header-login-xs md:max-w-header-login-md px-2.5 md:px-4 font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased whitespace-nowrap overflow-hidden"
             asChild
           >
             <Link
               to="/login"
-              className="inline-flex h-full items-center justify-center leading-[1] min-w-0 max-w-full truncate"
+              className="inline-flex h-full w-full items-center justify-center leading-[1] min-w-0 max-w-full"
               title={labels.login}
             >
-              <span className="truncate" style={{ maxWidth: `${labels.maxChars.login}ch` }}>
+              <span className={HEADER_LABEL_CLASSES} style={{ maxWidth: `${labels.maxChars.login}ch` }}>
                 {labels.login}
               </span>
             </Link>
@@ -73,7 +80,7 @@ const LandingHeader = ({ locale }: LandingHeaderProps) => {
             </Link>
           </Button>
 
-          {/* Primary CTA: tokenized widths per breakpoint, label truncates */}
+          {/* Primary CTA: token widths per breakpoint, both labels truncate */}
           <Button
             size="sm"
             className="h-header-btn w-header-cta-xxs xs:w-header-cta-xs md:w-header-cta-md px-3 md:px-4 bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-md whitespace-nowrap overflow-hidden font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased flex-shrink-0"
@@ -85,13 +92,13 @@ const LandingHeader = ({ locale }: LandingHeaderProps) => {
               title={labels.ctaFull}
             >
               <span
-                className="hidden xs:inline min-w-0 truncate leading-[1]"
+                className={`hidden xs:inline-block ${HEADER_LABEL_CLASSES}`}
                 style={{ maxWidth: `${labels.maxChars.ctaFull}ch` }}
               >
                 {labels.ctaFull}
               </span>
               <span
-                className="xs:hidden truncate leading-[1]"
+                className={`xs:hidden ${HEADER_LABEL_CLASSES}`}
                 style={{ maxWidth: `${labels.maxChars.ctaShort}ch` }}
               >
                 {labels.ctaShort}
@@ -106,4 +113,5 @@ const LandingHeader = ({ locale }: LandingHeaderProps) => {
 };
 
 export default LandingHeader;
+
 
