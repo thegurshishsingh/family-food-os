@@ -29,6 +29,24 @@ export default {
         sans: ["DM Sans", "system-ui", "sans-serif"],
         serif: ["Fraunces", "Georgia", "serif"],
       },
+      height: {
+        header: "var(--header-height)",
+        "header-btn": "var(--header-btn-height)",
+        "header-icon": "var(--header-icon-btn)",
+      },
+      width: {
+        "header-cta-xxs": "var(--header-cta-w-xxs)",
+        "header-cta-xs": "var(--header-cta-w-xs)",
+        "header-cta-md": "var(--header-cta-w-md)",
+        "header-icon": "var(--header-icon-btn)",
+      },
+      maxWidth: {
+        "header-login-xs": "var(--header-login-max-xs)",
+        "header-login-md": "var(--header-login-max-md)",
+      },
+      minHeight: {
+        header: "var(--header-height)",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
