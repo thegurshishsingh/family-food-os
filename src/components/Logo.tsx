@@ -26,7 +26,7 @@ const Logo = ({ size = "md", showText = true, className = "" }: LogoProps) => (
       className={`${sizeMap[size]} rounded-lg object-cover text-primary`}
     />
     {showText && (
-      <span className={`font-serif ${textSizeMap[size]} font-semibold text-foreground`}>
+      <span className={`font-serif ${textSizeMap[size]} font-semibold text-foreground whitespace-nowrap`}>
         Family Food OS
       </span>
     )}
