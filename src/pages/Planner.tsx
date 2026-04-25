@@ -574,6 +574,13 @@ const Planner = () => {
           </div>
         )}
 
+        {/* Inline notifications nudge (one-time) */}
+        {plan && (
+          <div className="mb-4">
+            <NotificationsNudge />
+          </div>
+        )}
+
         {/* 2. Weekly Dinner Progress */}
         {plan && days.length > 0 && (
           <div className="mb-4">
