@@ -40,9 +40,14 @@ export default {
         "header-cta-md": "var(--header-cta-w-md)",
         "header-icon": "var(--header-icon-btn)",
       },
+      minWidth: {
+        "header-login": "var(--header-login-min)",
+      },
       maxWidth: {
         "header-login-xs": "var(--header-login-max-xs)",
         "header-login-md": "var(--header-login-max-md)",
+        "header-brand-xs": "var(--header-brand-max-xs)",
+        "header-brand-md": "var(--header-brand-max-md)",
       },
       minHeight: {
         header: "var(--header-height)",
