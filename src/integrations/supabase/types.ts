@@ -469,6 +469,54 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          enabled_dinner_reveal: boolean
+          enabled_evening_checkin: boolean
+          enabled_weekly_plan_ready: boolean
+          endpoint: string
+          id: string
+          last_used_at: string | null
+          p256dh: string
+          timezone: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          enabled_dinner_reveal?: boolean
+          enabled_evening_checkin?: boolean
+          enabled_weekly_plan_ready?: boolean
+          endpoint: string
+          id?: string
+          last_used_at?: string | null
+          p256dh: string
+          timezone?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          enabled_dinner_reveal?: boolean
+          enabled_evening_checkin?: boolean
+          enabled_weekly_plan_ready?: boolean
+          endpoint?: string
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string
+          timezone?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       saved_meals: {
         Row: {
           created_at: string
