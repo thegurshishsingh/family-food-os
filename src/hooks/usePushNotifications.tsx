@@ -65,9 +65,11 @@ export function usePushNotifications() {
       const reg = await navigator.serviceWorker.ready;
       let sub = await reg.pushManager.getSubscription();
       if (!sub) {
+        const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
         sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+          // Cast to BufferSource — TS DOM lib types are stricter than the runtime requirement
+          applicationServerKey: applicationServerKey.buffer as ArrayBuffer,
         });
       }
 
