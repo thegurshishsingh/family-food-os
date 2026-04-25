@@ -13,9 +13,9 @@ const sizeMap = {
 };
 
 const textSizeMap = {
-  sm: "text-lg",
-  md: "text-xl",
-  lg: "text-2xl",
+  sm: "text-base sm:text-lg",
+  md: "text-base sm:text-xl",
+  lg: "text-xl sm:text-2xl",
 };
 
 const Logo = ({ size = "md", showText = true, className = "" }: LogoProps) => (
