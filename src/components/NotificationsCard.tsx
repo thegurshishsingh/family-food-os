@@ -139,6 +139,7 @@ const NotificationsCard = () => {
               : "Check your notifications in a few seconds.",
         });
         return;
+      }
       lastError = "message" in result ? result.message : "Unknown error";
       if (i < MAX_TEST_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, 800));
