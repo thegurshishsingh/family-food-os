@@ -19,8 +19,8 @@ import Logo from "@/components/Logo";
  */
 const LandingHeader = () => {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border/30">
-      <div className="container flex items-center justify-between h-16 gap-2 px-3 md:px-8">
+    <nav className="fixed top-[env(safe-area-inset-top)] left-0 right-0 z-50 h-16 glass-strong border-b border-border/30">
+      <div className="container flex h-full items-center justify-between gap-2 px-3 md:px-8">
         <Link
           to="/"
           className="flex items-center gap-2 min-w-0 flex-shrink-0 overflow-hidden"
@@ -36,10 +36,10 @@ const LandingHeader = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="hidden xs:inline-flex px-2.5 md:px-4 font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased"
+            className="hidden xs:inline-flex h-9 px-2.5 md:px-4 font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased"
             asChild
           >
-            <Link to="/login" className="leading-[1] inline-flex items-center">Log in</Link>
+            <Link to="/login" className="inline-flex h-full items-center justify-center leading-[1]">Log in</Link>
           </Button>
           <Button
             variant="ghost"
@@ -56,11 +56,11 @@ const LandingHeader = () => {
           {/* Primary CTA */}
           <Button
             size="sm"
-            className="px-3 md:px-4 bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-md whitespace-nowrap font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased"
+            className="h-9 w-24 xs:w-40 sm:w-auto px-3 md:px-4 bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-md whitespace-nowrap overflow-hidden font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased"
             asChild
           >
-            <Link to="/signup" className="leading-[1] inline-flex items-center">
-              <span className="hidden xs:inline leading-[1]">Start free</span>
+            <Link to="/signup" className="inline-flex h-full w-full items-center justify-center leading-[1]">
+              <span className="hidden xs:inline min-w-0 truncate leading-[1]">Start free</span>
               <span className="xs:hidden leading-[1]">Start</span>
               <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
