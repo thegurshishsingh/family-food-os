@@ -260,7 +260,11 @@ const NotificationsCard = () => {
                   disabled={busy || testStatus === "sending"}
                 >
                   <Send className="w-3.5 h-3.5 mr-1.5" />
-                  {testStatus === "sending" ? "Sending…" : "Send test"}
+                  {testStatus === "sending"
+                    ? testAttempts > 1
+                      ? `Retrying (${testAttempts}/${MAX_TEST_ATTEMPTS})…`
+                      : "Sending…"
+                    : "Send test"}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={handleDisable} disabled={busy}>
                   <BellOff className="w-3.5 h-3.5 mr-1.5" />
@@ -273,9 +277,21 @@ const NotificationsCard = () => {
                 </p>
               )}
               {testStatus === "error" && (
-                <p className="text-xs text-destructive">
-                  ✗ Test failed{testError ? `: ${testError}` : ""}. Try again shortly.
-                </p>
+                <div className="space-y-2">
+                  <p className="text-xs text-destructive">
+                    ✗ Test failed after {MAX_TEST_ATTEMPTS} attempts
+                    {testError ? `: ${testError}` : ""}.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRetry}
+                    disabled={busy || testStatus === "sending"}
+                  >
+                    <Send className="w-3.5 h-3.5 mr-1.5" />
+                    Retry
+                  </Button>
+                </div>
               )}
             </div>
           </div>
