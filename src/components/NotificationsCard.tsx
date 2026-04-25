@@ -59,6 +59,9 @@ const NotificationsCard = () => {
   const [testCategory, setTestCategory] = useState<TestCategory>("test");
   const [testStatus, setTestStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [testError, setTestError] = useState<string | null>(null);
+  const [testAttempts, setTestAttempts] = useState(0);
+
+  const MAX_TEST_ATTEMPTS = 3; // initial + 2 auto-retries
 
   useEffect(() => {
     if (!user || status !== "subscribed") return;
