@@ -307,10 +307,12 @@ const NotificationsCard = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleRetry}
-                    disabled={busy}
+                    disabled={busy || cooldownActive}
                   >
                     <Send className="w-3.5 h-3.5 mr-1.5" />
-                    Retry
+                    {cooldownActive
+                      ? `Retry in ${Math.ceil(cooldownRemaining / 1000)}s`
+                      : "Retry"}
                   </Button>
                 </div>
               )}
