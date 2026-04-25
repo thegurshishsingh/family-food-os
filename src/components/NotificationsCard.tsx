@@ -141,7 +141,6 @@ const NotificationsCard = () => {
         return;
       }
       lastError = result.message;
-      // brief backoff before auto-retry
       if (i < MAX_TEST_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, 800));
       }
