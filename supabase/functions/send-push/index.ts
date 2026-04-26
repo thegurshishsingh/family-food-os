@@ -89,11 +89,12 @@ Deno.serve(async (req) => {
     if (error) return json({ error: error.message }, 500);
     if (!subs?.length) return json({ sent: 0, removed: 0 });
 
+    // iOS-safe minimal payload. WebKit silently drops notifications when the
+    // payload includes unsupported fields. Keep to title/body/url only.
     const payload = JSON.stringify({
       title: body.title,
       body: body.body,
       url: body.url ?? "/planner",
-      tag: body.tag ?? body.category,
     });
 
     let sent = 0;
