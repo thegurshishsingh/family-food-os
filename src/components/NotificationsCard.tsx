@@ -182,7 +182,11 @@ const NotificationsCard = () => {
 
   const attemptTest = async (attemptNumber: number) => {
     if (!user) return;
-    const opt = CATEGORY_OPTIONS.find((c) => c.value === testCategory) ?? CATEGORY_OPTIONS[0];
+    const opt = findCategory(testCategory);
+    const overrides = {
+      title: testTitle.trim().slice(0, TITLE_MAX) || opt.title,
+      body: testBody.trim().slice(0, BODY_MAX) || opt.body,
+    };
     setTestStatus("sending");
     setTestError(null);
     setTestResult(null);
@@ -191,7 +195,7 @@ const NotificationsCard = () => {
     let lastError = "";
     for (let i = attemptNumber; i <= MAX_TEST_ATTEMPTS; i++) {
       setTestAttempts(i);
-      const result = await runTestSend(opt);
+      const result = await runTestSend(opt, overrides);
       if (result.ok) {
         setTestStatus("success");
         setTestResult(result.result);
