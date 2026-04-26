@@ -59,6 +59,7 @@ const NotificationsCard = () => {
   const [testCategory, setTestCategory] = useState<TestCategory>("test");
   const [testStatus, setTestStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [testError, setTestError] = useState<string | null>(null);
+  const [testResult, setTestResult] = useState<{ sent: number; removed: number; failed?: number } | null>(null);
   const [testAttempts, setTestAttempts] = useState(0);
   const [retryCooldownUntil, setRetryCooldownUntil] = useState(0);
   const [now, setNow] = useState(() => Date.now());
@@ -115,8 +116,8 @@ const NotificationsCard = () => {
 
   const runTestSend = async (
     opt: (typeof CATEGORY_OPTIONS)[number]
-  ): Promise<{ ok: true } | { ok: false; message: string }> => {
-    const { error } = await supabase.functions.invoke("send-push", {
+  ): Promise<{ ok: true; result: { sent: number; removed: number; failed?: number } } | { ok: false; message: string }> => {
+    const { data, error } = await supabase.functions.invoke("send-push", {
       body: {
         user_id: user!.id,
         category: opt.value,
@@ -126,7 +127,21 @@ const NotificationsCard = () => {
       },
     });
     if (error) return { ok: false, message: error.message ?? "Unknown error" };
-    return { ok: true };
+    const res = (data ?? {}) as { sent?: number; removed?: number; failed?: number; error?: string };
+    if (res.error) return { ok: false, message: res.error };
+    if ((res.sent ?? 0) === 0) {
+      return {
+        ok: false,
+        message:
+          (res.removed ?? 0) > 0
+            ? "No active subscriptions — your device subscription was removed by the push service."
+            : "No matching subscription on server. Re-enable notifications and try again.",
+      };
+    }
+    return {
+      ok: true,
+      result: { sent: res.sent ?? 0, removed: res.removed ?? 0, failed: res.failed },
+    };
   };
 
   const attemptTest = async (attemptNumber: number) => {
@@ -134,6 +149,7 @@ const NotificationsCard = () => {
     const opt = CATEGORY_OPTIONS.find((c) => c.value === testCategory) ?? CATEGORY_OPTIONS[0];
     setTestStatus("sending");
     setTestError(null);
+    setTestResult(null);
     setTestAttempts(attemptNumber);
 
     let lastError = "";
@@ -142,12 +158,15 @@ const NotificationsCard = () => {
       const result = await runTestSend(opt);
       if (result.ok) {
         setTestStatus("success");
+        setTestResult(result.result);
+        const { sent, removed, failed } = result.result;
         toast({
           title: `Test sent: ${opt.label}`,
-          description:
-            i > 1
-              ? `Delivered on attempt ${i}. Check your notifications shortly.`
-              : "Check your notifications in a few seconds.",
+          description: `Delivered to ${sent} device${sent === 1 ? "" : "s"}${
+            failed ? `, ${failed} failed` : ""
+          }${removed ? `, ${removed} removed` : ""}${
+            i > 1 ? ` (attempt ${i})` : ""
+          }. Check your device shortly.`,
         });
         return;
       }
@@ -292,9 +311,11 @@ const NotificationsCard = () => {
                   Turn off
                 </Button>
               </div>
-              {testStatus === "success" && (
+              {testStatus === "success" && testResult && (
                 <p className="text-xs text-primary">
-                  ✓ Test sent — check your device in a few seconds.
+                  ✓ Sent to {testResult.sent} device{testResult.sent === 1 ? "" : "s"}
+                  {testResult.failed ? `, ${testResult.failed} failed` : ""}
+                  {testResult.removed ? `, ${testResult.removed} removed` : ""}. Check your device in a few seconds.
                 </p>
               )}
               {testStatus === "error" && (
