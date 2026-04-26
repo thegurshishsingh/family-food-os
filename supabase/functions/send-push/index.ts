@@ -97,11 +97,19 @@ Deno.serve(async (req) => {
       url: body.url ?? "/planner",
     });
 
+    const pushOptions = {
+      TTL: 60 * 60 * 24,
+      headers: {
+        Urgency: "high",
+      },
+    };
+
     console.log("[send-push] dispatching", {
       category: body.category,
       recipients: subs.length,
       payloadBytes: payload.length,
       payloadPreview: payload.slice(0, 300),
+      pushOptions,
     });
 
     let sent = 0;
@@ -121,7 +129,8 @@ Deno.serve(async (req) => {
         try {
           const res = await webpush.sendNotification(
             { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-            payload
+            payload,
+            pushOptions
           );
           sent++;
           console.log("[send-push] delivered", {
