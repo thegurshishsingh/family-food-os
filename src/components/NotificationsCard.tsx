@@ -88,7 +88,13 @@ const NotificationsCard = () => {
   const [testBody, setTestBody] = useState<string>(CATEGORY_OPTIONS[0].body);
   const [testStatus, setTestStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [testError, setTestError] = useState<string | null>(null);
-  const [testResult, setTestResult] = useState<{ sent: number; removed: number; failed?: number } | null>(null);
+  const [testResult, setTestResult] = useState<{
+    sent: number;
+    removed: number;
+    failed?: number;
+    retriesAttempted?: number;
+    retriesRecovered?: number;
+  } | null>(null);
   const [testAttempts, setTestAttempts] = useState(0);
   const [retryCooldownUntil, setRetryCooldownUntil] = useState(0);
   const [now, setNow] = useState(() => Date.now());
@@ -152,7 +158,19 @@ const NotificationsCard = () => {
   const runTestSend = async (
     opt: CategoryOption,
     overrides: { title: string; body: string }
-  ): Promise<{ ok: true; result: { sent: number; removed: number; failed?: number } } | { ok: false; message: string }> => {
+  ): Promise<
+    | {
+        ok: true;
+        result: {
+          sent: number;
+          removed: number;
+          failed?: number;
+          retriesAttempted?: number;
+          retriesRecovered?: number;
+        };
+      }
+    | { ok: false; message: string; retriesAttempted?: number }
+  > => {
     const { data, error } = await supabase.functions.invoke("send-push", {
       body: {
         user_id: user!.id,
@@ -163,8 +181,15 @@ const NotificationsCard = () => {
       },
     });
     if (error) return { ok: false, message: error.message ?? "Unknown error" };
-    const res = (data ?? {}) as { sent?: number; removed?: number; failed?: number; error?: string };
-    if (res.error) return { ok: false, message: res.error };
+    const res = (data ?? {}) as {
+      sent?: number;
+      removed?: number;
+      failed?: number;
+      retries_attempted?: number;
+      retries_recovered?: number;
+      error?: string;
+    };
+    if (res.error) return { ok: false, message: res.error, retriesAttempted: res.retries_attempted };
     if ((res.sent ?? 0) === 0) {
       return {
         ok: false,
@@ -172,11 +197,18 @@ const NotificationsCard = () => {
           (res.removed ?? 0) > 0
             ? "No active subscriptions — your device subscription was removed by the push service."
             : "No matching subscription on server. Re-enable notifications and try again.",
+        retriesAttempted: res.retries_attempted,
       };
     }
     return {
       ok: true,
-      result: { sent: res.sent ?? 0, removed: res.removed ?? 0, failed: res.failed },
+      result: {
+        sent: res.sent ?? 0,
+        removed: res.removed ?? 0,
+        failed: res.failed,
+        retriesAttempted: res.retries_attempted,
+        retriesRecovered: res.retries_recovered,
+      },
     };
   };
 
@@ -199,12 +231,16 @@ const NotificationsCard = () => {
       if (result.ok) {
         setTestStatus("success");
         setTestResult(result.result);
-        const { sent, removed, failed } = result.result;
+        const { sent, removed, failed, retriesAttempted, retriesRecovered } = result.result;
         toast({
           title: `Test sent: ${opt.label}`,
           description: `Delivered to ${sent} device${sent === 1 ? "" : "s"}${
             failed ? `, ${failed} failed` : ""
           }${removed ? `, ${removed} removed` : ""}${
+            retriesAttempted
+              ? `, ${retriesRecovered ?? 0}/${retriesAttempted} retries recovered`
+              : ""
+          }${
             i > 1 ? ` (attempt ${i})` : ""
           }. Check your device shortly.`,
         });
@@ -454,7 +490,11 @@ const NotificationsCard = () => {
                 <p className="text-xs text-primary">
                   ✓ Sent to {testResult.sent} device{testResult.sent === 1 ? "" : "s"}
                   {testResult.failed ? `, ${testResult.failed} failed` : ""}
-                  {testResult.removed ? `, ${testResult.removed} removed` : ""}. Check your device in a few seconds.
+                  {testResult.removed ? `, ${testResult.removed} removed` : ""}
+                  {testResult.retriesAttempted
+                    ? `, ${testResult.retriesRecovered ?? 0}/${testResult.retriesAttempted} server retries recovered`
+                    : ""}
+                  . Check your device in a few seconds.
                 </p>
               )}
               {testStatus === "error" && (
