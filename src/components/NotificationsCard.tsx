@@ -311,9 +311,11 @@ const NotificationsCard = () => {
                   Turn off
                 </Button>
               </div>
-              {testStatus === "success" && (
+              {testStatus === "success" && testResult && (
                 <p className="text-xs text-primary">
-                  ✓ Test sent — check your device in a few seconds.
+                  ✓ Sent to {testResult.sent} device{testResult.sent === 1 ? "" : "s"}
+                  {testResult.failed ? `, ${testResult.failed} failed` : ""}
+                  {testResult.removed ? `, ${testResult.removed} removed` : ""}. Check your device in a few seconds.
                 </p>
               )}
               {testStatus === "error" && (
