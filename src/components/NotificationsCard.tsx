@@ -84,12 +84,20 @@ const NotificationsCard = () => {
     enabled_weekly_plan_ready: true,
   });
   const [testCategory, setTestCategory] = useState<TestCategory>("test");
+  const [testTitle, setTestTitle] = useState<string>(CATEGORY_OPTIONS[0].title);
+  const [testBody, setTestBody] = useState<string>(CATEGORY_OPTIONS[0].body);
   const [testStatus, setTestStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [testError, setTestError] = useState<string | null>(null);
   const [testResult, setTestResult] = useState<{ sent: number; removed: number; failed?: number } | null>(null);
   const [testAttempts, setTestAttempts] = useState(0);
   const [retryCooldownUntil, setRetryCooldownUntil] = useState(0);
   const [now, setNow] = useState(() => Date.now());
+
+  const activeOption = useMemo(() => findCategory(testCategory), [testCategory]);
+  const isEdited = testTitle !== activeOption.title || testBody !== activeOption.body;
+  const titleOver = testTitle.length > TITLE_MAX;
+  const bodyOver = testBody.length > BODY_MAX;
+  const hasContent = testTitle.trim().length > 0 && testBody.trim().length > 0;
 
   const MAX_TEST_ATTEMPTS = 3; // initial + 2 auto-retries
   const RETRY_COOLDOWN_MS = 3000;
