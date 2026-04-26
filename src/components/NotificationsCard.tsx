@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
-import { Bell, BellOff, Send } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Bell, BellOff, RotateCcw, Send } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -18,32 +21,56 @@ import { useAuth } from "@/hooks/useAuth";
 
 type TestCategory = "test" | "dinner_reveal" | "evening_checkin" | "weekly_plan_ready";
 
-const CATEGORY_OPTIONS: { value: TestCategory; label: string; title: string; body: string }[] = [
+type CategoryOption = {
+  value: TestCategory;
+  label: string;
+  groupLabel: string;
+  description: string;
+  title: string;
+  body: string;
+};
+
+const TITLE_MAX = 60;
+const BODY_MAX = 160;
+
+const CATEGORY_OPTIONS: CategoryOption[] = [
   {
     value: "test",
     label: "Generic test",
+    groupLabel: "Diagnostic",
+    description: "A no-op ping that bypasses category preferences. Use this to verify delivery.",
     title: "Hello from Family Food OS 👋",
     body: "Notifications are working. We'll only ping you when it matters.",
   },
   {
     value: "dinner_reveal",
     label: "1 PM dinner reveal",
+    groupLabel: "Meal reminder",
+    description: "Daily lunchtime nudge with tonight's planned dinner. Respects the 'Dinner reveal' toggle.",
     title: "Tonight's dinner is ready 🍽️",
     body: "Tap to see what's on the menu and start prepping.",
   },
   {
     value: "evening_checkin",
     label: "Evening check-in",
+    groupLabel: "Meal reminder",
+    description: "~7:30 PM nudge to log how dinner went. Respects the 'Evening check-in' toggle.",
     title: "How did dinner go? ✨",
     body: "Take 10 seconds to log tonight — it makes next week smarter.",
   },
   {
     value: "weekly_plan_ready",
     label: "Weekly plan ready",
+    groupLabel: "Weekly plan update",
+    description: "Heads-up that next week's plan has been generated. Respects the 'Weekly plan' toggle.",
     title: "Next week's plan is ready 📅",
     body: "Your dinners are set. Take a peek and tweak anything.",
   },
 ];
+
+const findCategory = (value: TestCategory) =>
+  CATEGORY_OPTIONS.find((o) => o.value === value) ?? CATEGORY_OPTIONS[0];
+
 
 const NotificationsCard = () => {
   const { user } = useAuth();
@@ -57,12 +84,20 @@ const NotificationsCard = () => {
     enabled_weekly_plan_ready: true,
   });
   const [testCategory, setTestCategory] = useState<TestCategory>("test");
+  const [testTitle, setTestTitle] = useState<string>(CATEGORY_OPTIONS[0].title);
+  const [testBody, setTestBody] = useState<string>(CATEGORY_OPTIONS[0].body);
   const [testStatus, setTestStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [testError, setTestError] = useState<string | null>(null);
   const [testResult, setTestResult] = useState<{ sent: number; removed: number; failed?: number } | null>(null);
   const [testAttempts, setTestAttempts] = useState(0);
   const [retryCooldownUntil, setRetryCooldownUntil] = useState(0);
   const [now, setNow] = useState(() => Date.now());
+
+  const activeOption = useMemo(() => findCategory(testCategory), [testCategory]);
+  const isEdited = testTitle !== activeOption.title || testBody !== activeOption.body;
+  const titleOver = testTitle.length > TITLE_MAX;
+  const bodyOver = testBody.length > BODY_MAX;
+  const hasContent = testTitle.trim().length > 0 && testBody.trim().length > 0;
 
   const MAX_TEST_ATTEMPTS = 3; // initial + 2 auto-retries
   const RETRY_COOLDOWN_MS = 3000;
@@ -115,14 +150,15 @@ const NotificationsCard = () => {
   };
 
   const runTestSend = async (
-    opt: (typeof CATEGORY_OPTIONS)[number]
+    opt: CategoryOption,
+    overrides: { title: string; body: string }
   ): Promise<{ ok: true; result: { sent: number; removed: number; failed?: number } } | { ok: false; message: string }> => {
     const { data, error } = await supabase.functions.invoke("send-push", {
       body: {
         user_id: user!.id,
         category: opt.value,
-        title: opt.title,
-        body: opt.body,
+        title: overrides.title,
+        body: overrides.body,
         url: "/planner",
       },
     });
@@ -146,7 +182,11 @@ const NotificationsCard = () => {
 
   const attemptTest = async (attemptNumber: number) => {
     if (!user) return;
-    const opt = CATEGORY_OPTIONS.find((c) => c.value === testCategory) ?? CATEGORY_OPTIONS[0];
+    const opt = findCategory(testCategory);
+    const overrides = {
+      title: testTitle.trim().slice(0, TITLE_MAX) || opt.title,
+      body: testBody.trim().slice(0, BODY_MAX) || opt.body,
+    };
     setTestStatus("sending");
     setTestError(null);
     setTestResult(null);
@@ -155,7 +195,7 @@ const NotificationsCard = () => {
     let lastError = "";
     for (let i = attemptNumber; i <= MAX_TEST_ATTEMPTS; i++) {
       setTestAttempts(i);
-      const result = await runTestSend(opt);
+      const result = await runTestSend(opt, overrides);
       if (result.ok) {
         setTestStatus("success");
         setTestResult(result.result);
@@ -269,20 +309,23 @@ const NotificationsCard = () => {
               </div>
             </div>
 
-            <div className="space-y-2 pt-3 border-t border-border/50">
-              <Label htmlFor="test-category" className="text-xs text-muted-foreground">
-                Send a test for
-              </Label>
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="space-y-3 pt-3 border-t border-border/50">
+              <div className="space-y-2">
+                <Label htmlFor="test-category" className="text-xs text-muted-foreground">
+                  Send a test for
+                </Label>
                 <Select
                   value={testCategory}
                   onValueChange={(v) => {
-                    setTestCategory(v as TestCategory);
+                    const next = findCategory(v as TestCategory);
+                    setTestCategory(next.value);
+                    setTestTitle(next.title);
+                    setTestBody(next.body);
                     setTestStatus("idle");
                     setTestError(null);
                   }}
                 >
-                  <SelectTrigger id="test-category" className="h-9 w-[200px]">
+                  <SelectTrigger id="test-category" className="h-9 w-full sm:w-[260px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -293,11 +336,107 @@ const NotificationsCard = () => {
                     ))}
                   </SelectContent>
                 </Select>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">
+                    {activeOption.groupLabel}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">{activeOption.description}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="test-title" className="text-xs text-muted-foreground">
+                      Title
+                    </Label>
+                    <span
+                      className={`text-[10px] tabular-nums ${
+                        titleOver ? "text-destructive" : "text-muted-foreground"
+                      }`}
+                    >
+                      {testTitle.length}/{TITLE_MAX}
+                    </span>
+                  </div>
+                  <Input
+                    id="test-title"
+                    value={testTitle}
+                    onChange={(e) => setTestTitle(e.target.value)}
+                    placeholder={activeOption.title}
+                    className="h-9"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="test-body" className="text-xs text-muted-foreground">
+                      Message body
+                    </Label>
+                    <span
+                      className={`text-[10px] tabular-nums ${
+                        bodyOver ? "text-destructive" : "text-muted-foreground"
+                      }`}
+                    >
+                      {testBody.length}/{BODY_MAX}
+                    </span>
+                  </div>
+                  <Textarea
+                    id="test-body"
+                    value={testBody}
+                    onChange={(e) => setTestBody(e.target.value)}
+                    placeholder={activeOption.body}
+                    rows={2}
+                    className="resize-none"
+                  />
+                </div>
+
+                {isEdited && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTestTitle(activeOption.title);
+                      setTestBody(activeOption.body);
+                    }}
+                    className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    Reset to default
+                  </button>
+                )}
+              </div>
+
+              <div className="rounded-xl border border-border/60 bg-muted/40 p-3">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2">
+                  Preview
+                </p>
+                <div className="flex items-start gap-3 rounded-lg bg-background border border-border/60 p-3 shadow-sm">
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Bell className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {testTitle.trim() || activeOption.title}
+                      </p>
+                      <span className="text-[10px] text-muted-foreground flex-shrink-0">now</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                      {testBody.trim() || activeOption.body}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/70 mt-1">Family Food OS</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleTest}
-                  disabled={busy || testStatus === "sending"}
+                  disabled={
+                    busy || testStatus === "sending" || !hasContent || titleOver || bodyOver
+                  }
                 >
                   <Send className="w-3.5 h-3.5 mr-1.5" />
                   {testStatus === "sending"
