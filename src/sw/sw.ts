@@ -81,12 +81,14 @@ self.addEventListener("push", (event) => {
   }
 
   const title = data.title || "Family Food OS";
+  // iOS-safe minimal payload: WebKit silently drops notifications when the
+  // options object contains unsupported fields (actions, vibrate, image) or
+  // overly large/nested `data`. Keep this strictly to title/body/icon and a
+  // plain string URL in `data`.
   const options: NotificationOptions = {
     body: data.body || "",
     icon: data.icon || "/pwa-icon-192.png",
-    badge: data.badge || "/pwa-icon-192.png",
-    tag: data.tag || "family-food-os",
-    data: { url: data.url || "/planner" },
+    data: data.url || "/planner",
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
