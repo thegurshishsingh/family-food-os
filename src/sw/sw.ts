@@ -73,11 +73,27 @@ type PushPayload = {
 };
 
 self.addEventListener("push", (event) => {
+  const ts = new Date().toISOString();
+  const hasData = !!event.data;
+  let rawText = "";
+  try {
+    rawText = event.data ? event.data.text() : "";
+  } catch (e) {
+    console.warn("[sw/push] failed to read event.data.text()", e);
+  }
+  console.log("[sw/push] received", {
+    ts,
+    hasData,
+    rawLength: rawText.length,
+    rawPreview: rawText.slice(0, 500),
+  });
+
   let data: PushPayload = {};
   try {
-    data = event.data ? event.data.json() : {};
-  } catch {
-    data = { title: "Family Food OS", body: event.data?.text() ?? "" };
+    data = rawText ? (JSON.parse(rawText) as PushPayload) : {};
+  } catch (e) {
+    console.warn("[sw/push] payload was not JSON, falling back to text", e);
+    data = { title: "Family Food OS", body: rawText };
   }
 
   const title = data.title || "Family Food OS";
@@ -91,8 +107,33 @@ self.addEventListener("push", (event) => {
     data: data.url || "/planner",
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  console.log("[sw/push] showing notification", {
+    title,
+    titleLength: title.length,
+    bodyLength: options.body?.length ?? 0,
+    icon: options.icon,
+    dataUrl: options.data,
+    optionsKeys: Object.keys(options),
+  });
+
+  event.waitUntil(
+    self.registration
+      .showNotification(title, options)
+      .then(() => {
+        console.log("[sw/push] showNotification resolved OK", { title });
+      })
+      .catch((err) => {
+        console.error("[sw/push] showNotification FAILED", {
+          name: (err as Error)?.name,
+          message: (err as Error)?.message,
+          stack: (err as Error)?.stack,
+          title,
+          options,
+        });
+      })
+  );
 });
+
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();

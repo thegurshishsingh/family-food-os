@@ -97,29 +97,65 @@ Deno.serve(async (req) => {
       url: body.url ?? "/planner",
     });
 
+    console.log("[send-push] dispatching", {
+      category: body.category,
+      recipients: subs.length,
+      payloadBytes: payload.length,
+      payloadPreview: payload.slice(0, 300),
+    });
+
     let sent = 0;
     const toRemove: string[] = [];
+    const failures: Array<{ endpointHost: string; status?: number; message: string }> = [];
 
     await Promise.all(
       subs.map(async (sub: { id: string; endpoint: string; p256dh: string; auth: string }) => {
+        const endpointHost = (() => {
+          try {
+            return new URL(sub.endpoint).host;
+          } catch {
+            return "unknown";
+          }
+        })();
+        const isApple = endpointHost.includes("push.apple.com");
         try {
-          await webpush.sendNotification(
+          const res = await webpush.sendNotification(
             { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
             payload
           );
           sent++;
+          console.log("[send-push] delivered", {
+            endpointHost,
+            isApple,
+            statusCode: (res as { statusCode?: number })?.statusCode,
+            subId: sub.id,
+          });
         } catch (e) {
-          const status = (e as { statusCode?: number }).statusCode;
+          const err = e as { statusCode?: number; body?: string; headers?: unknown; message?: string };
+          const status = err.statusCode;
+          failures.push({
+            endpointHost,
+            status,
+            message: err.message ?? String(e),
+          });
+          console.error("[send-push] push FAILED", {
+            endpointHost,
+            isApple,
+            statusCode: status,
+            errorMessage: err.message,
+            errorBody: err.body,
+            errorHeaders: err.headers,
+            subId: sub.id,
+          });
           if (status === 404 || status === 410) {
             toRemove.push(sub.id);
-          } else {
-            console.error("[send-push] error", status, e);
           }
         }
       })
     );
 
     if (toRemove.length) {
+      console.log("[send-push] removing dead subscriptions", { count: toRemove.length });
       await supabase.from("push_subscriptions").delete().in("id", toRemove);
     }
 
@@ -132,6 +168,14 @@ Deno.serve(async (req) => {
           subs.map((s: { id: string }) => s.id).filter((id: string) => !toRemove.includes(id))
         );
     }
+
+    console.log("[send-push] summary", {
+      requested: subs.length,
+      sent,
+      removed: toRemove.length,
+      failed: failures.length,
+      failures,
+    });
 
     return json({ sent, removed: toRemove.length });
   } catch (e) {
