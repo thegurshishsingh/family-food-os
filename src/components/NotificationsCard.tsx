@@ -59,6 +59,7 @@ const NotificationsCard = () => {
   const [testCategory, setTestCategory] = useState<TestCategory>("test");
   const [testStatus, setTestStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [testError, setTestError] = useState<string | null>(null);
+  const [testResult, setTestResult] = useState<{ sent: number; removed: number; failed?: number } | null>(null);
   const [testAttempts, setTestAttempts] = useState(0);
   const [retryCooldownUntil, setRetryCooldownUntil] = useState(0);
   const [now, setNow] = useState(() => Date.now());
