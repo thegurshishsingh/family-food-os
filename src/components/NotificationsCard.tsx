@@ -149,6 +149,7 @@ const NotificationsCard = () => {
     const opt = CATEGORY_OPTIONS.find((c) => c.value === testCategory) ?? CATEGORY_OPTIONS[0];
     setTestStatus("sending");
     setTestError(null);
+    setTestResult(null);
     setTestAttempts(attemptNumber);
 
     let lastError = "";
@@ -157,12 +158,15 @@ const NotificationsCard = () => {
       const result = await runTestSend(opt);
       if (result.ok) {
         setTestStatus("success");
+        setTestResult(result.result);
+        const { sent, removed, failed } = result.result;
         toast({
           title: `Test sent: ${opt.label}`,
-          description:
-            i > 1
-              ? `Delivered on attempt ${i}. Check your notifications shortly.`
-              : "Check your notifications in a few seconds.",
+          description: `Delivered to ${sent} device${sent === 1 ? "" : "s"}${
+            failed ? `, ${failed} failed` : ""
+          }${removed ? `, ${removed} removed` : ""}${
+            i > 1 ? ` (attempt ${i})` : ""
+          }. Check your device shortly.`,
         });
         return;
       }
