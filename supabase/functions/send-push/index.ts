@@ -113,8 +113,18 @@ Deno.serve(async (req) => {
     });
 
     let sent = 0;
+    let retriesAttempted = 0;
+    let retriesRecovered = 0;
     const toRemove: string[] = [];
-    const failures: Array<{ endpointHost: string; status?: number; message: string }> = [];
+    const failures: Array<{ endpointHost: string; status?: number; message: string; attempts: number }> = [];
+
+    // Retry transient push-service failures (5xx + 429). APNs and FCM
+    // occasionally return these under load; a small bounded backoff
+    // recovers most of them without hammering the service.
+    const MAX_ATTEMPTS = 3;
+    const isTransient = (status?: number) =>
+      status === 429 || (typeof status === "number" && status >= 500 && status < 600);
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
     await Promise.all(
       subs.map(async (sub: { id: string; endpoint: string; p256dh: string; auth: string }) => {
@@ -126,39 +136,71 @@ Deno.serve(async (req) => {
           }
         })();
         const isApple = endpointHost.includes("push.apple.com");
-        try {
-          const res = await webpush.sendNotification(
-            { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-            payload,
-            pushOptions
-          );
-          sent++;
-          console.log("[send-push] delivered", {
-            endpointHost,
-            isApple,
-            statusCode: (res as { statusCode?: number })?.statusCode,
-            subId: sub.id,
-          });
-        } catch (e) {
-          const err = e as { statusCode?: number; body?: string; headers?: unknown; message?: string };
-          const status = err.statusCode;
-          failures.push({
-            endpointHost,
-            status,
-            message: err.message ?? String(e),
-          });
-          console.error("[send-push] push FAILED", {
-            endpointHost,
-            isApple,
-            statusCode: status,
-            errorMessage: err.message,
-            errorBody: err.body,
-            errorHeaders: err.headers,
-            subId: sub.id,
-          });
-          if (status === 404 || status === 410) {
-            toRemove.push(sub.id);
+        let attempt = 0;
+        let lastErr:
+          | { statusCode?: number; body?: string; headers?: unknown; message?: string }
+          | null = null;
+
+        while (attempt < MAX_ATTEMPTS) {
+          attempt++;
+          try {
+            const res = await webpush.sendNotification(
+              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+              payload,
+              pushOptions
+            );
+            sent++;
+            if (attempt > 1) retriesRecovered++;
+            console.log("[send-push] delivered", {
+              endpointHost,
+              isApple,
+              statusCode: (res as { statusCode?: number })?.statusCode,
+              subId: sub.id,
+              attempt,
+            });
+            return;
+          } catch (e) {
+            const err = e as {
+              statusCode?: number;
+              body?: string;
+              headers?: unknown;
+              message?: string;
+            };
+            lastErr = err;
+            const status = err.statusCode;
+            const transient = isTransient(status);
+            console.error("[send-push] push attempt failed", {
+              endpointHost,
+              isApple,
+              statusCode: status,
+              errorMessage: err.message,
+              errorBody: err.body,
+              errorHeaders: err.headers,
+              subId: sub.id,
+              attempt,
+              willRetry: transient && attempt < MAX_ATTEMPTS,
+            });
+            if (!transient) break;
+            if (attempt < MAX_ATTEMPTS) {
+              retriesAttempted++;
+              // Exponential backoff with jitter: ~250ms, ~600ms
+              const base = 250 * Math.pow(2, attempt - 1);
+              const jitter = Math.floor(Math.random() * 100);
+              await sleep(base + jitter);
+            }
           }
+        }
+
+        // All attempts exhausted (or non-transient failure)
+        const status = lastErr?.statusCode;
+        failures.push({
+          endpointHost,
+          status,
+          message: lastErr?.message ?? "unknown error",
+          attempts: attempt,
+        });
+        if (status === 404 || status === 410) {
+          toRemove.push(sub.id);
         }
       })
     );
@@ -183,10 +225,24 @@ Deno.serve(async (req) => {
       sent,
       removed: toRemove.length,
       failed: failures.length,
+      retriesAttempted,
+      retriesRecovered,
       failures,
     });
 
-    return json({ sent, removed: toRemove.length });
+    return json({
+      sent,
+      removed: toRemove.length,
+      failed: failures.length,
+      retries_attempted: retriesAttempted,
+      retries_recovered: retriesRecovered,
+      failures: failures.map((f) => ({
+        endpointHost: f.endpointHost,
+        status: f.status,
+        message: f.message,
+        attempts: f.attempts,
+      })),
+    });
   } catch (e) {
     console.error("[send-push] fatal", e);
     return json({ error: (e as Error).message }, 500);
