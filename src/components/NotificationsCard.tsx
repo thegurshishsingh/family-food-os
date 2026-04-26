@@ -116,8 +116,8 @@ const NotificationsCard = () => {
 
   const runTestSend = async (
     opt: (typeof CATEGORY_OPTIONS)[number]
-  ): Promise<{ ok: true } | { ok: false; message: string }> => {
-    const { error } = await supabase.functions.invoke("send-push", {
+  ): Promise<{ ok: true; result: { sent: number; removed: number; failed?: number } } | { ok: false; message: string }> => {
+    const { data, error } = await supabase.functions.invoke("send-push", {
       body: {
         user_id: user!.id,
         category: opt.value,
@@ -127,7 +127,21 @@ const NotificationsCard = () => {
       },
     });
     if (error) return { ok: false, message: error.message ?? "Unknown error" };
-    return { ok: true };
+    const res = (data ?? {}) as { sent?: number; removed?: number; failed?: number; error?: string };
+    if (res.error) return { ok: false, message: res.error };
+    if ((res.sent ?? 0) === 0) {
+      return {
+        ok: false,
+        message:
+          (res.removed ?? 0) > 0
+            ? "No active subscriptions — your device subscription was removed by the push service."
+            : "No matching subscription on server. Re-enable notifications and try again.",
+      };
+    }
+    return {
+      ok: true,
+      result: { sent: res.sent ?? 0, removed: res.removed ?? 0, failed: res.failed },
+    };
   };
 
   const attemptTest = async (attemptNumber: number) => {
