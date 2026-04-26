@@ -150,14 +150,15 @@ const NotificationsCard = () => {
   };
 
   const runTestSend = async (
-    opt: (typeof CATEGORY_OPTIONS)[number]
+    opt: CategoryOption,
+    overrides: { title: string; body: string }
   ): Promise<{ ok: true; result: { sent: number; removed: number; failed?: number } } | { ok: false; message: string }> => {
     const { data, error } = await supabase.functions.invoke("send-push", {
       body: {
         user_id: user!.id,
         category: opt.value,
-        title: opt.title,
-        body: opt.body,
+        title: overrides.title,
+        body: overrides.body,
         url: "/planner",
       },
     });
