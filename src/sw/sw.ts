@@ -96,7 +96,8 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const targetUrl = (event.notification.data as { url?: string })?.url || "/planner";
+  const raw = event.notification.data;
+  const targetUrl = (typeof raw === "string" ? raw : (raw as { url?: string })?.url) || "/planner";
 
   event.waitUntil(
     (async () => {
