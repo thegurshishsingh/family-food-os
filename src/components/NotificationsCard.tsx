@@ -309,20 +309,23 @@ const NotificationsCard = () => {
               </div>
             </div>
 
-            <div className="space-y-2 pt-3 border-t border-border/50">
-              <Label htmlFor="test-category" className="text-xs text-muted-foreground">
-                Send a test for
-              </Label>
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="space-y-3 pt-3 border-t border-border/50">
+              <div className="space-y-2">
+                <Label htmlFor="test-category" className="text-xs text-muted-foreground">
+                  Send a test for
+                </Label>
                 <Select
                   value={testCategory}
                   onValueChange={(v) => {
-                    setTestCategory(v as TestCategory);
+                    const next = findCategory(v as TestCategory);
+                    setTestCategory(next.value);
+                    setTestTitle(next.title);
+                    setTestBody(next.body);
                     setTestStatus("idle");
                     setTestError(null);
                   }}
                 >
-                  <SelectTrigger id="test-category" className="h-9 w-[200px]">
+                  <SelectTrigger id="test-category" className="h-9 w-full sm:w-[260px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -333,11 +336,107 @@ const NotificationsCard = () => {
                     ))}
                   </SelectContent>
                 </Select>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">
+                    {activeOption.groupLabel}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">{activeOption.description}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="test-title" className="text-xs text-muted-foreground">
+                      Title
+                    </Label>
+                    <span
+                      className={`text-[10px] tabular-nums ${
+                        titleOver ? "text-destructive" : "text-muted-foreground"
+                      }`}
+                    >
+                      {testTitle.length}/{TITLE_MAX}
+                    </span>
+                  </div>
+                  <Input
+                    id="test-title"
+                    value={testTitle}
+                    onChange={(e) => setTestTitle(e.target.value)}
+                    placeholder={activeOption.title}
+                    className="h-9"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="test-body" className="text-xs text-muted-foreground">
+                      Message body
+                    </Label>
+                    <span
+                      className={`text-[10px] tabular-nums ${
+                        bodyOver ? "text-destructive" : "text-muted-foreground"
+                      }`}
+                    >
+                      {testBody.length}/{BODY_MAX}
+                    </span>
+                  </div>
+                  <Textarea
+                    id="test-body"
+                    value={testBody}
+                    onChange={(e) => setTestBody(e.target.value)}
+                    placeholder={activeOption.body}
+                    rows={2}
+                    className="resize-none"
+                  />
+                </div>
+
+                {isEdited && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTestTitle(activeOption.title);
+                      setTestBody(activeOption.body);
+                    }}
+                    className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    Reset to default
+                  </button>
+                )}
+              </div>
+
+              <div className="rounded-xl border border-border/60 bg-muted/40 p-3">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2">
+                  Preview
+                </p>
+                <div className="flex items-start gap-3 rounded-lg bg-background border border-border/60 p-3 shadow-sm">
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Bell className="w-4 h-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {testTitle.trim() || activeOption.title}
+                      </p>
+                      <span className="text-[10px] text-muted-foreground flex-shrink-0">now</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                      {testBody.trim() || activeOption.body}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/70 mt-1">Family Food OS</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleTest}
-                  disabled={busy || testStatus === "sending"}
+                  disabled={
+                    busy || testStatus === "sending" || !hasContent || titleOver || bodyOver
+                  }
                 >
                   <Send className="w-3.5 h-3.5 mr-1.5" />
                   {testStatus === "sending"
