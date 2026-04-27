@@ -325,6 +325,7 @@ const NotificationsCard = () => {
         return;
       }
       lastError = "message" in result ? result.message : "Unknown error";
+      lastFailures = result.failures ?? lastFailures;
       if (i < MAX_TEST_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, 800));
       }
@@ -332,6 +333,7 @@ const NotificationsCard = () => {
 
     setTestStatus("error");
     setTestError(lastError);
+    setTestFailures(lastFailures);
     setRetryCooldownUntil(Date.now() + RETRY_COOLDOWN_MS);
     setNow(Date.now());
     toast({
