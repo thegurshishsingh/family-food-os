@@ -71,6 +71,63 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
 const findCategory = (value: TestCategory) =>
   CATEGORY_OPTIONS.find((o) => o.value === value) ?? CATEGORY_OPTIONS[0];
 
+type FailureEntry = {
+  endpointHost: string;
+  status?: number;
+  message: string;
+  attempts: number;
+};
+
+type FailureBucketKey = "removed" | "apns_payload" | "auth" | "transient" | "other";
+
+const BUCKET_META: Record<
+  FailureBucketKey,
+  { label: string; tone: string; hint: string }
+> = {
+  removed: {
+    label: "Removed (404/410)",
+    tone: "bg-muted text-muted-foreground border-border",
+    hint: "Subscription is dead — device unsubscribed or token expired. Re-enable on that device.",
+  },
+  apns_payload: {
+    label: "Payload / APNs rejected (4xx)",
+    tone: "bg-destructive/10 text-destructive border-destructive/30",
+    hint: "Apple rejected the push. Usually a malformed payload, missing VAPID, or bad headers.",
+  },
+  auth: {
+    label: "Auth / VAPID (401/403)",
+    tone: "bg-destructive/10 text-destructive border-destructive/30",
+    hint: "VAPID keys mismatch or JWT invalid. Check VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY secrets.",
+  },
+  transient: {
+    label: "Transient (429 / 5xx, retried)",
+    tone: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30",
+    hint: "Push service was overloaded or rate-limited. We retried but they still failed.",
+  },
+  other: {
+    label: "Other / network",
+    tone: "bg-muted text-muted-foreground border-border",
+    hint: "Unknown error — check edge function logs for details.",
+  },
+};
+
+const bucketFor = (f: FailureEntry): FailureBucketKey => {
+  const s = f.status;
+  if (s === 404 || s === 410) return "removed";
+  if (s === 401 || s === 403) return "auth";
+  if (s === 429 || (typeof s === "number" && s >= 500 && s < 600)) return "transient";
+  if (typeof s === "number" && s >= 400 && s < 500) return "apns_payload";
+  return "other";
+};
+
+const hostKind = (host: string) => {
+  if (host.includes("push.apple.com")) return "iOS (APNs)";
+  if (host.includes("fcm.googleapis.com") || host.includes("android.googleapis.com"))
+    return "Android (FCM)";
+  if (host.includes("mozilla")) return "Firefox (Mozilla)";
+  if (host.includes("windows.com") || host.includes("notify.windows")) return "Windows (WNS)";
+  return host;
+};
 
 const NotificationsCard = () => {
   const { user } = useAuth();
