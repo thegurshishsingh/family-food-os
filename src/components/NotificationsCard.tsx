@@ -129,6 +129,95 @@ const hostKind = (host: string) => {
   return host;
 };
 
+const FailureBreakdown = ({
+  failures,
+  removedCount,
+  retriesAttempted,
+  retriesRecovered,
+}: {
+  failures: FailureEntry[];
+  removedCount: number;
+  retriesAttempted: number;
+  retriesRecovered: number;
+}) => {
+  const grouped = failures.reduce<Record<FailureBucketKey, FailureEntry[]>>(
+    (acc, f) => {
+      const k = bucketFor(f);
+      (acc[k] ||= []).push(f);
+      return acc;
+    },
+    { removed: [], apns_payload: [], auth: [], transient: [], other: [] }
+  );
+
+  const order: FailureBucketKey[] = [
+    "apns_payload",
+    "auth",
+    "transient",
+    "removed",
+    "other",
+  ];
+
+  return (
+    <div className="rounded-lg border border-border/60 bg-muted/30 p-3 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+          Failure breakdown
+        </p>
+        <span className="text-[10px] text-muted-foreground tabular-nums">
+          {failures.length} endpoint{failures.length === 1 ? "" : "s"}
+          {removedCount ? ` · ${removedCount} removed` : ""}
+          {retriesAttempted
+            ? ` · ${retriesRecovered}/${retriesAttempted} retries recovered`
+            : ""}
+        </span>
+      </div>
+      <div className="space-y-2">
+        {order
+          .filter((k) => grouped[k].length > 0)
+          .map((k) => {
+            const meta = BUCKET_META[k];
+            const items = grouped[k];
+            return (
+              <div key={k} className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant="outline"
+                    className={`text-[10px] uppercase tracking-wide ${meta.tone}`}
+                  >
+                    {meta.label} · {items.length}
+                  </Badge>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-snug">
+                  {meta.hint}
+                </p>
+                <ul className="space-y-1 pl-1">
+                  {items.slice(0, 4).map((f, idx) => (
+                    <li
+                      key={`${f.endpointHost}-${idx}`}
+                      className="text-[11px] text-foreground/80 font-mono leading-snug break-all"
+                    >
+                      <span className="text-muted-foreground">
+                        [{hostKind(f.endpointHost)}]
+                      </span>{" "}
+                      {f.status ? `HTTP ${f.status}` : "no status"}
+                      {f.attempts > 1 ? ` · ${f.attempts} attempts` : ""}
+                      {f.message ? ` — ${f.message}` : ""}
+                    </li>
+                  ))}
+                  {items.length > 4 && (
+                    <li className="text-[10px] text-muted-foreground">
+                      …and {items.length - 4} more
+                    </li>
+                  )}
+                </ul>
+              </div>
+            );
+          })}
+      </div>
+    </div>
+  );
+};
+
 const NotificationsCard = () => {
   const { user } = useAuth();
   const { status, busy, subscribe, unsubscribe, updatePreferences } =
