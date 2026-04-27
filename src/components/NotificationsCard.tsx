@@ -220,7 +220,7 @@ const FailureBreakdown = ({
 
 const NotificationsCard = () => {
   const { user } = useAuth();
-  const { status, busy, subscribe, unsubscribe, updatePreferences } =
+  const { status, busy, subscribe, unsubscribe, refresh, updatePreferences } =
     usePushNotifications();
   const { toast } = useToast();
 
