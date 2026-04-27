@@ -324,9 +324,9 @@ const NotificationsCard = () => {
         });
         return;
       }
-      if (result.ok) continue; // unreachable, narrowing helper
-      lastError = result.message ?? "Unknown error";
-      lastFailures = result.failures ?? lastFailures;
+      const failed = result as { ok: false; message: string; failures?: FailureEntry[] };
+      lastError = failed.message ?? "Unknown error";
+      lastFailures = failed.failures ?? lastFailures;
       if (i < MAX_TEST_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, 800));
       }
