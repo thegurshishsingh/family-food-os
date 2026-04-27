@@ -325,7 +325,7 @@ const NotificationsCard = () => {
         return;
       }
       lastError = "message" in result ? result.message : "Unknown error";
-      lastFailures = result.failures ?? lastFailures;
+      lastFailures = (!result.ok && result.failures) ? result.failures : lastFailures;
       if (i < MAX_TEST_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, 800));
       }
