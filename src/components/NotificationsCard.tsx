@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Bell, BellOff, RotateCcw, Send } from "lucide-react";
+import { Bell, BellOff, RefreshCw, RotateCcw, Send } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -220,7 +220,7 @@ const FailureBreakdown = ({
 
 const NotificationsCard = () => {
   const { user } = useAuth();
-  const { status, busy, subscribe, unsubscribe, updatePreferences } =
+  const { status, busy, subscribe, unsubscribe, refresh, updatePreferences } =
     usePushNotifications();
   const { toast } = useToast();
 
@@ -243,6 +243,12 @@ const NotificationsCard = () => {
     failures?: FailureEntry[];
   } | null>(null);
   const [testFailures, setTestFailures] = useState<FailureEntry[]>([]);
+  const [testReason, setTestReason] = useState<
+    "no_subs" | "all_removed" | "server_error" | "network" | null
+  >(null);
+  const [autoResub, setAutoResub] = useState(true);
+  const [resubBusy, setResubBusy] = useState(false);
+  const [resubAttempted, setResubAttempted] = useState(false);
   const [testAttempts, setTestAttempts] = useState(0);
   const [retryCooldownUntil, setRetryCooldownUntil] = useState(0);
   const [now, setNow] = useState(() => Date.now());
@@ -323,6 +329,7 @@ const NotificationsCard = () => {
         message: string;
         retriesAttempted?: number;
         failures?: FailureEntry[];
+        reason?: "no_subs" | "all_removed" | "server_error" | "network";
       }
   > => {
     const { data, error } = await supabase.functions.invoke("send-push", {
@@ -334,7 +341,8 @@ const NotificationsCard = () => {
         url: "/planner",
       },
     });
-    if (error) return { ok: false, message: error.message ?? "Unknown error" };
+    if (error)
+      return { ok: false, message: error.message ?? "Unknown error", reason: "network" };
     const res = (data ?? {}) as {
       sent?: number;
       removed?: number;
@@ -351,16 +359,18 @@ const NotificationsCard = () => {
         message: res.error,
         retriesAttempted: res.retries_attempted,
         failures,
+        reason: "server_error",
       };
     if ((res.sent ?? 0) === 0) {
+      const allRemoved = (res.removed ?? 0) > 0;
       return {
         ok: false,
-        message:
-          (res.removed ?? 0) > 0
-            ? "No active subscriptions — your device subscription was removed by the push service."
-            : "No matching subscription on server. Re-enable notifications and try again.",
+        message: allRemoved
+          ? "No active subscriptions — your device subscription was removed by the push service."
+          : "No matching subscription on server. Re-enable notifications and try again.",
         retriesAttempted: res.retries_attempted,
         failures,
+        reason: allRemoved ? "all_removed" : "no_subs",
       };
     }
     return {
@@ -376,7 +386,10 @@ const NotificationsCard = () => {
     };
   };
 
-  const attemptTest = async (attemptNumber: number) => {
+  const attemptTest = async (
+    attemptNumber: number,
+    opts: { resetResubFlag?: boolean } = {}
+  ) => {
     if (!user) return;
     const opt = findCategory(testCategory);
     const overrides = {
@@ -387,10 +400,13 @@ const NotificationsCard = () => {
     setTestError(null);
     setTestResult(null);
     setTestFailures([]);
+    setTestReason(null);
+    if (opts.resetResubFlag !== false) setResubAttempted(false);
     setTestAttempts(attemptNumber);
 
     let lastError = "";
     let lastFailures: FailureEntry[] = [];
+    let lastReason: typeof testReason = null;
     for (let i = attemptNumber; i <= MAX_TEST_ATTEMPTS; i++) {
       setTestAttempts(i);
       const result = await runTestSend(opt, overrides);
@@ -413,9 +429,17 @@ const NotificationsCard = () => {
         });
         return;
       }
-      const failed = result as { ok: false; message: string; failures?: FailureEntry[] };
+      const failed = result as {
+        ok: false;
+        message: string;
+        failures?: FailureEntry[];
+        reason?: typeof lastReason;
+      };
       lastError = failed.message ?? "Unknown error";
       lastFailures = failed.failures ?? lastFailures;
+      lastReason = failed.reason ?? lastReason;
+      // If subscription is gone, retrying the same call won't help — break early.
+      if (lastReason === "no_subs" || lastReason === "all_removed") break;
       if (i < MAX_TEST_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, 800));
       }
@@ -424,14 +448,67 @@ const NotificationsCard = () => {
     setTestStatus("error");
     setTestError(lastError);
     setTestFailures(lastFailures);
+    setTestReason(lastReason);
     setRetryCooldownUntil(Date.now() + RETRY_COOLDOWN_MS);
     setNow(Date.now());
     toast({
-      title: `Test failed after ${MAX_TEST_ATTEMPTS} attempts`,
+      title: `Test failed`,
       description: lastError || "Try again shortly.",
       variant: "destructive",
     });
   };
+
+  const needsResub = testReason === "no_subs" || testReason === "all_removed";
+
+  const handleResubscribe = async (autoRetest: boolean) => {
+    if (!user || resubBusy) return;
+    setResubBusy(true);
+    setResubAttempted(true);
+    try {
+      // Tear down any stale local subscription, then re-subscribe so the
+      // browser hands us a fresh endpoint that the server can store.
+      await unsubscribe();
+      const ok = await subscribe();
+      await refresh();
+      if (!ok) {
+        toast({
+          title: "Couldn't resubscribe",
+          description:
+            Notification.permission === "denied"
+              ? "Notifications are blocked in your browser settings."
+              : "Permission was not granted. Try again from this device.",
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({
+        title: "Resubscribed",
+        description: "A fresh push subscription was registered for this device.",
+      });
+      if (autoRetest) {
+        // Small delay so the upsert is visible to the next select.
+        await new Promise((r) => setTimeout(r, 400));
+        attemptTest(1, { resetResubFlag: false });
+      }
+    } finally {
+      setResubBusy(false);
+    }
+  };
+
+  // Auto-resubscribe + auto-retest when the user opted in and the test failed
+  // because the server has no live subscription for them.
+  useEffect(() => {
+    if (
+      autoResub &&
+      needsResub &&
+      !resubAttempted &&
+      !resubBusy &&
+      testStatus === "error"
+    ) {
+      handleResubscribe(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoResub, needsResub, resubAttempted, resubBusy, testStatus]);
 
   const handleTest = () => {
     if (cooldownActive) return;
@@ -635,13 +712,33 @@ const NotificationsCard = () => {
                 </div>
               </div>
 
+              <div className="flex items-start justify-between gap-3 rounded-lg border border-border/50 bg-muted/20 px-3 py-2">
+                <div className="space-y-0.5">
+                  <Label
+                    htmlFor="auto-resub"
+                    className="text-xs font-medium cursor-pointer"
+                  >
+                    Auto-recover stale subscription
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground leading-snug">
+                    If the test finds no live subscription on this device, automatically
+                    re-subscribe and re-run the test.
+                  </p>
+                </div>
+                <Switch
+                  id="auto-resub"
+                  checked={autoResub}
+                  onCheckedChange={setAutoResub}
+                />
+              </div>
+
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleTest}
                   disabled={
-                    busy || testStatus === "sending" || !hasContent || titleOver || bodyOver
+                    busy || testStatus === "sending" || resubBusy || !hasContent || titleOver || bodyOver
                   }
                 >
                   <Send className="w-3.5 h-3.5 mr-1.5" />
@@ -670,20 +767,54 @@ const NotificationsCard = () => {
               {testStatus === "error" && (
                 <div className="space-y-2">
                   <p className="text-xs text-destructive">
-                    ✗ Test failed after {MAX_TEST_ATTEMPTS} attempts
-                    {testError ? `: ${testError}` : ""}.
+                    ✗ Test failed{testError ? `: ${testError}` : "."}
                   </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRetry}
-                    disabled={busy || cooldownActive}
-                  >
-                    <Send className="w-3.5 h-3.5 mr-1.5" />
-                    {cooldownActive
-                      ? `Retry in ${Math.ceil(cooldownRemaining / 1000)}s`
-                      : "Retry"}
-                  </Button>
+
+                  {needsResub && (
+                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 space-y-2">
+                      <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-snug">
+                        {testReason === "all_removed"
+                          ? "Your previous subscription was removed by the push service (token expired or device unsubscribed)."
+                          : "We don't have a live push subscription stored for this device."}{" "}
+                        {autoResub && resubAttempted
+                          ? "We tried to re-subscribe automatically — see result above."
+                          : autoResub
+                          ? "Auto-recovery will run momentarily…"
+                          : "Re-subscribe this device to fix it."}
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleResubscribe(true)}
+                        disabled={resubBusy || busy}
+                      >
+                        <RefreshCw
+                          className={`w-3.5 h-3.5 mr-1.5 ${
+                            resubBusy ? "animate-spin" : ""
+                          }`}
+                        />
+                        {resubBusy
+                          ? "Resubscribing…"
+                          : resubAttempted
+                          ? "Try resubscribe again"
+                          : "Re-check & resubscribe"}
+                      </Button>
+                    </div>
+                  )}
+
+                  {!needsResub && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRetry}
+                      disabled={busy || cooldownActive}
+                    >
+                      <Send className="w-3.5 h-3.5 mr-1.5" />
+                      {cooldownActive
+                        ? `Retry in ${Math.ceil(cooldownRemaining / 1000)}s`
+                        : "Retry"}
+                    </Button>
+                  )}
                 </div>
               )}
 
