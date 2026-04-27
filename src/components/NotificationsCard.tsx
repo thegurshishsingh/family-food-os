@@ -712,13 +712,33 @@ const NotificationsCard = () => {
                 </div>
               </div>
 
+              <div className="flex items-start justify-between gap-3 rounded-lg border border-border/50 bg-muted/20 px-3 py-2">
+                <div className="space-y-0.5">
+                  <Label
+                    htmlFor="auto-resub"
+                    className="text-xs font-medium cursor-pointer"
+                  >
+                    Auto-recover stale subscription
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground leading-snug">
+                    If the test finds no live subscription on this device, automatically
+                    re-subscribe and re-run the test.
+                  </p>
+                </div>
+                <Switch
+                  id="auto-resub"
+                  checked={autoResub}
+                  onCheckedChange={setAutoResub}
+                />
+              </div>
+
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleTest}
                   disabled={
-                    busy || testStatus === "sending" || !hasContent || titleOver || bodyOver
+                    busy || testStatus === "sending" || resubBusy || !hasContent || titleOver || bodyOver
                   }
                 >
                   <Send className="w-3.5 h-3.5 mr-1.5" />
@@ -747,20 +767,54 @@ const NotificationsCard = () => {
               {testStatus === "error" && (
                 <div className="space-y-2">
                   <p className="text-xs text-destructive">
-                    ✗ Test failed after {MAX_TEST_ATTEMPTS} attempts
-                    {testError ? `: ${testError}` : ""}.
+                    ✗ Test failed{testError ? `: ${testError}` : "."}
                   </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRetry}
-                    disabled={busy || cooldownActive}
-                  >
-                    <Send className="w-3.5 h-3.5 mr-1.5" />
-                    {cooldownActive
-                      ? `Retry in ${Math.ceil(cooldownRemaining / 1000)}s`
-                      : "Retry"}
-                  </Button>
+
+                  {needsResub && (
+                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 space-y-2">
+                      <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-snug">
+                        {testReason === "all_removed"
+                          ? "Your previous subscription was removed by the push service (token expired or device unsubscribed)."
+                          : "We don't have a live push subscription stored for this device."}{" "}
+                        {autoResub && resubAttempted
+                          ? "We tried to re-subscribe automatically — see result above."
+                          : autoResub
+                          ? "Auto-recovery will run momentarily…"
+                          : "Re-subscribe this device to fix it."}
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleResubscribe(true)}
+                        disabled={resubBusy || busy}
+                      >
+                        <RefreshCw
+                          className={`w-3.5 h-3.5 mr-1.5 ${
+                            resubBusy ? "animate-spin" : ""
+                          }`}
+                        />
+                        {resubBusy
+                          ? "Resubscribing…"
+                          : resubAttempted
+                          ? "Try resubscribe again"
+                          : "Re-check & resubscribe"}
+                      </Button>
+                    </div>
+                  )}
+
+                  {!needsResub && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRetry}
+                      disabled={busy || cooldownActive}
+                    >
+                      <Send className="w-3.5 h-3.5 mr-1.5" />
+                      {cooldownActive
+                        ? `Retry in ${Math.ceil(cooldownRemaining / 1000)}s`
+                        : "Retry"}
+                    </Button>
+                  )}
                 </div>
               )}
 
