@@ -243,6 +243,12 @@ const NotificationsCard = () => {
     failures?: FailureEntry[];
   } | null>(null);
   const [testFailures, setTestFailures] = useState<FailureEntry[]>([]);
+  const [testReason, setTestReason] = useState<
+    "no_subs" | "all_removed" | "server_error" | "network" | null
+  >(null);
+  const [autoResub, setAutoResub] = useState(true);
+  const [resubBusy, setResubBusy] = useState(false);
+  const [resubAttempted, setResubAttempted] = useState(false);
   const [testAttempts, setTestAttempts] = useState(0);
   const [retryCooldownUntil, setRetryCooldownUntil] = useState(0);
   const [now, setNow] = useState(() => Date.now());
