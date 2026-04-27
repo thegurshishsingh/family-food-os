@@ -94,7 +94,9 @@ const NotificationsCard = () => {
     failed?: number;
     retriesAttempted?: number;
     retriesRecovered?: number;
+    failures?: FailureEntry[];
   } | null>(null);
+  const [testFailures, setTestFailures] = useState<FailureEntry[]>([]);
   const [testAttempts, setTestAttempts] = useState(0);
   const [retryCooldownUntil, setRetryCooldownUntil] = useState(0);
   const [now, setNow] = useState(() => Date.now());
