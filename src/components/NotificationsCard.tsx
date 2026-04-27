@@ -386,7 +386,10 @@ const NotificationsCard = () => {
     };
   };
 
-  const attemptTest = async (attemptNumber: number) => {
+  const attemptTest = async (
+    attemptNumber: number,
+    opts: { resetResubFlag?: boolean } = {}
+  ) => {
     if (!user) return;
     const opt = findCategory(testCategory);
     const overrides = {
@@ -397,10 +400,13 @@ const NotificationsCard = () => {
     setTestError(null);
     setTestResult(null);
     setTestFailures([]);
+    setTestReason(null);
+    if (opts.resetResubFlag !== false) setResubAttempted(false);
     setTestAttempts(attemptNumber);
 
     let lastError = "";
     let lastFailures: FailureEntry[] = [];
+    let lastReason: typeof testReason = null;
     for (let i = attemptNumber; i <= MAX_TEST_ATTEMPTS; i++) {
       setTestAttempts(i);
       const result = await runTestSend(opt, overrides);
@@ -423,9 +429,17 @@ const NotificationsCard = () => {
         });
         return;
       }
-      const failed = result as { ok: false; message: string; failures?: FailureEntry[] };
+      const failed = result as {
+        ok: false;
+        message: string;
+        failures?: FailureEntry[];
+        reason?: typeof lastReason;
+      };
       lastError = failed.message ?? "Unknown error";
       lastFailures = failed.failures ?? lastFailures;
+      lastReason = failed.reason ?? lastReason;
+      // If subscription is gone, retrying the same call won't help — break early.
+      if (lastReason === "no_subs" || lastReason === "all_removed") break;
       if (i < MAX_TEST_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, 800));
       }
@@ -434,14 +448,67 @@ const NotificationsCard = () => {
     setTestStatus("error");
     setTestError(lastError);
     setTestFailures(lastFailures);
+    setTestReason(lastReason);
     setRetryCooldownUntil(Date.now() + RETRY_COOLDOWN_MS);
     setNow(Date.now());
     toast({
-      title: `Test failed after ${MAX_TEST_ATTEMPTS} attempts`,
+      title: `Test failed`,
       description: lastError || "Try again shortly.",
       variant: "destructive",
     });
   };
+
+  const needsResub = testReason === "no_subs" || testReason === "all_removed";
+
+  const handleResubscribe = async (autoRetest: boolean) => {
+    if (!user || resubBusy) return;
+    setResubBusy(true);
+    setResubAttempted(true);
+    try {
+      // Tear down any stale local subscription, then re-subscribe so the
+      // browser hands us a fresh endpoint that the server can store.
+      await unsubscribe();
+      const ok = await subscribe();
+      await refresh();
+      if (!ok) {
+        toast({
+          title: "Couldn't resubscribe",
+          description:
+            Notification.permission === "denied"
+              ? "Notifications are blocked in your browser settings."
+              : "Permission was not granted. Try again from this device.",
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({
+        title: "Resubscribed",
+        description: "A fresh push subscription was registered for this device.",
+      });
+      if (autoRetest) {
+        // Small delay so the upsert is visible to the next select.
+        await new Promise((r) => setTimeout(r, 400));
+        attemptTest(1, { resetResubFlag: false });
+      }
+    } finally {
+      setResubBusy(false);
+    }
+  };
+
+  // Auto-resubscribe + auto-retest when the user opted in and the test failed
+  // because the server has no live subscription for them.
+  useEffect(() => {
+    if (
+      autoResub &&
+      needsResub &&
+      !resubAttempted &&
+      !resubBusy &&
+      testStatus === "error"
+    ) {
+      handleResubscribe(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoResub, needsResub, resubAttempted, resubBusy, testStatus]);
 
   const handleTest = () => {
     if (cooldownActive) return;
