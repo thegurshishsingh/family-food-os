@@ -226,9 +226,15 @@ const NotificationsCard = () => {
           failed?: number;
           retriesAttempted?: number;
           retriesRecovered?: number;
+          failures?: FailureEntry[];
         };
       }
-    | { ok: false; message: string; retriesAttempted?: number }
+    | {
+        ok: false;
+        message: string;
+        retriesAttempted?: number;
+        failures?: FailureEntry[];
+      }
   > => {
     const { data, error } = await supabase.functions.invoke("send-push", {
       body: {
@@ -246,9 +252,17 @@ const NotificationsCard = () => {
       failed?: number;
       retries_attempted?: number;
       retries_recovered?: number;
+      failures?: FailureEntry[];
       error?: string;
     };
-    if (res.error) return { ok: false, message: res.error, retriesAttempted: res.retries_attempted };
+    const failures = Array.isArray(res.failures) ? res.failures : [];
+    if (res.error)
+      return {
+        ok: false,
+        message: res.error,
+        retriesAttempted: res.retries_attempted,
+        failures,
+      };
     if ((res.sent ?? 0) === 0) {
       return {
         ok: false,
@@ -257,6 +271,7 @@ const NotificationsCard = () => {
             ? "No active subscriptions — your device subscription was removed by the push service."
             : "No matching subscription on server. Re-enable notifications and try again.",
         retriesAttempted: res.retries_attempted,
+        failures,
       };
     }
     return {
@@ -267,6 +282,7 @@ const NotificationsCard = () => {
         failed: res.failed,
         retriesAttempted: res.retries_attempted,
         retriesRecovered: res.retries_recovered,
+        failures,
       },
     };
   };
