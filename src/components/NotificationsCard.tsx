@@ -297,15 +297,18 @@ const NotificationsCard = () => {
     setTestStatus("sending");
     setTestError(null);
     setTestResult(null);
+    setTestFailures([]);
     setTestAttempts(attemptNumber);
 
     let lastError = "";
+    let lastFailures: FailureEntry[] = [];
     for (let i = attemptNumber; i <= MAX_TEST_ATTEMPTS; i++) {
       setTestAttempts(i);
       const result = await runTestSend(opt, overrides);
       if (result.ok) {
         setTestStatus("success");
         setTestResult(result.result);
+        setTestFailures(result.result.failures ?? []);
         const { sent, removed, failed, retriesAttempted, retriesRecovered } = result.result;
         toast({
           title: `Test sent: ${opt.label}`,
