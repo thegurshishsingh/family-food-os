@@ -597,6 +597,16 @@ const NotificationsCard = () => {
                   </Button>
                 </div>
               )}
+
+              {(testStatus === "success" || testStatus === "error") &&
+                testFailures.length > 0 && (
+                  <FailureBreakdown
+                    failures={testFailures}
+                    removedCount={testResult?.removed ?? 0}
+                    retriesAttempted={testResult?.retriesAttempted ?? 0}
+                    retriesRecovered={testResult?.retriesRecovered ?? 0}
+                  />
+                )}
             </div>
           </div>
         )}
