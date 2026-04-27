@@ -335,7 +335,8 @@ const NotificationsCard = () => {
         url: "/planner",
       },
     });
-    if (error) return { ok: false, message: error.message ?? "Unknown error" };
+    if (error)
+      return { ok: false, message: error.message ?? "Unknown error", reason: "network" };
     const res = (data ?? {}) as {
       sent?: number;
       removed?: number;
@@ -352,16 +353,18 @@ const NotificationsCard = () => {
         message: res.error,
         retriesAttempted: res.retries_attempted,
         failures,
+        reason: "server_error",
       };
     if ((res.sent ?? 0) === 0) {
+      const allRemoved = (res.removed ?? 0) > 0;
       return {
         ok: false,
-        message:
-          (res.removed ?? 0) > 0
-            ? "No active subscriptions — your device subscription was removed by the push service."
-            : "No matching subscription on server. Re-enable notifications and try again.",
+        message: allRemoved
+          ? "No active subscriptions — your device subscription was removed by the push service."
+          : "No matching subscription on server. Re-enable notifications and try again.",
         retriesAttempted: res.retries_attempted,
         failures,
+        reason: allRemoved ? "all_removed" : "no_subs",
       };
     }
     return {
