@@ -323,6 +323,7 @@ const NotificationsCard = () => {
         message: string;
         retriesAttempted?: number;
         failures?: FailureEntry[];
+        reason?: "no_subs" | "all_removed" | "server_error" | "network";
       }
   > => {
     const { data, error } = await supabase.functions.invoke("send-push", {
