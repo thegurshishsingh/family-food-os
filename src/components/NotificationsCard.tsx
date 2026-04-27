@@ -71,6 +71,152 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
 const findCategory = (value: TestCategory) =>
   CATEGORY_OPTIONS.find((o) => o.value === value) ?? CATEGORY_OPTIONS[0];
 
+type FailureEntry = {
+  endpointHost: string;
+  status?: number;
+  message: string;
+  attempts: number;
+};
+
+type FailureBucketKey = "removed" | "apns_payload" | "auth" | "transient" | "other";
+
+const BUCKET_META: Record<
+  FailureBucketKey,
+  { label: string; tone: string; hint: string }
+> = {
+  removed: {
+    label: "Removed (404/410)",
+    tone: "bg-muted text-muted-foreground border-border",
+    hint: "Subscription is dead — device unsubscribed or token expired. Re-enable on that device.",
+  },
+  apns_payload: {
+    label: "Payload / APNs rejected (4xx)",
+    tone: "bg-destructive/10 text-destructive border-destructive/30",
+    hint: "Apple rejected the push. Usually a malformed payload, missing VAPID, or bad headers.",
+  },
+  auth: {
+    label: "Auth / VAPID (401/403)",
+    tone: "bg-destructive/10 text-destructive border-destructive/30",
+    hint: "VAPID keys mismatch or JWT invalid. Check VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY secrets.",
+  },
+  transient: {
+    label: "Transient (429 / 5xx, retried)",
+    tone: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30",
+    hint: "Push service was overloaded or rate-limited. We retried but they still failed.",
+  },
+  other: {
+    label: "Other / network",
+    tone: "bg-muted text-muted-foreground border-border",
+    hint: "Unknown error — check edge function logs for details.",
+  },
+};
+
+const bucketFor = (f: FailureEntry): FailureBucketKey => {
+  const s = f.status;
+  if (s === 404 || s === 410) return "removed";
+  if (s === 401 || s === 403) return "auth";
+  if (s === 429 || (typeof s === "number" && s >= 500 && s < 600)) return "transient";
+  if (typeof s === "number" && s >= 400 && s < 500) return "apns_payload";
+  return "other";
+};
+
+const hostKind = (host: string) => {
+  if (host.includes("push.apple.com")) return "iOS (APNs)";
+  if (host.includes("fcm.googleapis.com") || host.includes("android.googleapis.com"))
+    return "Android (FCM)";
+  if (host.includes("mozilla")) return "Firefox (Mozilla)";
+  if (host.includes("windows.com") || host.includes("notify.windows")) return "Windows (WNS)";
+  return host;
+};
+
+const FailureBreakdown = ({
+  failures,
+  removedCount,
+  retriesAttempted,
+  retriesRecovered,
+}: {
+  failures: FailureEntry[];
+  removedCount: number;
+  retriesAttempted: number;
+  retriesRecovered: number;
+}) => {
+  const grouped = failures.reduce<Record<FailureBucketKey, FailureEntry[]>>(
+    (acc, f) => {
+      const k = bucketFor(f);
+      (acc[k] ||= []).push(f);
+      return acc;
+    },
+    { removed: [], apns_payload: [], auth: [], transient: [], other: [] }
+  );
+
+  const order: FailureBucketKey[] = [
+    "apns_payload",
+    "auth",
+    "transient",
+    "removed",
+    "other",
+  ];
+
+  return (
+    <div className="rounded-lg border border-border/60 bg-muted/30 p-3 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+          Failure breakdown
+        </p>
+        <span className="text-[10px] text-muted-foreground tabular-nums">
+          {failures.length} endpoint{failures.length === 1 ? "" : "s"}
+          {removedCount ? ` · ${removedCount} removed` : ""}
+          {retriesAttempted
+            ? ` · ${retriesRecovered}/${retriesAttempted} retries recovered`
+            : ""}
+        </span>
+      </div>
+      <div className="space-y-2">
+        {order
+          .filter((k) => grouped[k].length > 0)
+          .map((k) => {
+            const meta = BUCKET_META[k];
+            const items = grouped[k];
+            return (
+              <div key={k} className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant="outline"
+                    className={`text-[10px] uppercase tracking-wide ${meta.tone}`}
+                  >
+                    {meta.label} · {items.length}
+                  </Badge>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-snug">
+                  {meta.hint}
+                </p>
+                <ul className="space-y-1 pl-1">
+                  {items.slice(0, 4).map((f, idx) => (
+                    <li
+                      key={`${f.endpointHost}-${idx}`}
+                      className="text-[11px] text-foreground/80 font-mono leading-snug break-all"
+                    >
+                      <span className="text-muted-foreground">
+                        [{hostKind(f.endpointHost)}]
+                      </span>{" "}
+                      {f.status ? `HTTP ${f.status}` : "no status"}
+                      {f.attempts > 1 ? ` · ${f.attempts} attempts` : ""}
+                      {f.message ? ` — ${f.message}` : ""}
+                    </li>
+                  ))}
+                  {items.length > 4 && (
+                    <li className="text-[10px] text-muted-foreground">
+                      …and {items.length - 4} more
+                    </li>
+                  )}
+                </ul>
+              </div>
+            );
+          })}
+      </div>
+    </div>
+  );
+};
 
 const NotificationsCard = () => {
   const { user } = useAuth();
@@ -94,7 +240,9 @@ const NotificationsCard = () => {
     failed?: number;
     retriesAttempted?: number;
     retriesRecovered?: number;
+    failures?: FailureEntry[];
   } | null>(null);
+  const [testFailures, setTestFailures] = useState<FailureEntry[]>([]);
   const [testAttempts, setTestAttempts] = useState(0);
   const [retryCooldownUntil, setRetryCooldownUntil] = useState(0);
   const [now, setNow] = useState(() => Date.now());
@@ -167,9 +315,15 @@ const NotificationsCard = () => {
           failed?: number;
           retriesAttempted?: number;
           retriesRecovered?: number;
+          failures?: FailureEntry[];
         };
       }
-    | { ok: false; message: string; retriesAttempted?: number }
+    | {
+        ok: false;
+        message: string;
+        retriesAttempted?: number;
+        failures?: FailureEntry[];
+      }
   > => {
     const { data, error } = await supabase.functions.invoke("send-push", {
       body: {
@@ -187,9 +341,17 @@ const NotificationsCard = () => {
       failed?: number;
       retries_attempted?: number;
       retries_recovered?: number;
+      failures?: FailureEntry[];
       error?: string;
     };
-    if (res.error) return { ok: false, message: res.error, retriesAttempted: res.retries_attempted };
+    const failures = Array.isArray(res.failures) ? res.failures : [];
+    if (res.error)
+      return {
+        ok: false,
+        message: res.error,
+        retriesAttempted: res.retries_attempted,
+        failures,
+      };
     if ((res.sent ?? 0) === 0) {
       return {
         ok: false,
@@ -198,6 +360,7 @@ const NotificationsCard = () => {
             ? "No active subscriptions — your device subscription was removed by the push service."
             : "No matching subscription on server. Re-enable notifications and try again.",
         retriesAttempted: res.retries_attempted,
+        failures,
       };
     }
     return {
@@ -208,6 +371,7 @@ const NotificationsCard = () => {
         failed: res.failed,
         retriesAttempted: res.retries_attempted,
         retriesRecovered: res.retries_recovered,
+        failures,
       },
     };
   };
@@ -222,15 +386,18 @@ const NotificationsCard = () => {
     setTestStatus("sending");
     setTestError(null);
     setTestResult(null);
+    setTestFailures([]);
     setTestAttempts(attemptNumber);
 
     let lastError = "";
+    let lastFailures: FailureEntry[] = [];
     for (let i = attemptNumber; i <= MAX_TEST_ATTEMPTS; i++) {
       setTestAttempts(i);
       const result = await runTestSend(opt, overrides);
       if (result.ok) {
         setTestStatus("success");
         setTestResult(result.result);
+        setTestFailures(result.result.failures ?? []);
         const { sent, removed, failed, retriesAttempted, retriesRecovered } = result.result;
         toast({
           title: `Test sent: ${opt.label}`,
@@ -246,7 +413,9 @@ const NotificationsCard = () => {
         });
         return;
       }
-      lastError = "message" in result ? result.message : "Unknown error";
+      const failed = result as { ok: false; message: string; failures?: FailureEntry[] };
+      lastError = failed.message ?? "Unknown error";
+      lastFailures = failed.failures ?? lastFailures;
       if (i < MAX_TEST_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, 800));
       }
@@ -254,6 +423,7 @@ const NotificationsCard = () => {
 
     setTestStatus("error");
     setTestError(lastError);
+    setTestFailures(lastFailures);
     setRetryCooldownUntil(Date.now() + RETRY_COOLDOWN_MS);
     setNow(Date.now());
     toast({
@@ -516,6 +686,16 @@ const NotificationsCard = () => {
                   </Button>
                 </div>
               )}
+
+              {(testStatus === "success" || testStatus === "error") &&
+                testFailures.length > 0 && (
+                  <FailureBreakdown
+                    failures={testFailures}
+                    removedCount={testResult?.removed ?? 0}
+                    retriesAttempted={testResult?.retriesAttempted ?? 0}
+                    retriesRecovered={testResult?.retriesRecovered ?? 0}
+                  />
+                )}
             </div>
           </div>
         )}
