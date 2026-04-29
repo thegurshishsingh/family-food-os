@@ -184,6 +184,24 @@ const RealityScore = ({ plan, days = [] }: RealityScoreProps) => {
               {plan.reality_message && (
                 <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{plan.reality_message}</p>
               )}
+
+              {/* Why this score — 3 derived bullets */}
+              {reasons.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-border/40">
+                  <p className="text-[11px] font-semibold text-foreground mb-1.5 uppercase tracking-wide">Why this score</p>
+                  <ul className="space-y-1.5">
+                    {reasons.map((r, i) => {
+                      const Icon = r.icon;
+                      return (
+                        <li key={i} className="flex items-start gap-2">
+                          <Icon className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${TONE_CLASSES[r.tone]}`} />
+                          <span className="text-xs text-foreground leading-snug">{r.label}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
 
