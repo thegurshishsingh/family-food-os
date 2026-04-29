@@ -275,7 +275,7 @@ Deno.serve(async (req) => {
 
     const { data: subsData, error } = await query;
     if (error) return json({ error: error.message }, 500);
-    const subs = (subsData ?? []) as PushSubscriptionRow[];
+    const subs = (subsData ?? []) as unknown as PushSubscriptionRow[];
     if (!subs?.length) return json({ sent: 0, removed: 0 });
 
     // iOS-safe minimal payload. WebKit silently drops notifications when the
