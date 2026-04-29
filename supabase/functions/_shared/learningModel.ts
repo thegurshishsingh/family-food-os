@@ -318,6 +318,7 @@ export function renderInsightsForPrompt(ins: LearningInsights): string {
       if (p.effortTooHardRate > 0.4) notes.push(`feels too hard ${Math.round(p.effortTooHardRate * 100)}% of the time → SIMPLIFY`);
       if (p.kidsRefusedRate > 0.3) notes.push(`kids refuse ${Math.round(p.kidsRefusedRate * 100)}% → kid-friendly required`);
       if (p.orderedOutRate > 0.3) notes.push(`family orders out ${Math.round(p.orderedOutRate * 100)}% → consider takeout`);
+      if (p.lovedRate > 0.5) notes.push(`loved ${Math.round(p.lovedRate * 100)}% of the time → keep this rhythm`);
       if (notes.length) lines.push(`    ${DAY_NAMES[p.day_of_week]}: ${notes.join("; ")} (n=${p.sampleSize})`);
     }
   }
