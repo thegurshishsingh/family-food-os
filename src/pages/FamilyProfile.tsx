@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
 
 type FeedbackRow = { meal_name: string; feedback: string; created_at: string };
 type PlanDayRow = {
-  id: string; day_of_week: number; meal_mode: string; meal_name: string | null;
+  id: string; plan_id: string; day_of_week: number; meal_mode: string; meal_name: string | null;
   cuisine_type: string | null; prep_time_minutes: number | null; calories: number | null;
 };
 type CheckinRow = { plan_day_id: string; tags: string[]; effort_level: string | null };
