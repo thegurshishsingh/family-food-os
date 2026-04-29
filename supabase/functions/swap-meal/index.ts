@@ -125,14 +125,24 @@ serve(async (req) => {
       .eq("household_id", household_id)
       .single();
 
+    // Recency-weighted feedback for balanced learning (28-day exclusion window)
+    const twentyEightDaysAgo = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString();
     const { data: feedback } = await supabaseClient
       .from("meal_feedback")
-      .select("meal_name, feedback")
+      .select("meal_name, feedback, created_at")
       .eq("household_id", household_id)
+      .gte("created_at", twentyEightDaysAgo)
       .order("created_at", { ascending: false })
-      .limit(30);
+      .limit(80);
 
-    const dislikedMeals = feedback?.filter((f: any) => ["kids_refused", "too_hard"].includes(f.feedback)).map((f: any) => f.meal_name) || [];
+    const dislikeCounts: Record<string, number> = {};
+    for (const f of feedback || []) {
+      if (["kids_refused", "too_hard"].includes((f as any).feedback)) {
+        dislikeCounts[f.meal_name] = (dislikeCounts[f.meal_name] || 0) + 1;
+      }
+    }
+    const hardExcludeMeals = Object.entries(dislikeCounts).filter(([_, c]) => c >= 2).map(([n]) => n);
+    const dislikedMeals = Object.keys(dislikeCounts);
 
     const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -147,7 +157,8 @@ serve(async (req) => {
         preferences?.allergies?.length ? `ALLERGIES (must avoid): ${preferences.allergies.join(", ")}.` : "",
         preferences?.dietary_preferences?.length ? `Dietary: ${preferences.dietary_preferences.join(", ")}.` : "",
         preferences?.foods_to_avoid?.length ? `FOODS TO AVOID (the family does not eat these — never include them in any meal): ${preferences.foods_to_avoid.join(", ")}.` : "",
-        dislikedMeals.length ? `Avoid these disliked meals: ${dislikedMeals.join(", ")}.` : "",
+        hardExcludeMeals.length ? `🚫 HARD EXCLUDE — Family disliked these 2+ times in the last 28 days. DO NOT suggest these or close variations: ${hardExcludeMeals.join(", ")}.` : "",
+        dislikedMeals.filter(m => !hardExcludeMeals.includes(m)).length ? `Soft-avoid (recently disliked once): ${dislikedMeals.filter(m => !hardExcludeMeals.includes(m)).join(", ")}.` : "",
         `Meal mode: ${currentDay.meal_mode}.`,
         preferences?.cooking_time_tolerance ? `Cooking time tolerance: ${preferences.cooking_time_tolerance}. Match the replacement meal's prep time to this preference.` : "",
         `Include realistic nutrition estimates PER SINGLE SERVING.`,

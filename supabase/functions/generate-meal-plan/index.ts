@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { computeRealityScore } from "../_shared/realityScore.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -56,15 +57,44 @@ serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
+    // Recency-weighted feedback (last 90 days, with 28-day window for "balanced" learning)
+    const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+    const twentyEightDaysAgo = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString();
     const { data: feedback } = await supabaseClient
       .from("meal_feedback")
-      .select("meal_name, feedback")
+      .select("meal_name, feedback, created_at")
       .eq("household_id", household_id)
+      .gte("created_at", ninetyDaysAgo)
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(150);
 
-    const lovedMeals = feedback?.filter(f => f.feedback === "loved").map(f => f.meal_name) || [];
-    const dislikedMeals = feedback?.filter(f => ["kids_refused", "too_hard"].includes(f.feedback)).map(f => f.meal_name) || [];
+    // Tally counts per meal across the recent window
+    const mealCounts: Record<string, { loved: number; disliked: number; lastDisliked?: string }> = {};
+    for (const f of feedback || []) {
+      const key = f.meal_name;
+      if (!mealCounts[key]) mealCounts[key] = { loved: 0, disliked: 0 };
+      if (f.feedback === "loved") mealCounts[key].loved++;
+      if (["kids_refused", "too_hard"].includes(f.feedback as string)) {
+        mealCounts[key].disliked++;
+        if (!mealCounts[key].lastDisliked) mealCounts[key].lastDisliked = f.created_at;
+      }
+    }
+
+    // BALANCED LEARNING RULES:
+    // - Loved 1+ time in 28d → soft-include (suggest variations)
+    // - Disliked 2+ times in 28d → HARD EXCLUDE
+    // - Disliked once → soft-avoid
+    const lovedMeals = Object.entries(mealCounts)
+      .filter(([_, c]) => c.loved > 0)
+      .sort((a, b) => b[1].loved - a[1].loved)
+      .map(([name]) => name);
+    const hardExcludeMeals = Object.entries(mealCounts)
+      .filter(([_, c]) => c.disliked >= 2 && c.lastDisliked && c.lastDisliked >= twentyEightDaysAgo)
+      .map(([name]) => name);
+    const softAvoidMeals = Object.entries(mealCounts)
+      .filter(([_, c]) => c.disliked === 1 && !hardExcludeMeals.includes(_))
+      .map(([name]) => name);
+    const dislikedMeals = [...hardExcludeMeals, ...softAvoidMeals];
 
     const { data: savedMeals } = await supabaseClient
       .from("saved_meals")
@@ -95,7 +125,7 @@ serve(async (req) => {
       })).filter(c => c.day_of_week >= 0);
     }
 
-    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, savedMeals || [], checkinInsights, setup);
+    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, hardExcludeMeals, savedMeals || [], checkinInsights, setup);
 
     // Determine which days to generate
     const daysToGenerate = isPartialWeek
@@ -256,6 +286,55 @@ Return ONLY valid JSON, no markdown.`;
       planData = generateMockPlan(household, preferences, context, setup, daysToGenerate);
     }
 
+    // ─── DETERMINISTIC REALITY SCORE ───
+    // Recompute the score from real signals — don't trust the AI's self-report.
+    const activeContextFlags: string[] = [];
+    if (context) {
+      for (const k of ["newborn_in_house","guests_visiting","sports_week","one_parent_traveling","budget_week","low_cleanup_week","sick_week","high_protein_week","chaotic_week"]) {
+        if ((context as any)[k]) activeContextFlags.push(k);
+      }
+    }
+    if (setup?.week_context_tags?.length) {
+      for (const t of setup.week_context_tags) if (!activeContextFlags.includes(t)) activeContextFlags.push(t);
+    }
+
+    // Compute behavioral signals from the check-ins we already loaded
+    let signals: any = undefined;
+    if (checkinInsights.length >= 3) {
+      const total = checkinInsights.length;
+      let tooMuch = 0, cooked = 0, orderedOut = 0, kidsRefused = 0;
+      for (const ci of checkinInsights) {
+        if (ci.effort_level === "too_much") tooMuch++;
+        if (ci.tags.includes("cooked_it")) cooked++;
+        if (ci.tags.includes("ordered_out")) orderedOut++;
+        if (ci.tags.includes("kids_refused")) kidsRefused++;
+      }
+      const cookOrOrder = cooked + orderedOut;
+      signals = {
+        totalCheckins: total,
+        effortTooMuchRate: tooMuch / total,
+        cookThroughRate: cookOrOrder > 0 ? cooked / cookOrOrder : null,
+        kidsRefusedRate: kidsRefused / total,
+        orderedOutRate: orderedOut / total,
+        dislikedMealsCount: hardExcludeMeals.length + softAvoidMeals.length,
+        lovedMealsCount: lovedMeals.length,
+      };
+    }
+
+    const computed = computeRealityScore({
+      days: planData.days,
+      household: { num_adults: household.num_adults, num_children: household.num_children, child_age_bands: household.child_age_bands },
+      preferences: preferences || null,
+      contextFlags: activeContextFlags,
+      signals,
+    });
+    console.log("[reality-score] computed", computed.score, "ai-reported", planData.reality_score, "breakdown", computed.internal_breakdown);
+
+    // Use AI's narrative message if it's substantive, otherwise our generated one
+    const finalMessage = (planData.reality_message && planData.reality_message.length > 30)
+      ? planData.reality_message
+      : computed.message;
+
     // Save plan to database
     await supabaseClient
       .from("weekly_plans")
@@ -269,8 +348,8 @@ Return ONLY valid JSON, no markdown.`;
         household_id,
         context_id: context?.id || null,
         week_start: monday,
-        reality_score: planData.reality_score,
-        reality_message: planData.reality_message,
+        reality_score: computed.score,
+        reality_message: finalMessage,
       })
       .select()
       .single();
@@ -356,7 +435,7 @@ function getNextMonday() {
 
 function buildPrompt(
   household: any, prefs: any, context: any,
-  lovedMeals: string[], dislikedMeals: string[],
+  lovedMeals: string[], dislikedMeals: string[], hardExcludeMeals: string[],
   savedMeals: { meal_name: string; meal_description: string | null }[],
   checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[],
   setup?: { takeout_days?: number[]; dine_out_days?: number[]; leftover_days?: number[]; special_meals?: string[]; week_intensity?: string; locked_saved_meals?: string[]; saved_meal_day_assignments?: Record<string, number>; week_context_tags?: string[]; partial_week?: { startDay: number; dayCount: number } },
@@ -514,9 +593,17 @@ function buildPrompt(
     if (active.length) parts.push(`Additional stored context flags: ${active.join("; ")}.`);
   }
 
-  // ── Historical data ──
-  if (lovedMeals.length) parts.push(`\n❤️ Previously LOVED meals (consider including again or variations): ${lovedMeals.slice(0, 10).join(", ")}.`);
-  if (dislikedMeals.length) parts.push(`👎 Previously DISLIKED meals (avoid these or similar): ${dislikedMeals.slice(0, 10).join(", ")}.`);
+  // ── Historical data (balanced learning: 28-90 day window) ──
+  if (lovedMeals.length) {
+    parts.push(`\n❤️ LOVED MEALS (recent feedback) — consider re-introducing 1-2 of these or close variations: ${lovedMeals.slice(0, 12).join(", ")}.`);
+  }
+  if (hardExcludeMeals.length) {
+    parts.push(`\n🚫 HARD EXCLUDE — Family disliked these 2+ times in the last 28 days. DO NOT include these meals OR very similar dishes (same protein + cooking method + cuisine combination):\n${hardExcludeMeals.map(m => `  - ${m}`).join("\n")}`);
+  }
+  const softAvoid = dislikedMeals.filter(m => !hardExcludeMeals.includes(m));
+  if (softAvoid.length) {
+    parts.push(`\n👎 SOFT AVOID — Disliked once recently. Skip exact repeats; close variations are OK if there's a meaningful change: ${softAvoid.slice(0, 10).join(", ")}.`);
+  }
 
   // ── Saved meals with frequency ──
   if (savedMeals.length) {
