@@ -57,14 +57,21 @@ const BASELINE = {
 function computeConfidence(opts: {
   plannedNights: number;
   cookNights: number;
-  hasGroceryList: boolean;
+  /** Real engagement: user checked items off the list, or grocery list
+   *  was updated via swaps. Mere existence of an auto-generated list
+   *  doesn't count — we want proof the family actually used it. */
+  groceryListUsed: boolean;
   checkinCount: number;
   totalPlansCompleted: number;
 }): number {
   const planComponent = Math.min(opts.plannedNights / 7, 1) * 0.4;
-  const groceryComponent = opts.hasGroceryList ? 0.2 : 0;
+  const groceryComponent = opts.groceryListUsed ? 0.2 : 0;
   const checkinDenom = Math.max(1, opts.cookNights);
-  const checkinComponent = Math.min(opts.checkinCount / checkinDenom, 1) * 0.3;
+  // Cap check-ins at planned cook nights to prevent overcounting
+  // (e.g. multiple check-ins on the same plan_day, or check-ins on
+  // already-deleted plan_days from earlier swaps).
+  const cappedCheckins = Math.min(opts.checkinCount, opts.cookNights);
+  const checkinComponent = Math.min(cappedCheckins / checkinDenom, 1) * 0.3;
   const historyComponent = Math.min(opts.totalPlansCompleted / 4, 1) * 0.1;
   const raw = planComponent + groceryComponent + checkinComponent + historyComponent;
   // Floor at 0.35 so a barely-touched week still gets a small honest credit;
