@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Shuffle, Lock, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Shuffle, X, ChevronLeft, Hand, ArrowUpDown } from "lucide-react";
 
 const COACH_MARK_KEY = "dinnerwise_swipe_coach_seen";
 
@@ -47,10 +47,10 @@ const SwipeCoachMark = ({ show }: SwipeCoachMarkProps) => {
 
           <p className="text-xs font-semibold mb-2.5">Quick gestures</p>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-2">
             {/* Swipe left hint */}
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-0.5 text-accent">
+              <div className="flex items-center gap-0.5 text-accent shrink-0">
                 <ChevronLeft className="w-3.5 h-3.5 animate-pulse" />
                 <ChevronLeft className="w-3.5 h-3.5 animate-pulse -ml-2" />
               </div>
@@ -60,18 +60,16 @@ const SwipeCoachMark = ({ show }: SwipeCoachMarkProps) => {
               </div>
             </div>
 
-            <div className="w-px h-6 bg-background/20" />
-
-            {/* Swipe right hint */}
+            {/* Long press hint */}
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-primary-foreground" />
-                <span className="text-[11px]">Swipe right to lock</span>
-              </div>
-              <div className="flex items-center gap-0.5 text-primary-foreground">
-                <ChevronRight className="w-3.5 h-3.5 animate-pulse -mr-2" />
-                <ChevronRight className="w-3.5 h-3.5 animate-pulse" />
-              </div>
+              <Hand className="w-3.5 h-3.5 text-primary-foreground shrink-0" />
+              <span className="text-[11px]">Hold to view nutrition, ingredients & instructions</span>
+            </div>
+
+            {/* Reorder hint */}
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="w-3.5 h-3.5 text-primary-foreground shrink-0" />
+              <span className="text-[11px]">Tap the arrows to reorder meals</span>
             </div>
           </div>
 
