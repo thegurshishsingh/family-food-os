@@ -550,10 +550,28 @@ const NotificationsCard = () => {
               Get a friendly nudge at <strong>1 PM</strong> with tonight's dinner, an evening check-in
               reminder, and a heads-up when next week's plan is ready.
             </p>
-            <Button onClick={handleEnable} disabled={busy}>
-              <Bell className="w-4 h-4 mr-2" />
-              Enable notifications
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button onClick={handleEnable} disabled={busy || resubBusy}>
+                <Bell className="w-4 h-4 mr-2" />
+                Enable notifications
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleResubscribe(true)}
+                disabled={busy || resubBusy}
+                title="Force a fresh push subscription on this device and send a test"
+              >
+                <RefreshCw
+                  className={`w-3.5 h-3.5 mr-1.5 ${resubBusy ? "animate-spin" : ""}`}
+                />
+                {resubBusy ? "Resubscribing…" : "Force re-subscribe"}
+              </Button>
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-snug">
+              Already enabled but nothing arrives? Tap <strong>Force re-subscribe</strong> to replace
+              the stored push token with a fresh one and send a test.
+            </p>
           </div>
         )}
 
