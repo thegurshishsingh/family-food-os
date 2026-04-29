@@ -114,6 +114,7 @@ const RealityScore = ({ plan, days = [] }: RealityScoreProps) => {
   const tier = getScoreTier(score);
   const isLow = score < 60;
   const breakdown = computeBreakdown(days);
+  const reasons = buildReasons(days);
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
