@@ -161,6 +161,8 @@ const FamilyProfile = () => {
 
   const timeSaved = useMemo(() => {
     // Sum per-week actuals using the same engine as the recap.
+    // Dedup check-ins to UNIQUE plan_day_ids so multiple check-ins on
+    // the same day never inflate per-week coverage.
     const checkinDayIds = new Set(checkins.map(c => c.plan_day_id));
     const daysByPlan: Record<string, PlanDayRow[]> = {};
     planDays.forEach(d => { (daysByPlan[d.plan_id] ||= []).push(d); });
@@ -170,7 +172,7 @@ const FamilyProfile = () => {
       return {
         planId: pid,
         days: pd as unknown as PlanDay[],
-        hasGroceryList: groceryPlanIds.has(pid),
+        groceryListUsed: groceryUsedPlanIds.has(pid),
         checkinCount: pd.filter(d => checkinDayIds.has(d.id)).length,
       };
     });
@@ -178,7 +180,7 @@ const FamilyProfile = () => {
     const hours = (minutesSaved / 60).toFixed(1);
     const movieNights = Math.floor(minutesSaved / 120);
     return { hours, movieNights, minutesSaved };
-  }, [planDays, checkins, groceryPlanIds]);
+  }, [planDays, checkins, groceryUsedPlanIds]);
 
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const [recsLoading, setRecsLoading] = useState(false);
