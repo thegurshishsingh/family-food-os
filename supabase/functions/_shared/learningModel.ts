@@ -25,6 +25,7 @@ type FeedbackRow = {
 type CheckinRow = {
   tags: string[] | null;
   effort_level: string | null;
+  outcome?: string | null;     // canonical structured outcome (added 2026-04)
   plan_day_id: string;
   created_at: string;
 };
