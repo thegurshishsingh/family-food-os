@@ -25,6 +25,7 @@ type FeedbackRow = {
 type CheckinRow = {
   tags: string[] | null;
   effort_level: string | null;
+  outcome?: string | null;     // canonical structured outcome (added 2026-04)
   plan_day_id: string;
   created_at: string;
 };
@@ -54,6 +55,7 @@ export type LearningInsights = {
     effortTooHardRate: number;
     kidsRefusedRate: number;
     orderedOutRate: number;
+    lovedRate: number;
     sampleSize: number;
   }[];
 
@@ -114,6 +116,23 @@ const NEGATIVE_FEEDBACK = new Set(["kids_refused", "too_hard", "not_again"]);
 
 const POSITIVE_TAGS = new Set(["everyone_liked", "easy_win", "great_leftovers", "cooked_it"]);
 const NEGATIVE_TAGS = new Set(["kids_refused", "too_hard", "not_again", "ordered_out"]);
+
+// Map a check-in row to its canonical outcome. Prefers the structured
+// `outcome` column (added 2026-04); falls back to deriving from tags +
+// effort_level for older rows so historical data still contributes.
+function effectiveOutcome(c: CheckinRow): string {
+  if (c.outcome) return c.outcome;
+  const tags = new Set(c.tags ?? []);
+  if (tags.has("not_again")) return "not_again";
+  if (tags.has("kids_refused")) return "kids_refused";
+  if (tags.has("too_much_work") || c.effort_level === "too_much") return "too_hard";
+  if (tags.has("ordered_out")) return "ordered_out";
+  if (tags.has("great_leftovers")) return "leftovers";
+  if (tags.has("everyone_liked")) return "cooked_loved";
+  if (tags.has("cooked_it") || tags.has("easy_win")) return "cooked_fine";
+  if (c.effort_level === "easy" || c.effort_level === "fine") return "cooked_fine";
+  return "neutral";
+}
 
 // ─── Main entry point ────────────────────────────────────────
 
@@ -178,7 +197,14 @@ export function computeLearningInsights(args: {
   const lovedMeals = Array.from(lovedNames);
 
   // ── Per-day-of-week patterns from check-ins ──
-  type DayAcc = { tooHard: number; kidsRefused: number; orderedOut: number; total: number };
+  // Uses the structured `outcome` (with tag fallback) for sharper signals.
+  type DayAcc = {
+    tooHard: number;
+    kidsRefused: number;
+    orderedOut: number;
+    loved: number;
+    total: number;
+  };
   const dayAcc: Record<number, DayAcc> = {};
   let totalTooMuch = 0, totalCooked = 0, totalOrderedOut = 0;
 
@@ -186,14 +212,16 @@ export function computeLearningInsights(args: {
     const pd = dayMap.get(c.plan_day_id);
     if (!pd) continue;
     const dow = pd.day_of_week;
-    if (!dayAcc[dow]) dayAcc[dow] = { tooHard: 0, kidsRefused: 0, orderedOut: 0, total: 0 };
+    if (!dayAcc[dow]) dayAcc[dow] = { tooHard: 0, kidsRefused: 0, orderedOut: 0, loved: 0, total: 0 };
     const acc = dayAcc[dow];
     acc.total += 1;
-    if (c.effort_level === "too_much") { acc.tooHard += 1; totalTooMuch += 1; }
-    const tags = c.tags ?? [];
-    if (tags.includes("kids_refused")) acc.kidsRefused += 1;
-    if (tags.includes("ordered_out")) { acc.orderedOut += 1; totalOrderedOut += 1; }
-    if (tags.includes("cooked_it")) totalCooked += 1;
+
+    const outcome = effectiveOutcome(c);
+    if (outcome === "too_hard")     { acc.tooHard += 1; totalTooMuch += 1; }
+    if (outcome === "kids_refused")   acc.kidsRefused += 1;
+    if (outcome === "ordered_out")  { acc.orderedOut += 1; totalOrderedOut += 1; }
+    if (outcome === "cooked_loved")   acc.loved += 1;
+    if (outcome === "cooked_loved" || outcome === "cooked_fine") totalCooked += 1;
   }
 
   const dayPatterns = Object.entries(dayAcc).map(([dow, v]) => ({
@@ -201,6 +229,7 @@ export function computeLearningInsights(args: {
     effortTooHardRate: v.total ? v.tooHard / v.total : 0,
     kidsRefusedRate: v.total ? v.kidsRefused / v.total : 0,
     orderedOutRate: v.total ? v.orderedOut / v.total : 0,
+    lovedRate: v.total ? v.loved / v.total : 0,
     sampleSize: v.total,
   })).filter(p => p.sampleSize >= 2);
 
@@ -223,10 +252,9 @@ export function computeLearningInsights(args: {
   for (const pd of cookPlanDays) {
     if (!pd.prep_time_minutes) continue;
     const checkin = args.checkins.find(c => c.plan_day_id === pd.id);
-    const tags = checkin?.tags ?? [];
-    const accepted = !pd.was_swapped &&
-      (POSITIVE_TAGS.has("cooked_it") && tags.includes("cooked_it"));
-    const rejected = pd.was_swapped || checkin?.effort_level === "too_much" || tags.includes("too_hard") || tags.includes("ordered_out");
+    const outcome = checkin ? effectiveOutcome(checkin) : null;
+    const accepted = !pd.was_swapped && (outcome === "cooked_loved" || outcome === "cooked_fine");
+    const rejected = pd.was_swapped || outcome === "too_hard" || outcome === "ordered_out" || outcome === "kids_refused";
     if (accepted) { acceptedPrepSum += pd.prep_time_minutes; acceptedPrepN += 1; }
     else if (rejected) { rejectedPrepSum += pd.prep_time_minutes; rejectedPrepN += 1; }
   }
@@ -290,6 +318,7 @@ export function renderInsightsForPrompt(ins: LearningInsights): string {
       if (p.effortTooHardRate > 0.4) notes.push(`feels too hard ${Math.round(p.effortTooHardRate * 100)}% of the time → SIMPLIFY`);
       if (p.kidsRefusedRate > 0.3) notes.push(`kids refuse ${Math.round(p.kidsRefusedRate * 100)}% → kid-friendly required`);
       if (p.orderedOutRate > 0.3) notes.push(`family orders out ${Math.round(p.orderedOutRate * 100)}% → consider takeout`);
+      if (p.lovedRate > 0.5) notes.push(`loved ${Math.round(p.lovedRate * 100)}% of the time → keep this rhythm`);
       if (notes.length) lines.push(`    ${DAY_NAMES[p.day_of_week]}: ${notes.join("; ")} (n=${p.sampleSize})`);
     }
   }

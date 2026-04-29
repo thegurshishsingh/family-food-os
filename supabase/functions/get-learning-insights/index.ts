@@ -67,7 +67,7 @@ serve(async (req) => {
         .limit(200),
       supabaseClient
         .from("evening_checkins")
-        .select("tags, effort_level, plan_day_id, created_at")
+        .select("tags, effort_level, outcome, plan_day_id, created_at")
         .eq("household_id", household_id)
         .order("created_at", { ascending: false })
         .limit(60),

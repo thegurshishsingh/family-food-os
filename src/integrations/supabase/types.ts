@@ -139,6 +139,7 @@ export type Database = {
           effort_level: string | null
           household_id: string
           id: string
+          outcome: string | null
           plan_day_id: string
           tags: string[]
         }
@@ -147,6 +148,7 @@ export type Database = {
           effort_level?: string | null
           household_id: string
           id?: string
+          outcome?: string | null
           plan_day_id: string
           tags?: string[]
         }
@@ -155,6 +157,7 @@ export type Database = {
           effort_level?: string | null
           household_id?: string
           id?: string
+          outcome?: string | null
           plan_day_id?: string
           tags?: string[]
         }
