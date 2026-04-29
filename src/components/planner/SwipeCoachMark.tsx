@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shuffle, X, ChevronLeft, Hand, ArrowUpDown } from "lucide-react";
-
-const COACH_MARK_KEY = "dinnerwise_swipe_coach_seen";
+import {
+  COACH_MARK_KEY,
+  COACH_GESTURE_EVENT,
+  hasCompletedAllCoachGestures,
+} from "@/lib/coachMarks";
 
 interface SwipeCoachMarkProps {
   show: boolean;
@@ -14,11 +17,27 @@ const SwipeCoachMark = ({ show }: SwipeCoachMarkProps) => {
   useEffect(() => {
     if (!show) return;
     const seen = localStorage.getItem(COACH_MARK_KEY);
-    if (!seen) {
-      const timer = setTimeout(() => setVisible(true), 800);
-      return () => clearTimeout(timer);
+    if (seen) return;
+    if (hasCompletedAllCoachGestures()) {
+      localStorage.setItem(COACH_MARK_KEY, "true");
+      return;
     }
+    const timer = setTimeout(() => setVisible(true), 800);
+    return () => clearTimeout(timer);
   }, [show]);
+
+  // Auto-dismiss once both gestures have been performed
+  useEffect(() => {
+    if (!visible) return;
+    const onGesture = () => {
+      if (hasCompletedAllCoachGestures()) {
+        setVisible(false);
+        localStorage.setItem(COACH_MARK_KEY, "true");
+      }
+    };
+    window.addEventListener(COACH_GESTURE_EVENT, onGesture);
+    return () => window.removeEventListener(COACH_GESTURE_EVENT, onGesture);
+  }, [visible]);
 
   const dismiss = () => {
     setVisible(false);

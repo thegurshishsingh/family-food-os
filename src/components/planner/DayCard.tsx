@@ -11,6 +11,7 @@ import { motion, useMotionValue, useTransform, animate, PanInfo } from "framer-m
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DAYS, MODE_CONFIG, FEEDBACK_OPTIONS, type PlanDay, type FeedbackType } from "./types";
 import MealDetailDialog from "./MealDetailDialog";
+import { recordCoachGesture } from "@/lib/coachMarks";
 
 interface DayCardProps {
   day: PlanDay;
@@ -64,6 +65,7 @@ const DayCard = ({
     longPressTimer.current = setTimeout(() => {
       longPressTriggered.current = true;
       setDetailOpen(true);
+      recordCoachGesture("hold");
       if (navigator.vibrate) navigator.vibrate(30);
     }, 500);
   }, [isMobile, day.meal_name]);
@@ -140,7 +142,10 @@ const DayCard = ({
           {!day.is_locked && isMobile && (
             <button
               className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground/60 active:text-primary active:bg-primary/10 transition-colors shrink-0 sm:hidden"
-              onClick={() => onMobileDragStart?.(day.id)}
+              onClick={() => {
+                recordCoachGesture("reorder");
+                onMobileDragStart?.(day.id);
+              }}
             >
               <ArrowUpDown className="w-3.5 h-3.5" />
             </button>
