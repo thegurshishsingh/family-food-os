@@ -55,6 +55,7 @@ export type LearningInsights = {
     effortTooHardRate: number;
     kidsRefusedRate: number;
     orderedOutRate: number;
+    lovedRate: number;
     sampleSize: number;
   }[];
 
@@ -115,6 +116,23 @@ const NEGATIVE_FEEDBACK = new Set(["kids_refused", "too_hard", "not_again"]);
 
 const POSITIVE_TAGS = new Set(["everyone_liked", "easy_win", "great_leftovers", "cooked_it"]);
 const NEGATIVE_TAGS = new Set(["kids_refused", "too_hard", "not_again", "ordered_out"]);
+
+// Map a check-in row to its canonical outcome. Prefers the structured
+// `outcome` column (added 2026-04); falls back to deriving from tags +
+// effort_level for older rows so historical data still contributes.
+function effectiveOutcome(c: CheckinRow): string {
+  if (c.outcome) return c.outcome;
+  const tags = new Set(c.tags ?? []);
+  if (tags.has("not_again")) return "not_again";
+  if (tags.has("kids_refused")) return "kids_refused";
+  if (tags.has("too_much_work") || c.effort_level === "too_much") return "too_hard";
+  if (tags.has("ordered_out")) return "ordered_out";
+  if (tags.has("great_leftovers")) return "leftovers";
+  if (tags.has("everyone_liked")) return "cooked_loved";
+  if (tags.has("cooked_it") || tags.has("easy_win")) return "cooked_fine";
+  if (c.effort_level === "easy" || c.effort_level === "fine") return "cooked_fine";
+  return "neutral";
+}
 
 // ─── Main entry point ────────────────────────────────────────
 
