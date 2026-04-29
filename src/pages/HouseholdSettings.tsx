@@ -178,6 +178,8 @@ const HouseholdSettings = () => {
         </div>
 
         <div className="space-y-6">
+          <NotificationsCard />
+
           {/* Family basics */}
           <Card>
             <CardHeader><CardTitle className="text-lg font-serif">Family Basics</CardTitle></CardHeader>
@@ -463,7 +465,6 @@ const HouseholdSettings = () => {
             </CardContent>
           </Card>
 
-          <NotificationsCard />
         </div>
       </div>
     </AppLayout>
