@@ -252,10 +252,9 @@ export function computeLearningInsights(args: {
   for (const pd of cookPlanDays) {
     if (!pd.prep_time_minutes) continue;
     const checkin = args.checkins.find(c => c.plan_day_id === pd.id);
-    const tags = checkin?.tags ?? [];
-    const accepted = !pd.was_swapped &&
-      (POSITIVE_TAGS.has("cooked_it") && tags.includes("cooked_it"));
-    const rejected = pd.was_swapped || checkin?.effort_level === "too_much" || tags.includes("too_hard") || tags.includes("ordered_out");
+    const outcome = checkin ? effectiveOutcome(checkin) : null;
+    const accepted = !pd.was_swapped && (outcome === "cooked_loved" || outcome === "cooked_fine");
+    const rejected = pd.was_swapped || outcome === "too_hard" || outcome === "ordered_out" || outcome === "kids_refused";
     if (accepted) { acceptedPrepSum += pd.prep_time_minutes; acceptedPrepN += 1; }
     else if (rejected) { rejectedPrepSum += pd.prep_time_minutes; rejectedPrepN += 1; }
   }
