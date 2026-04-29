@@ -57,15 +57,44 @@ serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
+    // Recency-weighted feedback (last 90 days, with 28-day window for "balanced" learning)
+    const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+    const twentyEightDaysAgo = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString();
     const { data: feedback } = await supabaseClient
       .from("meal_feedback")
-      .select("meal_name, feedback")
+      .select("meal_name, feedback, created_at")
       .eq("household_id", household_id)
+      .gte("created_at", ninetyDaysAgo)
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(150);
 
-    const lovedMeals = feedback?.filter(f => f.feedback === "loved").map(f => f.meal_name) || [];
-    const dislikedMeals = feedback?.filter(f => ["kids_refused", "too_hard"].includes(f.feedback)).map(f => f.meal_name) || [];
+    // Tally counts per meal across the recent window
+    const mealCounts: Record<string, { loved: number; disliked: number; lastDisliked?: string }> = {};
+    for (const f of feedback || []) {
+      const key = f.meal_name;
+      if (!mealCounts[key]) mealCounts[key] = { loved: 0, disliked: 0 };
+      if (f.feedback === "loved") mealCounts[key].loved++;
+      if (["kids_refused", "too_hard"].includes(f.feedback as string)) {
+        mealCounts[key].disliked++;
+        if (!mealCounts[key].lastDisliked) mealCounts[key].lastDisliked = f.created_at;
+      }
+    }
+
+    // BALANCED LEARNING RULES:
+    // - Loved 1+ time in 28d → soft-include (suggest variations)
+    // - Disliked 2+ times in 28d → HARD EXCLUDE
+    // - Disliked once → soft-avoid
+    const lovedMeals = Object.entries(mealCounts)
+      .filter(([_, c]) => c.loved > 0)
+      .sort((a, b) => b[1].loved - a[1].loved)
+      .map(([name]) => name);
+    const hardExcludeMeals = Object.entries(mealCounts)
+      .filter(([_, c]) => c.disliked >= 2 && c.lastDisliked && c.lastDisliked >= twentyEightDaysAgo)
+      .map(([name]) => name);
+    const softAvoidMeals = Object.entries(mealCounts)
+      .filter(([_, c]) => c.disliked === 1 && !hardExcludeMeals.includes(_))
+      .map(([name]) => name);
+    const dislikedMeals = [...hardExcludeMeals, ...softAvoidMeals];
 
     const { data: savedMeals } = await supabaseClient
       .from("saved_meals")
