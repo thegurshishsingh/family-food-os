@@ -1,0 +1,2 @@
+ALTER TABLE public.plan_days ADD COLUMN IF NOT EXISTS was_swapped BOOLEAN NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS idx_plan_days_was_swapped ON public.plan_days(plan_id) WHERE was_swapped = true;
