@@ -385,6 +385,7 @@ export type Database = {
           protein_g: number | null
           takeout_budget: number | null
           updated_at: string
+          was_swapped: boolean
         }
         Insert: {
           calories?: number | null
@@ -408,6 +409,7 @@ export type Database = {
           protein_g?: number | null
           takeout_budget?: number | null
           updated_at?: string
+          was_swapped?: boolean
         }
         Update: {
           calories?: number | null
@@ -431,6 +433,7 @@ export type Database = {
           protein_g?: number | null
           takeout_budget?: number | null
           updated_at?: string
+          was_swapped?: boolean
         }
         Relationships: [
           {

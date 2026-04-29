@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ChefHat, RefreshCw, ArrowRight } from "lucide-react";
 import SwipeCoachMark from "@/components/planner/SwipeCoachMark";
 import RealityScore from "@/components/planner/RealityScore";
+import WhatWeLearnedCard from "@/components/planner/WhatWeLearnedCard";
 import TimeSavedRecap from "@/components/planner/TimeSavedRecap";
 import WeeklySummary from "@/components/planner/WeeklySummary";
 import DayCard from "@/components/planner/DayCard";
@@ -644,6 +645,8 @@ const Planner = () => {
 
         {/* 4. Reality Score & Insights */}
         {plan && <RealityScore plan={plan} days={days} />}
+
+        {household && <WhatWeLearnedCard householdId={household.id} />}
 
         <WeeklySummary days={days} />
 

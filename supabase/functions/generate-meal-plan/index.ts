@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { computeRealityScore } from "../_shared/realityScore.ts";
+import { computeLearningInsights, renderInsightsForPrompt } from "../_shared/learningModel.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -107,25 +108,60 @@ serve(async (req) => {
       .select("tags, effort_level, plan_day_id, created_at")
       .eq("household_id", household_id)
       .order("created_at", { ascending: false })
-      .limit(28);
+      .limit(60);
 
-    let checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[] = [];
-    if (checkins?.length) {
-      const planDayIds = checkins.map((c: any) => c.plan_day_id);
-      const { data: checkinDays } = await supabaseClient
+    // Pull all plan_days the household has ever had — needed for day-of-week
+    // patterns, cuisine/protein sentiment via feedback joins, and swap rate.
+    const { data: householdPlanIds } = await supabaseClient
+      .from("weekly_plans")
+      .select("id")
+      .eq("household_id", household_id)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    const planIdList = (householdPlanIds || []).map((p: any) => p.id);
+    let allPlanDays: any[] = [];
+    if (planIdList.length) {
+      const { data: pds } = await supabaseClient
         .from("plan_days")
-        .select("id, day_of_week, meal_name")
-        .in("id", planDayIds);
+        .select("id, day_of_week, meal_name, cuisine_type, prep_time_minutes, meal_mode, was_swapped")
+        .in("plan_id", planIdList);
+      allPlanDays = pds || [];
+    }
 
-      const dayMap = new Map((checkinDays || []).map((d: any) => [d.id, d]));
+    // ─── LAYERED LEARNING MODEL ───
+    const insights = computeLearningInsights({
+      feedback: feedback || [],
+      checkins: (checkins || []) as any,
+      planDays: allPlanDays as any,
+    });
+    console.log("[learning-model]", {
+      cuisinesLoved: insights.cuisinesLoved,
+      cuisinesAvoided: insights.cuisinesAvoided,
+      proteinsAvoided: insights.proteinsAvoided,
+      cookThrough: insights.cookThroughRate,
+      swapRate: insights.swapRate,
+      effortOverload: insights.effortOverloadRate,
+      drift: insights.prepToleranceDrift,
+    });
+
+    // Use insights as the source of truth for hard-exclude/loved going into the prompt
+    const lovedMealsFinal = insights.lovedMeals;
+    const hardExcludeMealsFinal = insights.hardExcludeMeals;
+    const dislikedMealsFinal = [...insights.hardExcludeMeals, ...insights.softAvoidMeals];
+
+    // Backfill old per-day insights for the existing buildPrompt structure
+    let checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[] = [];
+    if (checkins?.length && allPlanDays.length) {
+      const dayMap = new Map(allPlanDays.map((d: any) => [d.id, d]));
       checkinInsights = checkins.map((c: any) => ({
         tags: c.tags || [],
         effort_level: c.effort_level,
-        day_of_week: dayMap.get(c.plan_day_id)?.day_of_week ?? -1,
-      })).filter(c => c.day_of_week >= 0);
+        day_of_week: (dayMap.get(c.plan_day_id) as any)?.day_of_week ?? -1,
+      })).filter((c: any) => c.day_of_week >= 0);
     }
 
-    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, hardExcludeMeals, savedMeals || [], checkinInsights, setup);
+    const learningBlock = renderInsightsForPrompt(insights);
+    const prompt = buildPrompt(household, preferences, context, lovedMealsFinal, dislikedMealsFinal, hardExcludeMealsFinal, savedMeals || [], checkinInsights, setup) + "\n" + learningBlock;
 
     // Determine which days to generate
     const daysToGenerate = isPartialWeek
