@@ -286,6 +286,55 @@ Return ONLY valid JSON, no markdown.`;
       planData = generateMockPlan(household, preferences, context, setup, daysToGenerate);
     }
 
+    // ─── DETERMINISTIC REALITY SCORE ───
+    // Recompute the score from real signals — don't trust the AI's self-report.
+    const activeContextFlags: string[] = [];
+    if (context) {
+      for (const k of ["newborn_in_house","guests_visiting","sports_week","one_parent_traveling","budget_week","low_cleanup_week","sick_week","high_protein_week","chaotic_week"]) {
+        if ((context as any)[k]) activeContextFlags.push(k);
+      }
+    }
+    if (setup?.week_context_tags?.length) {
+      for (const t of setup.week_context_tags) if (!activeContextFlags.includes(t)) activeContextFlags.push(t);
+    }
+
+    // Compute behavioral signals from the check-ins we already loaded
+    let signals: any = undefined;
+    if (checkinInsights.length >= 3) {
+      const total = checkinInsights.length;
+      let tooMuch = 0, cooked = 0, orderedOut = 0, kidsRefused = 0;
+      for (const ci of checkinInsights) {
+        if (ci.effort_level === "too_much") tooMuch++;
+        if (ci.tags.includes("cooked_it")) cooked++;
+        if (ci.tags.includes("ordered_out")) orderedOut++;
+        if (ci.tags.includes("kids_refused")) kidsRefused++;
+      }
+      const cookOrOrder = cooked + orderedOut;
+      signals = {
+        totalCheckins: total,
+        effortTooMuchRate: tooMuch / total,
+        cookThroughRate: cookOrOrder > 0 ? cooked / cookOrOrder : null,
+        kidsRefusedRate: kidsRefused / total,
+        orderedOutRate: orderedOut / total,
+        dislikedMealsCount: hardExcludeMeals.length + softAvoidMeals.length,
+        lovedMealsCount: lovedMeals.length,
+      };
+    }
+
+    const computed = computeRealityScore({
+      days: planData.days,
+      household: { num_adults: household.num_adults, num_children: household.num_children, child_age_bands: household.child_age_bands },
+      preferences: preferences || null,
+      contextFlags: activeContextFlags,
+      signals,
+    });
+    console.log("[reality-score] computed", computed.score, "ai-reported", planData.reality_score, "breakdown", computed.internal_breakdown);
+
+    // Use AI's narrative message if it's substantive, otherwise our generated one
+    const finalMessage = (planData.reality_message && planData.reality_message.length > 30)
+      ? planData.reality_message
+      : computed.message;
+
     // Save plan to database
     await supabaseClient
       .from("weekly_plans")
@@ -299,8 +348,8 @@ Return ONLY valid JSON, no markdown.`;
         household_id,
         context_id: context?.id || null,
         week_start: monday,
-        reality_score: planData.reality_score,
-        reality_message: planData.reality_message,
+        reality_score: computed.score,
+        reality_message: finalMessage,
       })
       .select()
       .single();
