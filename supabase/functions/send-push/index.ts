@@ -1,7 +1,8 @@
 // Send Web Push notifications to all of a user's subscribed devices.
 // Uses VAPID; cleans up subscriptions returning 404/410.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import webpush from "https://esm.sh/web-push@3.6.7?target=deno";
+
+const encoder = new TextEncoder();
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -30,17 +31,117 @@ const VAPID_PUBLIC = Deno.env.get("VAPID_PUBLIC_KEY") || "";
 const VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY") || "";
 const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "mailto:hello@familyfoodos.com";
 
-let vapidConfigured = false;
-function ensureVapid(): string | null {
-  if (vapidConfigured) return null;
-  if (!VAPID_PUBLIC || !VAPID_PRIVATE) return "VAPID keys not configured";
-  try {
-    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
-    vapidConfigured = true;
-    return null;
-  } catch (e) {
-    return `Invalid VAPID keys: ${(e as Error).message}`;
+type PushSubscriptionLike = {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+};
+
+type PushOptions = {
+  TTL: number;
+  headers: Record<string, string>;
+};
+
+type PushDeliveryError = Error & {
+  statusCode?: number;
+  body?: string;
+  headers?: Record<string, string>;
+};
+
+type VapidKeys = {
+  publicKeyBytes: Uint8Array;
+  signingKey: CryptoKey;
+};
+
+let vapidKeysPromise: Promise<VapidKeys> | null = null;
+
+function base64UrlToBytes(value: string): Uint8Array {
+  const padded = value.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (value.length % 4)) % 4);
+  const raw = atob(padded);
+  return Uint8Array.from(raw, (char) => char.charCodeAt(0));
+}
+
+function bytesToBase64Url(bytes: Uint8Array): string {
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function concatBytes(...chunks: Uint8Array[]): Uint8Array {
+  const total = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.length;
   }
+  return out;
+}
+
+function uint32(value: number): Uint8Array {
+  const bytes = new Uint8Array(4);
+  new DataView(bytes.buffer).setUint32(0, value, false);
+  return bytes;
+}
+
+async function hmac(keyBytes: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyBytes,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  return new Uint8Array(await crypto.subtle.sign("HMAC", key, data));
+}
+
+function getVapidKeys(): Promise<VapidKeys> {
+  if (vapidKeysPromise) return vapidKeysPromise;
+  vapidKeysPromise = (async () => {
+    if (!VAPID_PUBLIC || !VAPID_PRIVATE) throw new Error("VAPID keys not configured");
+    const publicKeyBytes = base64UrlToBytes(VAPID_PUBLIC);
+    const privateKeyBytes = base64UrlToBytes(VAPID_PRIVATE);
+    if (publicKeyBytes.length !== 65 || publicKeyBytes[0] !== 4) {
+      throw new Error("Invalid VAPID public key");
+    }
+    if (privateKeyBytes.length !== 32) throw new Error("Invalid VAPID private key");
+
+    const signingKey = await crypto.subtle.importKey(
+      "jwk",
+      {
+        kty: "EC",
+        crv: "P-256",
+        x: bytesToBase64Url(publicKeyBytes.slice(1, 33)),
+        y: bytesToBase64Url(publicKeyBytes.slice(33, 65)),
+        d: bytesToBase64Url(privateKeyBytes),
+        ext: true,
+      },
+      { name: "ECDSA", namedCurve: "P-256" },
+      false,
+      ["sign"]
+    );
+
+    return { publicKeyBytes, signingKey };
+  })();
+  return vapidKeysPromise;
+}
+
+async function createVapidJwt(audience: string): Promise<string> {
+  const { signingKey } = await getVapidKeys();
+  const header = bytesToBase64Url(encoder.encode(JSON.stringify({ typ: "JWT", alg: "ES256" })));
+  const payload = bytesToBase64Url(
+    encoder.encode(
+      JSON.stringify({
+        aud: audience,
+        exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
+        sub: VAPID_SUBJECT,
+      })
+    )
+  );
+  const unsigned = `${header}.${payload}`;
+  const signature = new Uint8Array(
+    await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, signingKey, encoder.encode(unsigned))
+  );
+  return `${unsigned}.${bytesToBase64Url(signature)}`;
 }
 
 const categoryColumn: Record<Category, string | null> = {
