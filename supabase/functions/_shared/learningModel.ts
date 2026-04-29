@@ -197,7 +197,14 @@ export function computeLearningInsights(args: {
   const lovedMeals = Array.from(lovedNames);
 
   // ── Per-day-of-week patterns from check-ins ──
-  type DayAcc = { tooHard: number; kidsRefused: number; orderedOut: number; total: number };
+  // Uses the structured `outcome` (with tag fallback) for sharper signals.
+  type DayAcc = {
+    tooHard: number;
+    kidsRefused: number;
+    orderedOut: number;
+    loved: number;
+    total: number;
+  };
   const dayAcc: Record<number, DayAcc> = {};
   let totalTooMuch = 0, totalCooked = 0, totalOrderedOut = 0;
 
@@ -205,14 +212,16 @@ export function computeLearningInsights(args: {
     const pd = dayMap.get(c.plan_day_id);
     if (!pd) continue;
     const dow = pd.day_of_week;
-    if (!dayAcc[dow]) dayAcc[dow] = { tooHard: 0, kidsRefused: 0, orderedOut: 0, total: 0 };
+    if (!dayAcc[dow]) dayAcc[dow] = { tooHard: 0, kidsRefused: 0, orderedOut: 0, loved: 0, total: 0 };
     const acc = dayAcc[dow];
     acc.total += 1;
-    if (c.effort_level === "too_much") { acc.tooHard += 1; totalTooMuch += 1; }
-    const tags = c.tags ?? [];
-    if (tags.includes("kids_refused")) acc.kidsRefused += 1;
-    if (tags.includes("ordered_out")) { acc.orderedOut += 1; totalOrderedOut += 1; }
-    if (tags.includes("cooked_it")) totalCooked += 1;
+
+    const outcome = effectiveOutcome(c);
+    if (outcome === "too_hard")     { acc.tooHard += 1; totalTooMuch += 1; }
+    if (outcome === "kids_refused")   acc.kidsRefused += 1;
+    if (outcome === "ordered_out")  { acc.orderedOut += 1; totalOrderedOut += 1; }
+    if (outcome === "cooked_loved")   acc.loved += 1;
+    if (outcome === "cooked_loved" || outcome === "cooked_fine") totalCooked += 1;
   }
 
   const dayPatterns = Object.entries(dayAcc).map(([dow, v]) => ({
@@ -220,6 +229,7 @@ export function computeLearningInsights(args: {
     effortTooHardRate: v.total ? v.tooHard / v.total : 0,
     kidsRefusedRate: v.total ? v.kidsRefused / v.total : 0,
     orderedOutRate: v.total ? v.orderedOut / v.total : 0,
+    lovedRate: v.total ? v.loved / v.total : 0,
     sampleSize: v.total,
   })).filter(p => p.sampleSize >= 2);
 
