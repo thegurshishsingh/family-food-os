@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, TrendingUp, ChefHat, Clock, DollarSign, Zap, Info } from "lucide-react";
+import { AlertTriangle, TrendingUp, ChefHat, Clock, DollarSign, Zap, Info, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import type { WeeklyPlan, PlanDay } from "./types";
