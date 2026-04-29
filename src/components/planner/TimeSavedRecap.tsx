@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { computeTimeSaved, formatHours, type TimeSavedResult } from "@/lib/timeSaved";
+import { computeTimeSaved, computeCumulativeMinutesSaved, formatHours, type TimeSavedResult, type WeekInputs } from "@/lib/timeSaved";
 import { getHumanRewards, type HumanReward } from "@/lib/humanReward";
 import ShareableRecapCard from "./ShareableRecapCard";
 import type { PlanDay, WeeklyPlan } from "./types";
