@@ -156,7 +156,7 @@ async function encryptPushPayload(subscription: PushSubscriptionLike, payload: s
   const authSecret = base64UrlToBytes(subscription.keys.auth);
   const userPublicKey = await crypto.subtle.importKey(
     "raw",
-    userPublicKeyBytes,
+    toArrayBuffer(userPublicKeyBytes),
     { name: "ECDH", namedCurve: "P-256" },
     false,
     []
@@ -188,7 +188,7 @@ async function encryptPushPayload(subscription: PushSubscriptionLike, payload: s
   const nonce = (await hmac(prk, concatBytes(encoder.encode("Content-Encoding: nonce\0"), new Uint8Array([1])))).slice(0, 12);
   const key = await crypto.subtle.importKey("raw", cek, { name: "AES-GCM", length: 128 }, false, ["encrypt"]);
   const plaintext = concatBytes(encoder.encode(payload), new Uint8Array([2]));
-  const ciphertext = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, key, plaintext));
+  const ciphertext = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, key, toArrayBuffer(plaintext)));
 
   const recordSize = 4096;
   return concatBytes(salt, uint32(recordSize), new Uint8Array([senderPublicKeyBytes.length]), senderPublicKeyBytes, ciphertext);
