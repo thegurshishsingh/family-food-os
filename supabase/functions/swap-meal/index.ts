@@ -125,14 +125,24 @@ serve(async (req) => {
       .eq("household_id", household_id)
       .single();
 
+    // Recency-weighted feedback for balanced learning (28-day exclusion window)
+    const twentyEightDaysAgo = new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString();
     const { data: feedback } = await supabaseClient
       .from("meal_feedback")
-      .select("meal_name, feedback")
+      .select("meal_name, feedback, created_at")
       .eq("household_id", household_id)
+      .gte("created_at", twentyEightDaysAgo)
       .order("created_at", { ascending: false })
-      .limit(30);
+      .limit(80);
 
-    const dislikedMeals = feedback?.filter((f: any) => ["kids_refused", "too_hard"].includes(f.feedback)).map((f: any) => f.meal_name) || [];
+    const dislikeCounts: Record<string, number> = {};
+    for (const f of feedback || []) {
+      if (["kids_refused", "too_hard"].includes((f as any).feedback)) {
+        dislikeCounts[f.meal_name] = (dislikeCounts[f.meal_name] || 0) + 1;
+      }
+    }
+    const hardExcludeMeals = Object.entries(dislikeCounts).filter(([_, c]) => c >= 2).map(([n]) => n);
+    const dislikedMeals = Object.keys(dislikeCounts);
 
     const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
