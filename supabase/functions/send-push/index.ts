@@ -1,7 +1,8 @@
 // Send Web Push notifications to all of a user's subscribed devices.
 // Uses VAPID; cleans up subscriptions returning 404/410.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import webpush from "https://esm.sh/web-push@3.6.7?target=deno";
+
+const encoder = new TextEncoder();
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,21 +27,209 @@ interface SendBody {
   tag?: string;
 }
 
+type PushSubscriptionRow = {
+  id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+};
+
 const VAPID_PUBLIC = Deno.env.get("VAPID_PUBLIC_KEY") || "";
 const VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY") || "";
 const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "mailto:hello@familyfoodos.com";
 
-let vapidConfigured = false;
-function ensureVapid(): string | null {
-  if (vapidConfigured) return null;
-  if (!VAPID_PUBLIC || !VAPID_PRIVATE) return "VAPID keys not configured";
-  try {
-    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
-    vapidConfigured = true;
-    return null;
-  } catch (e) {
-    return `Invalid VAPID keys: ${(e as Error).message}`;
+type PushSubscriptionLike = {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+};
+
+type PushOptions = {
+  TTL: number;
+  headers: Record<string, string>;
+};
+
+type PushDeliveryError = Error & {
+  statusCode?: number;
+  body?: string;
+  headers?: Record<string, string>;
+};
+
+type VapidKeys = {
+  publicKeyBytes: Uint8Array;
+  signingKey: CryptoKey;
+};
+
+let vapidKeysPromise: Promise<VapidKeys> | null = null;
+
+function base64UrlToBytes(value: string): Uint8Array {
+  const padded = value.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (value.length % 4)) % 4);
+  const raw = atob(padded);
+  return Uint8Array.from(raw, (char) => char.charCodeAt(0));
+}
+
+function bytesToBase64Url(bytes: Uint8Array): string {
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function concatBytes(...chunks: Uint8Array[]): Uint8Array {
+  const total = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, offset);
+    offset += chunk.length;
   }
+  return out;
+}
+
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const copy = new Uint8Array(bytes.length);
+  copy.set(bytes);
+  return copy.buffer;
+}
+
+function uint32(value: number): Uint8Array {
+  const bytes = new Uint8Array(4);
+  new DataView(bytes.buffer).setUint32(0, value, false);
+  return bytes;
+}
+
+async function hmac(keyBytes: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    toArrayBuffer(keyBytes),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  return new Uint8Array(await crypto.subtle.sign("HMAC", key, toArrayBuffer(data)));
+}
+
+function getVapidKeys(): Promise<VapidKeys> {
+  if (vapidKeysPromise) return vapidKeysPromise;
+  vapidKeysPromise = (async () => {
+    if (!VAPID_PUBLIC || !VAPID_PRIVATE) throw new Error("VAPID keys not configured");
+    const publicKeyBytes = base64UrlToBytes(VAPID_PUBLIC);
+    const privateKeyBytes = base64UrlToBytes(VAPID_PRIVATE);
+    if (publicKeyBytes.length !== 65 || publicKeyBytes[0] !== 4) {
+      throw new Error("Invalid VAPID public key");
+    }
+    if (privateKeyBytes.length !== 32) throw new Error("Invalid VAPID private key");
+
+    const signingKey = await crypto.subtle.importKey(
+      "jwk",
+      {
+        kty: "EC",
+        crv: "P-256",
+        x: bytesToBase64Url(publicKeyBytes.slice(1, 33)),
+        y: bytesToBase64Url(publicKeyBytes.slice(33, 65)),
+        d: bytesToBase64Url(privateKeyBytes),
+        ext: true,
+      },
+      { name: "ECDSA", namedCurve: "P-256" },
+      false,
+      ["sign"]
+    );
+
+    return { publicKeyBytes, signingKey };
+  })();
+  return vapidKeysPromise;
+}
+
+async function createVapidJwt(audience: string): Promise<string> {
+  const { signingKey } = await getVapidKeys();
+  const header = bytesToBase64Url(encoder.encode(JSON.stringify({ typ: "JWT", alg: "ES256" })));
+  const payload = bytesToBase64Url(
+    encoder.encode(
+      JSON.stringify({
+        aud: audience,
+        exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
+        sub: VAPID_SUBJECT,
+      })
+    )
+  );
+  const unsigned = `${header}.${payload}`;
+  const signature = new Uint8Array(
+    await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, signingKey, encoder.encode(unsigned))
+  );
+  return `${unsigned}.${bytesToBase64Url(signature)}`;
+}
+
+async function encryptPushPayload(subscription: PushSubscriptionLike, payload: string): Promise<Uint8Array> {
+  const { publicKeyBytes: vapidPublicKeyBytes } = await getVapidKeys();
+  const userPublicKeyBytes = base64UrlToBytes(subscription.keys.p256dh);
+  const authSecret = base64UrlToBytes(subscription.keys.auth);
+  const userPublicKey = await crypto.subtle.importKey(
+    "raw",
+    toArrayBuffer(userPublicKeyBytes),
+    { name: "ECDH", namedCurve: "P-256" },
+    false,
+    []
+  );
+  const senderKeys = await crypto.subtle.generateKey(
+    { name: "ECDH", namedCurve: "P-256" },
+    true,
+    ["deriveBits"]
+  );
+  const senderPublicKeyBytes = new Uint8Array(await crypto.subtle.exportKey("raw", senderKeys.publicKey));
+  const sharedSecret = new Uint8Array(
+    await crypto.subtle.deriveBits({ name: "ECDH", public: userPublicKey }, senderKeys.privateKey, 256)
+  );
+
+  // RFC 8291: derive the input keying material from the subscription auth
+  // secret, ECDH shared secret, and both public keys.
+  const prkKey = await hmac(authSecret, sharedSecret);
+  const keyInfo = concatBytes(
+    encoder.encode("WebPush: info\0"),
+    userPublicKeyBytes,
+    senderPublicKeyBytes
+  );
+  const ikm = await hmac(prkKey, keyInfo);
+
+  // RFC 8188 aes128gcm content coding.
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const prk = await hmac(salt, ikm);
+  const cek = (await hmac(prk, concatBytes(encoder.encode("Content-Encoding: aes128gcm\0"), new Uint8Array([1])))).slice(0, 16);
+  const nonce = (await hmac(prk, concatBytes(encoder.encode("Content-Encoding: nonce\0"), new Uint8Array([1])))).slice(0, 12);
+  const key = await crypto.subtle.importKey("raw", cek, { name: "AES-GCM", length: 128 }, false, ["encrypt"]);
+  const plaintext = concatBytes(encoder.encode(payload), new Uint8Array([2]));
+  const ciphertext = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, key, toArrayBuffer(plaintext)));
+
+  const recordSize = 4096;
+  return concatBytes(salt, uint32(recordSize), new Uint8Array([senderPublicKeyBytes.length]), senderPublicKeyBytes, ciphertext);
+}
+
+async function sendWebPush(
+  subscription: PushSubscriptionLike,
+  payload: string,
+  options: PushOptions
+): Promise<{ statusCode: number }> {
+  const endpoint = new URL(subscription.endpoint);
+  const jwt = await createVapidJwt(endpoint.origin);
+  const encryptedPayload = await encryptPushPayload(subscription, payload);
+  const response = await fetch(subscription.endpoint, {
+    method: "POST",
+    headers: {
+      ...options.headers,
+      TTL: String(options.TTL),
+      Authorization: `vapid t=${jwt}, k=${VAPID_PUBLIC}`,
+      "Content-Encoding": "aes128gcm",
+      "Content-Type": "application/octet-stream",
+    },
+    body: encryptedPayload,
+  });
+
+  if (!response.ok) {
+    const err = new Error(`Push service returned HTTP ${response.status}`) as PushDeliveryError;
+    err.statusCode = response.status;
+    err.body = await response.text().catch(() => undefined);
+    err.headers = Object.fromEntries(response.headers.entries());
+    throw err;
+  }
+
+  return { statusCode: response.status };
 }
 
 const categoryColumn: Record<Category, string | null> = {
@@ -61,8 +250,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const vapidErr = ensureVapid();
-    if (vapidErr) return json({ error: vapidErr }, 500);
+    await getVapidKeys();
 
     const body = (await req.json()) as SendBody;
     if (!body.category || !body.title || !body.body) {
@@ -85,8 +273,9 @@ Deno.serve(async (req) => {
     const filterCol = categoryColumn[body.category];
     if (filterCol) query = query.eq(filterCol, true);
 
-    const { data: subs, error } = await query;
+    const { data: subsData, error } = await query;
     if (error) return json({ error: error.message }, 500);
+    const subs = (subsData ?? []) as unknown as PushSubscriptionRow[];
     if (!subs?.length) return json({ sent: 0, removed: 0 });
 
     // iOS-safe minimal payload. WebKit silently drops notifications when the
@@ -127,7 +316,7 @@ Deno.serve(async (req) => {
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
     await Promise.all(
-      subs.map(async (sub: { id: string; endpoint: string; p256dh: string; auth: string }) => {
+      subs.map(async (sub) => {
         const endpointHost = (() => {
           try {
             return new URL(sub.endpoint).host;
@@ -144,7 +333,7 @@ Deno.serve(async (req) => {
         while (attempt < MAX_ATTEMPTS) {
           attempt++;
           try {
-            const res = await webpush.sendNotification(
+            const res = await sendWebPush(
               { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
               payload,
               pushOptions
@@ -216,7 +405,7 @@ Deno.serve(async (req) => {
         .update({ last_used_at: new Date().toISOString() })
         .in(
           "id",
-          subs.map((s: { id: string }) => s.id).filter((id: string) => !toRemove.includes(id))
+          subs.map((s) => s.id).filter((id) => !toRemove.includes(id))
         );
     }
 
