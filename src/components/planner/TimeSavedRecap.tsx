@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { computeTimeSaved, formatHours, type TimeSavedResult } from "@/lib/timeSaved";
+import { computeTimeSaved, computeCumulativeMinutesSaved, formatHours, type TimeSavedResult, type WeekInputs } from "@/lib/timeSaved";
 import { getHumanRewards, type HumanReward } from "@/lib/humanReward";
 import ShareableRecapCard from "./ShareableRecapCard";
 import type { PlanDay, WeeklyPlan } from "./types";
@@ -94,17 +94,17 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
       checkinCount = count || 0;
     }
 
-    // Count past completed plans (exclude current plan)
+    // Pull all past plans to compute cumulative as a SUM of per-week actuals.
     const { data: allPlans } = await supabase
       .from("weekly_plans")
-      .select("id")
-      .eq("household_id", householdId);
+      .select("id, week_start")
+      .eq("household_id", householdId)
+      .order("week_start", { ascending: true });
 
     const weeks = allPlans?.length || 1;
     const pastWeeks = Math.max(0, weeks - 1); // exclude current week
     setTotalWeeks(weeks);
 
-    // If this is the user's first plan, show welcome instead
     if (pastWeeks === 0) {
       setIsFirstWeek(true);
       setResult(null);
@@ -117,10 +117,59 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
       checkinCount,
       totalPlansCompleted: weeks,
     });
-
     setResult(computed);
-    // Cumulative = this week + estimate for past completed weeks
-    setCumulativeMinutes(computed.totalMinutesSaved * weeks);
+
+    // ── Cumulative: sum per-week actuals ──
+    // Fetch every past plan's days + grocery counts + check-in counts in
+    // parallel, then run the engine per week and sum.
+    try {
+      const pastPlanIds = (allPlans || []).filter(p => p.id !== plan.id).map(p => p.id);
+      const weekInputs: WeekInputs[] = [];
+
+      // Always include current week first so it contributes too.
+      weekInputs.push({
+        planId: plan.id,
+        days,
+        hasGroceryList: (groceryCount || 0) > 0,
+        checkinCount,
+      });
+
+      if (pastPlanIds.length) {
+        const [{ data: pastDays }, { data: pastGrocery }, { data: pastCheckins }] = await Promise.all([
+          supabase.from("plan_days").select("*").in("plan_id", pastPlanIds),
+          supabase.from("grocery_items").select("plan_id").in("plan_id", pastPlanIds),
+          supabase
+            .from("evening_checkins")
+            .select("plan_day_id")
+            .eq("household_id", householdId),
+        ]);
+
+        const daysByPlan: Record<string, PlanDay[]> = {};
+        (pastDays || []).forEach((d: any) => {
+          (daysByPlan[d.plan_id] ||= []).push(d as PlanDay);
+        });
+        const groceryByPlan = new Set((pastGrocery || []).map((g: any) => g.plan_id));
+        const checkinDayIds = new Set((pastCheckins || []).map((c: any) => c.plan_day_id));
+
+        for (const pid of pastPlanIds) {
+          const pd = daysByPlan[pid] || [];
+          if (!pd.length) continue;
+          const checkinsForWeek = pd.filter(d => checkinDayIds.has(d.id)).length;
+          weekInputs.push({
+            planId: pid,
+            days: pd,
+            hasGroceryList: groceryByPlan.has(pid),
+            checkinCount: checkinsForWeek,
+          });
+        }
+      }
+
+      const cumulative = computeCumulativeMinutesSaved(weekInputs);
+      setCumulativeMinutes(cumulative);
+    } catch {
+      // Fall back to a conservative estimate if anything fails.
+      setCumulativeMinutes(computed.totalMinutesSaved * weeks);
+    }
   };
 
   useEffect(() => {

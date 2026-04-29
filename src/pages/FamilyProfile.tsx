@@ -11,10 +11,12 @@ import {
   Baby, Calendar, Truck, Star, Utensils, Timer, RefreshCw,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { computeCumulativeMinutesSaved, type WeekInputs } from "@/lib/timeSaved";
+import type { PlanDay } from "@/components/planner/types";
 
 type FeedbackRow = { meal_name: string; feedback: string; created_at: string };
 type PlanDayRow = {
-  id: string; day_of_week: number; meal_mode: string; meal_name: string | null;
+  id: string; plan_id: string; day_of_week: number; meal_mode: string; meal_name: string | null;
   cuisine_type: string | null; prep_time_minutes: number | null; calories: number | null;
 };
 type CheckinRow = { plan_day_id: string; tags: string[]; effort_level: string | null };
@@ -30,6 +32,7 @@ const FamilyProfile = () => {
   const [planDays, setPlanDays] = useState<PlanDayRow[]>([]);
   const [checkins, setCheckins] = useState<CheckinRow[]>([]);
   const [planCount, setPlanCount] = useState(0);
+  const [groceryPlanIds, setGroceryPlanIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,11 +49,18 @@ const FamilyProfile = () => {
       setPlanCount(plans.length);
       if (plans.length > 0) {
         const planIds = plans.map(p => p.id);
-        const { data: days } = await supabase
-          .from("plan_days")
-          .select("id, day_of_week, meal_mode, meal_name, cuisine_type, prep_time_minutes, calories")
-          .in("plan_id", planIds);
+        const [{ data: days }, { data: groceries }] = await Promise.all([
+          supabase
+            .from("plan_days")
+            .select("id, plan_id, day_of_week, meal_mode, meal_name, cuisine_type, prep_time_minutes, calories")
+            .in("plan_id", planIds),
+          supabase
+            .from("grocery_items")
+            .select("plan_id")
+            .in("plan_id", planIds),
+        ]);
         if (days) setPlanDays(days as PlanDayRow[]);
+        setGroceryPlanIds(new Set((groceries || []).map((g: any) => g.plan_id)));
       }
       if (ciRes.data) setCheckins(ciRes.data as CheckinRow[]);
       setLoading(false);
@@ -143,12 +153,25 @@ const FamilyProfile = () => {
   }, [planDays, planCount]);
 
   const timeSaved = useMemo(() => {
-    // ~90 min saved per planned week (conservative estimate)
-    const minutesSaved = planCount * 90;
+    // Sum per-week actuals using the same engine as the recap.
+    const checkinDayIds = new Set(checkins.map(c => c.plan_day_id));
+    const daysByPlan: Record<string, PlanDayRow[]> = {};
+    planDays.forEach(d => { (daysByPlan[d.plan_id] ||= []).push(d); });
+    const planIds = Object.keys(daysByPlan);
+    const weekInputs: WeekInputs[] = planIds.map(pid => {
+      const pd = daysByPlan[pid];
+      return {
+        planId: pid,
+        days: pd as unknown as PlanDay[],
+        hasGroceryList: groceryPlanIds.has(pid),
+        checkinCount: pd.filter(d => checkinDayIds.has(d.id)).length,
+      };
+    });
+    const minutesSaved = computeCumulativeMinutesSaved(weekInputs);
     const hours = (minutesSaved / 60).toFixed(1);
     const movieNights = Math.floor(minutesSaved / 120);
     return { hours, movieNights, minutesSaved };
-  }, [planCount]);
+  }, [planDays, checkins, groceryPlanIds]);
 
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const [recsLoading, setRecsLoading] = useState(false);
