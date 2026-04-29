@@ -78,20 +78,29 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   }, [plan, days, householdId]);
 
   const loadTimeSaved = async () => {
-    const { count: groceryCount } = await supabase
+    // ── Current-week grocery engagement ──
+    // "Used" = at least one item checked off (real shopping behavior),
+    // OR at least one item came from a meal swap (list got actively updated).
+    const { data: currentGrocery } = await supabase
       .from("grocery_items")
-      .select("id", { count: "exact", head: true })
+      .select("is_checked, source")
       .eq("plan_id", plan.id);
+    const currentGroceryUsed = (currentGrocery || []).some(
+      (g: any) => g.is_checked === true || g.source === "swap"
+    );
 
+    // ── Current-week check-in coverage ──
+    // Count UNIQUE plan_days with at least one check-in to avoid
+    // overcounting when a day has multiple check-in rows.
     const dayIds = days.map(d => d.id);
     let checkinCount = 0;
     if (dayIds.length) {
-      const { count } = await supabase
+      const { data: ciRows } = await supabase
         .from("evening_checkins")
-        .select("id", { count: "exact", head: true })
+        .select("plan_day_id")
         .eq("household_id", householdId)
         .in("plan_day_id", dayIds);
-      checkinCount = count || 0;
+      checkinCount = new Set((ciRows || []).map((c: any) => c.plan_day_id)).size;
     }
 
     // Pull all past plans to compute cumulative as a SUM of per-week actuals.
@@ -113,15 +122,13 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
     setIsFirstWeek(false);
 
     const computed = computeTimeSaved(days, {
-      hasGroceryList: (groceryCount || 0) > 0,
+      groceryListUsed: currentGroceryUsed,
       checkinCount,
       totalPlansCompleted: weeks,
     });
     setResult(computed);
 
     // ── Cumulative: sum per-week actuals ──
-    // Fetch every past plan's days + grocery counts + check-in counts in
-    // parallel, then run the engine per week and sum.
     try {
       const pastPlanIds = (allPlans || []).filter(p => p.id !== plan.id).map(p => p.id);
       const weekInputs: WeekInputs[] = [];
@@ -130,35 +137,59 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
       weekInputs.push({
         planId: plan.id,
         days,
-        hasGroceryList: (groceryCount || 0) > 0,
+        groceryListUsed: currentGroceryUsed,
         checkinCount,
       });
 
       if (pastPlanIds.length) {
-        const [{ data: pastDays }, { data: pastGrocery }, { data: pastCheckins }] = await Promise.all([
-          supabase.from("plan_days").select("*").in("plan_id", pastPlanIds),
-          supabase.from("grocery_items").select("plan_id").in("plan_id", pastPlanIds),
+        // Fetch ALL plan_days for past plans (so we can correctly map
+        // check-ins per plan_day → per plan and never overcount).
+        const [{ data: pastDays }, { data: pastGrocery }] = await Promise.all([
           supabase
-            .from("evening_checkins")
-            .select("plan_day_id")
-            .eq("household_id", householdId),
+            .from("plan_days")
+            .select("*")
+            .in("plan_id", pastPlanIds),
+          supabase
+            .from("grocery_items")
+            .select("plan_id, is_checked, source")
+            .in("plan_id", pastPlanIds),
         ]);
 
         const daysByPlan: Record<string, PlanDay[]> = {};
         (pastDays || []).forEach((d: any) => {
           (daysByPlan[d.plan_id] ||= []).push(d as PlanDay);
         });
-        const groceryByPlan = new Set((pastGrocery || []).map((g: any) => g.plan_id));
-        const checkinDayIds = new Set((pastCheckins || []).map((c: any) => c.plan_day_id));
+
+        // Real grocery-engagement signal per plan
+        const groceryUsedByPlan = new Set<string>();
+        (pastGrocery || []).forEach((g: any) => {
+          if (g.is_checked === true || g.source === "swap") {
+            groceryUsedByPlan.add(g.plan_id);
+          }
+        });
+
+        // Fetch check-ins scoped to the actual past plan_day ids only
+        // (prevents counting check-ins from current week or unrelated plans).
+        const allPastDayIds = (pastDays || []).map((d: any) => d.id);
+        let checkinDayIds = new Set<string>();
+        if (allPastDayIds.length) {
+          const { data: pastCheckins } = await supabase
+            .from("evening_checkins")
+            .select("plan_day_id")
+            .eq("household_id", householdId)
+            .in("plan_day_id", allPastDayIds);
+          checkinDayIds = new Set((pastCheckins || []).map((c: any) => c.plan_day_id));
+        }
 
         for (const pid of pastPlanIds) {
           const pd = daysByPlan[pid] || [];
           if (!pd.length) continue;
+          // Unique plan_days with a check-in (capped at # of plan_days).
           const checkinsForWeek = pd.filter(d => checkinDayIds.has(d.id)).length;
           weekInputs.push({
             planId: pid,
             days: pd,
-            hasGroceryList: groceryByPlan.has(pid),
+            groceryListUsed: groceryUsedByPlan.has(pid),
             checkinCount: checkinsForWeek,
           });
         }
