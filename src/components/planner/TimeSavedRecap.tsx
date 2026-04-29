@@ -137,6 +137,16 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
     });
     setResult(computed);
 
+    const currentPlannedNights = days.filter(d => d.meal_name).length;
+    const currentCookNights = days.filter(d => d.meal_mode === "cook").length;
+    setRecapInputs({
+      plannedNights: currentPlannedNights,
+      cookNights: currentCookNights,
+      groceryListUsed: currentGroceryUsed,
+      rawCheckinCount: checkinCount,
+      cappedCheckinCount: Math.min(checkinCount, currentCookNights),
+    });
+
     // ── Cumulative: sum per-week actuals ──
     try {
       const pastPlanIds = (allPlans || []).filter(p => p.id !== plan.id).map(p => p.id);
