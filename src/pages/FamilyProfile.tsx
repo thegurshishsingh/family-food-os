@@ -151,12 +151,25 @@ const FamilyProfile = () => {
   }, [planDays, planCount]);
 
   const timeSaved = useMemo(() => {
-    // ~90 min saved per planned week (conservative estimate)
-    const minutesSaved = planCount * 90;
+    // Sum per-week actuals using the same engine as the recap.
+    const checkinDayIds = new Set(checkins.map(c => c.plan_day_id));
+    const daysByPlan: Record<string, PlanDayRow[]> = {};
+    planDays.forEach(d => { (daysByPlan[d.plan_id] ||= []).push(d); });
+    const planIds = Object.keys(daysByPlan);
+    const weekInputs: WeekInputs[] = planIds.map(pid => {
+      const pd = daysByPlan[pid];
+      return {
+        planId: pid,
+        days: pd as unknown as PlanDay[],
+        hasGroceryList: groceryPlanIds.has(pid),
+        checkinCount: pd.filter(d => checkinDayIds.has(d.id)).length,
+      };
+    });
+    const minutesSaved = computeCumulativeMinutesSaved(weekInputs);
     const hours = (minutesSaved / 60).toFixed(1);
     const movieNights = Math.floor(minutesSaved / 120);
     return { hours, movieNights, minutesSaved };
-  }, [planCount]);
+  }, [planDays, checkins, groceryPlanIds]);
 
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const [recsLoading, setRecsLoading] = useState(false);
