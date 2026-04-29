@@ -144,6 +144,81 @@ async function createVapidJwt(audience: string): Promise<string> {
   return `${unsigned}.${bytesToBase64Url(signature)}`;
 }
 
+async function encryptPushPayload(subscription: PushSubscriptionLike, payload: string): Promise<Uint8Array> {
+  const { publicKeyBytes: vapidPublicKeyBytes } = await getVapidKeys();
+  const userPublicKeyBytes = base64UrlToBytes(subscription.keys.p256dh);
+  const authSecret = base64UrlToBytes(subscription.keys.auth);
+  const userPublicKey = await crypto.subtle.importKey(
+    "raw",
+    userPublicKeyBytes,
+    { name: "ECDH", namedCurve: "P-256" },
+    false,
+    []
+  );
+  const senderKeys = await crypto.subtle.generateKey(
+    { name: "ECDH", namedCurve: "P-256" },
+    true,
+    ["deriveBits"]
+  );
+  const senderPublicKeyBytes = new Uint8Array(await crypto.subtle.exportKey("raw", senderKeys.publicKey));
+  const sharedSecret = new Uint8Array(
+    await crypto.subtle.deriveBits({ name: "ECDH", public: userPublicKey }, senderKeys.privateKey, 256)
+  );
+
+  // RFC 8291: derive the input keying material from the subscription auth
+  // secret, ECDH shared secret, and both public keys.
+  const prkKey = await hmac(authSecret, sharedSecret);
+  const keyInfo = concatBytes(
+    encoder.encode("WebPush: info\0"),
+    userPublicKeyBytes,
+    senderPublicKeyBytes
+  );
+  const ikm = await hmac(prkKey, keyInfo);
+
+  // RFC 8188 aes128gcm content coding.
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const prk = await hmac(salt, ikm);
+  const cek = (await hmac(prk, concatBytes(encoder.encode("Content-Encoding: aes128gcm\0"), new Uint8Array([1])))).slice(0, 16);
+  const nonce = (await hmac(prk, concatBytes(encoder.encode("Content-Encoding: nonce\0"), new Uint8Array([1])))).slice(0, 12);
+  const key = await crypto.subtle.importKey("raw", cek, { name: "AES-GCM", length: 128 }, false, ["encrypt"]);
+  const plaintext = concatBytes(encoder.encode(payload), new Uint8Array([2]));
+  const ciphertext = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, key, plaintext));
+
+  const recordSize = 4096;
+  return concatBytes(salt, uint32(recordSize), new Uint8Array([senderPublicKeyBytes.length]), senderPublicKeyBytes, ciphertext);
+}
+
+async function sendWebPush(
+  subscription: PushSubscriptionLike,
+  payload: string,
+  options: PushOptions
+): Promise<{ statusCode: number }> {
+  const endpoint = new URL(subscription.endpoint);
+  const jwt = await createVapidJwt(endpoint.origin);
+  const encryptedPayload = await encryptPushPayload(subscription, payload);
+  const response = await fetch(subscription.endpoint, {
+    method: "POST",
+    headers: {
+      ...options.headers,
+      TTL: String(options.TTL),
+      Authorization: `vapid t=${jwt}, k=${VAPID_PUBLIC}`,
+      "Content-Encoding": "aes128gcm",
+      "Content-Type": "application/octet-stream",
+    },
+    body: encryptedPayload,
+  });
+
+  if (!response.ok) {
+    const err = new Error(`Push service returned HTTP ${response.status}`) as PushDeliveryError;
+    err.statusCode = response.status;
+    err.body = await response.text().catch(() => undefined);
+    err.headers = Object.fromEntries(response.headers.entries());
+    throw err;
+  }
+
+  return { statusCode: response.status };
+}
+
 const categoryColumn: Record<Category, string | null> = {
   test: null,
   dinner_reveal: "enabled_dinner_reveal",
