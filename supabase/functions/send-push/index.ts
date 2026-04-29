@@ -237,8 +237,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const vapidErr = ensureVapid();
-    if (vapidErr) return json({ error: vapidErr }, 500);
+    await getVapidKeys();
 
     const body = (await req.json()) as SendBody;
     if (!body.category || !body.title || !body.body) {
@@ -320,7 +319,7 @@ Deno.serve(async (req) => {
         while (attempt < MAX_ATTEMPTS) {
           attempt++;
           try {
-            const res = await webpush.sendNotification(
+            const res = await sendWebPush(
               { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
               payload,
               pushOptions
