@@ -544,9 +544,17 @@ function buildPrompt(
     if (active.length) parts.push(`Additional stored context flags: ${active.join("; ")}.`);
   }
 
-  // ── Historical data ──
-  if (lovedMeals.length) parts.push(`\n❤️ Previously LOVED meals (consider including again or variations): ${lovedMeals.slice(0, 10).join(", ")}.`);
-  if (dislikedMeals.length) parts.push(`👎 Previously DISLIKED meals (avoid these or similar): ${dislikedMeals.slice(0, 10).join(", ")}.`);
+  // ── Historical data (balanced learning: 28-90 day window) ──
+  if (lovedMeals.length) {
+    parts.push(`\n❤️ LOVED MEALS (recent feedback) — consider re-introducing 1-2 of these or close variations: ${lovedMeals.slice(0, 12).join(", ")}.`);
+  }
+  if (hardExcludeMeals.length) {
+    parts.push(`\n🚫 HARD EXCLUDE — Family disliked these 2+ times in the last 28 days. DO NOT include these meals OR very similar dishes (same protein + cooking method + cuisine combination):\n${hardExcludeMeals.map(m => `  - ${m}`).join("\n")}`);
+  }
+  const softAvoid = dislikedMeals.filter(m => !hardExcludeMeals.includes(m));
+  if (softAvoid.length) {
+    parts.push(`\n👎 SOFT AVOID — Disliked once recently. Skip exact repeats; close variations are OK if there's a meaningful change: ${softAvoid.slice(0, 10).join(", ")}.`);
+  }
 
   // ── Saved meals with frequency ──
   if (savedMeals.length) {
