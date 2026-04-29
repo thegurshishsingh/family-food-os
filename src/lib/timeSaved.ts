@@ -85,7 +85,10 @@ function computeConfidence(opts: {
 export function computeTimeSaved(
   days: PlanDay[],
   opts: {
-    hasGroceryList: boolean;
+    /** True only when the family actually engaged with the grocery list
+     *  (checked items off, or list was modified by a meal swap). The
+     *  mere existence of an auto-generated list is not a signal. */
+    groceryListUsed: boolean;
     checkinCount: number;
     totalPlansCompleted: number;
   }
@@ -108,19 +111,19 @@ export function computeTimeSaved(
   const confidence = computeConfidence({
     plannedNights,
     cookNights,
-    hasGroceryList: opts.hasGroceryList,
+    groceryListUsed: opts.groceryListUsed,
     checkinCount: opts.checkinCount,
     totalPlansCompleted: opts.totalPlansCompleted,
   });
 
   // ── Raw (theoretical) savings per category ──
   const rawDecision = BASELINE.decidingWhatToCook * (plannedNights / 7) * 0.85;
-  const rawGrocery = opts.hasGroceryList ? BASELINE.buildingGroceryList * 0.9 : 0;
-  const rawShopping = opts.hasGroceryList
+  const rawGrocery = opts.groceryListUsed ? BASELINE.buildingGroceryList * 0.9 : 0;
+  const rawShopping = opts.groceryListUsed
     ? BASELINE.shoppingComparing * (0.4 + sharedIngredientGroups * 0.15)
     : BASELINE.shoppingComparing * 0.2;
   const rawCoord = BASELINE.coordinatingFamily * (plannedNights / 7) * 0.7;
-  const rawPantry = opts.hasGroceryList ? BASELINE.checkingPantryWaste * 0.6 : BASELINE.checkingPantryWaste * 0.2;
+  const rawPantry = opts.groceryListUsed ? BASELINE.checkingPantryWaste * 0.6 : BASELINE.checkingPantryWaste * 0.2;
 
   let rawReplan = BASELINE.replanningChanges * 0.3;
   if (leftoverNights > 0) rawReplan += Math.min(leftoverNights * 5, 15);
@@ -135,6 +138,9 @@ export function computeTimeSaved(
   const pantrySaved = scale(rawPantry);
   const replanSaved = scale(rawReplan);
 
+  // Cap check-in count at planned cook nights for honest labels.
+  const cappedCheckins = Math.min(opts.checkinCount, Math.max(cookNights, 1));
+
   // ── User-facing factors (already-scaled, with signal sources) ──
   const factors: SavingsFactor[] = [];
 
@@ -144,8 +150,8 @@ export function computeTimeSaved(
     factors.push({ label: `${plannedNights} planned dinners reduced decision time`, minutesSaved: decisionSaved });
   }
 
-  if (opts.hasGroceryList) {
-    factors.push({ label: `Grocery list was built automatically from ${cookNights} planned dinners`, minutesSaved: grocerySaved });
+  if (opts.groceryListUsed) {
+    factors.push({ label: `Grocery list was actively used while shopping for ${cookNights} planned dinners`, minutesSaved: grocerySaved });
   }
 
   if (sharedIngredientGroups > 0) {
@@ -168,9 +174,9 @@ export function computeTimeSaved(
     });
   }
 
-  if (opts.checkinCount > 0) {
-    const checkinBonus = Math.round(Math.min(opts.checkinCount * 2, 10) * confidence);
-    factors.push({ label: `${opts.checkinCount} Dinner Check-In${opts.checkinCount > 1 ? "s" : ""} helped the system learn faster`, minutesSaved: checkinBonus });
+  if (cappedCheckins > 0) {
+    const checkinBonus = Math.round(Math.min(cappedCheckins * 2, 10) * confidence);
+    factors.push({ label: `${cappedCheckins} Dinner Check-In${cappedCheckins > 1 ? "s" : ""} helped the system learn faster`, minutesSaved: checkinBonus });
   }
 
   // Build breakdown for chart (uses scaled values)
@@ -202,7 +208,9 @@ export function formatHours(minutes: number): string {
 export type WeekInputs = {
   planId: string;
   days: PlanDay[];
-  hasGroceryList: boolean;
+  /** True only when the family engaged with this week's grocery list
+   *  (items checked off, or list updated via a swap). */
+  groceryListUsed: boolean;
   checkinCount: number;
 };
 
@@ -218,7 +226,7 @@ export function computeCumulativeMinutesSaved(weeks: WeekInputs[]): number {
   for (let i = 0; i < weeks.length; i++) {
     const w = weeks[i];
     const r = computeTimeSaved(w.days, {
-      hasGroceryList: w.hasGroceryList,
+      groceryListUsed: w.groceryListUsed,
       checkinCount: w.checkinCount,
       totalPlansCompleted: i + 1, // history grows week by week
     });
@@ -226,3 +234,4 @@ export function computeCumulativeMinutesSaved(weeks: WeekInputs[]): number {
   }
   return total;
 }
+
