@@ -30,6 +30,7 @@ const FamilyProfile = () => {
   const [planDays, setPlanDays] = useState<PlanDayRow[]>([]);
   const [checkins, setCheckins] = useState<CheckinRow[]>([]);
   const [planCount, setPlanCount] = useState(0);
+  const [groceryPlanIds, setGroceryPlanIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,11 +47,18 @@ const FamilyProfile = () => {
       setPlanCount(plans.length);
       if (plans.length > 0) {
         const planIds = plans.map(p => p.id);
-        const { data: days } = await supabase
-          .from("plan_days")
-          .select("id, day_of_week, meal_mode, meal_name, cuisine_type, prep_time_minutes, calories")
-          .in("plan_id", planIds);
+        const [{ data: days }, { data: groceries }] = await Promise.all([
+          supabase
+            .from("plan_days")
+            .select("id, plan_id, day_of_week, meal_mode, meal_name, cuisine_type, prep_time_minutes, calories")
+            .in("plan_id", planIds),
+          supabase
+            .from("grocery_items")
+            .select("plan_id")
+            .in("plan_id", planIds),
+        ]);
         if (days) setPlanDays(days as PlanDayRow[]);
+        setGroceryPlanIds(new Set((groceries || []).map((g: any) => g.plan_id)));
       }
       if (ciRes.data) setCheckins(ciRes.data as CheckinRow[]);
       setLoading(false);
