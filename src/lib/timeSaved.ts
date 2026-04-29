@@ -1,7 +1,17 @@
 /**
  * Time-saved calculation engine.
- * Estimates minutes saved per week based on actual plan structure and user behavior.
- * All estimates are rule-based and tied to concrete actions.
+ *
+ * Strategy: rule-based baselines (what an unplanned week typically costs)
+ * scaled by a per-week CONFIDENCE FACTOR so we don't over-claim early on.
+ *
+ * Confidence is built from real signals tied to that specific week:
+ *   - Did the plan have most nights filled in?
+ *   - Was there a synced grocery list?
+ *   - Did the family check in / cook through what was planned?
+ *
+ * Early weeks (no check-ins, partial plan) get conservative credit.
+ * Mature weeks (full plan, grocery list, multiple check-ins) approach
+ * the full theoretical savings.
  */
 
 import type { PlanDay } from "@/components/planner/types";
@@ -21,6 +31,8 @@ export type TimeSavedResult = {
   totalMinutesSaved: number;
   breakdown: TimeSavingsBreakdown[];
   factors: SavingsFactor[];
+  /** 0..1 — how strongly the underlying signals back this number. */
+  confidence: number;
 };
 
 // Baseline estimates (minutes without the app, per week)
@@ -34,6 +46,33 @@ const BASELINE = {
 };
 
 /**
+ * Compute a 0..1 confidence factor for a single week based on real signals.
+ * Each component caps at its weight so we never exceed 1.0.
+ *
+ *  - Plan completeness     up to 0.40   (planned nights / 7)
+ *  - Grocery list synced   0.20 flat
+ *  - Check-in coverage     up to 0.30   (checkins / planned cook nights)
+ *  - History bonus         up to 0.10   (caps at 4+ weeks)
+ */
+function computeConfidence(opts: {
+  plannedNights: number;
+  cookNights: number;
+  hasGroceryList: boolean;
+  checkinCount: number;
+  totalPlansCompleted: number;
+}): number {
+  const planComponent = Math.min(opts.plannedNights / 7, 1) * 0.4;
+  const groceryComponent = opts.hasGroceryList ? 0.2 : 0;
+  const checkinDenom = Math.max(1, opts.cookNights);
+  const checkinComponent = Math.min(opts.checkinCount / checkinDenom, 1) * 0.3;
+  const historyComponent = Math.min(opts.totalPlansCompleted / 4, 1) * 0.1;
+  const raw = planComponent + groceryComponent + checkinComponent + historyComponent;
+  // Floor at 0.35 so a barely-touched week still gets a small honest credit;
+  // ceiling at 1.0.
+  return Math.max(0.35, Math.min(1, raw));
+}
+
+/**
  * Compute time saved from a single week's plan data.
  */
 export function computeTimeSaved(
@@ -45,13 +84,12 @@ export function computeTimeSaved(
   }
 ): TimeSavedResult {
   if (!days.length) {
-    return { totalMinutesSaved: 0, breakdown: [], factors: [] };
+    return { totalMinutesSaved: 0, breakdown: [], factors: [], confidence: 0 };
   }
 
   const cookNights = days.filter(d => d.meal_mode === "cook").length;
   const leftoverNights = days.filter(d => d.meal_mode === "leftovers").length;
   const takeoutNights = days.filter(d => ["takeout", "dine_out"].includes(d.meal_mode)).length;
-  const emergencyNights = days.filter(d => d.meal_mode === "emergency").length;
   const plannedNights = days.filter(d => d.meal_name).length;
 
   // Detect shared ingredients (simple heuristic: same cuisine type on different days)
@@ -60,59 +98,75 @@ export function computeTimeSaved(
   cuisines.forEach(c => { cuisineCounts[c!] = (cuisineCounts[c!] || 0) + 1; });
   const sharedIngredientGroups = Object.values(cuisineCounts).filter(c => c > 1).length;
 
+  const confidence = computeConfidence({
+    plannedNights,
+    cookNights,
+    hasGroceryList: opts.hasGroceryList,
+    checkinCount: opts.checkinCount,
+    totalPlansCompleted: opts.totalPlansCompleted,
+  });
+
+  // ── Raw (theoretical) savings per category ──
+  const rawDecision = BASELINE.decidingWhatToCook * (plannedNights / 7) * 0.85;
+  const rawGrocery = opts.hasGroceryList ? BASELINE.buildingGroceryList * 0.9 : 0;
+  const rawShopping = opts.hasGroceryList
+    ? BASELINE.shoppingComparing * (0.4 + sharedIngredientGroups * 0.15)
+    : BASELINE.shoppingComparing * 0.2;
+  const rawCoord = BASELINE.coordinatingFamily * (plannedNights / 7) * 0.7;
+  const rawPantry = opts.hasGroceryList ? BASELINE.checkingPantryWaste * 0.6 : BASELINE.checkingPantryWaste * 0.2;
+
+  let rawReplan = BASELINE.replanningChanges * 0.3;
+  if (leftoverNights > 0) rawReplan += Math.min(leftoverNights * 5, 15);
+  if (takeoutNights > 0) rawReplan += Math.min(takeoutNights * 4, 12);
+
+  // ── Apply confidence scaling ──
+  const scale = (n: number) => Math.round(n * confidence);
+  const decisionSaved = scale(rawDecision);
+  const grocerySaved = scale(rawGrocery);
+  const shoppingSaved = scale(rawShopping);
+  const coordSaved = scale(rawCoord);
+  const pantrySaved = scale(rawPantry);
+  const replanSaved = scale(rawReplan);
+
+  // ── User-facing factors (already-scaled, with signal sources) ──
   const factors: SavingsFactor[] = [];
 
-  // 1. Decision time saved (pre-planned meals eliminate daily "what's for dinner")
-  const decisionSaved = Math.round(BASELINE.decidingWhatToCook * (plannedNights / 7) * 0.85);
   if (plannedNights >= 5) {
     factors.push({ label: `${plannedNights} pre-planned dinners eliminated daily decision fatigue`, minutesSaved: decisionSaved });
   } else if (plannedNights > 0) {
     factors.push({ label: `${plannedNights} planned dinners reduced decision time`, minutesSaved: decisionSaved });
   }
 
-  // 2. Grocery list
-  const grocerySaved = opts.hasGroceryList ? Math.round(BASELINE.buildingGroceryList * 0.9) : 0;
   if (opts.hasGroceryList) {
     factors.push({ label: `Grocery list was built automatically from ${cookNights} planned dinners`, minutesSaved: grocerySaved });
   }
 
-  // 3. Shopping efficiency from shared ingredients
-  const shoppingBase = BASELINE.shoppingComparing;
-  const shoppingSaved = opts.hasGroceryList
-    ? Math.round(shoppingBase * (0.4 + sharedIngredientGroups * 0.15))
-    : Math.round(shoppingBase * 0.2);
   if (sharedIngredientGroups > 0) {
-    factors.push({ label: `Repeated ingredients across ${sharedIngredientGroups} cuisine group${sharedIngredientGroups > 1 ? "s" : ""} simplified shopping`, minutesSaved: Math.round(sharedIngredientGroups * 4) });
+    factors.push({
+      label: `Repeated ingredients across ${sharedIngredientGroups} cuisine group${sharedIngredientGroups > 1 ? "s" : ""} simplified shopping`,
+      minutesSaved: Math.round(sharedIngredientGroups * 4 * confidence),
+    });
   }
 
-  // 4. Coordination saved
-  const coordSaved = Math.round(BASELINE.coordinatingFamily * (plannedNights / 7) * 0.7);
-
-  // 5. Pantry / waste reduction
-  const pantrySaved = opts.hasGroceryList ? Math.round(BASELINE.checkingPantryWaste * 0.6) : Math.round(BASELINE.checkingPantryWaste * 0.2);
-
-  // 6. Replanning reduction
-  const replanBase = BASELINE.replanningChanges;
-  let replanSaved = 0;
   if (leftoverNights > 0) {
-    const leftoverSave = Math.min(leftoverNights * 5, 15);
-    replanSaved += leftoverSave;
-    factors.push({ label: `${leftoverNights} leftover night${leftoverNights > 1 ? "s" : ""} reduced extra cooking and planning`, minutesSaved: leftoverSave });
+    factors.push({
+      label: `${leftoverNights} leftover night${leftoverNights > 1 ? "s" : ""} reduced extra cooking and planning`,
+      minutesSaved: Math.round(Math.min(leftoverNights * 5, 15) * confidence),
+    });
   }
   if (takeoutNights > 0) {
-    const takeoutSave = Math.min(takeoutNights * 4, 12);
-    replanSaved += takeoutSave;
-    factors.push({ label: `${takeoutNights} pre-planned takeout night${takeoutNights > 1 ? "s" : ""} prevented last-minute scrambling`, minutesSaved: takeoutSave });
+    factors.push({
+      label: `${takeoutNights} pre-planned takeout night${takeoutNights > 1 ? "s" : ""} prevented last-minute scrambling`,
+      minutesSaved: Math.round(Math.min(takeoutNights * 4, 12) * confidence),
+    });
   }
-  replanSaved += Math.round(replanBase * 0.3);
 
-  // 7. Check-in learning bonus
   if (opts.checkinCount > 0) {
-    const checkinBonus = Math.min(opts.checkinCount * 2, 10);
+    const checkinBonus = Math.round(Math.min(opts.checkinCount * 2, 10) * confidence);
     factors.push({ label: `${opts.checkinCount} Dinner Check-In${opts.checkinCount > 1 ? "s" : ""} helped the system learn faster`, minutesSaved: checkinBonus });
   }
 
-  // Build breakdown for chart
+  // Build breakdown for chart (uses scaled values)
   const breakdown: TimeSavingsBreakdown[] = [
     { category: "Deciding what to cook", withoutApp: BASELINE.decidingWhatToCook, withApp: BASELINE.decidingWhatToCook - decisionSaved },
     { category: "Building grocery list", withoutApp: BASELINE.buildingGroceryList, withApp: BASELINE.buildingGroceryList - grocerySaved },
@@ -124,7 +178,7 @@ export function computeTimeSaved(
 
   const totalMinutesSaved = breakdown.reduce((sum, b) => sum + (b.withoutApp - b.withApp), 0);
 
-  return { totalMinutesSaved, breakdown, factors };
+  return { totalMinutesSaved, breakdown, factors, confidence };
 }
 
 /** Format minutes as hours string, e.g. "2.6 hours" */
@@ -132,4 +186,36 @@ export function formatHours(minutes: number): string {
   const hrs = minutes / 60;
   if (hrs < 1) return `${minutes} min`;
   return `${hrs.toFixed(1)} hours`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Cumulative helper — sums per-week actuals across all plans.
+// ─────────────────────────────────────────────────────────────
+
+export type WeekInputs = {
+  planId: string;
+  days: PlanDay[];
+  hasGroceryList: boolean;
+  checkinCount: number;
+};
+
+/**
+ * Compute total minutes saved across many weeks by running the engine
+ * on each week individually and summing the results. This is more
+ * accurate than `thisWeek × totalWeeks` because savings vary by how
+ * complete each week's plan + execution was.
+ */
+export function computeCumulativeMinutesSaved(weeks: WeekInputs[]): number {
+  if (!weeks.length) return 0;
+  let total = 0;
+  for (let i = 0; i < weeks.length; i++) {
+    const w = weeks[i];
+    const r = computeTimeSaved(w.days, {
+      hasGroceryList: w.hasGroceryList,
+      checkinCount: w.checkinCount,
+      totalPlansCompleted: i + 1, // history grows week by week
+    });
+    total += r.totalMinutesSaved;
+  }
+  return total;
 }
