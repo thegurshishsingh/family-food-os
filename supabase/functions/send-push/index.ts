@@ -77,6 +77,12 @@ function concatBytes(...chunks: Uint8Array[]): Uint8Array {
   return out;
 }
 
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const copy = new Uint8Array(bytes.length);
+  copy.set(bytes);
+  return copy.buffer;
+}
+
 function uint32(value: number): Uint8Array {
   const bytes = new Uint8Array(4);
   new DataView(bytes.buffer).setUint32(0, value, false);
@@ -86,12 +92,12 @@ function uint32(value: number): Uint8Array {
 async function hmac(keyBytes: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
   const key = await crypto.subtle.importKey(
     "raw",
-    keyBytes,
+    toArrayBuffer(keyBytes),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"]
   );
-  return new Uint8Array(await crypto.subtle.sign("HMAC", key, data));
+  return new Uint8Array(await crypto.subtle.sign("HMAC", key, toArrayBuffer(data)));
 }
 
 function getVapidKeys(): Promise<VapidKeys> {
