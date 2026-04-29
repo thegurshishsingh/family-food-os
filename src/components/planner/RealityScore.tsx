@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, TrendingUp, ChefHat, Clock, DollarSign, Zap, Info } from "lucide-react";
+import { AlertTriangle, TrendingUp, ChefHat, Clock, DollarSign, Zap, Info, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import type { WeeklyPlan, PlanDay } from "./types";
@@ -41,6 +41,70 @@ const SCORE_FACTORS = [
   { label: "Family context", desc: "Adjustments for household size, children's ages, and weekly context flags" },
 ];
 
+type Reason = { icon: typeof ChefHat; label: string; tone: "good" | "warn" | "bad" };
+
+function buildReasons(days: PlanDay[]): Reason[] {
+  if (!days.length) return [];
+  const cookDays = days.filter(d => d.meal_mode === "cook");
+  const cookRatio = cookDays.length / days.length;
+  const cookPct = Math.round(cookRatio * 100);
+  const preps = cookDays.map(d => d.prep_time_minutes || 0).filter(p => p > 0);
+  const avgPrep = preps.length ? Math.round(preps.reduce((a, b) => a + b, 0) / preps.length) : 0;
+
+  const reasons: Reason[] = [];
+
+  // 1. Cook balance
+  if (cookRatio >= 0.4 && cookRatio <= 0.75) {
+    reasons.push({ icon: ChefHat, label: `Cook balance is realistic — ${cookDays.length} cook nights, ${days.length - cookDays.length} convenience.`, tone: "good" });
+  } else if (cookRatio > 0.75) {
+    reasons.push({ icon: ChefHat, label: `Cook-heavy week — ${cookPct}% of nights require cooking.`, tone: "warn" });
+  } else {
+    reasons.push({ icon: ChefHat, label: `Light on cooking — only ${cookDays.length} cook night${cookDays.length === 1 ? "" : "s"} this week.`, tone: "warn" });
+  }
+
+  // 2. Prep time
+  if (avgPrep === 0) {
+    reasons.push({ icon: Clock, label: `No prep time data on cook nights yet.`, tone: "warn" });
+  } else if (avgPrep <= 25) {
+    reasons.push({ icon: Clock, label: `Quick prep — averaging ${avgPrep} min per cook night.`, tone: "good" });
+  } else if (avgPrep <= 40) {
+    reasons.push({ icon: Clock, label: `Moderate prep — averaging ${avgPrep} min per cook night.`, tone: "good" });
+  } else {
+    reasons.push({ icon: Clock, label: `Longer prep — ${avgPrep} min average; some weeknights may feel heavy.`, tone: "bad" });
+  }
+
+  // 3. One learning / context / variety reason — pick the most relevant
+  const cuisines = cookDays.map(d => d.cuisine_type).filter(Boolean) as string[];
+  const uniqueCuisines = new Set(cuisines).size;
+  let consecutiveRepeats = 0;
+  for (let i = 1; i < days.length; i++) {
+    const a = days[i - 1].cuisine_type, b = days[i].cuisine_type;
+    if (a && b && a === b) consecutiveRepeats++;
+  }
+  const leftoverCount = days.filter(d => d.meal_mode === "leftovers").length;
+  const takeoutCount = days.filter(d => d.meal_mode === "takeout" || d.meal_mode === "dine_out").length;
+
+  if (consecutiveRepeats > 0) {
+    reasons.push({ icon: Sparkles, label: `Same cuisine on back-to-back nights — variety could be stronger.`, tone: "warn" });
+  } else if (cookDays.length >= 4 && uniqueCuisines / cookDays.length >= 0.75) {
+    reasons.push({ icon: Sparkles, label: `Strong cuisine variety — ${uniqueCuisines} different cuisines across cook nights.`, tone: "good" });
+  } else if (leftoverCount > 0 && takeoutCount > 0) {
+    reasons.push({ icon: Sparkles, label: `Smart mix of ${leftoverCount} leftover and ${takeoutCount} takeout night${takeoutCount === 1 ? "" : "s"} for breathing room.`, tone: "good" });
+  } else if (avgPrep > 40 && cookRatio > 0.6) {
+    reasons.push({ icon: Sparkles, label: `Plan adapts well to your tolerance, but consider one swap if energy dips.`, tone: "warn" });
+  } else {
+    reasons.push({ icon: Sparkles, label: `Plan reflects your recent feedback and household context.`, tone: "good" });
+  }
+
+  return reasons;
+}
+
+const TONE_CLASSES: Record<Reason["tone"], string> = {
+  good: "text-primary",
+  warn: "text-amber-600",
+  bad: "text-destructive",
+};
+
 const RealityScore = ({ plan, days = [] }: RealityScoreProps) => {
   const [showFactors, setShowFactors] = useState(false);
 
@@ -50,6 +114,7 @@ const RealityScore = ({ plan, days = [] }: RealityScoreProps) => {
   const tier = getScoreTier(score);
   const isLow = score < 60;
   const breakdown = computeBreakdown(days);
+  const reasons = buildReasons(days);
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -118,6 +183,24 @@ const RealityScore = ({ plan, days = [] }: RealityScoreProps) => {
 
               {plan.reality_message && (
                 <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{plan.reality_message}</p>
+              )}
+
+              {/* Why this score — 3 derived bullets */}
+              {reasons.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-border/40">
+                  <p className="text-[11px] font-semibold text-foreground mb-1.5 uppercase tracking-wide">Why this score</p>
+                  <ul className="space-y-1.5">
+                    {reasons.map((r, i) => {
+                      const Icon = r.icon;
+                      return (
+                        <li key={i} className="flex items-start gap-2">
+                          <Icon className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${TONE_CLASSES[r.tone]}`} />
+                          <span className="text-xs text-foreground leading-snug">{r.label}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               )}
             </div>
           </div>
