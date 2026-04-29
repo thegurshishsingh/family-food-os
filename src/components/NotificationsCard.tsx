@@ -748,11 +748,27 @@ const NotificationsCard = () => {
                       : "Sending…"
                     : "Send test"}
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleResubscribe(true)}
+                  disabled={busy || resubBusy || testStatus === "sending"}
+                  title="Unsubscribe and re-subscribe this device, then send a test"
+                >
+                  <RefreshCw
+                    className={`w-3.5 h-3.5 mr-1.5 ${resubBusy ? "animate-spin" : ""}`}
+                  />
+                  {resubBusy ? "Resubscribing…" : "Force re-subscribe"}
+                </Button>
                 <Button variant="ghost" size="sm" onClick={handleDisable} disabled={busy}>
                   <BellOff className="w-3.5 h-3.5 mr-1.5" />
                   Turn off
                 </Button>
               </div>
+              <p className="text-[11px] text-muted-foreground -mt-1 leading-snug">
+                Not getting notifications on this device? Tap <strong>Force re-subscribe</strong> — it
+                replaces the stored push token with a fresh one and sends a test.
+              </p>
               {testStatus === "success" && testResult && (
                 <p className="text-xs text-primary">
                   ✓ Sent to {testResult.sent} device{testResult.sent === 1 ? "" : "s"}
