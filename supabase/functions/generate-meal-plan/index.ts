@@ -386,7 +386,7 @@ function getNextMonday() {
 
 function buildPrompt(
   household: any, prefs: any, context: any,
-  lovedMeals: string[], dislikedMeals: string[],
+  lovedMeals: string[], dislikedMeals: string[], hardExcludeMeals: string[],
   savedMeals: { meal_name: string; meal_description: string | null }[],
   checkinInsights: { tags: string[]; effort_level: string | null; day_of_week: number }[],
   setup?: { takeout_days?: number[]; dine_out_days?: number[]; leftover_days?: number[]; special_meals?: string[]; week_intensity?: string; locked_saved_meals?: string[]; saved_meal_day_assignments?: Record<string, number>; week_context_tags?: string[]; partial_week?: { startDay: number; dayCount: number } },
