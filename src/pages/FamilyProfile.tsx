@@ -11,6 +11,8 @@ import {
   Baby, Calendar, Truck, Star, Utensils, Timer, RefreshCw,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { computeCumulativeMinutesSaved, type WeekInputs } from "@/lib/timeSaved";
+import type { PlanDay } from "@/components/planner/types";
 
 type FeedbackRow = { meal_name: string; feedback: string; created_at: string };
 type PlanDayRow = {
