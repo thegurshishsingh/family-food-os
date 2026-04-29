@@ -32,7 +32,7 @@ const FamilyProfile = () => {
   const [planDays, setPlanDays] = useState<PlanDayRow[]>([]);
   const [checkins, setCheckins] = useState<CheckinRow[]>([]);
   const [planCount, setPlanCount] = useState(0);
-  const [groceryPlanIds, setGroceryPlanIds] = useState<Set<string>>(new Set());
+  const [groceryUsedPlanIds, setGroceryUsedPlanIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,13 +54,20 @@ const FamilyProfile = () => {
             .from("plan_days")
             .select("id, plan_id, day_of_week, meal_mode, meal_name, cuisine_type, prep_time_minutes, calories")
             .in("plan_id", planIds),
+          // Fetch the real engagement signal — items the user checked
+          // off, or items added via meal swaps. Mere existence of the
+          // auto-generated list is not a "synced" signal.
           supabase
             .from("grocery_items")
-            .select("plan_id")
+            .select("plan_id, is_checked, source")
             .in("plan_id", planIds),
         ]);
         if (days) setPlanDays(days as PlanDayRow[]);
-        setGroceryPlanIds(new Set((groceries || []).map((g: any) => g.plan_id)));
+        const usedPlans = new Set<string>();
+        (groceries || []).forEach((g: any) => {
+          if (g.is_checked === true || g.source === "swap") usedPlans.add(g.plan_id);
+        });
+        setGroceryUsedPlanIds(usedPlans);
       }
       if (ciRes.data) setCheckins(ciRes.data as CheckinRow[]);
       setLoading(false);
