@@ -57,6 +57,14 @@ function ConfettiParticle({ delay, x, color }: { delay: number; x: number; color
   );
 }
 
+type RecapInputs = {
+  plannedNights: number;
+  cookNights: number;
+  groceryListUsed: boolean;
+  rawCheckinCount: number;
+  cappedCheckinCount: number;
+};
+
 const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan, onViewDetails, generating }: TimeSavedRecapProps) => {
   const [result, setResult] = useState<TimeSavedResult | null>(null);
   const [cumulativeMinutes, setCumulativeMinutes] = useState(0);
@@ -64,6 +72,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   const [totalWeeks, setTotalWeeks] = useState(1);
   const [showEstimation, setShowEstimation] = useState(false);
   const [showMilestone, setShowMilestone] = useState(false);
+  const [recapInputs, setRecapInputs] = useState<RecapInputs | null>(null);
 
   // Persist milestone acknowledgment so it doesn't show on every login
   const getAcknowledgedMilestone = (): number => {
