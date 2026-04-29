@@ -27,6 +27,13 @@ interface SendBody {
   tag?: string;
 }
 
+type PushSubscriptionRow = {
+  id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+};
+
 const VAPID_PUBLIC = Deno.env.get("VAPID_PUBLIC_KEY") || "";
 const VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY") || "";
 const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "mailto:hello@familyfoodos.com";
@@ -266,8 +273,9 @@ Deno.serve(async (req) => {
     const filterCol = categoryColumn[body.category];
     if (filterCol) query = query.eq(filterCol, true);
 
-    const { data: subs, error } = await query;
+    const { data: subsData, error } = await query;
     if (error) return json({ error: error.message }, 500);
+    const subs = (subsData ?? []) as PushSubscriptionRow[];
     if (!subs?.length) return json({ sent: 0, removed: 0 });
 
     // iOS-safe minimal payload. WebKit silently drops notifications when the
@@ -308,7 +316,7 @@ Deno.serve(async (req) => {
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
     await Promise.all(
-      subs.map(async (sub: { id: string; endpoint: string; p256dh: string; auth: string }) => {
+      subs.map(async (sub) => {
         const endpointHost = (() => {
           try {
             return new URL(sub.endpoint).host;
@@ -397,7 +405,7 @@ Deno.serve(async (req) => {
         .update({ last_used_at: new Date().toISOString() })
         .in(
           "id",
-          subs.map((s: { id: string }) => s.id).filter((id: string) => !toRemove.includes(id))
+          subs.map((s) => s.id).filter((id) => !toRemove.includes(id))
         );
     }
 
