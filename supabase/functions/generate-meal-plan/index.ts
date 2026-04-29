@@ -125,7 +125,7 @@ serve(async (req) => {
       })).filter(c => c.day_of_week >= 0);
     }
 
-    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, savedMeals || [], checkinInsights, setup);
+    const prompt = buildPrompt(household, preferences, context, lovedMeals, dislikedMeals, hardExcludeMeals, savedMeals || [], checkinInsights, setup);
 
     // Determine which days to generate
     const daysToGenerate = isPartialWeek
