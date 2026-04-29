@@ -107,6 +107,11 @@ async function hmac(keyBytes: Uint8Array, data: Uint8Array): Promise<Uint8Array>
   return new Uint8Array(await crypto.subtle.sign("HMAC", key, toArrayBuffer(data)));
 }
 
+async function hkdfExpand(keyBytes: Uint8Array, info: Uint8Array, length: number): Promise<Uint8Array> {
+  const okm = await hmac(keyBytes, concatBytes(info, new Uint8Array([1])));
+  return okm.slice(0, length);
+}
+
 function getVapidKeys(): Promise<VapidKeys> {
   if (vapidKeysPromise) return vapidKeysPromise;
   vapidKeysPromise = (async () => {
@@ -186,13 +191,13 @@ async function encryptPushPayload(subscription: PushSubscriptionLike, payload: s
     userPublicKeyBytes,
     senderPublicKeyBytes
   );
-  const ikm = await hmac(prkKey, keyInfo);
+  const ikm = await hkdfExpand(prkKey, keyInfo, 32);
 
   // RFC 8188 aes128gcm content coding.
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const prk = await hmac(salt, ikm);
-  const cek = (await hmac(prk, concatBytes(encoder.encode("Content-Encoding: aes128gcm\0"), new Uint8Array([1])))).slice(0, 16);
-  const nonce = (await hmac(prk, concatBytes(encoder.encode("Content-Encoding: nonce\0"), new Uint8Array([1])))).slice(0, 12);
+  const cek = await hkdfExpand(prk, encoder.encode("Content-Encoding: aes128gcm\0"), 16);
+  const nonce = await hkdfExpand(prk, encoder.encode("Content-Encoding: nonce\0"), 12);
   const key = await crypto.subtle.importKey("raw", cek, { name: "AES-GCM", length: 128 }, false, ["encrypt"]);
   const plaintext = concatBytes(encoder.encode(payload), new Uint8Array([2]));
   const ciphertext = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, key, toArrayBuffer(plaintext)));
