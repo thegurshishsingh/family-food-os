@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
 import { DAYS, type PlanDay } from "./types";
+import { deriveCheckInOutcome } from "@/lib/checkInOutcome";
 
 const EFFORT_OPTIONS = [
   { value: "easy", emoji: "😌", label: "Easy" },
@@ -71,12 +72,14 @@ const InlineCheckIn = ({ day, householdId, onCheckedIn }: InlineCheckInProps) =>
   const handleSubmit = async () => {
     if (!effort && selectedTags.length === 0) return;
     setSaving(true);
+    const outcome = deriveCheckInOutcome(selectedTags, effort);
     const { error } = await supabase.from("evening_checkins").insert({
       plan_day_id: day.id,
       household_id: householdId,
       tags: selectedTags,
       effort_level: effort,
-    });
+      outcome,
+    } as any);
     if (error) {
       toast({ variant: "destructive", title: "Check-in failed", description: error.message });
       setSaving(false);

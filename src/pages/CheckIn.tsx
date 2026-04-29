@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChefHat, Check, ArrowRight, Sparkles } from "lucide-react";
 import { DAYS, type PlanDay } from "@/components/planner/types";
+import { deriveCheckInOutcome } from "@/lib/checkInOutcome";
 
 // ── Tags ──
 
@@ -175,12 +176,14 @@ const CheckIn = () => {
     if (!finalEffort && selectedTags.length === 0) return;
 
     setSaving(true);
+    const outcome = deriveCheckInOutcome(selectedTags, finalEffort);
     const { error } = await supabase.from("evening_checkins").insert({
       plan_day_id: todayMeal.id,
       household_id: household.id,
       tags: selectedTags,
       effort_level: finalEffort,
-    });
+      outcome,
+    } as any);
 
     if (error) {
       toast({ variant: "destructive", title: "Check-in failed", description: error.message });
