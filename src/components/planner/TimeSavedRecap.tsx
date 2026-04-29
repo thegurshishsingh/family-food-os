@@ -57,6 +57,14 @@ function ConfettiParticle({ delay, x, color }: { delay: number; x: number; color
   );
 }
 
+type RecapInputs = {
+  plannedNights: number;
+  cookNights: number;
+  groceryListUsed: boolean;
+  rawCheckinCount: number;
+  cappedCheckinCount: number;
+};
+
 const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan, onViewDetails, generating }: TimeSavedRecapProps) => {
   const [result, setResult] = useState<TimeSavedResult | null>(null);
   const [cumulativeMinutes, setCumulativeMinutes] = useState(0);
@@ -64,6 +72,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   const [totalWeeks, setTotalWeeks] = useState(1);
   const [showEstimation, setShowEstimation] = useState(false);
   const [showMilestone, setShowMilestone] = useState(false);
+  const [recapInputs, setRecapInputs] = useState<RecapInputs | null>(null);
 
   // Persist milestone acknowledgment so it doesn't show on every login
   const getAcknowledgedMilestone = (): number => {
@@ -127,6 +136,16 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
       totalPlansCompleted: weeks,
     });
     setResult(computed);
+
+    const currentPlannedNights = days.filter(d => d.meal_name).length;
+    const currentCookNights = days.filter(d => d.meal_mode === "cook").length;
+    setRecapInputs({
+      plannedNights: currentPlannedNights,
+      cookNights: currentCookNights,
+      groceryListUsed: currentGroceryUsed,
+      rawCheckinCount: checkinCount,
+      cappedCheckinCount: Math.min(checkinCount, currentCookNights),
+    });
 
     // ── Cumulative: sum per-week actuals ──
     try {
@@ -472,11 +491,53 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
                     transition={{ duration: 0.25 }}
                     className="overflow-hidden"
                   >
-                    <div className="rounded-lg bg-muted/30 p-4 mt-2 text-[11px] text-muted-foreground/70 leading-relaxed space-y-1.5 max-w-sm mx-auto">
-                      <p>Planned dinners reduced daily decision time.</p>
-                      <p>Grocery automation cut list-building effort.</p>
-                      <p>Leftovers & planned takeout prevented scrambling.</p>
-                      <p className="pt-1.5 text-muted-foreground/40 italic">
+                    <div className="rounded-lg bg-muted/30 p-4 mt-2 text-[11px] text-muted-foreground/70 leading-relaxed space-y-3 max-w-sm mx-auto text-left">
+                      {recapInputs && (
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/50 font-medium mb-1.5">Signals from your week</p>
+                          <ul className="space-y-1">
+                            <li className="flex justify-between gap-3">
+                              <span>Planned nights</span>
+                              <span className="font-medium text-foreground/80">{recapInputs.plannedNights} / 7</span>
+                            </li>
+                            <li className="flex justify-between gap-3">
+                              <span>Grocery list used</span>
+                              <span className="font-medium text-foreground/80">{recapInputs.groceryListUsed ? "Yes" : "No"}</span>
+                            </li>
+                            <li className="flex justify-between gap-3">
+                              <span>Check-ins counted</span>
+                              <span className="font-medium text-foreground/80">
+                                {recapInputs.cappedCheckinCount} / {Math.max(recapInputs.cookNights, 1)}
+                                {recapInputs.rawCheckinCount > recapInputs.cappedCheckinCount && (
+                                  <span className="text-muted-foreground/50"> (capped from {recapInputs.rawCheckinCount})</span>
+                                )}
+                              </span>
+                            </li>
+                            <li className="flex justify-between gap-3">
+                              <span>Confidence score</span>
+                              <span className="font-medium text-foreground/80">{Math.round(result.confidence * 100)}%</span>
+                            </li>
+                          </ul>
+                        </div>
+                      )}
+
+                      {result.factors.length > 0 && (
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/50 font-medium mb-1.5">Savings components</p>
+                          <ul className="space-y-1">
+                            {result.factors.map((f, i) => (
+                              <li key={i} className="flex justify-between gap-3">
+                                <span className="flex-1">{f.label}</span>
+                                <span className="font-medium text-foreground/80 whitespace-nowrap">
+                                  {f.minutesSaved} min
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      <p className="pt-1.5 text-muted-foreground/40 italic text-center">
                         Estimated from your plan and activity, not a stopwatch.
                       </p>
                     </div>
