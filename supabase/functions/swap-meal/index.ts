@@ -62,6 +62,7 @@ serve(async (req) => {
           fiber_g: selected_meal.fiber_g || null,
           ingredients: selected_meal.ingredients || null,
           instructions: selected_meal.instructions || null,
+          was_swapped: true,
         })
         .eq("id", plan_day_id);
       if (updateError) throw updateError;
