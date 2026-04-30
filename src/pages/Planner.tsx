@@ -47,6 +47,8 @@ const Planner = () => {
   const [swapDayContext, setSwapDayContext] = useState<PlanDay | null>(null);
   const [confirmingSwap, setConfirmingSwap] = useState(false);
   const [regeneratingSwap, setRegeneratingSwap] = useState(false);
+  const [previewingCustom, setPreviewingCustom] = useState(false);
+  const [customPreviewMeal, setCustomPreviewMeal] = useState<MealSuggestion | null>(null);
   const [reorderSheetOpen, setReorderSheetOpen] = useState(false);
   const [needsNewPlan, setNeedsNewPlan] = useState(false);
   const [showReplanSetup, setShowReplanSetup] = useState(false);
@@ -377,11 +379,37 @@ const Planner = () => {
         setSwapDialogOpen(false);
         setSwapSuggestions([]);
         setSwapDayContext(null);
+        setCustomPreviewMeal(null);
       }
     } catch (err: any) {
       toast({ variant: "destructive", title: "Swap failed", description: err.message });
     } finally {
       setConfirmingSwap(false);
+    }
+  };
+
+  const previewCustomMeal = async (name: string, desc: string) => {
+    if (!household || !swapDayContext) return;
+    setPreviewingCustom(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("swap-meal", {
+        body: {
+          plan_day_id: swapDayContext.id,
+          household_id: household.id,
+          action: "preview",
+          selected_meal: { meal_name: name, meal_description: desc },
+        },
+      });
+      if (error) throw error;
+      if (data?.meal) {
+        setCustomPreviewMeal(data.meal);
+      } else {
+        throw new Error("No preview returned");
+      }
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Preview failed", description: err.message });
+    } finally {
+      setPreviewingCustom(false);
     }
   };
 
@@ -701,11 +729,15 @@ const Planner = () => {
 
       <SwapMealDialog
         open={swapDialogOpen}
-        onOpenChange={(o) => { setSwapDialogOpen(o); if (!o) { setSwapSuggestions([]); setSwapDayContext(null); } }}
+        onOpenChange={(o) => { setSwapDialogOpen(o); if (!o) { setSwapSuggestions([]); setSwapDayContext(null); setCustomPreviewMeal(null); } }}
         suggestions={swapSuggestions}
         dayName={swapDayContext ? DAYS[swapDayContext.day_of_week] : ""}
         currentMealName={swapDayContext?.meal_name || undefined}
         onSelect={confirmSwapMeal}
+        onCustomPreview={previewCustomMeal}
+        customPreviewMeal={customPreviewMeal}
+        onClearCustomPreview={() => setCustomPreviewMeal(null)}
+        previewingCustom={previewingCustom}
         onRegenerate={async () => {
           if (!household || !swapDayContext) return;
           setRegeneratingSwap(true);

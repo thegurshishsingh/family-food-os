@@ -31,8 +31,12 @@ interface SwapMealDialogProps {
   currentMealName?: string;
   onSelect: (meal: MealSuggestion) => void;
   onRegenerate: () => void;
+  onCustomPreview?: (name: string, desc: string) => Promise<void>;
+  customPreviewMeal?: MealSuggestion | null;
+  onClearCustomPreview?: () => void;
   confirming: boolean;
   regenerating: boolean;
+  previewingCustom?: boolean;
 }
 
 const SwapMealDialog = ({
@@ -43,8 +47,12 @@ const SwapMealDialog = ({
   currentMealName,
   onSelect,
   onRegenerate,
+  onCustomPreview,
+  customPreviewMeal,
+  onClearCustomPreview,
   confirming,
   regenerating,
+  previewingCustom,
 }: SwapMealDialogProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
@@ -93,14 +101,19 @@ const SwapMealDialog = ({
     onOpenChange(o);
   };
 
-  const handleSubmitCustom = () => {
+  const handleSubmitCustom = async () => {
     const name = customName.trim().slice(0, 200);
     const desc = customDesc.trim().slice(0, 500);
     if (!name) return;
-    onSelect({
-      meal_name: name,
-      meal_description: desc,
-    });
+    if (onCustomPreview) {
+      await onCustomPreview(name, desc);
+      // Parent will inject the built suggestion at index 0; reset the form.
+      setCustomOpen(false);
+      setCustomName("");
+      setCustomDesc("");
+    } else {
+      onSelect({ meal_name: name, meal_description: desc });
+    }
   };
 
   return (
@@ -173,21 +186,24 @@ const SwapMealDialog = ({
                 <Button
                   size="sm"
                   onClick={handleSubmitCustom}
-                  disabled={!customName.trim() || confirming}
+                  disabled={!customName.trim() || confirming || previewingCustom}
                   className="w-full h-9 text-xs gap-1.5"
                 >
-                  {confirming ? (
+                  {previewingCustom ? (
                     <>
                       <div className="w-3.5 h-3.5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                      Adding…
+                      Inferring ingredients…
                     </>
                   ) : (
                     <>
-                      <Check className="w-3.5 h-3.5" />
-                      Use this meal
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Preview ingredients
                     </>
                   )}
                 </Button>
+                <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
+                  We'll infer ingredients & nutrition. You'll review before the grocery list updates.
+                </p>
               </div>
             )}
           </Card>
@@ -326,16 +342,23 @@ const SwapMealDialog = ({
           </div>
         </div>
 
-        {/* Long-press recipe preview overlay */}
+        {/* Recipe preview overlay (long-press OR custom-meal preview) */}
         <AnimatePresence>
-          {previewIndex !== null && suggestions[previewIndex] && (
+          {customPreviewMeal ? (
+            <RecipePreviewOverlay
+              meal={customPreviewMeal}
+              onClose={() => onClearCustomPreview?.()}
+              onSelect={(meal) => onSelect(meal)}
+              confirming={confirming}
+            />
+          ) : previewIndex !== null && suggestions[previewIndex] ? (
             <RecipePreviewOverlay
               meal={suggestions[previewIndex]}
               onClose={() => setPreviewIndex(null)}
               onSelect={(meal) => { setPreviewIndex(null); onSelect(meal); }}
               confirming={confirming}
             />
-          )}
+          ) : null}
         </AnimatePresence>
       </DialogContent>
     </Dialog>
