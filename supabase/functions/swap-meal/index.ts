@@ -211,7 +211,7 @@ serve(async (req) => {
         else console.log(`[swap-meal] Inserted ${groceryRows.length} grocery items successfully`);
       }
 
-      return new Response(JSON.stringify({ success: true, meal: selected_meal }), {
+      return new Response(JSON.stringify({ success: true, meal: mealToSave }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
