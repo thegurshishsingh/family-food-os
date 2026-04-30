@@ -360,3 +360,182 @@ function categorizeIngredient(name: string): string {
   if (frozen.some(p => n.includes(p))) return "frozen";
   return "pantry";
 }
+
+// Normalize ingredient name for grouping/dedup (e.g. "Yellow Onions" -> "onion")
+function normalizeIngredientName(name: string | null | undefined): string {
+  if (!name) return "";
+  let n = name.toLowerCase().trim();
+  // Strip parenthetical notes
+  n = n.replace(/\([^)]*\)/g, "").trim();
+  // Strip leading descriptors
+  n = n.replace(/^(fresh|dried|chopped|minced|diced|sliced|grated|shredded|whole|raw|cooked|ground|large|small|medium|extra|organic|ripe|frozen)\s+/g, "");
+  // Drop trailing simple plural
+  if (n.endsWith("ies")) n = n.slice(0, -3) + "y";
+  else if (n.endsWith("es") && !n.endsWith("ses")) n = n.slice(0, -2);
+  else if (n.endsWith("s") && !n.endsWith("ss")) n = n.slice(0, -1);
+  return n.replace(/\s+/g, " ").trim();
+}
+
+// Combine quantity strings. Sums like-units; otherwise concatenates with " + ".
+function combineQuantities(parts: string[]): string {
+  const cleaned = parts.map((p) => p.trim()).filter(Boolean);
+  if (cleaned.length === 0) return "";
+  if (cleaned.length === 1) return cleaned[0];
+
+  type Parsed = { amount: number; unit: string };
+  const parsed: Parsed[] = [];
+  const unparsed: string[] = [];
+
+  for (const p of cleaned) {
+    // Match leading number (supports decimals and simple fractions like "1/2")
+    const m = p.match(/^([\d.]+(?:\s*\/\s*[\d.]+)?)\s*(.*)$/);
+    if (m) {
+      let amount = 0;
+      const numStr = m[1].replace(/\s/g, "");
+      if (numStr.includes("/")) {
+        const [a, b] = numStr.split("/").map(Number);
+        if (b) amount = a / b;
+      } else {
+        amount = parseFloat(numStr);
+      }
+      if (!isNaN(amount)) {
+        parsed.push({ amount, unit: (m[2] || "").trim().toLowerCase() });
+        continue;
+      }
+    }
+    unparsed.push(p);
+  }
+
+  // Group parsed by unit
+  const byUnit = new Map<string, number>();
+  for (const { amount, unit } of parsed) {
+    byUnit.set(unit, (byUnit.get(unit) || 0) + amount);
+  }
+
+  const summed: string[] = [];
+  for (const [unit, amount] of byUnit) {
+    const rounded = Math.round(amount * 100) / 100;
+    summed.push(unit ? `${rounded} ${unit}` : `${rounded}`);
+  }
+  return [...summed, ...unparsed].join(" + ");
+}
+
+// Build a complete recipe from name + description using AI (allergy/diet aware).
+async function buildCustomRecipe(
+  client: any,
+  household_id: string,
+  selected_meal: any,
+  lovableApiKey: string,
+): Promise<any | null> {
+  const { data: hh } = await client
+    .from("households")
+    .select("num_adults, num_children")
+    .eq("id", household_id)
+    .single();
+  const { data: prefs } = await client
+    .from("household_preferences")
+    .select("allergies, dietary_preferences, foods_to_avoid")
+    .eq("household_id", household_id)
+    .maybeSingle();
+
+  const prompt = [
+    `The user wants to make this meal: "${selected_meal.meal_name}".`,
+    selected_meal.meal_description ? `Their description: "${selected_meal.meal_description}".` : "",
+    `Household: ${hh?.num_adults ?? 2} adults, ${hh?.num_children ?? 0} children.`,
+    prefs?.allergies?.length ? `ALLERGIES (must avoid): ${prefs.allergies.join(", ")}.` : "",
+    prefs?.dietary_preferences?.length ? `Dietary: ${prefs.dietary_preferences.join(", ")}.` : "",
+    prefs?.foods_to_avoid?.length ? `FOODS TO AVOID: ${prefs.foods_to_avoid.join(", ")}.` : "",
+    `Infer the most likely classic recipe interpretation of this meal. If the description mentions specific ingredients, cuisine, or style, prioritize those signals.`,
+    `Return realistic per-single-serving nutrition, a sensible cuisine_type, prep_time_minutes, and a clean ingredient list using common grocery names (e.g. "chicken breast", "yellow onion", "olive oil") — NOT vague terms.`,
+    `Use distinct ingredients only — never list the same ingredient twice.`,
+    `Ingredient quantities are PER SINGLE SERVING. Numeric amount in "quantity", unit in "unit" (cup, tbsp, tsp, lb, oz, piece, clove, etc.).`,
+    `Provide 6-10 step instructions.`,
+  ].filter(Boolean).join("\n");
+
+  const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${lovableApiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "google/gemini-3-flash-preview",
+      messages: [
+        { role: "system", content: "You are a recipe expert. Return ONLY valid JSON via the provided tool. Use real, specific grocery ingredient names with no duplicates." },
+        { role: "user", content: prompt },
+      ],
+      tools: [{
+        type: "function",
+        function: {
+          name: "build_recipe",
+          description: "Build a complete recipe from a meal name and optional description",
+          parameters: {
+            type: "object",
+            properties: {
+              cuisine_type: { type: "string" },
+              prep_time_minutes: { type: "number" },
+              calories: { type: "number" },
+              protein_g: { type: "number" },
+              carbs_g: { type: "number" },
+              fat_g: { type: "number" },
+              fiber_g: { type: "number" },
+              ingredients: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    quantity: { type: "string" },
+                    unit: { type: "string" },
+                  },
+                  required: ["name", "quantity"],
+                },
+              },
+              instructions: { type: "array", items: { type: "string" } },
+            },
+            required: ["calories", "protein_g", "carbs_g", "fat_g", "ingredients", "instructions"],
+          },
+        },
+      }],
+      tool_choice: { type: "function", function: { name: "build_recipe" } },
+    }),
+  });
+
+  if (!aiRes.ok) {
+    console.error(`[swap-meal] buildCustomRecipe AI failed: ${aiRes.status}`);
+    return null;
+  }
+  const out = await aiRes.json();
+  const tc = out.choices?.[0]?.message?.tool_calls?.[0];
+  if (!tc) return null;
+  const built = JSON.parse(tc.function.arguments);
+
+  // Dedup ingredients in the AI response itself
+  const seen = new Map<string, any>();
+  for (const ing of built.ingredients || []) {
+    const key = normalizeIngredientName(ing.name);
+    if (!key) continue;
+    const existing = seen.get(key);
+    if (existing) {
+      const part = ing.quantity ? `${ing.quantity}${ing.unit ? " " + ing.unit : ""}`.trim() : "";
+      const existingPart = existing.quantity ? `${existing.quantity}${existing.unit ? " " + existing.unit : ""}`.trim() : "";
+      const merged = combineQuantities([existingPart, part].filter(Boolean));
+      existing.quantity = merged;
+      existing.unit = "";
+    } else {
+      seen.set(key, { ...ing });
+    }
+  }
+  built.ingredients = Array.from(seen.values());
+
+  return {
+    meal_name: selected_meal.meal_name,
+    meal_description: selected_meal.meal_description,
+    cuisine_type: selected_meal.cuisine_type || built.cuisine_type,
+    prep_time_minutes: selected_meal.prep_time_minutes || built.prep_time_minutes,
+    calories: built.calories,
+    protein_g: built.protein_g,
+    carbs_g: built.carbs_g,
+    fat_g: built.fat_g,
+    fiber_g: built.fiber_g,
+    ingredients: built.ingredients,
+    instructions: built.instructions,
+  };
+}
