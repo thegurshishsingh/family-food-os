@@ -25,7 +25,7 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
         className="absolute inset-0 z-50 flex flex-col bg-background text-foreground rounded-lg overflow-hidden shadow-xl ring-1 ring-border"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-2 px-4 pt-4 pb-2 border-b border-border/60">
+        <div className="flex items-start justify-between gap-2 px-4 pt-4 pb-2 border-b border-border">
           <div className="flex-1 min-w-0">
             <h3 className="font-serif font-semibold text-base text-foreground leading-snug">
               {meal.meal_name}
