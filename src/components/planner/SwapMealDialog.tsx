@@ -3,7 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Clock, Flame, Check, RefreshCw, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Clock, Flame, Check, RefreshCw, Sparkles, Plus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import RecipePreviewOverlay from "./RecipePreviewOverlay";
 
@@ -46,6 +48,9 @@ const SwapMealDialog = ({
 }: SwapMealDialogProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customName, setCustomName] = useState("");
+  const [customDesc, setCustomDesc] = useState("");
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const didLongPress = useRef(false);
 
@@ -79,8 +84,27 @@ const SwapMealDialog = ({
     if (!confirming) setSelectedIndex(index);
   }, [confirming]);
 
+  const resetAndClose = (o: boolean) => {
+    setSelectedIndex(null);
+    setPreviewIndex(null);
+    setCustomOpen(false);
+    setCustomName("");
+    setCustomDesc("");
+    onOpenChange(o);
+  };
+
+  const handleSubmitCustom = () => {
+    const name = customName.trim().slice(0, 200);
+    const desc = customDesc.trim().slice(0, 500);
+    if (!name) return;
+    onSelect({
+      meal_name: name,
+      meal_description: desc,
+    });
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!confirming) { setSelectedIndex(null); setPreviewIndex(null); onOpenChange(o); } }}>
+    <Dialog open={open} onOpenChange={(o) => { if (!confirming) resetAndClose(o); }}>
       <DialogContent className="flex flex-col max-w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden p-0 rounded-lg gap-0">
         {/* Header */}
         <div className="px-5 pt-5 pb-3 border-b border-border/60">
@@ -98,6 +122,76 @@ const SwapMealDialog = ({
 
         {/* Scrollable suggestions */}
         <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-2.5">
+          {/* Custom meal entry */}
+          <Card className="p-3.5 sm:p-4 border-dashed border-primary/40 bg-primary/[0.02]">
+            {!customOpen ? (
+              <button
+                type="button"
+                onClick={() => { setSelectedIndex(null); setCustomOpen(true); }}
+                disabled={confirming}
+                className="w-full flex items-center gap-3 text-left group disabled:opacity-50"
+              >
+                <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
+                  <Plus className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm text-foreground">Add your own meal</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Type any meal you want to make instead</p>
+                </div>
+              </button>
+            ) : (
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Your custom meal</p>
+                  <button
+                    type="button"
+                    onClick={() => { setCustomOpen(false); setCustomName(""); setCustomDesc(""); }}
+                    disabled={confirming}
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label="Cancel custom meal"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <Input
+                  placeholder="Meal name (e.g. Grandma's lasagna)"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  maxLength={200}
+                  disabled={confirming}
+                  autoFocus
+                  className="h-9 text-sm"
+                />
+                <Textarea
+                  placeholder="Description (optional)"
+                  value={customDesc}
+                  onChange={(e) => setCustomDesc(e.target.value)}
+                  maxLength={500}
+                  disabled={confirming}
+                  className="text-sm min-h-[60px] resize-none"
+                />
+                <Button
+                  size="sm"
+                  onClick={handleSubmitCustom}
+                  disabled={!customName.trim() || confirming}
+                  className="w-full h-9 text-xs gap-1.5"
+                >
+                  {confirming ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                      Adding…
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      Use this meal
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </Card>
+
           <AnimatePresence mode="popLayout">
             {suggestions.map((meal, i) => {
               const isSelected = selectedIndex === i;
@@ -205,7 +299,7 @@ const SwapMealDialog = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { setSelectedIndex(null); setPreviewIndex(null); onOpenChange(false); }}
+              onClick={() => resetAndClose(false)}
               disabled={confirming}
               className="h-9 text-xs"
             >
