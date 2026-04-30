@@ -48,6 +48,8 @@ const SwapMealDialog = ({
   onSelect,
   onRegenerate,
   onCustomPreview,
+  customPreviewMeal,
+  onClearCustomPreview,
   confirming,
   regenerating,
   previewingCustom,
