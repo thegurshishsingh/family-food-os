@@ -46,112 +46,35 @@ serve(async (req) => {
       .single();
     if (!currentDay) throw new Error("Plan day not found");
 
+    // ── ACTION: preview ── infer ingredients/nutrition for a custom meal WITHOUT saving
+    if (action === "preview" && selected_meal) {
+      if (!lovableApiKey) {
+        return new Response(JSON.stringify({ error: "AI not configured" }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      try {
+        const built = await buildCustomRecipe(supabaseClient, household_id, selected_meal, lovableApiKey);
+        if (!built) throw new Error("Could not build recipe");
+        return new Response(JSON.stringify({ success: true, meal: built }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ error: err.message || "Preview failed" }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // ── ACTION: confirm ── user picked a meal, save it and sync groceries
     if (action === "confirm" && selected_meal) {
       let mealToSave = { ...selected_meal };
 
-      // Custom meal path: user typed a name + description but no ingredients.
-      // Ask AI to infer ingredients, nutrition, and instructions from the name + description
-      // so the grocery list is accurate.
+      // If a custom meal slipped through without ingredients (older clients), build it now.
       const hasIngredients = Array.isArray(selected_meal.ingredients) && selected_meal.ingredients.length > 0;
       if (!hasIngredients && lovableApiKey && selected_meal.meal_name) {
-        // Pull household + prefs for serving size + dietary safety
-        const { data: hh } = await supabaseClient
-          .from("households")
-          .select("num_adults, num_children")
-          .eq("id", household_id)
-          .single();
-        const { data: prefs } = await supabaseClient
-          .from("household_preferences")
-          .select("allergies, dietary_preferences, foods_to_avoid")
-          .eq("household_id", household_id)
-          .maybeSingle();
-
-        const customPrompt = [
-          `The user wants to make this meal: "${selected_meal.meal_name}".`,
-          selected_meal.meal_description ? `Their description: "${selected_meal.meal_description}".` : "",
-          `Household: ${hh?.num_adults ?? 2} adults, ${hh?.num_children ?? 0} children.`,
-          prefs?.allergies?.length ? `ALLERGIES (must avoid): ${prefs.allergies.join(", ")}.` : "",
-          prefs?.dietary_preferences?.length ? `Dietary: ${prefs.dietary_preferences.join(", ")}.` : "",
-          prefs?.foods_to_avoid?.length ? `FOODS TO AVOID: ${prefs.foods_to_avoid.join(", ")}.` : "",
-          `Infer the most likely classic recipe interpretation of this meal. If the description mentions specific ingredients, cuisine, or style, prioritize those signals.`,
-          `Return a complete recipe with realistic per-single-serving nutrition, a sensible cuisine_type, prep_time_minutes, and a clean ingredient list using common grocery names (e.g. "chicken breast", "yellow onion", "olive oil") — NOT vague terms.`,
-          `Ingredient quantities are PER SINGLE SERVING. Numeric amount in "quantity", unit in "unit" (cup, tbsp, tsp, lb, oz, piece, clove, etc.).`,
-          `Provide 6-10 step instructions.`,
-        ].filter(Boolean).join("\n");
-
-        try {
-          const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${lovableApiKey}`, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              model: "google/gemini-3-flash-preview",
-              messages: [
-                { role: "system", content: "You are a recipe expert. Return ONLY valid JSON via the provided tool. Use real, specific grocery ingredient names." },
-                { role: "user", content: customPrompt },
-              ],
-              tools: [{
-                type: "function",
-                function: {
-                  name: "build_recipe",
-                  description: "Build a complete recipe from a meal name and optional description",
-                  parameters: {
-                    type: "object",
-                    properties: {
-                      cuisine_type: { type: "string" },
-                      prep_time_minutes: { type: "number" },
-                      calories: { type: "number" },
-                      protein_g: { type: "number" },
-                      carbs_g: { type: "number" },
-                      fat_g: { type: "number" },
-                      fiber_g: { type: "number" },
-                      ingredients: {
-                        type: "array",
-                        items: {
-                          type: "object",
-                          properties: {
-                            name: { type: "string" },
-                            quantity: { type: "string" },
-                            unit: { type: "string" },
-                          },
-                          required: ["name", "quantity"],
-                        },
-                      },
-                      instructions: { type: "array", items: { type: "string" } },
-                    },
-                    required: ["calories", "protein_g", "carbs_g", "fat_g", "ingredients", "instructions"],
-                  },
-                },
-              }],
-              tool_choice: { type: "function", function: { name: "build_recipe" } },
-            }),
-          });
-
-          if (aiRes.ok) {
-            const out = await aiRes.json();
-            const tc = out.choices?.[0]?.message?.tool_calls?.[0];
-            if (tc) {
-              const built = JSON.parse(tc.function.arguments);
-              mealToSave = {
-                ...mealToSave,
-                cuisine_type: mealToSave.cuisine_type || built.cuisine_type,
-                prep_time_minutes: mealToSave.prep_time_minutes || built.prep_time_minutes,
-                calories: built.calories,
-                protein_g: built.protein_g,
-                carbs_g: built.carbs_g,
-                fat_g: built.fat_g,
-                fiber_g: built.fiber_g,
-                ingredients: built.ingredients,
-                instructions: built.instructions,
-              };
-              console.log(`[swap-meal] Built custom recipe for "${selected_meal.meal_name}" with ${built.ingredients?.length ?? 0} ingredients`);
-            }
-          } else {
-            console.error(`[swap-meal] Custom recipe AI failed: ${aiRes.status}`);
-          }
-        } catch (err) {
-          console.error(`[swap-meal] Custom recipe build error:`, err);
-        }
+        const built = await buildCustomRecipe(supabaseClient, household_id, selected_meal, lovableApiKey);
+        if (built) mealToSave = { ...mealToSave, ...built };
       }
 
       const { error: updateError } = await supabaseClient
@@ -173,42 +96,91 @@ serve(async (req) => {
         .eq("id", plan_day_id);
       if (updateError) throw updateError;
 
-      // ── Sync grocery list ──
+      // ── Sync grocery list with de-duplication ──
       const planId = currentDay.plan_id;
       const oldIngredients = (currentDay.ingredients as any[]) || [];
-      const oldItemNames = oldIngredients.map((ing: any) => ing.name?.toLowerCase().trim()).filter(Boolean);
+      const oldKeys = oldIngredients.map((ing: any) => normalizeIngredientName(ing.name)).filter(Boolean);
 
-      console.log(`[swap-meal] Grocery sync: planId=${planId}, old ingredients=${oldItemNames.length}`);
+      console.log(`[swap-meal] Grocery sync: planId=${planId}, old=${oldKeys.length}`);
 
-      // Delete old meal's grocery items using case-insensitive + trimmed matching
-      if (oldItemNames.length > 0) {
-        for (const name of oldItemNames) {
-          const { error: delErr, count } = await supabaseClient
-            .from("grocery_items")
-            .delete()
-            .eq("plan_id", planId)
-            .ilike("item_name", name);
-          if (delErr) console.error(`[swap-meal] Failed to delete grocery "${name}":`, delErr.message);
-          else console.log(`[swap-meal] Deleted grocery "${name}", count=${count}`);
+      // Delete old meal's grocery items by normalized name match
+      if (oldKeys.length > 0) {
+        const { data: existing } = await supabaseClient
+          .from("grocery_items")
+          .select("id, item_name")
+          .eq("plan_id", planId);
+        const toDelete = (existing || [])
+          .filter((row: any) => oldKeys.includes(normalizeIngredientName(row.item_name)))
+          .map((row: any) => row.id);
+        if (toDelete.length > 0) {
+          const { error: delErr } = await supabaseClient.from("grocery_items").delete().in("id", toDelete);
+          if (delErr) console.error(`[swap-meal] Failed to delete old groceries:`, delErr.message);
+          else console.log(`[swap-meal] Deleted ${toDelete.length} old grocery items`);
         }
       }
 
-      // Insert new meal's ingredients as grocery items
+      // Insert new ingredients with de-duplication against remaining items
       const newIngredients = (mealToSave.ingredients as any[]) || [];
-      console.log(`[swap-meal] Inserting ${newIngredients.length} new grocery items`);
+      console.log(`[swap-meal] Processing ${newIngredients.length} new ingredients with dedup`);
+
       if (newIngredients.length > 0) {
-        const groceryRows = newIngredients.map((ing: any) => ({
-          plan_id: planId,
-          item_name: ing.name,
-          quantity: ing.quantity ? `${ing.quantity}${ing.unit ? " " + ing.unit : ""}` : null,
-          category: categorizeIngredient(ing.name),
-          is_checked: false,
-          is_staple: false,
-          source: "swap",
-        }));
-        const { error: insertErr } = await supabaseClient.from("grocery_items").insert(groceryRows);
-        if (insertErr) console.error(`[swap-meal] Failed to insert groceries:`, insertErr.message);
-        else console.log(`[swap-meal] Inserted ${groceryRows.length} grocery items successfully`);
+        // Re-fetch what's left so we can merge into existing rows
+        const { data: remaining } = await supabaseClient
+          .from("grocery_items")
+          .select("id, item_name, quantity")
+          .eq("plan_id", planId);
+
+        const remainingByKey = new Map<string, { id: string; item_name: string; quantity: string | null }>();
+        for (const row of remaining || []) {
+          const key = normalizeIngredientName(row.item_name);
+          if (key && !remainingByKey.has(key)) remainingByKey.set(key, row);
+        }
+
+        // Group incoming ingredients by normalized name first
+        const incomingByKey = new Map<string, { name: string; parts: string[] }>();
+        for (const ing of newIngredients) {
+          const key = normalizeIngredientName(ing.name);
+          if (!key) continue;
+          const part = ing.quantity ? `${ing.quantity}${ing.unit ? " " + ing.unit : ""}`.trim() : "";
+          const entry = incomingByKey.get(key);
+          if (entry) {
+            if (part) entry.parts.push(part);
+          } else {
+            incomingByKey.set(key, { name: ing.name, parts: part ? [part] : [] });
+          }
+        }
+
+        const toInsert: any[] = [];
+        for (const [key, group] of incomingByKey) {
+          const newQty = combineQuantities(group.parts);
+          const existing = remainingByKey.get(key);
+          if (existing) {
+            // Merge into existing row
+            const mergedQty = combineQuantities([existing.quantity || "", newQty].filter(Boolean));
+            await supabaseClient
+              .from("grocery_items")
+              .update({ quantity: mergedQty || existing.quantity, source: "swap" })
+              .eq("id", existing.id);
+          } else {
+            toInsert.push({
+              plan_id: planId,
+              item_name: group.name,
+              quantity: newQty || null,
+              category: categorizeIngredient(group.name),
+              is_checked: false,
+              is_staple: false,
+              source: "swap",
+            });
+          }
+        }
+
+        if (toInsert.length > 0) {
+          const { error: insertErr } = await supabaseClient.from("grocery_items").insert(toInsert);
+          if (insertErr) console.error(`[swap-meal] Failed to insert groceries:`, insertErr.message);
+          else console.log(`[swap-meal] Inserted ${toInsert.length} new + merged ${incomingByKey.size - toInsert.length} existing`);
+        } else {
+          console.log(`[swap-meal] All ${incomingByKey.size} ingredients merged into existing grocery rows`);
+        }
       }
 
       return new Response(JSON.stringify({ success: true, meal: mealToSave }), {
