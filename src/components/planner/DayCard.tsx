@@ -141,7 +141,7 @@ const DayCard = ({
           {/* Mobile drag handle */}
           {!day.is_locked && isMobile && (
             <button
-              className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground/60 active:text-primary active:bg-primary/10 transition-colors shrink-0 sm:hidden"
+              className="flex items-center justify-center w-6 h-6 rounded text-primary active:bg-primary/10 transition-colors shrink-0 sm:hidden"
               onClick={() => {
                 recordCoachGesture("reorder");
                 onMobileDragStart?.(day.id);
