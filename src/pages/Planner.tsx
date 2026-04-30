@@ -379,6 +379,7 @@ const Planner = () => {
         setSwapDialogOpen(false);
         setSwapSuggestions([]);
         setSwapDayContext(null);
+        setCustomPreviewMeal(null);
       }
     } catch (err: any) {
       toast({ variant: "destructive", title: "Swap failed", description: err.message });
