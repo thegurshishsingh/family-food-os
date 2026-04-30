@@ -22,15 +22,15 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.15 }}
-        className="absolute inset-0 z-50 flex flex-col bg-background rounded-lg overflow-hidden shadow-xl"
+        className="absolute inset-0 z-50 flex flex-col bg-background text-foreground rounded-lg overflow-hidden shadow-xl ring-1 ring-border"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-2 px-4 pt-4 pb-2 border-b border-border/60">
+        <div className="flex items-start justify-between gap-2 px-4 pt-4 pb-2 border-b border-border">
           <div className="flex-1 min-w-0">
             <h3 className="font-serif font-semibold text-base text-foreground leading-snug">
               {meal.meal_name}
             </h3>
-            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 dark:text-foreground/75">
               {meal.meal_description}
             </p>
             <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -69,9 +69,9 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
                 { label: "Fiber", value: meal.fiber_g, unit: "g" },
               ].map(({ label, value, unit }) =>
                 value ? (
-                  <div key={label} className="text-center rounded-lg bg-muted/50 py-1.5 px-1">
+                  <div key={label} className="text-center rounded-lg bg-muted py-1.5 px-1 border border-border/60">
                     <p className="text-xs font-semibold text-foreground">{value}{unit}</p>
-                    <p className="text-[10px] text-muted-foreground">{label}</p>
+                    <p className="text-[10px] font-medium text-muted-foreground dark:text-foreground/75">{label}</p>
                   </div>
                 ) : null
               )}
@@ -84,7 +84,7 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
                 </h4>
                 <ul className="space-y-0.5">
                   {meal.ingredients.map((ing, i) => (
-                    <li key={i} className="text-xs text-muted-foreground flex items-baseline gap-1.5">
+                    <li key={i} className="text-xs text-muted-foreground dark:text-foreground/75 flex items-baseline gap-1.5">
                       <span className="w-1 h-1 rounded-full bg-primary shrink-0 mt-1.5" />
                       <span>
                         <span className="text-foreground font-medium">{ing.quantity}{ing.unit ? ` ${ing.unit}` : ""}</span>{" "}
@@ -103,7 +103,7 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
                 </h4>
                 <ol className="space-y-1.5">
                   {meal.instructions.map((step, i) => (
-                    <li key={i} className="flex gap-2 text-xs text-muted-foreground">
+                    <li key={i} className="flex gap-2 text-xs text-muted-foreground dark:text-foreground/80">
                       <span className="text-primary font-semibold shrink-0 w-4 text-right">{i + 1}.</span>
                       <span className="leading-relaxed">{step}</span>
                     </li>
@@ -114,8 +114,8 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
           </div>
         </ScrollArea>
 
-        <div className="px-4 py-2.5 border-t border-border/60 flex items-center justify-between gap-2">
-          <p className="text-[10px] text-muted-foreground">Hold preview</p>
+        <div className="px-4 py-2.5 border-t border-border bg-muted/40 dark:bg-muted/20 flex items-center justify-between gap-2">
+          <p className="text-[10px] font-medium text-muted-foreground dark:text-foreground/70">Hold preview</p>
           {onSelect && (
             <Button
               size="sm"
