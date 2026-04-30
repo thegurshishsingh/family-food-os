@@ -32,6 +32,8 @@ interface SwapMealDialogProps {
   onSelect: (meal: MealSuggestion) => void;
   onRegenerate: () => void;
   onCustomPreview?: (name: string, desc: string) => Promise<void>;
+  customPreviewMeal?: MealSuggestion | null;
+  onClearCustomPreview?: () => void;
   confirming: boolean;
   regenerating: boolean;
   previewingCustom?: boolean;
