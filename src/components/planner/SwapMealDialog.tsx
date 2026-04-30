@@ -84,8 +84,27 @@ const SwapMealDialog = ({
     if (!confirming) setSelectedIndex(index);
   }, [confirming]);
 
+  const resetAndClose = (o: boolean) => {
+    setSelectedIndex(null);
+    setPreviewIndex(null);
+    setCustomOpen(false);
+    setCustomName("");
+    setCustomDesc("");
+    onOpenChange(o);
+  };
+
+  const handleSubmitCustom = () => {
+    const name = customName.trim().slice(0, 200);
+    const desc = customDesc.trim().slice(0, 500);
+    if (!name) return;
+    onSelect({
+      meal_name: name,
+      meal_description: desc,
+    });
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!confirming) { setSelectedIndex(null); setPreviewIndex(null); onOpenChange(o); } }}>
+    <Dialog open={open} onOpenChange={(o) => { if (!confirming) resetAndClose(o); }}>
       <DialogContent className="flex flex-col max-w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden p-0 rounded-lg gap-0">
         {/* Header */}
         <div className="px-5 pt-5 pb-3 border-b border-border/60">
