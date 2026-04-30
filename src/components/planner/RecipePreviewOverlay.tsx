@@ -22,7 +22,7 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.15 }}
-        className="absolute inset-0 z-50 flex flex-col bg-background/98 backdrop-blur-sm rounded-lg overflow-hidden"
+        className="absolute inset-0 z-50 flex flex-col bg-background rounded-lg overflow-hidden shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-2 px-4 pt-4 pb-2 border-b border-border/60">
