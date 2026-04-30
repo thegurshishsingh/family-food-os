@@ -388,6 +388,31 @@ const Planner = () => {
     }
   };
 
+  const previewCustomMeal = async (name: string, desc: string) => {
+    if (!household || !swapDayContext) return;
+    setPreviewingCustom(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("swap-meal", {
+        body: {
+          plan_day_id: swapDayContext.id,
+          household_id: household.id,
+          action: "preview",
+          selected_meal: { meal_name: name, meal_description: desc },
+        },
+      });
+      if (error) throw error;
+      if (data?.meal) {
+        setCustomPreviewMeal(data.meal);
+      } else {
+        throw new Error("No preview returned");
+      }
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Preview failed", description: err.message });
+    } finally {
+      setPreviewingCustom(false);
+    }
+  };
+
   const saveEdit = async (day: PlanDay, name: string, desc: string) => {
     const trimmedName = name.trim().slice(0, 200);
     const trimmedDesc = desc.trim().slice(0, 500);
