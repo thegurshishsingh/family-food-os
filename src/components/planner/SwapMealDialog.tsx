@@ -342,16 +342,23 @@ const SwapMealDialog = ({
           </div>
         </div>
 
-        {/* Long-press recipe preview overlay */}
+        {/* Recipe preview overlay (long-press OR custom-meal preview) */}
         <AnimatePresence>
-          {previewIndex !== null && suggestions[previewIndex] && (
+          {customPreviewMeal ? (
+            <RecipePreviewOverlay
+              meal={customPreviewMeal}
+              onClose={() => onClearCustomPreview?.()}
+              onSelect={(meal) => onSelect(meal)}
+              confirming={confirming}
+            />
+          ) : previewIndex !== null && suggestions[previewIndex] ? (
             <RecipePreviewOverlay
               meal={suggestions[previewIndex]}
               onClose={() => setPreviewIndex(null)}
               onSelect={(meal) => { setPreviewIndex(null); onSelect(meal); }}
               confirming={confirming}
             />
-          )}
+          ) : null}
         </AnimatePresence>
       </DialogContent>
     </Dialog>
