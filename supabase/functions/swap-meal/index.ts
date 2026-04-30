@@ -48,20 +48,126 @@ serve(async (req) => {
 
     // ── ACTION: confirm ── user picked a meal, save it and sync groceries
     if (action === "confirm" && selected_meal) {
+      let mealToSave = { ...selected_meal };
+
+      // Custom meal path: user typed a name + description but no ingredients.
+      // Ask AI to infer ingredients, nutrition, and instructions from the name + description
+      // so the grocery list is accurate.
+      const hasIngredients = Array.isArray(selected_meal.ingredients) && selected_meal.ingredients.length > 0;
+      if (!hasIngredients && lovableApiKey && selected_meal.meal_name) {
+        // Pull household + prefs for serving size + dietary safety
+        const { data: hh } = await supabaseClient
+          .from("households")
+          .select("num_adults, num_children")
+          .eq("id", household_id)
+          .single();
+        const { data: prefs } = await supabaseClient
+          .from("household_preferences")
+          .select("allergies, dietary_preferences, foods_to_avoid")
+          .eq("household_id", household_id)
+          .maybeSingle();
+
+        const customPrompt = [
+          `The user wants to make this meal: "${selected_meal.meal_name}".`,
+          selected_meal.meal_description ? `Their description: "${selected_meal.meal_description}".` : "",
+          `Household: ${hh?.num_adults ?? 2} adults, ${hh?.num_children ?? 0} children.`,
+          prefs?.allergies?.length ? `ALLERGIES (must avoid): ${prefs.allergies.join(", ")}.` : "",
+          prefs?.dietary_preferences?.length ? `Dietary: ${prefs.dietary_preferences.join(", ")}.` : "",
+          prefs?.foods_to_avoid?.length ? `FOODS TO AVOID: ${prefs.foods_to_avoid.join(", ")}.` : "",
+          `Infer the most likely classic recipe interpretation of this meal. If the description mentions specific ingredients, cuisine, or style, prioritize those signals.`,
+          `Return a complete recipe with realistic per-single-serving nutrition, a sensible cuisine_type, prep_time_minutes, and a clean ingredient list using common grocery names (e.g. "chicken breast", "yellow onion", "olive oil") — NOT vague terms.`,
+          `Ingredient quantities are PER SINGLE SERVING. Numeric amount in "quantity", unit in "unit" (cup, tbsp, tsp, lb, oz, piece, clove, etc.).`,
+          `Provide 6-10 step instructions.`,
+        ].filter(Boolean).join("\n");
+
+        try {
+          const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${lovableApiKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "google/gemini-3-flash-preview",
+              messages: [
+                { role: "system", content: "You are a recipe expert. Return ONLY valid JSON via the provided tool. Use real, specific grocery ingredient names." },
+                { role: "user", content: customPrompt },
+              ],
+              tools: [{
+                type: "function",
+                function: {
+                  name: "build_recipe",
+                  description: "Build a complete recipe from a meal name and optional description",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      cuisine_type: { type: "string" },
+                      prep_time_minutes: { type: "number" },
+                      calories: { type: "number" },
+                      protein_g: { type: "number" },
+                      carbs_g: { type: "number" },
+                      fat_g: { type: "number" },
+                      fiber_g: { type: "number" },
+                      ingredients: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            name: { type: "string" },
+                            quantity: { type: "string" },
+                            unit: { type: "string" },
+                          },
+                          required: ["name", "quantity"],
+                        },
+                      },
+                      instructions: { type: "array", items: { type: "string" } },
+                    },
+                    required: ["calories", "protein_g", "carbs_g", "fat_g", "ingredients", "instructions"],
+                  },
+                },
+              }],
+              tool_choice: { type: "function", function: { name: "build_recipe" } },
+            }),
+          });
+
+          if (aiRes.ok) {
+            const out = await aiRes.json();
+            const tc = out.choices?.[0]?.message?.tool_calls?.[0];
+            if (tc) {
+              const built = JSON.parse(tc.function.arguments);
+              mealToSave = {
+                ...mealToSave,
+                cuisine_type: mealToSave.cuisine_type || built.cuisine_type,
+                prep_time_minutes: mealToSave.prep_time_minutes || built.prep_time_minutes,
+                calories: built.calories,
+                protein_g: built.protein_g,
+                carbs_g: built.carbs_g,
+                fat_g: built.fat_g,
+                fiber_g: built.fiber_g,
+                ingredients: built.ingredients,
+                instructions: built.instructions,
+              };
+              console.log(`[swap-meal] Built custom recipe for "${selected_meal.meal_name}" with ${built.ingredients?.length ?? 0} ingredients`);
+            }
+          } else {
+            console.error(`[swap-meal] Custom recipe AI failed: ${aiRes.status}`);
+          }
+        } catch (err) {
+          console.error(`[swap-meal] Custom recipe build error:`, err);
+        }
+      }
+
       const { error: updateError } = await supabaseClient
         .from("plan_days")
         .update({
-          meal_name: selected_meal.meal_name,
-          meal_description: selected_meal.meal_description,
-          cuisine_type: selected_meal.cuisine_type || null,
-          prep_time_minutes: selected_meal.prep_time_minutes || null,
-          calories: selected_meal.calories,
-          protein_g: selected_meal.protein_g,
-          carbs_g: selected_meal.carbs_g,
-          fat_g: selected_meal.fat_g,
-          fiber_g: selected_meal.fiber_g || null,
-          ingredients: selected_meal.ingredients || null,
-          instructions: selected_meal.instructions || null,
+          meal_name: mealToSave.meal_name,
+          meal_description: mealToSave.meal_description,
+          cuisine_type: mealToSave.cuisine_type || null,
+          prep_time_minutes: mealToSave.prep_time_minutes || null,
+          calories: mealToSave.calories,
+          protein_g: mealToSave.protein_g,
+          carbs_g: mealToSave.carbs_g,
+          fat_g: mealToSave.fat_g,
+          fiber_g: mealToSave.fiber_g || null,
+          ingredients: mealToSave.ingredients || null,
+          instructions: mealToSave.instructions || null,
           was_swapped: true,
         })
         .eq("id", plan_day_id);
@@ -88,7 +194,7 @@ serve(async (req) => {
       }
 
       // Insert new meal's ingredients as grocery items
-      const newIngredients = (selected_meal.ingredients as any[]) || [];
+      const newIngredients = (mealToSave.ingredients as any[]) || [];
       console.log(`[swap-meal] Inserting ${newIngredients.length} new grocery items`);
       if (newIngredients.length > 0) {
         const groceryRows = newIngredients.map((ing: any) => ({
@@ -105,7 +211,7 @@ serve(async (req) => {
         else console.log(`[swap-meal] Inserted ${groceryRows.length} grocery items successfully`);
       }
 
-      return new Response(JSON.stringify({ success: true, meal: selected_meal }), {
+      return new Response(JSON.stringify({ success: true, meal: mealToSave }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
