@@ -3,7 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Clock, Flame, Check, RefreshCw, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Clock, Flame, Check, RefreshCw, Sparkles, Plus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import RecipePreviewOverlay from "./RecipePreviewOverlay";
 
