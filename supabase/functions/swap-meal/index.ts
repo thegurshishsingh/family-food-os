@@ -361,63 +361,201 @@ function categorizeIngredient(name: string): string {
   return "pantry";
 }
 
-// Normalize ingredient name for grouping/dedup (e.g. "Yellow Onions" -> "onion")
+// ---- Ingredient alias map: maps colloquial / regional names to a canonical key.
+// Keep keys lowercase, singular, descriptor-stripped — they're matched AFTER basic normalization.
+const INGREDIENT_ALIASES: Record<string, string> = {
+  // Peppers
+  "capsicum": "bell pepper",
+  "red capsicum": "bell pepper",
+  "green capsicum": "bell pepper",
+  "yellow capsicum": "bell pepper",
+  "sweet pepper": "bell pepper",
+  "red bell pepper": "bell pepper",
+  "green bell pepper": "bell pepper",
+  "yellow bell pepper": "bell pepper",
+  "orange bell pepper": "bell pepper",
+  // Greens
+  "rocket": "arugula",
+  "coriander": "cilantro",
+  "coriander leaf": "cilantro",
+  "fresh coriander": "cilantro",
+  "spring onion": "scallion",
+  "green onion": "scallion",
+  // Squash
+  "courgette": "zucchini",
+  "aubergine": "eggplant",
+  "brinjal": "eggplant",
+  // Roots
+  "swede": "rutabaga",
+  // Tomato
+  "tomatoe": "tomato",
+  "roma tomato": "tomato",
+  "cherry tomato": "tomato",
+  "plum tomato": "tomato",
+  // Beans / legumes
+  "garbanzo": "chickpea",
+  "garbanzo bean": "chickpea",
+  "chick pea": "chickpea",
+  // Onion family
+  "yellow onion": "onion",
+  "white onion": "onion",
+  "brown onion": "onion",
+  "red onion": "onion",
+  "shallot": "shallot",
+  // Cheeses
+  "parmigiano": "parmesan",
+  "parmigiano reggiano": "parmesan",
+  "mozzarella cheese": "mozzarella",
+  "cheddar cheese": "cheddar",
+  // Pasta / grain
+  "spaghetti pasta": "spaghetti",
+  "penne pasta": "penne",
+  // Oils
+  "evoo": "olive oil",
+  "extra virgin olive oil": "olive oil",
+  // Sauces
+  "soya sauce": "soy sauce",
+  "tomato passata": "tomato sauce",
+  "passata": "tomato sauce",
+  // Meat
+  "mince": "ground beef",
+  "minced beef": "ground beef",
+  "beef mince": "ground beef",
+  "minced pork": "ground pork",
+  "minced chicken": "ground chicken",
+  "minced turkey": "ground turkey",
+  "prawn": "shrimp",
+  "prawns": "shrimp",
+  // Dairy
+  "double cream": "heavy cream",
+  "whipping cream": "heavy cream",
+  // Misc
+  "stock cube": "bouillon",
+  "ice berg lettuce": "lettuce",
+  "iceberg lettuce": "lettuce",
+  "romaine lettuce": "lettuce",
+};
+
+// Normalize ingredient name for grouping/dedup (e.g. "Yellow Onions" -> "onion", "Capsicum" -> "bell pepper")
 function normalizeIngredientName(name: string | null | undefined): string {
   if (!name) return "";
   let n = name.toLowerCase().trim();
   // Strip parenthetical notes
   n = n.replace(/\([^)]*\)/g, "").trim();
-  // Strip leading descriptors
-  n = n.replace(/^(fresh|dried|chopped|minced|diced|sliced|grated|shredded|whole|raw|cooked|ground|large|small|medium|extra|organic|ripe|frozen)\s+/g, "");
+  // Strip trailing comma-clauses ("onion, finely diced")
+  n = n.split(",")[0].trim();
+  // Strip leading descriptors (repeat to catch stacked descriptors)
+  const descriptor = /^(fresh|dried|chopped|minced|diced|sliced|grated|shredded|whole|raw|cooked|ground|large|small|medium|extra|organic|ripe|frozen|baby|young|crushed|peeled|boneless|skinless|lean|free[- ]range)\s+/;
+  while (descriptor.test(n)) n = n.replace(descriptor, "");
   // Drop trailing simple plural
   if (n.endsWith("ies")) n = n.slice(0, -3) + "y";
   else if (n.endsWith("es") && !n.endsWith("ses")) n = n.slice(0, -2);
   else if (n.endsWith("s") && !n.endsWith("ss")) n = n.slice(0, -1);
-  return n.replace(/\s+/g, " ").trim();
+  n = n.replace(/\s+/g, " ").trim();
+  // Apply alias map (try full key, then last 2 words, then last word)
+  if (INGREDIENT_ALIASES[n]) return INGREDIENT_ALIASES[n];
+  const parts = n.split(" ");
+  if (parts.length > 2) {
+    const tail2 = parts.slice(-2).join(" ");
+    if (INGREDIENT_ALIASES[tail2]) return INGREDIENT_ALIASES[tail2];
+  }
+  if (parts.length > 1) {
+    const tail1 = parts[parts.length - 1];
+    if (INGREDIENT_ALIASES[tail1]) return INGREDIENT_ALIASES[tail1];
+  }
+  return n;
 }
 
-// Combine quantity strings. Sums like-units; otherwise concatenates with " + ".
+// ---- Unit conversion tables (to a canonical base per dimension)
+// Volume canonical: tbsp (1 cup = 16 tbsp, 1 tsp = 1/3 tbsp)
+const VOLUME_TO_TBSP: Record<string, number> = {
+  "tbsp": 1, "tablespoon": 1, "tablespoons": 1, "tbs": 1, "tbl": 1,
+  "tsp": 1 / 3, "teaspoon": 1 / 3, "teaspoons": 1 / 3,
+  "cup": 16, "cups": 16, "c": 16,
+  "fl oz": 2, "fluid ounce": 2, "fluid ounces": 2, "floz": 2,
+  "pint": 32, "pints": 32, "pt": 32,
+  "quart": 64, "quarts": 64, "qt": 64,
+  "gallon": 256, "gallons": 256, "gal": 256,
+  "ml": 0.0676, "milliliter": 0.0676, "milliliters": 0.0676, "millilitre": 0.0676,
+  "l": 67.628, "liter": 67.628, "liters": 67.628, "litre": 67.628, "litres": 67.628,
+};
+// Weight canonical: gram
+const WEIGHT_TO_G: Record<string, number> = {
+  "g": 1, "gram": 1, "grams": 1, "gm": 1,
+  "kg": 1000, "kilo": 1000, "kilogram": 1000, "kilograms": 1000,
+  "oz": 28.3495, "ounce": 28.3495, "ounces": 28.3495,
+  "lb": 453.592, "lbs": 453.592, "pound": 453.592, "pounds": 453.592,
+};
+// Count-style — kept as-is per unit
+const COUNT_UNITS = new Set([
+  "", "piece", "pieces", "pc", "clove", "cloves", "slice", "slices",
+  "can", "cans", "jar", "jars", "bunch", "bunches", "head", "heads",
+  "stalk", "stalks", "sprig", "sprigs", "pinch", "pinches", "dash", "dashes",
+  "package", "packages", "pkg", "packet", "packets", "stick", "sticks",
+  "leaf", "leaves", "ear", "ears", "fillet", "fillets", "breast", "breasts",
+]);
+
+function classifyUnit(unit: string): { dim: "volume" | "weight" | "count"; key: string; factor: number } {
+  const u = unit.trim().toLowerCase().replace(/\.$/, "");
+  if (u in VOLUME_TO_TBSP) return { dim: "volume", key: "tbsp", factor: VOLUME_TO_TBSP[u] };
+  if (u in WEIGHT_TO_G) return { dim: "weight", key: "g", factor: WEIGHT_TO_G[u] };
+  // Singularize trailing s for count units
+  const singular = u.endsWith("s") && !u.endsWith("ss") ? u.slice(0, -1) : u;
+  return { dim: "count", key: singular, factor: 1 };
+}
+
+function formatVolume(tbsp: number): string {
+  if (tbsp >= 16) return `${round(tbsp / 16)} cup`;
+  if (tbsp >= 1) return `${round(tbsp)} tbsp`;
+  return `${round(tbsp * 3)} tsp`;
+}
+function formatWeight(g: number): string {
+  if (g >= 1000) return `${round(g / 1000)} kg`;
+  if (g >= 100) return `${Math.round(g)} g`;
+  return `${round(g)} g`;
+}
+function round(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+// Combine quantity strings. Converts compatible units (volume / weight) to a single canonical form.
+// Same-key counts sum; incompatible bits are concatenated with " + ".
 function combineQuantities(parts: string[]): string {
   const cleaned = parts.map((p) => p.trim()).filter(Boolean);
   if (cleaned.length === 0) return "";
   if (cleaned.length === 1) return cleaned[0];
 
-  type Parsed = { amount: number; unit: string };
-  const parsed: Parsed[] = [];
+  let volumeTbsp = 0;
+  let weightG = 0;
+  const counts = new Map<string, number>();
   const unparsed: string[] = [];
 
   for (const p of cleaned) {
-    // Match leading number (supports decimals and simple fractions like "1/2")
     const m = p.match(/^([\d.]+(?:\s*\/\s*[\d.]+)?)\s*(.*)$/);
-    if (m) {
-      let amount = 0;
-      const numStr = m[1].replace(/\s/g, "");
-      if (numStr.includes("/")) {
-        const [a, b] = numStr.split("/").map(Number);
-        if (b) amount = a / b;
-      } else {
-        amount = parseFloat(numStr);
-      }
-      if (!isNaN(amount)) {
-        parsed.push({ amount, unit: (m[2] || "").trim().toLowerCase() });
-        continue;
-      }
+    if (!m) { unparsed.push(p); continue; }
+    let amount = 0;
+    const numStr = m[1].replace(/\s/g, "");
+    if (numStr.includes("/")) {
+      const [a, b] = numStr.split("/").map(Number);
+      if (b) amount = a / b;
+    } else {
+      amount = parseFloat(numStr);
     }
-    unparsed.push(p);
+    if (isNaN(amount)) { unparsed.push(p); continue; }
+    const { dim, key, factor } = classifyUnit(m[2] || "");
+    if (dim === "volume") volumeTbsp += amount * factor;
+    else if (dim === "weight") weightG += amount * factor;
+    else counts.set(key, (counts.get(key) || 0) + amount);
   }
 
-  // Group parsed by unit
-  const byUnit = new Map<string, number>();
-  for (const { amount, unit } of parsed) {
-    byUnit.set(unit, (byUnit.get(unit) || 0) + amount);
+  const out: string[] = [];
+  if (volumeTbsp > 0) out.push(formatVolume(volumeTbsp));
+  if (weightG > 0) out.push(formatWeight(weightG));
+  for (const [unit, amount] of counts) {
+    const rounded = round(amount);
+    out.push(unit ? `${rounded} ${unit}` : `${rounded}`);
   }
-
-  const summed: string[] = [];
-  for (const [unit, amount] of byUnit) {
-    const rounded = Math.round(amount * 100) / 100;
-    summed.push(unit ? `${rounded} ${unit}` : `${rounded}`);
-  }
-  return [...summed, ...unparsed].join(" + ");
+  return [...out, ...unparsed].join(" + ");
 }
 
 // Build a complete recipe from name + description using AI (allergy/diet aware).
