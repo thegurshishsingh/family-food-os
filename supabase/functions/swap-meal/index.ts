@@ -194,7 +194,7 @@ serve(async (req) => {
       }
 
       // Insert new meal's ingredients as grocery items
-      const newIngredients = (selected_meal.ingredients as any[]) || [];
+      const newIngredients = (mealToSave.ingredients as any[]) || [];
       console.log(`[swap-meal] Inserting ${newIngredients.length} new grocery items`);
       if (newIngredients.length > 0) {
         const groceryRows = newIngredients.map((ing: any) => ({
