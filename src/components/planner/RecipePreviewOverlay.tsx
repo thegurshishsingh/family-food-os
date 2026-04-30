@@ -114,8 +114,8 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
           </div>
         </ScrollArea>
 
-        <div className="px-4 py-2.5 border-t border-border/60 flex items-center justify-between gap-2">
-          <p className="text-[10px] text-muted-foreground">Hold preview</p>
+        <div className="px-4 py-2.5 border-t border-border bg-muted/40 dark:bg-muted/20 flex items-center justify-between gap-2">
+          <p className="text-[10px] font-medium text-muted-foreground dark:text-foreground/70">Hold preview</p>
           {onSelect && (
             <Button
               size="sm"
