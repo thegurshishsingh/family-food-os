@@ -103,7 +103,7 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
                 </h4>
                 <ol className="space-y-1.5">
                   {meal.instructions.map((step, i) => (
-                    <li key={i} className="flex gap-2 text-xs text-muted-foreground">
+                    <li key={i} className="flex gap-2 text-xs text-muted-foreground dark:text-foreground/80">
                       <span className="text-primary font-semibold shrink-0 w-4 text-right">{i + 1}.</span>
                       <span className="leading-relaxed">{step}</span>
                     </li>
