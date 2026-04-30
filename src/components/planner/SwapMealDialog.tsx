@@ -122,6 +122,76 @@ const SwapMealDialog = ({
 
         {/* Scrollable suggestions */}
         <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-2.5">
+          {/* Custom meal entry */}
+          <Card className="p-3.5 sm:p-4 border-dashed border-primary/40 bg-primary/[0.02]">
+            {!customOpen ? (
+              <button
+                type="button"
+                onClick={() => { setSelectedIndex(null); setCustomOpen(true); }}
+                disabled={confirming}
+                className="w-full flex items-center gap-3 text-left group disabled:opacity-50"
+              >
+                <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
+                  <Plus className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm text-foreground">Add your own meal</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Type any meal you want to make instead</p>
+                </div>
+              </button>
+            ) : (
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Your custom meal</p>
+                  <button
+                    type="button"
+                    onClick={() => { setCustomOpen(false); setCustomName(""); setCustomDesc(""); }}
+                    disabled={confirming}
+                    className="text-muted-foreground hover:text-foreground"
+                    aria-label="Cancel custom meal"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <Input
+                  placeholder="Meal name (e.g. Grandma's lasagna)"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  maxLength={200}
+                  disabled={confirming}
+                  autoFocus
+                  className="h-9 text-sm"
+                />
+                <Textarea
+                  placeholder="Description (optional)"
+                  value={customDesc}
+                  onChange={(e) => setCustomDesc(e.target.value)}
+                  maxLength={500}
+                  disabled={confirming}
+                  className="text-sm min-h-[60px] resize-none"
+                />
+                <Button
+                  size="sm"
+                  onClick={handleSubmitCustom}
+                  disabled={!customName.trim() || confirming}
+                  className="w-full h-9 text-xs gap-1.5"
+                >
+                  {confirming ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                      Adding…
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      Use this meal
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </Card>
+
           <AnimatePresence mode="popLayout">
             {suggestions.map((meal, i) => {
               const isSelected = selectedIndex === i;
