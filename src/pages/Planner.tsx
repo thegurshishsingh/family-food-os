@@ -729,11 +729,15 @@ const Planner = () => {
 
       <SwapMealDialog
         open={swapDialogOpen}
-        onOpenChange={(o) => { setSwapDialogOpen(o); if (!o) { setSwapSuggestions([]); setSwapDayContext(null); } }}
+        onOpenChange={(o) => { setSwapDialogOpen(o); if (!o) { setSwapSuggestions([]); setSwapDayContext(null); setCustomPreviewMeal(null); } }}
         suggestions={swapSuggestions}
         dayName={swapDayContext ? DAYS[swapDayContext.day_of_week] : ""}
         currentMealName={swapDayContext?.meal_name || undefined}
         onSelect={confirmSwapMeal}
+        onCustomPreview={previewCustomMeal}
+        customPreviewMeal={customPreviewMeal}
+        onClearCustomPreview={() => setCustomPreviewMeal(null)}
+        previewingCustom={previewingCustom}
         onRegenerate={async () => {
           if (!household || !swapDayContext) return;
           setRegeneratingSwap(true);
