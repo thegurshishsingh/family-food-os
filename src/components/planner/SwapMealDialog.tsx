@@ -182,21 +182,24 @@ const SwapMealDialog = ({
                 <Button
                   size="sm"
                   onClick={handleSubmitCustom}
-                  disabled={!customName.trim() || confirming}
+                  disabled={!customName.trim() || confirming || previewingCustom}
                   className="w-full h-9 text-xs gap-1.5"
                 >
-                  {confirming ? (
+                  {previewingCustom ? (
                     <>
                       <div className="w-3.5 h-3.5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                      Adding…
+                      Inferring ingredients…
                     </>
                   ) : (
                     <>
-                      <Check className="w-3.5 h-3.5" />
-                      Use this meal
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Preview ingredients
                     </>
                   )}
                 </Button>
+                <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
+                  We'll infer ingredients & nutrition. You'll review before the grocery list updates.
+                </p>
               </div>
             )}
           </Card>
