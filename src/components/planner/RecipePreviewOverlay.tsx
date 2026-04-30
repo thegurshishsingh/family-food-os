@@ -30,7 +30,7 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
             <h3 className="font-serif font-semibold text-base text-foreground leading-snug">
               {meal.meal_name}
             </h3>
-            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 dark:text-foreground/75">
               {meal.meal_description}
             </p>
             <div className="flex flex-wrap items-center gap-2 mt-2">
