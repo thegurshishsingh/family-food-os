@@ -97,14 +97,19 @@ const SwapMealDialog = ({
     onOpenChange(o);
   };
 
-  const handleSubmitCustom = () => {
+  const handleSubmitCustom = async () => {
     const name = customName.trim().slice(0, 200);
     const desc = customDesc.trim().slice(0, 500);
     if (!name) return;
-    onSelect({
-      meal_name: name,
-      meal_description: desc,
-    });
+    if (onCustomPreview) {
+      await onCustomPreview(name, desc);
+      // Parent will inject the built suggestion at index 0; reset the form.
+      setCustomOpen(false);
+      setCustomName("");
+      setCustomDesc("");
+    } else {
+      onSelect({ meal_name: name, meal_description: desc });
+    }
   };
 
   return (
