@@ -45,8 +45,10 @@ const SwapMealDialog = ({
   currentMealName,
   onSelect,
   onRegenerate,
+  onCustomPreview,
   confirming,
   regenerating,
+  previewingCustom,
 }: SwapMealDialogProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
