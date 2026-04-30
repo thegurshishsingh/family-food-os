@@ -31,8 +31,10 @@ interface SwapMealDialogProps {
   currentMealName?: string;
   onSelect: (meal: MealSuggestion) => void;
   onRegenerate: () => void;
+  onCustomPreview?: (name: string, desc: string) => Promise<void>;
   confirming: boolean;
   regenerating: boolean;
+  previewingCustom?: boolean;
 }
 
 const SwapMealDialog = ({
