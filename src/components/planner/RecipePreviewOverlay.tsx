@@ -84,7 +84,7 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
                 </h4>
                 <ul className="space-y-0.5">
                   {meal.ingredients.map((ing, i) => (
-                    <li key={i} className="text-xs text-muted-foreground flex items-baseline gap-1.5">
+                    <li key={i} className="text-xs text-muted-foreground dark:text-foreground/75 flex items-baseline gap-1.5">
                       <span className="w-1 h-1 rounded-full bg-primary shrink-0 mt-1.5" />
                       <span>
                         <span className="text-foreground font-medium">{ing.quantity}{ing.unit ? ` ${ing.unit}` : ""}</span>{" "}
