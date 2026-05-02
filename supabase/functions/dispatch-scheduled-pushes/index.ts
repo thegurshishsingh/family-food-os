@@ -287,6 +287,24 @@ Deno.serve(async (req) => {
         if (contextByUser[uid]) contextForGroup[uid] = contextByUser[uid];
       }
 
+      // Personalize dinner_reveal and evening_checkin copy with tonight's
+      // dish name, when we found one for the user.
+      const titleByUser: Record<string, string> = {};
+      const bodyByUser: Record<string, string> = {};
+      if (slot === "dinner_reveal" || slot === "evening_checkin") {
+        for (const uid of ids) {
+          const meal = tonightMealByUser[uid];
+          if (!meal) continue;
+          if (slot === "dinner_reveal") {
+            titleByUser[uid] = `Tonight's dinner: ${meal} 🍽️`;
+            bodyByUser[uid] = "Tap to see the recipe and prep ahead.";
+          } else {
+            titleByUser[uid] = `How was ${meal}?`;
+            bodyByUser[uid] = "Quick check-in helps us plan smarter next week.";
+          }
+        }
+      }
+
       const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
         method: "POST",
         headers: {
@@ -304,6 +322,8 @@ Deno.serve(async (req) => {
           local_hour: group[0].local_hour,
           local_minute: group[0].local_minute,
           context_by_user: contextForGroup,
+          title_by_user: titleByUser,
+          body_by_user: bodyByUser,
         }),
       });
       if (res.ok) dispatched += ids.length;
