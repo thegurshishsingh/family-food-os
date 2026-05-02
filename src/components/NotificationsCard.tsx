@@ -698,6 +698,42 @@ const NotificationsCard = () => {
                     className="h-8 w-[120px] text-sm"
                   />
                 </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Send on</Label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { day: 0, label: "Sun" },
+                      { day: 1, label: "Mon" },
+                      { day: 2, label: "Tue" },
+                      { day: 3, label: "Wed" },
+                      { day: 4, label: "Thu" },
+                      { day: 5, label: "Fri" },
+                      { day: 6, label: "Sat" },
+                    ].map(({ day, label }) => {
+                      const active = prefs.weekly_plan_ready_days.includes(day);
+                      return (
+                        <button
+                          key={day}
+                          type="button"
+                          aria-pressed={active}
+                          disabled={!prefs.enabled_weekly_plan_ready}
+                          onClick={() => handleToggleDay(day)}
+                          className={`h-7 min-w-[40px] rounded-md border px-2 text-xs font-medium transition-colors ${
+                            active
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-foreground/30"
+                          } disabled:opacity-50 disabled:cursor-not-allowed`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-snug">
+                    Pick one or more days. We'll only ping you on the selected weekdays at your
+                    preferred time.
+                  </p>
+                </div>
               </div>
             </div>
 
