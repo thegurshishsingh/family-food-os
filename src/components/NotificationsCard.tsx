@@ -279,13 +279,18 @@ const NotificationsCard = () => {
     supabase
       .from("push_subscriptions")
       .select(
-        "enabled_dinner_reveal, enabled_evening_checkin, enabled_weekly_plan_ready, dinner_reveal_time, evening_checkin_time, weekly_plan_ready_time"
+        "enabled_dinner_reveal, enabled_evening_checkin, enabled_weekly_plan_ready, dinner_reveal_time, evening_checkin_time, weekly_plan_ready_time, weekly_plan_ready_days"
       )
       .eq("user_id", user.id)
       .limit(1)
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
+          const rawDays = Array.isArray(data.weekly_plan_ready_days)
+            ? (data.weekly_plan_ready_days as number[])
+                .map((d) => Number(d))
+                .filter((d) => Number.isInteger(d) && d >= 0 && d <= 6)
+            : [];
           setPrefs((p) => ({
             ...p,
             ...data,
@@ -293,6 +298,7 @@ const NotificationsCard = () => {
             dinner_reveal_time: (data.dinner_reveal_time ?? p.dinner_reveal_time).slice(0, 5),
             evening_checkin_time: (data.evening_checkin_time ?? p.evening_checkin_time).slice(0, 5),
             weekly_plan_ready_time: (data.weekly_plan_ready_time ?? p.weekly_plan_ready_time).slice(0, 5),
+            weekly_plan_ready_days: rawDays.length ? rawDays : p.weekly_plan_ready_days,
           }));
         }
       });
