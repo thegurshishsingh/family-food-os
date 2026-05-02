@@ -35,19 +35,19 @@ const Landing = () => {
       
 
       {/* Family situations */}
-      <section className="py-10 md:py-14 px-4 relative">
+      <section className="py-14 md:py-20 px-4 relative">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
           <div className="absolute bottom-0 left-1/4 w-[500px] h-[300px] rounded-full bg-gradient-to-t from-sky/5 to-transparent blur-3xl" />
         </div>
         <div className="container max-w-3xl text-center relative z-10">
           <motion.div initial={initialState} whileInView="visible" viewport={viewport} variants={fadeUp} custom={0}>
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-sky/15 to-primary/10 mb-3">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-sky/15 to-primary/10 mb-4">
               <Target className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-xl md:text-3xl font-serif font-semibold text-foreground mb-2">
+            <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-3 tracking-tight leading-[1.15]">
               Built for your kind of week
             </h2>
-            <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
+            <p className="text-muted-foreground/80 text-base max-w-md mx-auto mb-8 leading-relaxed">
               Tap a situation to see how the plan adapts.
             </p>
           </motion.div>
