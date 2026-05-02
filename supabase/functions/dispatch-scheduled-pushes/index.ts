@@ -271,9 +271,9 @@ Deno.serve(async (req) => {
 
   return json({
     checked: Object.keys(byUser).length,
-    dinner: dinnerUsers.length,
-    checkin: checkinUsers.length,
-    weekly: weeklyUsers.length,
+    dinner: dinnerTargets.length,
+    checkin: checkinTargets.length,
+    weekly: weeklyTargets.length,
     dispatched,
   });
 });
