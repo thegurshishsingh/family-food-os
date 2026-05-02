@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
     const { data: deliveredRows, error: lookupErr } = await admin
       .from("push_notification_events")
       .select(
-        "user_id, category, weekday, local_hour, local_minute, subscription_id, platform, app_version, device_id, endpoint_host"
+        "user_id, category, weekday, local_hour, local_minute, subscription_id, platform, app_version, device_id, endpoint_host, household_context"
       )
       .eq("event_id", body.event_id)
       .eq("event_type", "delivered");
@@ -114,6 +114,7 @@ Deno.serve(async (req) => {
           app_version: body.app_version ?? delivered?.app_version ?? null,
           device_id: body.device_id ?? delivered?.device_id ?? null,
           endpoint_host: delivered?.endpoint_host ?? null,
+          household_context: delivered?.household_context ?? {},
           metadata: body.metadata ?? {},
         },
         {
