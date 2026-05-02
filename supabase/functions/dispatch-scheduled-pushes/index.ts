@@ -230,6 +230,29 @@ Deno.serve(async (req) => {
   );
   const contextByUser = await buildContextByUser(supabase, allUserIds, now);
 
+  // Look up tonight's dinner per user so dinner_reveal + evening_checkin
+  // pushes can name the actual dish (e.g. "Tonight's dinner: Chicken Tikka").
+  // Only needed for users receiving one of those two slots.
+  const dinnerSlotUserIds = Array.from(
+    new Set([
+      ...dinnerTargets.map((t) => t.user_id),
+      ...checkinTargets.map((t) => t.user_id),
+    ])
+  );
+  // Each target carries the user's local weekday, but it's the same for
+  // both dinner & checkin slots in this tick. Map user → local weekday from
+  // whichever target we have first.
+  const localWeekdayByUser = new Map<string, number>();
+  for (const t of [...dinnerTargets, ...checkinTargets]) {
+    if (!localWeekdayByUser.has(t.user_id)) localWeekdayByUser.set(t.user_id, t.weekday);
+  }
+  const tonightMealByUser = await buildTonightMealByUser(
+    supabase,
+    dinnerSlotUserIds,
+    localWeekdayByUser,
+    now
+  );
+
   let dispatched = 0;
   for (const [slot, targets] of [
     ["dinner_reveal", dinnerTargets] as const,
@@ -264,6 +287,24 @@ Deno.serve(async (req) => {
         if (contextByUser[uid]) contextForGroup[uid] = contextByUser[uid];
       }
 
+      // Personalize dinner_reveal and evening_checkin copy with tonight's
+      // dish name, when we found one for the user.
+      const titleByUser: Record<string, string> = {};
+      const bodyByUser: Record<string, string> = {};
+      if (slot === "dinner_reveal" || slot === "evening_checkin") {
+        for (const uid of ids) {
+          const meal = tonightMealByUser[uid];
+          if (!meal) continue;
+          if (slot === "dinner_reveal") {
+            titleByUser[uid] = `Tonight's dinner: ${meal} 🍽️`;
+            bodyByUser[uid] = "Tap to see the recipe and prep ahead.";
+          } else {
+            titleByUser[uid] = `How was ${meal}?`;
+            bodyByUser[uid] = "Quick check-in helps us plan smarter next week.";
+          }
+        }
+      }
+
       const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
         method: "POST",
         headers: {
@@ -281,6 +322,8 @@ Deno.serve(async (req) => {
           local_hour: group[0].local_hour,
           local_minute: group[0].local_minute,
           context_by_user: contextForGroup,
+          title_by_user: titleByUser,
+          body_by_user: bodyByUser,
         }),
       });
       if (res.ok) dispatched += ids.length;
@@ -400,4 +443,78 @@ async function buildContextByUser(
     };
   }
   return result;
+}
+
+// Look up tonight's dinner per user. Returns a map user_id → meal_name.
+// `localWeekdayByUser` uses the JS convention (0=Sunday…6=Saturday) but
+// plan_days.day_of_week uses 0=Monday…6=Sunday, so we convert.
+async function buildTonightMealByUser(
+  supabase: SupabaseAdmin,
+  userIds: string[],
+  localWeekdayByUser: Map<string, number>,
+  now: Date
+): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  if (!userIds.length) return out;
+
+  const { data: households } = await supabase
+    .from("households")
+    .select("id, owner_id")
+    .in("owner_id", userIds);
+  const hhByUser = new Map<string, string>();
+  for (const h of households ?? []) hhByUser.set(h.owner_id as string, h.id as string);
+  const householdIds = Array.from(new Set(hhByUser.values()));
+  if (!householdIds.length) return out;
+
+  // Pull this week's plans (week_start within last 13 days covers Mon-start
+  // and Sun-start weeks, plus any tz lag).
+  const since = new Date(now);
+  since.setDate(since.getDate() - 13);
+  const { data: plans } = await supabase
+    .from("weekly_plans")
+    .select("id, household_id, week_start")
+    .in("household_id", householdIds)
+    .gte("week_start", since.toISOString().slice(0, 10))
+    .order("week_start", { ascending: false });
+  if (!plans?.length) return out;
+
+  // Most recent plan per household.
+  const latestPlanByHh = new Map<string, string>();
+  for (const p of plans) {
+    const hid = p.household_id as string;
+    if (!latestPlanByHh.has(hid)) latestPlanByHh.set(hid, p.id as string);
+  }
+  const planIds = Array.from(latestPlanByHh.values());
+  if (!planIds.length) return out;
+
+  const { data: days } = await supabase
+    .from("plan_days")
+    .select("plan_id, day_of_week, meal_name, meal_mode")
+    .in("plan_id", planIds);
+  if (!days?.length) return out;
+
+  // index: plan_id + day_of_week → meal_name
+  const mealKey = (planId: string, dow: number) => `${planId}:${dow}`;
+  const mealMap = new Map<string, string>();
+  for (const d of days) {
+    const name = (d.meal_name as string | null)?.trim();
+    const mode = (d.meal_mode as string | null) ?? "cook";
+    if (!name) continue;
+    if (mode === "skip") continue; // no dinner planned
+    mealMap.set(mealKey(d.plan_id as string, d.day_of_week as number), name);
+  }
+
+  for (const uid of userIds) {
+    const hid = hhByUser.get(uid);
+    if (!hid) continue;
+    const planId = latestPlanByHh.get(hid);
+    if (!planId) continue;
+    const jsWeekday = localWeekdayByUser.get(uid);
+    if (jsWeekday === undefined) continue;
+    // JS: 0=Sun…6=Sat → plan: 0=Mon…6=Sun
+    const planDow = (jsWeekday + 6) % 7;
+    const meal = mealMap.get(mealKey(planId, planDow));
+    if (meal) out[uid] = meal;
+  }
+  return out;
 }

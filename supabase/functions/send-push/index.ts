@@ -39,6 +39,10 @@ interface SendBody {
   // to slice analytics. Whatever the dispatcher provides is stored verbatim
   // on the delivered event row.
   context_by_user?: Record<string, Record<string, unknown>>;
+  // Optional per-user title/body overrides. Used to personalize the push
+  // copy with tonight's dish name without losing the shared default.
+  title_by_user?: Record<string, string>;
+  body_by_user?: Record<string, string>;
 }
 
 type PushSubscriptionRow = {
@@ -342,8 +346,8 @@ Deno.serve(async (req) => {
         url = `${url}${sep}npx_evt=${evt}`;
       }
       return JSON.stringify({
-        title: body.title,
-        body: body.body,
+        title: body.title_by_user?.[uid] ?? body.title,
+        body: body.body_by_user?.[uid] ?? body.body,
         url,
       });
     };
