@@ -346,8 +346,8 @@ Deno.serve(async (req) => {
         url = `${url}${sep}npx_evt=${evt}`;
       }
       return JSON.stringify({
-        title: body.title,
-        body: body.body,
+        title: body.title_by_user?.[uid] ?? body.title,
+        body: body.body_by_user?.[uid] ?? body.body,
         url,
       });
     };
