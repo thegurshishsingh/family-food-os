@@ -25,6 +25,16 @@ interface SendBody {
   body: string;
   url?: string;
   tag?: string;
+  // Optional analytics correlation id. If provided, send-push will write a
+  // `delivered` row per recipient user and embed the id inside the push
+  // payload so click/open events can be matched back to this dispatch.
+  event_id?: string;
+  // Optional event_id per user, used by the dispatcher when sending one
+  // batch but wanting independent correlation ids per recipient.
+  event_ids_by_user?: Record<string, string>;
+  weekday?: number;
+  local_hour?: number;
+  local_minute?: number;
 }
 
 type PushSubscriptionRow = {
