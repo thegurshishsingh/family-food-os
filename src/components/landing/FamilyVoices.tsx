@@ -31,24 +31,24 @@ const FamilyVoices = () => {
   const { fadeUp, viewport, initialState } = useScrollReveal();
 
   return (
-    <section className="py-10 md:py-14 px-4 relative overflow-hidden">
+    <section className="py-14 md:py-20 px-4 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] rounded-full bg-gradient-to-b from-primary/4 via-violet/3 to-transparent blur-3xl" />
       </div>
 
       <div className="container max-w-4xl relative z-10">
         <motion.div
-          className="text-center mb-6"
+          className="text-center mb-8"
           initial={initialState}
           whileInView="visible"
           viewport={viewport}
           variants={fadeUp}
           custom={0}
         >
-          <IconTile size="xl" gradient="from-primary/15 to-violet/10" className="mb-3">
+          <IconTile size="xl" gradient="from-primary/15 to-violet/10" className="mb-4">
             <Quote className="w-6 h-6 text-primary" />
           </IconTile>
-          <h2 className="text-xl md:text-3xl font-serif font-semibold text-foreground mb-2">
+          <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-2 tracking-tight leading-[1.15]">
             Real families, real weeks
           </h2>
         </motion.div>
