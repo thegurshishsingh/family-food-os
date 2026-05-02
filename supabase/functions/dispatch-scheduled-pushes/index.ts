@@ -218,6 +218,18 @@ Deno.serve(async (req) => {
     }
   }
 
+  // Build a per-user household-context snapshot once. We send the same
+  // snapshot for every slot in this tick so analytics rows can be filtered
+  // by context (budget_week, low_cleanup, sick, child age bands, etc.).
+  const allUserIds = Array.from(
+    new Set([
+      ...dinnerTargets.map((t) => t.user_id),
+      ...checkinTargets.map((t) => t.user_id),
+      ...weeklyTargets.map((t) => t.user_id),
+    ])
+  );
+  const contextByUser = await buildContextByUser(supabase, allUserIds, now);
+
   let dispatched = 0;
   for (const [slot, targets] of [
     ["dinner_reveal", dinnerTargets] as const,
@@ -246,6 +258,12 @@ Deno.serve(async (req) => {
       const eventIdsByUser: Record<string, string> = {};
       for (const uid of ids) eventIdsByUser[uid] = crypto.randomUUID();
 
+      // Pass only this group's user contexts to keep the payload small.
+      const contextForGroup: Record<string, unknown> = {};
+      for (const uid of ids) {
+        if (contextByUser[uid]) contextForGroup[uid] = contextByUser[uid];
+      }
+
       const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
         method: "POST",
         headers: {
@@ -262,6 +280,7 @@ Deno.serve(async (req) => {
           weekday: group[0].weekday,
           local_hour: group[0].local_hour,
           local_minute: group[0].local_minute,
+          context_by_user: contextForGroup,
         }),
       });
       if (res.ok) dispatched += ids.length;
