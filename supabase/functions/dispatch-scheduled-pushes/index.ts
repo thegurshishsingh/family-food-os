@@ -444,3 +444,77 @@ async function buildContextByUser(
   }
   return result;
 }
+
+// Look up tonight's dinner per user. Returns a map user_id → meal_name.
+// `localWeekdayByUser` uses the JS convention (0=Sunday…6=Saturday) but
+// plan_days.day_of_week uses 0=Monday…6=Sunday, so we convert.
+async function buildTonightMealByUser(
+  supabase: SupabaseAdmin,
+  userIds: string[],
+  localWeekdayByUser: Map<string, number>,
+  now: Date
+): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  if (!userIds.length) return out;
+
+  const { data: households } = await supabase
+    .from("households")
+    .select("id, owner_id")
+    .in("owner_id", userIds);
+  const hhByUser = new Map<string, string>();
+  for (const h of households ?? []) hhByUser.set(h.owner_id as string, h.id as string);
+  const householdIds = Array.from(new Set(hhByUser.values()));
+  if (!householdIds.length) return out;
+
+  // Pull this week's plans (week_start within last 13 days covers Mon-start
+  // and Sun-start weeks, plus any tz lag).
+  const since = new Date(now);
+  since.setDate(since.getDate() - 13);
+  const { data: plans } = await supabase
+    .from("weekly_plans")
+    .select("id, household_id, week_start")
+    .in("household_id", householdIds)
+    .gte("week_start", since.toISOString().slice(0, 10))
+    .order("week_start", { ascending: false });
+  if (!plans?.length) return out;
+
+  // Most recent plan per household.
+  const latestPlanByHh = new Map<string, string>();
+  for (const p of plans) {
+    const hid = p.household_id as string;
+    if (!latestPlanByHh.has(hid)) latestPlanByHh.set(hid, p.id as string);
+  }
+  const planIds = Array.from(latestPlanByHh.values());
+  if (!planIds.length) return out;
+
+  const { data: days } = await supabase
+    .from("plan_days")
+    .select("plan_id, day_of_week, meal_name, meal_mode")
+    .in("plan_id", planIds);
+  if (!days?.length) return out;
+
+  // index: plan_id + day_of_week → meal_name
+  const mealKey = (planId: string, dow: number) => `${planId}:${dow}`;
+  const mealMap = new Map<string, string>();
+  for (const d of days) {
+    const name = (d.meal_name as string | null)?.trim();
+    const mode = (d.meal_mode as string | null) ?? "cook";
+    if (!name) continue;
+    if (mode === "skip") continue; // no dinner planned
+    mealMap.set(mealKey(d.plan_id as string, d.day_of_week as number), name);
+  }
+
+  for (const uid of userIds) {
+    const hid = hhByUser.get(uid);
+    if (!hid) continue;
+    const planId = latestPlanByHh.get(hid);
+    if (!planId) continue;
+    const jsWeekday = localWeekdayByUser.get(uid);
+    if (jsWeekday === undefined) continue;
+    // JS: 0=Sun…6=Sat → plan: 0=Mon…6=Sun
+    const planDow = (jsWeekday + 6) % 7;
+    const meal = mealMap.get(mealKey(planId, planDow));
+    if (meal) out[uid] = meal;
+  }
+  return out;
+}
