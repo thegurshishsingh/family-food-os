@@ -135,22 +135,71 @@ self.addEventListener("push", (event) => {
 });
 
 
+// Vite injects these at build time. SUPABASE_URL/anon are public.
+const SUPABASE_URL = (import.meta as unknown as { env: Record<string, string> }).env
+  ?.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = (import.meta as unknown as { env: Record<string, string> }).env
+  ?.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+async function trackPushEvent(eventId: string, eventType: "clicked" | "opened") {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/track-push-event`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ event_id: eventId, event_type: eventType }),
+      keepalive: true,
+    });
+  } catch (e) {
+    console.warn("[sw] track-push-event failed", e);
+  }
+}
+
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const raw = event.notification.data;
   const targetUrl = (typeof raw === "string" ? raw : (raw as { url?: string })?.url) || "/planner";
 
+  // Extract analytics correlation id from the URL we appended in send-push.
+  let eventId: string | null = null;
+  try {
+    const u = new URL(targetUrl, self.location.origin);
+    eventId = u.searchParams.get("npx_evt");
+  } catch {
+    eventId = null;
+  }
+
   event.waitUntil(
     (async () => {
+      if (eventId) {
+        // Fire-and-forget click tracking — don't block window opening on it.
+        trackPushEvent(eventId, "clicked");
+      }
       const allClients = await self.clients.matchAll({
         type: "window",
         includeUncontrolled: true,
       });
+      // Match by pathname only — the npx_evt query string changes per push.
+      let targetPath = targetUrl;
+      try {
+        targetPath = new URL(targetUrl, self.location.origin).pathname;
+      } catch {}
       for (const client of allClients) {
-        const url = new URL(client.url);
-        if (url.pathname === targetUrl && "focus" in client) {
-          return client.focus();
-        }
+        try {
+          const url = new URL(client.url);
+          if (url.pathname === targetPath && "focus" in client) {
+            // Navigate the focused tab to the full URL (with npx_evt) so the
+            // frontend can record an `opened` event.
+            if ("navigate" in client) {
+              await (client as WindowClient).navigate(targetUrl).catch(() => undefined);
+            }
+            return client.focus();
+          }
+        } catch {}
       }
       if (self.clients.openWindow) {
         return self.clients.openWindow(targetUrl);
