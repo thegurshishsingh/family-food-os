@@ -324,6 +324,18 @@ const NotificationsCard = () => {
     if (!ok) toast({ title: "Couldn't update notification time", variant: "destructive" });
   };
 
+  const handleToggleDay = async (day: number) => {
+    const current = new Set(prefs.weekly_plan_ready_days);
+    if (current.has(day)) current.delete(day);
+    else current.add(day);
+    // Always keep at least one day selected — fall back to Sunday.
+    if (current.size === 0) current.add(0);
+    const next = Array.from(current).sort((a, b) => a - b);
+    setPrefs((p) => ({ ...p, weekly_plan_ready_days: next }));
+    const ok = await updatePreferences({ weekly_plan_ready_days: next });
+    if (!ok) toast({ title: "Couldn't update weekly cadence", variant: "destructive" });
+  };
+
   const handleEnable = async () => {
     const ok = await subscribe();
     if (ok) toast({ title: "Notifications enabled", description: "We'll ping you at the right moments." });
