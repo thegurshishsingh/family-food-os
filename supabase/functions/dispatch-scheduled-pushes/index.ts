@@ -56,20 +56,29 @@ function parseTime(value: string | null | undefined, fallback: { hour: number; m
   return { hour, minute };
 }
 
-// Returns local hour and minute for a given timezone, "now"
-function localHM(timezone: string, now: Date): { hour: number; minute: number } | null {
+// Returns local hour, minute and weekday (0=Sun…6=Sat) for a given timezone, "now"
+function localHMW(
+  timezone: string,
+  now: Date
+): { hour: number; minute: number; weekday: number } | null {
   try {
     const fmt = new Intl.DateTimeFormat("en-US", {
       timeZone: timezone,
       hour: "2-digit",
       minute: "2-digit",
+      weekday: "short",
       hour12: false,
     });
     const parts = fmt.formatToParts(now);
     const hour = parseInt(parts.find((p) => p.type === "hour")?.value ?? "", 10);
     const minute = parseInt(parts.find((p) => p.type === "minute")?.value ?? "", 10);
-    if (Number.isNaN(hour) || Number.isNaN(minute)) return null;
-    return { hour, minute };
+    const wd = parts.find((p) => p.type === "weekday")?.value ?? "";
+    const weekdayMap: Record<string, number> = {
+      Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
+    };
+    const weekday = weekdayMap[wd];
+    if (Number.isNaN(hour) || Number.isNaN(minute) || weekday === undefined) return null;
+    return { hour, minute, weekday };
   } catch {
     return null;
   }
