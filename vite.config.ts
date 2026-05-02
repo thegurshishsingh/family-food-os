@@ -6,6 +6,15 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // App version is exposed to the client (and the SW) so we can attribute
+  // push delivery / engagement metrics to a specific build.
+  define: {
+    __APP_VERSION__: JSON.stringify(
+      process.env.VITE_APP_VERSION ||
+        process.env.npm_package_version ||
+        new Date().toISOString().slice(0, 10)
+    ),
+  },
   server: {
     host: "::",
     port: 8080,
