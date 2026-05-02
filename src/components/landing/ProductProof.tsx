@@ -19,24 +19,24 @@ const ProductProof = () => {
   const { fadeUp, viewport, initialState, isMobile } = useScrollReveal();
 
   return (
-    <section className="py-10 md:py-14 px-4 relative">
+    <section className="py-14 md:py-20 px-4 relative">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full bg-gradient-to-r from-primary/5 to-transparent blur-3xl" />
       </div>
 
       <div className="container max-w-6xl relative z-10">
         <motion.div
-          className="text-center mb-5"
+          className="text-center mb-8"
           initial={initialState}
           whileInView="visible"
           viewport={viewport}
           variants={fadeUp}
           custom={0}
         >
-          <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-3">
-            It learns from real life, not just recipes.
+          <h2 className="text-3xl md:text-5xl font-serif font-semibold text-foreground mb-4 tracking-tight leading-[1.1]">
+            It learns from real life,<br className="hidden md:block" /> not just recipes.
           </h2>
-          <p className="text-muted-foreground text-base max-w-2xl mx-auto leading-relaxed">
+          <p className="text-muted-foreground/80 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
             Most meal apps stop at planning. Family Food OS keeps learning after
             dinner, so each week's dinners fit your family better.
           </p>
