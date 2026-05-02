@@ -140,11 +140,11 @@ const HeroSection = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="flex items-center gap-2 mb-4">
-              <IconTile size="md" gradient="from-primary to-sage-dark">
-                <Utensils className="h-4 text-primary-foreground w-[16px]" />
+              <IconTile size="sm" gradient="from-primary to-sage-dark" className="rounded-md">
+                <Utensils className="w-3 h-3 text-primary-foreground" />
               </IconTile>
-              <span className="inline-block text-xs font-bold glass uppercase tracking-wider text-primary rounded-none px-0 py-0">
-                Never Wonder what's for dinner again
+              <span className="inline-block text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-primary whitespace-nowrap leading-none">
+                Never wonder what's for dinner again
               </span>
             </div>
 
