@@ -141,9 +141,25 @@ const SUPABASE_URL = (import.meta as unknown as { env: Record<string, string> })
 const SUPABASE_ANON_KEY = (import.meta as unknown as { env: Record<string, string> }).env
   ?.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+// App version is injected at build time via vite `define`.
+declare const __APP_VERSION__: string | undefined;
+const APP_VERSION =
+  typeof __APP_VERSION__ !== "undefined" && __APP_VERSION__ ? __APP_VERSION__ : "dev";
+
+function detectPlatformFromUA(ua: string): string {
+  if (!ua) return "unknown";
+  if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
+  if (/Android/i.test(ua)) return "android";
+  return "web";
+}
+
 async function trackPushEvent(eventId: string, eventType: "clicked" | "opened") {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
   try {
+    // SW has no access to localStorage, so device_id is recorded by the
+    // foreground page tracker on `opened`. For `clicked` we still include
+    // platform + version so we can break down click rates by OS.
+    const platform = detectPlatformFromUA(self.navigator?.userAgent ?? "");
     await fetch(`${SUPABASE_URL}/functions/v1/track-push-event`, {
       method: "POST",
       headers: {
@@ -151,7 +167,12 @@ async function trackPushEvent(eventId: string, eventType: "clicked" | "opened") 
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       },
-      body: JSON.stringify({ event_id: eventId, event_type: eventType }),
+      body: JSON.stringify({
+        event_id: eventId,
+        event_type: eventType,
+        platform,
+        app_version: APP_VERSION,
+      }),
       keepalive: true,
     });
   } catch (e) {
