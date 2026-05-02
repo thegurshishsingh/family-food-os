@@ -71,6 +71,45 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
 const findCategory = (value: TestCategory) =>
   CATEGORY_OPTIONS.find((o) => o.value === value) ?? CATEGORY_OPTIONS[0];
 
+// Look up tonight's meal name for a given user, mirroring the logic the
+// dispatcher uses (latest weekly_plans row → plan_days for today's weekday,
+// converting JS Sun-based weekday to plan_days Mon-based weekday).
+async function lookupTonightMeal(userId: string): Promise<string | null> {
+  try {
+    const { data: hh } = await supabase
+      .from("households")
+      .select("id")
+      .eq("owner_id", userId)
+      .maybeSingle();
+    if (!hh?.id) return null;
+    const since = new Date();
+    since.setDate(since.getDate() - 13);
+    const { data: plans } = await supabase
+      .from("weekly_plans")
+      .select("id, week_start")
+      .eq("household_id", hh.id)
+      .gte("week_start", since.toISOString().slice(0, 10))
+      .order("week_start", { ascending: false })
+      .limit(1);
+    const planId = plans?.[0]?.id;
+    if (!planId) return null;
+    const jsWeekday = new Date().getDay(); // 0=Sun…6=Sat
+    const planDow = (jsWeekday + 6) % 7; // 0=Mon…6=Sun
+    const { data: days } = await supabase
+      .from("plan_days")
+      .select("meal_name, meal_mode")
+      .eq("plan_id", planId)
+      .eq("day_of_week", planDow)
+      .limit(1);
+    const row = days?.[0];
+    if (!row?.meal_name) return null;
+    if ((row.meal_mode as string) === "skip") return null;
+    return (row.meal_name as string).trim() || null;
+  } catch {
+    return null;
+  }
+}
+
 type FailureEntry = {
   endpointHost: string;
   status?: number;
@@ -376,12 +415,33 @@ const NotificationsCard = () => {
         reason?: "no_subs" | "all_removed" | "server_error" | "network";
       }
   > => {
+    // For dinner_reveal / evening_checkin tests, mirror the dispatcher's
+    // behavior and inject tonight's dish name when the user hasn't customized
+    // the copy. This way "Send test" matches what real scheduled pushes look
+    // like.
+    let title = overrides.title;
+    let body = overrides.body;
+    const isMealSlot = opt.value === "dinner_reveal" || opt.value === "evening_checkin";
+    const usingDefaults = title === opt.title && body === opt.body;
+    if (isMealSlot && usingDefaults) {
+      const meal = await lookupTonightMeal(user!.id);
+      if (meal) {
+        if (opt.value === "dinner_reveal") {
+          title = `Tonight's dinner: ${meal} 🍽️`;
+          body = "Tap to see the recipe and prep ahead.";
+        } else {
+          title = `How was ${meal}?`;
+          body = "Quick check-in helps us plan smarter next week.";
+        }
+      }
+    }
+
     const { data, error } = await supabase.functions.invoke("send-push", {
       body: {
         user_id: user!.id,
         category: opt.value,
-        title: overrides.title,
-        body: overrides.body,
+        title,
+        body,
         url: "/planner",
       },
     });
