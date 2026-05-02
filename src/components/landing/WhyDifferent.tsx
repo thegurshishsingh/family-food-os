@@ -99,7 +99,7 @@ const WhyDifferent = () => {
   const { fadeUp, viewport, initialState } = useScrollReveal();
 
   return (
-    <section className="py-12 md:py-16 px-4 relative">
+    <section className="py-14 md:py-20 px-4 relative">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute bottom-0 right-0 w-[500px] h-[300px] rounded-full bg-gradient-to-tl from-violet/5 to-transparent blur-3xl" />
       </div>
@@ -107,17 +107,17 @@ const WhyDifferent = () => {
       <div className="container max-w-5xl relative z-10">
         {/* Header */}
         <motion.div
-          className="text-center mb-8"
+          className="text-center mb-10"
           initial={initialState}
           whileInView="visible"
           viewport={viewport}
           variants={fadeUp}
           custom={0}
         >
-          <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-2">
+          <h2 className="text-3xl md:text-5xl font-serif font-semibold text-foreground mb-3 tracking-tight leading-[1.1]">
             Week-first vs recipe-first
           </h2>
-          <p className="text-muted-foreground text-sm max-w-lg mx-auto">
+          <p className="text-muted-foreground/80 text-base max-w-lg mx-auto leading-relaxed">
             Recipe apps give you ingredients. We give you a dinner system that runs your week.
           </p>
         </motion.div>
