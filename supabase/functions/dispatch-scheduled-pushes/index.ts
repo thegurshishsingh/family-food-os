@@ -14,9 +14,10 @@ const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 type Slot = "dinner_reveal" | "evening_checkin";
 
 interface SlotConfig {
-  hour: number;
-  minute: number;
-  column: string;
+  defaultHour: number;
+  defaultMinute: number;
+  enabledColumn: "enabled_dinner_reveal" | "enabled_evening_checkin";
+  timeColumn: "dinner_reveal_time" | "evening_checkin_time";
   title: string;
   body: string;
   url: string;
@@ -24,22 +25,35 @@ interface SlotConfig {
 
 const SLOTS: Record<Slot, SlotConfig> = {
   dinner_reveal: {
-    hour: 13,
-    minute: 0,
-    column: "enabled_dinner_reveal",
+    defaultHour: 13,
+    defaultMinute: 0,
+    enabledColumn: "enabled_dinner_reveal",
+    timeColumn: "dinner_reveal_time",
     title: "Tonight's dinner 🍽️",
     body: "Tap to see what's on the plan and prep ahead.",
     url: "/planner",
   },
   evening_checkin: {
-    hour: 19,
-    minute: 30,
-    column: "enabled_evening_checkin",
+    defaultHour: 19,
+    defaultMinute: 30,
+    enabledColumn: "enabled_evening_checkin",
+    timeColumn: "evening_checkin_time",
     title: "How did dinner go?",
     body: "Quick check-in helps us plan smarter next week.",
     url: "/planner",
   },
 };
+
+// Parse a Postgres `time` string like "13:00" or "19:30:00" into hour/minute.
+function parseTime(value: string | null | undefined, fallback: { hour: number; minute: number }): { hour: number; minute: number } {
+  if (!value) return fallback;
+  const m = /^(\d{1,2}):(\d{2})/.exec(value);
+  if (!m) return fallback;
+  const hour = parseInt(m[1], 10);
+  const minute = parseInt(m[2], 10);
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return fallback;
+  return { hour, minute };
+}
 
 // Returns local hour and minute for a given timezone, "now"
 function localHM(timezone: string, now: Date): { hour: number; minute: number } | null {
