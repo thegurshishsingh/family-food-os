@@ -499,6 +499,7 @@ Deno.serve(async (req) => {
           app_version: sub.app_version ?? null,
           device_id: sub.device_id ?? null,
           endpoint_host: endpointHost,
+          household_context: body.context_by_user?.[sub.user_id] ?? {},
           metadata: {},
         });
       }
