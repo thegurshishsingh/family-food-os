@@ -39,6 +39,10 @@ interface SendBody {
   // to slice analytics. Whatever the dispatcher provides is stored verbatim
   // on the delivered event row.
   context_by_user?: Record<string, Record<string, unknown>>;
+  // Optional per-user title/body overrides. Used to personalize the push
+  // copy with tonight's dish name without losing the shared default.
+  title_by_user?: Record<string, string>;
+  body_by_user?: Record<string, string>;
 }
 
 type PushSubscriptionRow = {
