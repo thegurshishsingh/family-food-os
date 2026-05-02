@@ -42,6 +42,7 @@ type PushSubscriptionRow = {
   endpoint: string;
   p256dh: string;
   auth: string;
+  user_id: string;
 };
 
 const VAPID_PUBLIC = Deno.env.get("VAPID_PUBLIC_KEY") || "";
