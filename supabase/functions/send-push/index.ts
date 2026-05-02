@@ -364,9 +364,9 @@ Deno.serve(async (req) => {
     let retriesRecovered = 0;
     const toRemove: string[] = [];
     const failures: Array<{ endpointHost: string; status?: number; message: string; attempts: number }> = [];
-    // Users who had at least one device successfully delivered. Used to
-    // write one `delivered` analytics row per user (not per device).
-    const deliveredUsers = new Set<string>();
+    // One delivered analytics row per device (subscription) that received the
+    // push, so we can slice metrics by platform / app version.
+    const deliveredSubs: Array<{ sub: PushSubscriptionRow; endpointHost: string }> = [];
 
     // Retry transient push-service failures (5xx + 429). APNs and FCM
     // occasionally return these under load; a small bounded backoff
@@ -400,7 +400,7 @@ Deno.serve(async (req) => {
               pushOptions
             );
             sent++;
-            deliveredUsers.add(sub.user_id);
+            deliveredSubs.push({ sub, endpointHost });
             if (attempt > 1) retriesRecovered++;
             console.log("[send-push] delivered", {
               endpointHost,
@@ -471,29 +471,40 @@ Deno.serve(async (req) => {
         );
     }
 
-    // Analytics: write one `delivered` event per recipient user (idempotent
-    // on event_id+event_type). Only for tracked categories where we generated
-    // an event_id above.
-    if (trackThis && deliveredUsers.size > 0) {
+    // Analytics: one `delivered` event PER DEVICE so we can break down
+    // delivery / engagement by platform and app_version. Idempotent on
+    // (event_id, event_type, subscription_id).
+    if (trackThis && deliveredSubs.length > 0) {
       const rows: Array<Record<string, unknown>> = [];
-      for (const uid of deliveredUsers) {
-        const evt = userEventIds.get(uid);
+      for (const { sub, endpointHost } of deliveredSubs) {
+        const evt = userEventIds.get(sub.user_id);
         if (!evt) continue;
+        const platform = sub.platform && sub.platform !== "unknown"
+          ? sub.platform
+          : platformFromEndpoint(endpointHost);
         rows.push({
           event_id: evt,
-          user_id: uid,
+          user_id: sub.user_id,
+          subscription_id: sub.id,
           category: body.category,
           event_type: "delivered",
           weekday: typeof body.weekday === "number" ? body.weekday : null,
           local_hour: typeof body.local_hour === "number" ? body.local_hour : null,
           local_minute: typeof body.local_minute === "number" ? body.local_minute : null,
+          platform,
+          app_version: sub.app_version ?? null,
+          device_id: sub.device_id ?? null,
+          endpoint_host: endpointHost,
           metadata: {},
         });
       }
       if (rows.length) {
         const { error: evtErr } = await supabase
           .from("push_notification_events")
-          .upsert(rows, { onConflict: "event_id,event_type", ignoreDuplicates: true });
+          .upsert(rows, {
+            onConflict: "event_id,event_type,subscription_id",
+            ignoreDuplicates: true,
+          });
         if (evtErr) {
           console.error("[send-push] failed to log delivered events", evtErr);
         } else {
