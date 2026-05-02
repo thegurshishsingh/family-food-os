@@ -483,6 +483,7 @@ export type Database = {
           endpoint_host: string | null
           event_id: string
           event_type: string
+          household_context: Json
           id: string
           local_hour: number | null
           local_minute: number | null
@@ -500,6 +501,7 @@ export type Database = {
           endpoint_host?: string | null
           event_id: string
           event_type: string
+          household_context?: Json
           id?: string
           local_hour?: number | null
           local_minute?: number | null
@@ -517,6 +519,7 @@ export type Database = {
           endpoint_host?: string | null
           event_id?: string
           event_type?: string
+          household_context?: Json
           id?: string
           local_hour?: number | null
           local_minute?: number | null
