@@ -603,35 +603,82 @@ const NotificationsCard = () => {
         {status === "subscribed" && (
           <div className="space-y-4">
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="dinner-reveal" className="text-sm">
-                  1 PM dinner reveal
-                </Label>
-                <Switch
-                  id="dinner-reveal"
-                  checked={prefs.enabled_dinner_reveal}
-                  onCheckedChange={(v) => handleToggle("enabled_dinner_reveal", v)}
-                />
+              <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="dinner-reveal" className="text-sm">
+                    Dinner reveal
+                  </Label>
+                  <Switch
+                    id="dinner-reveal"
+                    checked={prefs.enabled_dinner_reveal}
+                    onCheckedChange={(v) => handleToggle("enabled_dinner_reveal", v)}
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="dinner-reveal-time" className="text-xs text-muted-foreground">
+                    Send at
+                  </Label>
+                  <Input
+                    id="dinner-reveal-time"
+                    type="time"
+                    value={prefs.dinner_reveal_time}
+                    onChange={(e) => handleTimeChange("dinner_reveal_time", e.target.value)}
+                    disabled={!prefs.enabled_dinner_reveal}
+                    className="h-8 w-[120px] text-sm"
+                  />
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="evening-checkin" className="text-sm">
-                  Evening check-in (~7:30 PM)
-                </Label>
-                <Switch
-                  id="evening-checkin"
-                  checked={prefs.enabled_evening_checkin}
-                  onCheckedChange={(v) => handleToggle("enabled_evening_checkin", v)}
-                />
+
+              <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="evening-checkin" className="text-sm">
+                    Evening check-in
+                  </Label>
+                  <Switch
+                    id="evening-checkin"
+                    checked={prefs.enabled_evening_checkin}
+                    onCheckedChange={(v) => handleToggle("enabled_evening_checkin", v)}
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="evening-checkin-time" className="text-xs text-muted-foreground">
+                    Send at
+                  </Label>
+                  <Input
+                    id="evening-checkin-time"
+                    type="time"
+                    value={prefs.evening_checkin_time}
+                    onChange={(e) => handleTimeChange("evening_checkin_time", e.target.value)}
+                    disabled={!prefs.enabled_evening_checkin}
+                    className="h-8 w-[120px] text-sm"
+                  />
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="weekly-plan" className="text-sm">
-                  Weekly plan ready
-                </Label>
-                <Switch
-                  id="weekly-plan"
-                  checked={prefs.enabled_weekly_plan_ready}
-                  onCheckedChange={(v) => handleToggle("enabled_weekly_plan_ready", v)}
-                />
+
+              <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="weekly-plan" className="text-sm">
+                    Weekly plan ready
+                  </Label>
+                  <Switch
+                    id="weekly-plan"
+                    checked={prefs.enabled_weekly_plan_ready}
+                    onCheckedChange={(v) => handleToggle("enabled_weekly_plan_ready", v)}
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="weekly-plan-time" className="text-xs text-muted-foreground">
+                    Preferred time
+                  </Label>
+                  <Input
+                    id="weekly-plan-time"
+                    type="time"
+                    value={prefs.weekly_plan_ready_time}
+                    onChange={(e) => handleTimeChange("weekly_plan_ready_time", e.target.value)}
+                    disabled={!prefs.enabled_weekly_plan_ready}
+                    className="h-8 w-[120px] text-sm"
+                  />
+                </div>
               </div>
             </div>
 
