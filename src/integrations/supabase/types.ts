@@ -492,6 +492,7 @@ export type Database = {
           updated_at: string
           user_agent: string | null
           user_id: string
+          weekly_plan_ready_days: number[]
           weekly_plan_ready_time: string
         }
         Insert: {
@@ -510,6 +511,7 @@ export type Database = {
           updated_at?: string
           user_agent?: string | null
           user_id: string
+          weekly_plan_ready_days?: number[]
           weekly_plan_ready_time?: string
         }
         Update: {
@@ -528,6 +530,7 @@ export type Database = {
           updated_at?: string
           user_agent?: string | null
           user_id?: string
+          weekly_plan_ready_days?: number[]
           weekly_plan_ready_time?: string
         }
         Relationships: []
