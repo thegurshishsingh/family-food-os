@@ -277,12 +277,23 @@ const NotificationsCard = () => {
     if (!user || status !== "subscribed") return;
     supabase
       .from("push_subscriptions")
-      .select("enabled_dinner_reveal, enabled_evening_checkin, enabled_weekly_plan_ready")
+      .select(
+        "enabled_dinner_reveal, enabled_evening_checkin, enabled_weekly_plan_ready, dinner_reveal_time, evening_checkin_time, weekly_plan_ready_time"
+      )
       .eq("user_id", user.id)
       .limit(1)
       .maybeSingle()
       .then(({ data }) => {
-        if (data) setPrefs(data);
+        if (data) {
+          setPrefs((p) => ({
+            ...p,
+            ...data,
+            // Postgres returns "HH:MM:SS" — trim to "HH:MM" for <input type="time">
+            dinner_reveal_time: (data.dinner_reveal_time ?? p.dinner_reveal_time).slice(0, 5),
+            evening_checkin_time: (data.evening_checkin_time ?? p.evening_checkin_time).slice(0, 5),
+            weekly_plan_ready_time: (data.weekly_plan_ready_time ?? p.weekly_plan_ready_time).slice(0, 5),
+          }));
+        }
       });
   }, [user, status]);
 
