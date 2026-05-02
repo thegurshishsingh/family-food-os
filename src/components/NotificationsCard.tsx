@@ -298,12 +298,23 @@ const NotificationsCard = () => {
   }, [user, status]);
 
   const handleToggle = async (
-    key: keyof typeof prefs,
+    key: "enabled_dinner_reveal" | "enabled_evening_checkin" | "enabled_weekly_plan_ready",
     value: boolean
   ) => {
     setPrefs((p) => ({ ...p, [key]: value }));
     const ok = await updatePreferences({ [key]: value });
     if (!ok) toast({ title: "Couldn't update preference", variant: "destructive" });
+  };
+
+  const handleTimeChange = async (
+    key: "dinner_reveal_time" | "evening_checkin_time" | "weekly_plan_ready_time",
+    value: string
+  ) => {
+    // value from <input type="time"> is "HH:MM"
+    if (!/^\d{2}:\d{2}$/.test(value)) return;
+    setPrefs((p) => ({ ...p, [key]: value }));
+    const ok = await updatePreferences({ [key]: value });
+    if (!ok) toast({ title: "Couldn't update notification time", variant: "destructive" });
   };
 
   const handleEnable = async () => {
