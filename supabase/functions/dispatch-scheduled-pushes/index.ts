@@ -230,6 +230,29 @@ Deno.serve(async (req) => {
   );
   const contextByUser = await buildContextByUser(supabase, allUserIds, now);
 
+  // Look up tonight's dinner per user so dinner_reveal + evening_checkin
+  // pushes can name the actual dish (e.g. "Tonight's dinner: Chicken Tikka").
+  // Only needed for users receiving one of those two slots.
+  const dinnerSlotUserIds = Array.from(
+    new Set([
+      ...dinnerTargets.map((t) => t.user_id),
+      ...checkinTargets.map((t) => t.user_id),
+    ])
+  );
+  // Each target carries the user's local weekday, but it's the same for
+  // both dinner & checkin slots in this tick. Map user → local weekday from
+  // whichever target we have first.
+  const localWeekdayByUser = new Map<string, number>();
+  for (const t of [...dinnerTargets, ...checkinTargets]) {
+    if (!localWeekdayByUser.has(t.user_id)) localWeekdayByUser.set(t.user_id, t.weekday);
+  }
+  const tonightMealByUser = await buildTonightMealByUser(
+    supabase,
+    dinnerSlotUserIds,
+    localWeekdayByUser,
+    now
+  );
+
   let dispatched = 0;
   for (const [slot, targets] of [
     ["dinner_reveal", dinnerTargets] as const,
