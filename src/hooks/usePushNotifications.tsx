@@ -8,6 +8,43 @@ import {
 } from "@/lib/push";
 import { useAuth } from "@/hooks/useAuth";
 
+// Detect platform from User-Agent. Mirrors the parser used in the analytics
+// query — keep these in sync.
+function detectPlatform(ua: string): "ios" | "android" | "web" | "unknown" {
+  if (!ua) return "unknown";
+  if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
+  if (/Android/i.test(ua)) return "android";
+  if (/Mozilla|Chrome|Safari|Firefox|Edg|OPR/i.test(ua)) return "web";
+  return "unknown";
+}
+
+// App version is injected at build time by Vite (see vite.config.ts). Falls
+// back gracefully if the constant isn't defined yet.
+const APP_VERSION: string =
+  (typeof __APP_VERSION__ !== "undefined" && __APP_VERSION__) ||
+  (import.meta.env.VITE_APP_VERSION as string | undefined) ||
+  "dev";
+
+// Stable per-browser device id so we can de-duplicate the same physical device
+// across re-subscriptions. Stored in localStorage; lost only if the user
+// clears site data.
+function getOrCreateDeviceId(): string {
+  if (typeof window === "undefined") return "server";
+  try {
+    const KEY = "ffos.device_id";
+    let id = window.localStorage.getItem(KEY);
+    if (!id) {
+      id = (crypto as Crypto).randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+      window.localStorage.setItem(KEY, id);
+    }
+    return id;
+  } catch {
+    return "unknown";
+  }
+}
+
+declare const __APP_VERSION__: string | undefined;
+
 // Fetch the VAPID public key from the server so the client always uses the
 // same key the server signs with. Avoids client/server key mismatch when
 // keys are rotated.
@@ -126,6 +163,9 @@ export function usePushNotifications() {
             user_agent: navigator.userAgent,
             timezone: getBrowserTimezone(),
             last_used_at: new Date().toISOString(),
+            platform: detectPlatform(navigator.userAgent),
+            app_version: APP_VERSION,
+            device_id: getOrCreateDeviceId(),
           },
           { onConflict: "endpoint" }
         );
