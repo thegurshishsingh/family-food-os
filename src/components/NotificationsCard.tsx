@@ -231,6 +231,7 @@ const NotificationsCard = () => {
     dinner_reveal_time: "13:00",
     evening_checkin_time: "19:30",
     weekly_plan_ready_time: "09:00",
+    weekly_plan_ready_days: [0] as number[], // 0=Sun … 6=Sat
   });
   const [testCategory, setTestCategory] = useState<TestCategory>("test");
   const [testTitle, setTestTitle] = useState<string>(CATEGORY_OPTIONS[0].title);
