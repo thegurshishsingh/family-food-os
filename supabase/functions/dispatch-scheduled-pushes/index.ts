@@ -11,13 +11,11 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-type Slot = "dinner_reveal" | "evening_checkin";
+type Slot = "dinner_reveal" | "evening_checkin" | "weekly_plan_ready";
 
 interface SlotConfig {
   defaultHour: number;
   defaultMinute: number;
-  enabledColumn: "enabled_dinner_reveal" | "enabled_evening_checkin";
-  timeColumn: "dinner_reveal_time" | "evening_checkin_time";
   title: string;
   body: string;
   url: string;
@@ -27,8 +25,6 @@ const SLOTS: Record<Slot, SlotConfig> = {
   dinner_reveal: {
     defaultHour: 13,
     defaultMinute: 0,
-    enabledColumn: "enabled_dinner_reveal",
-    timeColumn: "dinner_reveal_time",
     title: "Tonight's dinner 🍽️",
     body: "Tap to see what's on the plan and prep ahead.",
     url: "/planner",
@@ -36,10 +32,15 @@ const SLOTS: Record<Slot, SlotConfig> = {
   evening_checkin: {
     defaultHour: 19,
     defaultMinute: 30,
-    enabledColumn: "enabled_evening_checkin",
-    timeColumn: "evening_checkin_time",
     title: "How did dinner go?",
     body: "Quick check-in helps us plan smarter next week.",
+    url: "/planner",
+  },
+  weekly_plan_ready: {
+    defaultHour: 9,
+    defaultMinute: 0,
+    title: "Time to plan next week 📅",
+    body: "Set up dinners for the week ahead in a couple of taps.",
     url: "/planner",
   },
 };
