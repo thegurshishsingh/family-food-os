@@ -477,7 +477,10 @@ export type Database = {
       }
       push_notification_events: {
         Row: {
+          app_version: string | null
           category: string
+          device_id: string | null
+          endpoint_host: string | null
           event_id: string
           event_type: string
           id: string
@@ -485,11 +488,16 @@ export type Database = {
           local_minute: number | null
           metadata: Json
           occurred_at: string
+          platform: string | null
+          subscription_id: string | null
           user_id: string
           weekday: number | null
         }
         Insert: {
+          app_version?: string | null
           category: string
+          device_id?: string | null
+          endpoint_host?: string | null
           event_id: string
           event_type: string
           id?: string
@@ -497,11 +505,16 @@ export type Database = {
           local_minute?: number | null
           metadata?: Json
           occurred_at?: string
+          platform?: string | null
+          subscription_id?: string | null
           user_id: string
           weekday?: number | null
         }
         Update: {
+          app_version?: string | null
           category?: string
+          device_id?: string | null
+          endpoint_host?: string | null
           event_id?: string
           event_type?: string
           id?: string
@@ -509,6 +522,8 @@ export type Database = {
           local_minute?: number | null
           metadata?: Json
           occurred_at?: string
+          platform?: string | null
+          subscription_id?: string | null
           user_id?: string
           weekday?: number | null
         }
@@ -516,8 +531,10 @@ export type Database = {
       }
       push_subscriptions: {
         Row: {
+          app_version: string | null
           auth: string
           created_at: string
+          device_id: string | null
           dinner_reveal_time: string
           enabled_dinner_reveal: boolean
           enabled_evening_checkin: boolean
@@ -527,6 +544,7 @@ export type Database = {
           id: string
           last_used_at: string | null
           p256dh: string
+          platform: string
           timezone: string
           updated_at: string
           user_agent: string | null
@@ -535,8 +553,10 @@ export type Database = {
           weekly_plan_ready_time: string
         }
         Insert: {
+          app_version?: string | null
           auth: string
           created_at?: string
+          device_id?: string | null
           dinner_reveal_time?: string
           enabled_dinner_reveal?: boolean
           enabled_evening_checkin?: boolean
@@ -546,6 +566,7 @@ export type Database = {
           id?: string
           last_used_at?: string | null
           p256dh: string
+          platform?: string
           timezone?: string
           updated_at?: string
           user_agent?: string | null
@@ -554,8 +575,10 @@ export type Database = {
           weekly_plan_ready_time?: string
         }
         Update: {
+          app_version?: string | null
           auth?: string
           created_at?: string
+          device_id?: string | null
           dinner_reveal_time?: string
           enabled_dinner_reveal?: boolean
           enabled_evening_checkin?: boolean
@@ -565,6 +588,7 @@ export type Database = {
           id?: string
           last_used_at?: string | null
           p256dh?: string
+          platform?: string
           timezone?: string
           updated_at?: string
           user_agent?: string | null

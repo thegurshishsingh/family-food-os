@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BarChart3, RefreshCw } from "lucide-react";
+import { BarChart3, RefreshCw, Smartphone } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,10 +17,20 @@ type EventRow = {
   event_type: "delivered" | "clicked" | "opened";
   weekday: number | null;
   occurred_at: string;
+  platform: string | null;
+  app_version: string | null;
 };
 
 type DayBucket = {
   weekday: number;
+  label: string;
+  delivered: number;
+  clicked: number;
+  opened: number;
+};
+
+type SliceBucket = {
+  key: string;
   label: string;
   delivered: number;
   clicked: number;
@@ -38,6 +48,13 @@ const RANGE_OPTIONS = [
 
 type RangeValue = (typeof RANGE_OPTIONS)[number]["value"];
 
+const PLATFORM_LABELS: Record<string, string> = {
+  ios: "iOS",
+  android: "Android",
+  web: "Web",
+  unknown: "Unknown",
+};
+
 const WeeklyPlanReadyAnalytics = () => {
   const { user } = useAuth();
   const [range, setRange] = useState<RangeValue>("30");
@@ -46,6 +63,8 @@ const WeeklyPlanReadyAnalytics = () => {
     DAY_LABELS.map((label, i) => ({ weekday: i, label, delivered: 0, clicked: 0, opened: 0 }))
   );
   const [totals, setTotals] = useState({ delivered: 0, clicked: 0, opened: 0 });
+  const [platforms, setPlatforms] = useState<SliceBucket[]>([]);
+  const [versions, setVersions] = useState<SliceBucket[]>([]);
 
   const load = async () => {
     if (!user) return;
@@ -54,12 +73,12 @@ const WeeklyPlanReadyAnalytics = () => {
     since.setDate(since.getDate() - parseInt(range, 10));
     const { data, error } = await supabase
       .from("push_notification_events")
-      .select("event_id, event_type, weekday, occurred_at")
+      .select("event_id, event_type, weekday, occurred_at, platform, app_version")
       .eq("user_id", user.id)
       .eq("category", "weekly_plan_ready")
       .gte("occurred_at", since.toISOString())
       .order("occurred_at", { ascending: false })
-      .limit(2000);
+      .limit(5000);
     setLoading(false);
     if (error) {
       console.error("[WeeklyPlanReadyAnalytics] failed", error);
@@ -76,22 +95,64 @@ const WeeklyPlanReadyAnalytics = () => {
     let tDelivered = 0;
     let tClicked = 0;
     let tOpened = 0;
-    for (const r of rows) {
-      if (r.weekday == null || r.weekday < 0 || r.weekday > 6) continue;
-      const b = next[r.weekday];
-      if (r.event_type === "delivered") {
-        b.delivered++;
-        tDelivered++;
-      } else if (r.event_type === "clicked") {
-        b.clicked++;
-        tClicked++;
-      } else if (r.event_type === "opened") {
-        b.opened++;
-        tOpened++;
+    const platformMap = new Map<string, SliceBucket>();
+    const versionMap = new Map<string, SliceBucket>();
+
+    const bumpSlice = (
+      map: Map<string, SliceBucket>,
+      key: string,
+      label: string,
+      type: EventRow["event_type"]
+    ) => {
+      let b = map.get(key);
+      if (!b) {
+        b = { key, label, delivered: 0, clicked: 0, opened: 0 };
+        map.set(key, b);
       }
+      if (type === "delivered") b.delivered++;
+      else if (type === "clicked") b.clicked++;
+      else if (type === "opened") b.opened++;
+    };
+
+    for (const r of rows) {
+      // Weekday breakdown
+      if (r.weekday != null && r.weekday >= 0 && r.weekday <= 6) {
+        const b = next[r.weekday];
+        if (r.event_type === "delivered") {
+          b.delivered++;
+          tDelivered++;
+        } else if (r.event_type === "clicked") {
+          b.clicked++;
+          tClicked++;
+        } else if (r.event_type === "opened") {
+          b.opened++;
+          tOpened++;
+        }
+      } else {
+        if (r.event_type === "delivered") tDelivered++;
+        else if (r.event_type === "clicked") tClicked++;
+        else if (r.event_type === "opened") tOpened++;
+      }
+
+      // Platform breakdown
+      const pKey = (r.platform ?? "unknown").toLowerCase();
+      bumpSlice(platformMap, pKey, PLATFORM_LABELS[pKey] ?? pKey, r.event_type);
+
+      // App version breakdown
+      const vKey = r.app_version ?? "unknown";
+      bumpSlice(versionMap, vKey, vKey, r.event_type);
     }
+
     setBuckets(next);
     setTotals({ delivered: tDelivered, clicked: tClicked, opened: tOpened });
+    setPlatforms(
+      Array.from(platformMap.values()).sort((a, b) => b.delivered - a.delivered)
+    );
+    setVersions(
+      Array.from(versionMap.values())
+        .sort((a, b) => b.delivered - a.delivered)
+        .slice(0, 8)
+    );
   };
 
   useEffect(() => {
@@ -104,8 +165,6 @@ const WeeklyPlanReadyAnalytics = () => {
       ? Math.round(((totals.clicked + totals.opened) / totals.delivered) * 100)
       : 0;
 
-  // Reorient buckets so Mon is leftmost — most users find that more natural
-  // for a weekly view, while keeping Sun=0 in the data model.
   const ordered = [1, 2, 3, 4, 5, 6, 0].map((wd) => buckets[wd]);
   const maxDelivered = Math.max(1, ...ordered.map((b) => b.delivered));
 
@@ -128,7 +187,7 @@ const WeeklyPlanReadyAnalytics = () => {
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          See which weekdays drive the most plan reviews. Counts your own pings only.
+          See which weekdays, platforms, and app versions drive the most plan reviews.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -203,6 +262,22 @@ const WeeklyPlanReadyAnalytics = () => {
             engaged ÷ delivered.
           </p>
         </div>
+
+        {/* Platform breakdown — iOS vs Android vs Web */}
+        <SliceTable
+          title="By platform"
+          icon={<Smartphone className="w-3.5 h-3.5" />}
+          rows={platforms}
+          empty="No device data yet."
+        />
+
+        {/* App version breakdown */}
+        <SliceTable
+          title="By app version"
+          rows={versions}
+          empty="No version data yet."
+          monoLabel
+        />
       </CardContent>
     </Card>
   );
@@ -214,5 +289,67 @@ const StatCard = ({ label, value }: { label: string; value: number }) => (
     <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
   </div>
 );
+
+const SliceTable = ({
+  title,
+  icon,
+  rows,
+  empty,
+  monoLabel,
+}: {
+  title: string;
+  icon?: React.ReactNode;
+  rows: SliceBucket[];
+  empty: string;
+  monoLabel?: boolean;
+}) => {
+  const totalDelivered = rows.reduce((s, r) => s + r.delivered, 0);
+  return (
+    <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
+      <div className="flex items-center gap-1.5 mb-2">
+        {icon}
+        <p className="text-xs font-medium text-muted-foreground">{title}</p>
+      </div>
+      {rows.length === 0 || totalDelivered === 0 ? (
+        <p className="text-xs text-muted-foreground py-3 text-center">{empty}</p>
+      ) : (
+        <div className="space-y-1.5">
+          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-1 text-[10px] uppercase tracking-wide text-muted-foreground/80">
+            <span>{title.replace("By ", "")}</span>
+            <span className="text-right w-12">Sent</span>
+            <span className="text-right w-12">Eng.</span>
+            <span className="text-right w-10">CTR</span>
+          </div>
+          {rows.map((r) => {
+            const engaged = r.clicked + r.opened;
+            const ctr = r.delivered > 0 ? Math.round((engaged / r.delivered) * 100) : 0;
+            return (
+              <div
+                key={r.key}
+                className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-1 items-center text-xs"
+              >
+                <span
+                  className={`truncate ${monoLabel ? "font-mono text-[11px]" : ""}`}
+                  title={r.label}
+                >
+                  {r.label}
+                </span>
+                <span className="text-right w-12 tabular-nums text-muted-foreground">
+                  {r.delivered}
+                </span>
+                <span className="text-right w-12 tabular-nums text-muted-foreground">
+                  {engaged}
+                </span>
+                <span className="text-right w-10 tabular-nums font-semibold text-foreground">
+                  {ctr}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default WeeklyPlanReadyAnalytics;
