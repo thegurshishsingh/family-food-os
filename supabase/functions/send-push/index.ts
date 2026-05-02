@@ -35,6 +35,10 @@ interface SendBody {
   weekday?: number;
   local_hour?: number;
   local_minute?: number;
+  // Per-user household-context snapshot (flags, child_age_bands, etc.) used
+  // to slice analytics. Whatever the dispatcher provides is stored verbatim
+  // on the delivered event row.
+  context_by_user?: Record<string, Record<string, unknown>>;
 }
 
 type PushSubscriptionRow = {
@@ -495,6 +499,7 @@ Deno.serve(async (req) => {
           app_version: sub.app_version ?? null,
           device_id: sub.device_id ?? null,
           endpoint_host: endpointHost,
+          household_context: body.context_by_user?.[sub.user_id] ?? {},
           metadata: {},
         });
       }

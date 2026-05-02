@@ -218,6 +218,18 @@ Deno.serve(async (req) => {
     }
   }
 
+  // Build a per-user household-context snapshot once. We send the same
+  // snapshot for every slot in this tick so analytics rows can be filtered
+  // by context (budget_week, low_cleanup, sick, child age bands, etc.).
+  const allUserIds = Array.from(
+    new Set([
+      ...dinnerTargets.map((t) => t.user_id),
+      ...checkinTargets.map((t) => t.user_id),
+      ...weeklyTargets.map((t) => t.user_id),
+    ])
+  );
+  const contextByUser = await buildContextByUser(supabase, allUserIds, now);
+
   let dispatched = 0;
   for (const [slot, targets] of [
     ["dinner_reveal", dinnerTargets] as const,
@@ -246,6 +258,12 @@ Deno.serve(async (req) => {
       const eventIdsByUser: Record<string, string> = {};
       for (const uid of ids) eventIdsByUser[uid] = crypto.randomUUID();
 
+      // Pass only this group's user contexts to keep the payload small.
+      const contextForGroup: Record<string, unknown> = {};
+      for (const uid of ids) {
+        if (contextByUser[uid]) contextForGroup[uid] = contextByUser[uid];
+      }
+
       const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
         method: "POST",
         headers: {
@@ -262,6 +280,7 @@ Deno.serve(async (req) => {
           weekday: group[0].weekday,
           local_hour: group[0].local_hour,
           local_minute: group[0].local_minute,
+          context_by_user: contextForGroup,
         }),
       });
       if (res.ok) dispatched += ids.length;
@@ -283,4 +302,102 @@ function json(payload: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+type SupabaseAdmin = ReturnType<typeof createClient>;
+
+// Build the household-context snapshot used to tag analytics events. We
+// gather the active weekly_contexts row (if any) plus the household's child
+// age bands and adult/child counts. The snapshot is small + denormalised so
+// the analytics UI can filter without joining tables months later, even
+// after the user changes their household composition.
+async function buildContextByUser(
+  supabase: SupabaseAdmin,
+  userIds: string[],
+  now: Date
+): Promise<Record<string, Record<string, unknown>>> {
+  if (!userIds.length) return {};
+
+  // 1. Households for these users
+  const { data: households, error: hhErr } = await supabase
+    .from("households")
+    .select("id, owner_id, num_adults, num_children, child_age_bands")
+    .in("owner_id", userIds);
+  if (hhErr) {
+    console.error("[dispatcher] households lookup failed", hhErr);
+    return {};
+  }
+  const householdsByUser = new Map<string, {
+    id: string;
+    num_adults: number | null;
+    num_children: number | null;
+    child_age_bands: string[] | null;
+  }>();
+  for (const h of households ?? []) {
+    householdsByUser.set(h.owner_id as string, {
+      id: h.id as string,
+      num_adults: h.num_adults as number | null,
+      num_children: h.num_children as number | null,
+      child_age_bands: (h.child_age_bands as string[] | null) ?? [],
+    });
+  }
+
+  // 2. Most recent weekly_context whose week_start is on/before today, per
+  //    household. We pull the last 8 weeks for these households and pick the
+  //    latest applicable one in JS — keeps the query simple + indexable.
+  const householdIds = Array.from(householdsByUser.values()).map((h) => h.id);
+  const todayIso = now.toISOString().slice(0, 10);
+  let contexts: Array<Record<string, unknown>> = [];
+  if (householdIds.length) {
+    const since = new Date(now);
+    since.setDate(since.getDate() - 56);
+    const { data: ctxRows, error: ctxErr } = await supabase
+      .from("weekly_contexts")
+      .select(
+        "household_id, week_start, budget_week, low_cleanup_week, sick_week, chaotic_week, sports_week, newborn_in_house, guests_visiting, one_parent_traveling, high_protein_week"
+      )
+      .in("household_id", householdIds)
+      .gte("week_start", since.toISOString().slice(0, 10))
+      .lte("week_start", todayIso)
+      .order("week_start", { ascending: false });
+    if (ctxErr) {
+      console.error("[dispatcher] weekly_contexts lookup failed", ctxErr);
+    } else {
+      contexts = ctxRows ?? [];
+    }
+  }
+  const ctxByHousehold = new Map<string, Record<string, unknown>>();
+  for (const c of contexts) {
+    const hid = c.household_id as string;
+    if (!ctxByHousehold.has(hid)) ctxByHousehold.set(hid, c); // first match = most recent
+  }
+
+  const FLAG_KEYS = [
+    "budget_week",
+    "low_cleanup_week",
+    "sick_week",
+    "chaotic_week",
+    "sports_week",
+    "newborn_in_house",
+    "guests_visiting",
+    "one_parent_traveling",
+    "high_protein_week",
+  ] as const;
+
+  const result: Record<string, Record<string, unknown>> = {};
+  for (const uid of userIds) {
+    const hh = householdsByUser.get(uid);
+    if (!hh) continue;
+    const ctx = ctxByHousehold.get(hh.id) ?? {};
+    const flags: string[] = [];
+    for (const k of FLAG_KEYS) if (ctx[k] === true) flags.push(k);
+    result[uid] = {
+      flags,
+      child_age_bands: hh.child_age_bands ?? [],
+      num_adults: hh.num_adults,
+      num_children: hh.num_children,
+      has_kids: (hh.num_children ?? 0) > 0,
+    };
+  }
+  return result;
 }
