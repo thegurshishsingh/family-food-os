@@ -179,6 +179,7 @@ const HouseholdSettings = () => {
 
         <div className="space-y-6">
           <NotificationsCard />
+          <WeeklyPlanReadyAnalytics />
 
           {/* Family basics */}
           <Card>
