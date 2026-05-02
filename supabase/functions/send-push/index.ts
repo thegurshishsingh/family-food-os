@@ -43,7 +43,17 @@ type PushSubscriptionRow = {
   p256dh: string;
   auth: string;
   user_id: string;
+  platform?: string | null;
+  app_version?: string | null;
+  device_id?: string | null;
 };
+
+function platformFromEndpoint(host: string): string {
+  if (host.includes("push.apple.com")) return "ios";
+  if (host.includes("fcm.googleapis.com") || host.includes("android.googleapis.com")) return "android";
+  if (host.includes("mozilla.com") || host.includes("windows.com")) return "web";
+  return "web";
+}
 
 const VAPID_PUBLIC = Deno.env.get("VAPID_PUBLIC_KEY") || "";
 const VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY") || "";
@@ -280,7 +290,10 @@ Deno.serve(async (req) => {
 
     let query = supabase
       .from("push_subscriptions")
-      .select("id, endpoint, p256dh, auth, user_id, " + Object.values(categoryColumn).filter(Boolean).join(", "));
+      .select(
+        "id, endpoint, p256dh, auth, user_id, platform, app_version, device_id, " +
+          Object.values(categoryColumn).filter(Boolean).join(", ")
+      );
 
     if (body.user_id) query = query.eq("user_id", body.user_id);
     else if (body.user_ids?.length) query = query.in("user_id", body.user_ids);
