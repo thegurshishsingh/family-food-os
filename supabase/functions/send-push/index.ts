@@ -383,10 +383,11 @@ Deno.serve(async (req) => {
           try {
             const res = await sendWebPush(
               { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-              payload,
+              payloadFor(sub.user_id),
               pushOptions
             );
             sent++;
+            deliveredUsers.add(sub.user_id);
             if (attempt > 1) retriesRecovered++;
             console.log("[send-push] delivered", {
               endpointHost,
