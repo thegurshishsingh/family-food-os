@@ -141,10 +141,10 @@ const HeroSection = () => {
           >
             <div className="flex items-center gap-2 mb-4">
               <IconTile size="md" gradient="from-primary to-sage-dark">
-                <Brain className="w-4 h-4 text-primary-foreground" />
+                <Utensils className="h-4 text-primary-foreground w-[16px]" />
               </IconTile>
-              <span className="inline-block px-3 py-1 text-xs font-bold rounded-full glass uppercase tracking-wider text-primary">
-                Built to learn your family
+              <span className="inline-block text-xs font-bold glass uppercase tracking-wider text-primary rounded-none px-0 py-0">
+                Never Wonder what's for dinner again
               </span>
             </div>
 
