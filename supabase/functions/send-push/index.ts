@@ -458,6 +458,36 @@ Deno.serve(async (req) => {
         );
     }
 
+    // Analytics: write one `delivered` event per recipient user (idempotent
+    // on event_id+event_type). Only for tracked categories where we generated
+    // an event_id above.
+    if (trackThis && deliveredUsers.size > 0) {
+      const rows: Array<Record<string, unknown>> = [];
+      for (const uid of deliveredUsers) {
+        const evt = userEventIds.get(uid);
+        if (!evt) continue;
+        rows.push({
+          event_id: evt,
+          user_id: uid,
+          category: body.category,
+          event_type: "delivered",
+          weekday: typeof body.weekday === "number" ? body.weekday : null,
+          local_hour: typeof body.local_hour === "number" ? body.local_hour : null,
+          local_minute: typeof body.local_minute === "number" ? body.local_minute : null,
+          metadata: {},
+        });
+      }
+      if (rows.length) {
+        const { error: evtErr } = await supabase
+          .from("push_notification_events")
+          .upsert(rows, { onConflict: "event_id,event_type", ignoreDuplicates: true });
+        if (evtErr) {
+          console.error("[send-push] failed to log delivered events", evtErr);
+        } else {
+          console.log("[send-push] logged delivered events", { count: rows.length });
+        }
+      }
+    }
     console.log("[send-push] summary", {
       requested: subs.length,
       sent,
