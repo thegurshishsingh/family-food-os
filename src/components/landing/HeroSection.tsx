@@ -144,7 +144,7 @@ const HeroSection = () => {
                 <Utensils className="w-3 h-3 text-primary-foreground" />
               </IconTile>
               <span className="inline-block text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-primary whitespace-nowrap leading-none">
-                Never wonder what's for dinner again
+                Never wonder what's for dinner
               </span>
             </div>
 
