@@ -294,13 +294,42 @@ Deno.serve(async (req) => {
     const subs = (subsData ?? []) as unknown as PushSubscriptionRow[];
     if (!subs?.length) return json({ sent: 0, removed: 0 });
 
-    // iOS-safe minimal payload. WebKit silently drops notifications when the
-    // payload includes unsupported fields. Keep to title/body/url only.
-    const payload = JSON.stringify({
-      title: body.title,
-      body: body.body,
-      url: body.url ?? "/planner",
-    });
+    // Resolve a per-user event_id for analytics correlation. Three modes:
+    //   1. body.event_ids_by_user provides one id per user (used by the
+    //      cron dispatcher for batch sends).
+    //   2. body.event_id provides a single id (single-user send).
+    //   3. Neither — generate one per user, scoped to this dispatch.
+    const trackedCategories = new Set(["dinner_reveal", "evening_checkin", "weekly_plan_ready"]);
+    const trackThis = trackedCategories.has(body.category);
+    const eventIdForUser = (uid: string): string | null => {
+      if (!trackThis) return null;
+      if (body.event_ids_by_user?.[uid]) return body.event_ids_by_user[uid];
+      if (body.event_id && (body.user_id === uid || subs.length === 1)) return body.event_id;
+      return crypto.randomUUID();
+    };
+    const userEventIds = new Map<string, string | null>();
+    for (const s of subs) {
+      if (!userEventIds.has(s.user_id)) userEventIds.set(s.user_id, eventIdForUser(s.user_id));
+    }
+
+    // Build the push payload per-user (event_id varies). Same encoding as
+    // before — kept minimal for iOS compatibility (title/body/url only),
+    // event_id is appended to the URL so the SW + frontend can pick it up
+    // without needing extra fields that WebKit might strip.
+    const baseUrl = body.url ?? "/planner";
+    const payloadFor = (uid: string): string => {
+      const evt = userEventIds.get(uid);
+      let url = baseUrl;
+      if (evt) {
+        const sep = url.includes("?") ? "&" : "?";
+        url = `${url}${sep}npx_evt=${evt}`;
+      }
+      return JSON.stringify({
+        title: body.title,
+        body: body.body,
+        url,
+      });
+    };
 
     const pushOptions = {
       TTL: 60 * 60 * 24,
@@ -312,8 +341,8 @@ Deno.serve(async (req) => {
     console.log("[send-push] dispatching", {
       category: body.category,
       recipients: subs.length,
-      payloadBytes: payload.length,
-      payloadPreview: payload.slice(0, 300),
+      uniqueUsers: userEventIds.size,
+      tracked: trackThis,
       pushOptions,
     });
 
