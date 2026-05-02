@@ -20,7 +20,30 @@ import PlanHistory from "./pages/PlanHistory";
 import CheckIn from "./pages/CheckIn";
 import NotFound from "./pages/NotFound";
 
+import { usePushOpenTracker } from "@/hooks/usePushOpenTracker";
+
 const queryClient = new QueryClient();
+
+const AppRoutes = () => {
+  usePushOpenTracker();
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/login" element={<RedirectIfAuthed><Login /></RedirectIfAuthed>} />
+      <Route path="/signup" element={<RedirectIfAuthed><Signup /></RedirectIfAuthed>} />
+      <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
+      <Route path="/planner" element={<RequireHousehold><Planner /></RequireHousehold>} />
+      <Route path="/groceries" element={<RequireHousehold><Groceries /></RequireHousehold>} />
+      <Route path="/memory" element={<RequireHousehold><MealMemory /></RequireHousehold>} />
+      <Route path="/family-profile" element={<RequireHousehold><FamilyProfile /></RequireHousehold>} />
+      <Route path="/history" element={<RequireHousehold><PlanHistory /></RequireHousehold>} />
+      <Route path="/checkin" element={<RequireHousehold><CheckIn /></RequireHousehold>} />
+      <Route path="/settings" element={<RequireHousehold><HouseholdSettings /></RequireHousehold>} />
+      <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -30,21 +53,7 @@ const App = () => (
         <Sonner />
         <InstallPrompt />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<RedirectIfAuthed><Login /></RedirectIfAuthed>} />
-            <Route path="/signup" element={<RedirectIfAuthed><Signup /></RedirectIfAuthed>} />
-            <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
-            <Route path="/planner" element={<RequireHousehold><Planner /></RequireHousehold>} />
-            <Route path="/groceries" element={<RequireHousehold><Groceries /></RequireHousehold>} />
-            <Route path="/memory" element={<RequireHousehold><MealMemory /></RequireHousehold>} />
-            <Route path="/family-profile" element={<RequireHousehold><FamilyProfile /></RequireHousehold>} />
-            <Route path="/history" element={<RequireHousehold><PlanHistory /></RequireHousehold>} />
-            <Route path="/checkin" element={<RequireHousehold><CheckIn /></RequireHousehold>} />
-            <Route path="/settings" element={<RequireHousehold><HouseholdSettings /></RequireHousehold>} />
-            <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppRoutes />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

@@ -175,59 +175,105 @@ Deno.serve(async (req) => {
     }
   }
 
-  const dinnerUsers: string[] = [];
-  const checkinUsers: string[] = [];
-  const weeklyUsers: string[] = [];
+  type DispatchTarget = {
+    user_id: string;
+    weekday: number;
+    local_hour: number;
+    local_minute: number;
+  };
+  const dinnerTargets: DispatchTarget[] = [];
+  const checkinTargets: DispatchTarget[] = [];
+  const weeklyTargets: DispatchTarget[] = [];
 
   for (const [userId, info] of Object.entries(byUser)) {
     const local = localHMW(info.tz, now);
     if (!local) continue;
     if (info.dinner && slotJustPassed(local, info.dinner.hour, info.dinner.minute, WINDOW_MIN)) {
-      dinnerUsers.push(userId);
+      dinnerTargets.push({
+        user_id: userId,
+        weekday: local.weekday,
+        local_hour: info.dinner.hour,
+        local_minute: info.dinner.minute,
+      });
     }
     if (info.checkin && slotJustPassed(local, info.checkin.hour, info.checkin.minute, WINDOW_MIN)) {
-      checkinUsers.push(userId);
+      checkinTargets.push({
+        user_id: userId,
+        weekday: local.weekday,
+        local_hour: info.checkin.hour,
+        local_minute: info.checkin.minute,
+      });
     }
     if (
       info.weekly &&
       info.weekly.days.has(local.weekday) &&
       slotJustPassed(local, info.weekly.hour, info.weekly.minute, WINDOW_MIN)
     ) {
-      weeklyUsers.push(userId);
+      weeklyTargets.push({
+        user_id: userId,
+        weekday: local.weekday,
+        local_hour: info.weekly.hour,
+        local_minute: info.weekly.minute,
+      });
     }
   }
 
   let dispatched = 0;
-  for (const [slot, ids] of [
-    ["dinner_reveal", dinnerUsers] as const,
-    ["evening_checkin", checkinUsers] as const,
-    ["weekly_plan_ready", weeklyUsers] as const,
+  for (const [slot, targets] of [
+    ["dinner_reveal", dinnerTargets] as const,
+    ["evening_checkin", checkinTargets] as const,
+    ["weekly_plan_ready", weeklyTargets] as const,
   ]) {
-    if (!ids.length) continue;
+    if (!targets.length) continue;
     const cfg = SLOTS[slot];
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${SERVICE_KEY}`,
-      },
-      body: JSON.stringify({
-        user_ids: ids,
-        category: slot,
-        title: cfg.title,
-        body: cfg.body,
-        url: cfg.url,
-      }),
-    });
-    if (res.ok) dispatched += ids.length;
-    else console.error("[dispatcher] send-push failed", await res.text());
+
+    // Send-push expects a single per-call (weekday, local_hour, local_minute)
+    // for analytics. Group targets by their (weekday, hour, minute) tuple so
+    // the analytics rows are accurate. Most cron ticks have a single tuple per
+    // slot anyway since we run every 15 minutes.
+    type GroupKey = string;
+    const groups = new Map<GroupKey, DispatchTarget[]>();
+    for (const t of targets) {
+      const key = `${t.weekday}-${t.local_hour}-${t.local_minute}`;
+      const arr = groups.get(key);
+      if (arr) arr.push(t);
+      else groups.set(key, [t]);
+    }
+
+    for (const group of groups.values()) {
+      const ids = group.map((t) => t.user_id);
+      // Pre-generate per-user event ids so they're stable for analytics.
+      const eventIdsByUser: Record<string, string> = {};
+      for (const uid of ids) eventIdsByUser[uid] = crypto.randomUUID();
+
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${SERVICE_KEY}`,
+        },
+        body: JSON.stringify({
+          user_ids: ids,
+          category: slot,
+          title: cfg.title,
+          body: cfg.body,
+          url: cfg.url,
+          event_ids_by_user: eventIdsByUser,
+          weekday: group[0].weekday,
+          local_hour: group[0].local_hour,
+          local_minute: group[0].local_minute,
+        }),
+      });
+      if (res.ok) dispatched += ids.length;
+      else console.error("[dispatcher] send-push failed", await res.text());
+    }
   }
 
   return json({
     checked: Object.keys(byUser).length,
-    dinner: dinnerUsers.length,
-    checkin: checkinUsers.length,
-    weekly: weeklyUsers.length,
+    dinner: dinnerTargets.length,
+    checkin: checkinTargets.length,
+    weekly: weeklyTargets.length,
     dispatched,
   });
 });

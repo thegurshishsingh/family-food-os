@@ -475,6 +475,45 @@ export type Database = {
         }
         Relationships: []
       }
+      push_notification_events: {
+        Row: {
+          category: string
+          event_id: string
+          event_type: string
+          id: string
+          local_hour: number | null
+          local_minute: number | null
+          metadata: Json
+          occurred_at: string
+          user_id: string
+          weekday: number | null
+        }
+        Insert: {
+          category: string
+          event_id: string
+          event_type: string
+          id?: string
+          local_hour?: number | null
+          local_minute?: number | null
+          metadata?: Json
+          occurred_at?: string
+          user_id: string
+          weekday?: number | null
+        }
+        Update: {
+          category?: string
+          event_id?: string
+          event_type?: string
+          id?: string
+          local_hour?: number | null
+          local_minute?: number | null
+          metadata?: Json
+          occurred_at?: string
+          user_id?: string
+          weekday?: number | null
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           auth: string
