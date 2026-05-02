@@ -191,6 +191,7 @@ export function usePushNotifications() {
       dinner_reveal_time?: string;
       evening_checkin_time?: string;
       weekly_plan_ready_time?: string;
+      weekly_plan_ready_days?: number[];
     }): Promise<boolean> => {
       if (!user) return false;
       const { error } = await supabase

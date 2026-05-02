@@ -11,13 +11,11 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-type Slot = "dinner_reveal" | "evening_checkin";
+type Slot = "dinner_reveal" | "evening_checkin" | "weekly_plan_ready";
 
 interface SlotConfig {
   defaultHour: number;
   defaultMinute: number;
-  enabledColumn: "enabled_dinner_reveal" | "enabled_evening_checkin";
-  timeColumn: "dinner_reveal_time" | "evening_checkin_time";
   title: string;
   body: string;
   url: string;
@@ -27,8 +25,6 @@ const SLOTS: Record<Slot, SlotConfig> = {
   dinner_reveal: {
     defaultHour: 13,
     defaultMinute: 0,
-    enabledColumn: "enabled_dinner_reveal",
-    timeColumn: "dinner_reveal_time",
     title: "Tonight's dinner 🍽️",
     body: "Tap to see what's on the plan and prep ahead.",
     url: "/planner",
@@ -36,10 +32,15 @@ const SLOTS: Record<Slot, SlotConfig> = {
   evening_checkin: {
     defaultHour: 19,
     defaultMinute: 30,
-    enabledColumn: "enabled_evening_checkin",
-    timeColumn: "evening_checkin_time",
     title: "How did dinner go?",
     body: "Quick check-in helps us plan smarter next week.",
+    url: "/planner",
+  },
+  weekly_plan_ready: {
+    defaultHour: 9,
+    defaultMinute: 0,
+    title: "Time to plan next week 📅",
+    body: "Set up dinners for the week ahead in a couple of taps.",
     url: "/planner",
   },
 };
@@ -55,20 +56,29 @@ function parseTime(value: string | null | undefined, fallback: { hour: number; m
   return { hour, minute };
 }
 
-// Returns local hour and minute for a given timezone, "now"
-function localHM(timezone: string, now: Date): { hour: number; minute: number } | null {
+// Returns local hour, minute and weekday (0=Sun…6=Sat) for a given timezone, "now"
+function localHMW(
+  timezone: string,
+  now: Date
+): { hour: number; minute: number; weekday: number } | null {
   try {
     const fmt = new Intl.DateTimeFormat("en-US", {
       timeZone: timezone,
       hour: "2-digit",
       minute: "2-digit",
+      weekday: "short",
       hour12: false,
     });
     const parts = fmt.formatToParts(now);
     const hour = parseInt(parts.find((p) => p.type === "hour")?.value ?? "", 10);
     const minute = parseInt(parts.find((p) => p.type === "minute")?.value ?? "", 10);
-    if (Number.isNaN(hour) || Number.isNaN(minute)) return null;
-    return { hour, minute };
+    const wd = parts.find((p) => p.type === "weekday")?.value ?? "";
+    const weekdayMap: Record<string, number> = {
+      Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
+    };
+    const weekday = weekdayMap[wd];
+    if (Number.isNaN(hour) || Number.isNaN(minute) || weekday === undefined) return null;
+    return { hour, minute, weekday };
   } catch {
     return null;
   }
@@ -98,7 +108,7 @@ Deno.serve(async (req) => {
   const { data: subs, error } = await supabase
     .from("push_subscriptions")
     .select(
-      "user_id, timezone, enabled_dinner_reveal, enabled_evening_checkin, dinner_reveal_time, evening_checkin_time"
+      "user_id, timezone, enabled_dinner_reveal, enabled_evening_checkin, enabled_weekly_plan_ready, dinner_reveal_time, evening_checkin_time, weekly_plan_ready_time, weekly_plan_ready_days"
     );
 
   if (error) {
@@ -114,6 +124,7 @@ Deno.serve(async (req) => {
       tz: string;
       dinner?: { hour: number; minute: number };
       checkin?: { hour: number; minute: number };
+      weekly?: { hour: number; minute: number; days: Set<number> };
     }
   > = {};
   for (const s of subs) {
@@ -138,13 +149,38 @@ Deno.serve(async (req) => {
         byUser[s.user_id].checkin = t;
       }
     }
+    if (s.enabled_weekly_plan_ready) {
+      const t = parseTime(s.weekly_plan_ready_time as string | null, {
+        hour: SLOTS.weekly_plan_ready.defaultHour,
+        minute: SLOTS.weekly_plan_ready.defaultMinute,
+      });
+      const rawDays = Array.isArray(s.weekly_plan_ready_days)
+        ? (s.weekly_plan_ready_days as number[])
+        : [0];
+      const days = new Set(
+        rawDays.map((d) => Number(d)).filter((d) => Number.isInteger(d) && d >= 0 && d <= 6)
+      );
+      if (!days.size) days.add(0);
+      const cur = byUser[s.user_id].weekly;
+      if (!cur) {
+        byUser[s.user_id].weekly = { hour: t.hour, minute: t.minute, days };
+      } else {
+        // Earliest time wins; union the day sets across devices.
+        if (t.hour * 60 + t.minute < cur.hour * 60 + cur.minute) {
+          cur.hour = t.hour;
+          cur.minute = t.minute;
+        }
+        for (const d of days) cur.days.add(d);
+      }
+    }
   }
 
   const dinnerUsers: string[] = [];
   const checkinUsers: string[] = [];
+  const weeklyUsers: string[] = [];
 
   for (const [userId, info] of Object.entries(byUser)) {
-    const local = localHM(info.tz, now);
+    const local = localHMW(info.tz, now);
     if (!local) continue;
     if (info.dinner && slotJustPassed(local, info.dinner.hour, info.dinner.minute, WINDOW_MIN)) {
       dinnerUsers.push(userId);
@@ -152,12 +188,20 @@ Deno.serve(async (req) => {
     if (info.checkin && slotJustPassed(local, info.checkin.hour, info.checkin.minute, WINDOW_MIN)) {
       checkinUsers.push(userId);
     }
+    if (
+      info.weekly &&
+      info.weekly.days.has(local.weekday) &&
+      slotJustPassed(local, info.weekly.hour, info.weekly.minute, WINDOW_MIN)
+    ) {
+      weeklyUsers.push(userId);
+    }
   }
 
   let dispatched = 0;
   for (const [slot, ids] of [
     ["dinner_reveal", dinnerUsers] as const,
     ["evening_checkin", checkinUsers] as const,
+    ["weekly_plan_ready", weeklyUsers] as const,
   ]) {
     if (!ids.length) continue;
     const cfg = SLOTS[slot];
@@ -183,6 +227,7 @@ Deno.serve(async (req) => {
     checked: Object.keys(byUser).length,
     dinner: dinnerUsers.length,
     checkin: checkinUsers.length,
+    weekly: weeklyUsers.length,
     dispatched,
   });
 });
