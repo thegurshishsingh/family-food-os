@@ -351,6 +351,9 @@ Deno.serve(async (req) => {
     let retriesRecovered = 0;
     const toRemove: string[] = [];
     const failures: Array<{ endpointHost: string; status?: number; message: string; attempts: number }> = [];
+    // Users who had at least one device successfully delivered. Used to
+    // write one `delivered` analytics row per user (not per device).
+    const deliveredUsers = new Set<string>();
 
     // Retry transient push-service failures (5xx + 429). APNs and FCM
     // occasionally return these under load; a small bounded backoff
