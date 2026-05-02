@@ -376,12 +376,33 @@ const NotificationsCard = () => {
         reason?: "no_subs" | "all_removed" | "server_error" | "network";
       }
   > => {
+    // For dinner_reveal / evening_checkin tests, mirror the dispatcher's
+    // behavior and inject tonight's dish name when the user hasn't customized
+    // the copy. This way "Send test" matches what real scheduled pushes look
+    // like.
+    let title = overrides.title;
+    let body = overrides.body;
+    const isMealSlot = opt.value === "dinner_reveal" || opt.value === "evening_checkin";
+    const usingDefaults = title === opt.title && body === opt.body;
+    if (isMealSlot && usingDefaults) {
+      const meal = await lookupTonightMeal(user!.id);
+      if (meal) {
+        if (opt.value === "dinner_reveal") {
+          title = `Tonight's dinner: ${meal} 🍽️`;
+          body = "Tap to see the recipe and prep ahead.";
+        } else {
+          title = `How was ${meal}?`;
+          body = "Quick check-in helps us plan smarter next week.";
+        }
+      }
+    }
+
     const { data, error } = await supabase.functions.invoke("send-push", {
       body: {
         user_id: user!.id,
         category: opt.value,
-        title: overrides.title,
-        body: overrides.body,
+        title,
+        body,
         url: "/planner",
       },
     });
