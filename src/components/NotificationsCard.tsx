@@ -228,6 +228,9 @@ const NotificationsCard = () => {
     enabled_dinner_reveal: true,
     enabled_evening_checkin: true,
     enabled_weekly_plan_ready: true,
+    dinner_reveal_time: "13:00",
+    evening_checkin_time: "19:30",
+    weekly_plan_ready_time: "09:00",
   });
   const [testCategory, setTestCategory] = useState<TestCategory>("test");
   const [testTitle, setTestTitle] = useState<string>(CATEGORY_OPTIONS[0].title);
@@ -274,22 +277,44 @@ const NotificationsCard = () => {
     if (!user || status !== "subscribed") return;
     supabase
       .from("push_subscriptions")
-      .select("enabled_dinner_reveal, enabled_evening_checkin, enabled_weekly_plan_ready")
+      .select(
+        "enabled_dinner_reveal, enabled_evening_checkin, enabled_weekly_plan_ready, dinner_reveal_time, evening_checkin_time, weekly_plan_ready_time"
+      )
       .eq("user_id", user.id)
       .limit(1)
       .maybeSingle()
       .then(({ data }) => {
-        if (data) setPrefs(data);
+        if (data) {
+          setPrefs((p) => ({
+            ...p,
+            ...data,
+            // Postgres returns "HH:MM:SS" — trim to "HH:MM" for <input type="time">
+            dinner_reveal_time: (data.dinner_reveal_time ?? p.dinner_reveal_time).slice(0, 5),
+            evening_checkin_time: (data.evening_checkin_time ?? p.evening_checkin_time).slice(0, 5),
+            weekly_plan_ready_time: (data.weekly_plan_ready_time ?? p.weekly_plan_ready_time).slice(0, 5),
+          }));
+        }
       });
   }, [user, status]);
 
   const handleToggle = async (
-    key: keyof typeof prefs,
+    key: "enabled_dinner_reveal" | "enabled_evening_checkin" | "enabled_weekly_plan_ready",
     value: boolean
   ) => {
     setPrefs((p) => ({ ...p, [key]: value }));
     const ok = await updatePreferences({ [key]: value });
     if (!ok) toast({ title: "Couldn't update preference", variant: "destructive" });
+  };
+
+  const handleTimeChange = async (
+    key: "dinner_reveal_time" | "evening_checkin_time" | "weekly_plan_ready_time",
+    value: string
+  ) => {
+    // value from <input type="time"> is "HH:MM"
+    if (!/^\d{2}:\d{2}$/.test(value)) return;
+    setPrefs((p) => ({ ...p, [key]: value }));
+    const ok = await updatePreferences({ [key]: value });
+    if (!ok) toast({ title: "Couldn't update notification time", variant: "destructive" });
   };
 
   const handleEnable = async () => {
@@ -578,35 +603,82 @@ const NotificationsCard = () => {
         {status === "subscribed" && (
           <div className="space-y-4">
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="dinner-reveal" className="text-sm">
-                  1 PM dinner reveal
-                </Label>
-                <Switch
-                  id="dinner-reveal"
-                  checked={prefs.enabled_dinner_reveal}
-                  onCheckedChange={(v) => handleToggle("enabled_dinner_reveal", v)}
-                />
+              <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="dinner-reveal" className="text-sm">
+                    Dinner reveal
+                  </Label>
+                  <Switch
+                    id="dinner-reveal"
+                    checked={prefs.enabled_dinner_reveal}
+                    onCheckedChange={(v) => handleToggle("enabled_dinner_reveal", v)}
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="dinner-reveal-time" className="text-xs text-muted-foreground">
+                    Send at
+                  </Label>
+                  <Input
+                    id="dinner-reveal-time"
+                    type="time"
+                    value={prefs.dinner_reveal_time}
+                    onChange={(e) => handleTimeChange("dinner_reveal_time", e.target.value)}
+                    disabled={!prefs.enabled_dinner_reveal}
+                    className="h-8 w-[120px] text-sm"
+                  />
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="evening-checkin" className="text-sm">
-                  Evening check-in (~7:30 PM)
-                </Label>
-                <Switch
-                  id="evening-checkin"
-                  checked={prefs.enabled_evening_checkin}
-                  onCheckedChange={(v) => handleToggle("enabled_evening_checkin", v)}
-                />
+
+              <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="evening-checkin" className="text-sm">
+                    Evening check-in
+                  </Label>
+                  <Switch
+                    id="evening-checkin"
+                    checked={prefs.enabled_evening_checkin}
+                    onCheckedChange={(v) => handleToggle("enabled_evening_checkin", v)}
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="evening-checkin-time" className="text-xs text-muted-foreground">
+                    Send at
+                  </Label>
+                  <Input
+                    id="evening-checkin-time"
+                    type="time"
+                    value={prefs.evening_checkin_time}
+                    onChange={(e) => handleTimeChange("evening_checkin_time", e.target.value)}
+                    disabled={!prefs.enabled_evening_checkin}
+                    className="h-8 w-[120px] text-sm"
+                  />
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="weekly-plan" className="text-sm">
-                  Weekly plan ready
-                </Label>
-                <Switch
-                  id="weekly-plan"
-                  checked={prefs.enabled_weekly_plan_ready}
-                  onCheckedChange={(v) => handleToggle("enabled_weekly_plan_ready", v)}
-                />
+
+              <div className="rounded-lg border border-border/50 bg-muted/20 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="weekly-plan" className="text-sm">
+                    Weekly plan ready
+                  </Label>
+                  <Switch
+                    id="weekly-plan"
+                    checked={prefs.enabled_weekly_plan_ready}
+                    onCheckedChange={(v) => handleToggle("enabled_weekly_plan_ready", v)}
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="weekly-plan-time" className="text-xs text-muted-foreground">
+                    Preferred time
+                  </Label>
+                  <Input
+                    id="weekly-plan-time"
+                    type="time"
+                    value={prefs.weekly_plan_ready_time}
+                    onChange={(e) => handleTimeChange("weekly_plan_ready_time", e.target.value)}
+                    disabled={!prefs.enabled_weekly_plan_ready}
+                    className="h-8 w-[120px] text-sm"
+                  />
+                </div>
               </div>
             </div>
 

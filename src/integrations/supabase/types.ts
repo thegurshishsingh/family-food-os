@@ -479,10 +479,12 @@ export type Database = {
         Row: {
           auth: string
           created_at: string
+          dinner_reveal_time: string
           enabled_dinner_reveal: boolean
           enabled_evening_checkin: boolean
           enabled_weekly_plan_ready: boolean
           endpoint: string
+          evening_checkin_time: string
           id: string
           last_used_at: string | null
           p256dh: string
@@ -490,14 +492,17 @@ export type Database = {
           updated_at: string
           user_agent: string | null
           user_id: string
+          weekly_plan_ready_time: string
         }
         Insert: {
           auth: string
           created_at?: string
+          dinner_reveal_time?: string
           enabled_dinner_reveal?: boolean
           enabled_evening_checkin?: boolean
           enabled_weekly_plan_ready?: boolean
           endpoint: string
+          evening_checkin_time?: string
           id?: string
           last_used_at?: string | null
           p256dh: string
@@ -505,14 +510,17 @@ export type Database = {
           updated_at?: string
           user_agent?: string | null
           user_id: string
+          weekly_plan_ready_time?: string
         }
         Update: {
           auth?: string
           created_at?: string
+          dinner_reveal_time?: string
           enabled_dinner_reveal?: boolean
           enabled_evening_checkin?: boolean
           enabled_weekly_plan_ready?: boolean
           endpoint?: string
+          evening_checkin_time?: string
           id?: string
           last_used_at?: string | null
           p256dh?: string
@@ -520,6 +528,7 @@ export type Database = {
           updated_at?: string
           user_agent?: string | null
           user_id?: string
+          weekly_plan_ready_time?: string
         }
         Relationships: []
       }

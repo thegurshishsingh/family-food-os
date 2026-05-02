@@ -14,9 +14,10 @@ const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 type Slot = "dinner_reveal" | "evening_checkin";
 
 interface SlotConfig {
-  hour: number;
-  minute: number;
-  column: string;
+  defaultHour: number;
+  defaultMinute: number;
+  enabledColumn: "enabled_dinner_reveal" | "enabled_evening_checkin";
+  timeColumn: "dinner_reveal_time" | "evening_checkin_time";
   title: string;
   body: string;
   url: string;
@@ -24,22 +25,35 @@ interface SlotConfig {
 
 const SLOTS: Record<Slot, SlotConfig> = {
   dinner_reveal: {
-    hour: 13,
-    minute: 0,
-    column: "enabled_dinner_reveal",
+    defaultHour: 13,
+    defaultMinute: 0,
+    enabledColumn: "enabled_dinner_reveal",
+    timeColumn: "dinner_reveal_time",
     title: "Tonight's dinner 🍽️",
     body: "Tap to see what's on the plan and prep ahead.",
     url: "/planner",
   },
   evening_checkin: {
-    hour: 19,
-    minute: 30,
-    column: "enabled_evening_checkin",
+    defaultHour: 19,
+    defaultMinute: 30,
+    enabledColumn: "enabled_evening_checkin",
+    timeColumn: "evening_checkin_time",
     title: "How did dinner go?",
     body: "Quick check-in helps us plan smarter next week.",
     url: "/planner",
   },
 };
+
+// Parse a Postgres `time` string like "13:00" or "19:30:00" into hour/minute.
+function parseTime(value: string | null | undefined, fallback: { hour: number; minute: number }): { hour: number; minute: number } {
+  if (!value) return fallback;
+  const m = /^(\d{1,2}):(\d{2})/.exec(value);
+  if (!m) return fallback;
+  const hour = parseInt(m[1], 10);
+  const minute = parseInt(m[2], 10);
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return fallback;
+  return { hour, minute };
+}
 
 // Returns local hour and minute for a given timezone, "now"
 function localHM(timezone: string, now: Date): { hour: number; minute: number } | null {
@@ -63,11 +77,12 @@ function localHM(timezone: string, now: Date): { hour: number; minute: number } 
 // True if the slot time falls inside [now - windowMin, now]
 function slotJustPassed(
   local: { hour: number; minute: number },
-  slot: SlotConfig,
+  slotHour: number,
+  slotMinute: number,
   windowMin: number
 ): boolean {
   const localTotal = local.hour * 60 + local.minute;
-  const slotTotal = slot.hour * 60 + slot.minute;
+  const slotTotal = slotHour * 60 + slotMinute;
   const diff = localTotal - slotTotal;
   return diff >= 0 && diff < windowMin;
 }
@@ -82,21 +97,47 @@ Deno.serve(async (req) => {
 
   const { data: subs, error } = await supabase
     .from("push_subscriptions")
-    .select("user_id, timezone, enabled_dinner_reveal, enabled_evening_checkin");
+    .select(
+      "user_id, timezone, enabled_dinner_reveal, enabled_evening_checkin, dinner_reveal_time, evening_checkin_time"
+    );
 
   if (error) {
     return json({ error: error.message }, 500);
   }
   if (!subs?.length) return json({ checked: 0, dispatched: 0 });
 
-  // Group user_ids by slot to dispatch
-  const byUser: Record<string, { tz: string; dinner: boolean; checkin: boolean }> = {};
-  for (const s of subs) {
-    if (!byUser[s.user_id]) {
-      byUser[s.user_id] = { tz: s.timezone || "UTC", dinner: false, checkin: false };
+  // Group user_ids by slot. Each user picks the EARLIEST configured time across
+  // their devices for a given slot — we only want one ping per slot per user.
+  const byUser: Record<
+    string,
+    {
+      tz: string;
+      dinner?: { hour: number; minute: number };
+      checkin?: { hour: number; minute: number };
     }
-    if (s.enabled_dinner_reveal) byUser[s.user_id].dinner = true;
-    if (s.enabled_evening_checkin) byUser[s.user_id].checkin = true;
+  > = {};
+  for (const s of subs) {
+    if (!byUser[s.user_id]) byUser[s.user_id] = { tz: s.timezone || "UTC" };
+    if (s.enabled_dinner_reveal) {
+      const t = parseTime(s.dinner_reveal_time as string | null, {
+        hour: SLOTS.dinner_reveal.defaultHour,
+        minute: SLOTS.dinner_reveal.defaultMinute,
+      });
+      const cur = byUser[s.user_id].dinner;
+      if (!cur || t.hour * 60 + t.minute < cur.hour * 60 + cur.minute) {
+        byUser[s.user_id].dinner = t;
+      }
+    }
+    if (s.enabled_evening_checkin) {
+      const t = parseTime(s.evening_checkin_time as string | null, {
+        hour: SLOTS.evening_checkin.defaultHour,
+        minute: SLOTS.evening_checkin.defaultMinute,
+      });
+      const cur = byUser[s.user_id].checkin;
+      if (!cur || t.hour * 60 + t.minute < cur.hour * 60 + cur.minute) {
+        byUser[s.user_id].checkin = t;
+      }
+    }
   }
 
   const dinnerUsers: string[] = [];
@@ -105,10 +146,10 @@ Deno.serve(async (req) => {
   for (const [userId, info] of Object.entries(byUser)) {
     const local = localHM(info.tz, now);
     if (!local) continue;
-    if (info.dinner && slotJustPassed(local, SLOTS.dinner_reveal, WINDOW_MIN)) {
+    if (info.dinner && slotJustPassed(local, info.dinner.hour, info.dinner.minute, WINDOW_MIN)) {
       dinnerUsers.push(userId);
     }
-    if (info.checkin && slotJustPassed(local, SLOTS.evening_checkin, WINDOW_MIN)) {
+    if (info.checkin && slotJustPassed(local, info.checkin.hour, info.checkin.minute, WINDOW_MIN)) {
       checkinUsers.push(userId);
     }
   }

@@ -188,6 +188,9 @@ export function usePushNotifications() {
       enabled_dinner_reveal?: boolean;
       enabled_evening_checkin?: boolean;
       enabled_weekly_plan_ready?: boolean;
+      dinner_reveal_time?: string;
+      evening_checkin_time?: string;
+      weekly_plan_ready_time?: string;
     }): Promise<boolean> => {
       if (!user) return false;
       const { error } = await supabase
