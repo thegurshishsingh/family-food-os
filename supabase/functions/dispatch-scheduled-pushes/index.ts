@@ -296,11 +296,11 @@ Deno.serve(async (req) => {
           const meal = tonightMealByUser[uid];
           if (!meal) continue;
           if (slot === "dinner_reveal") {
-            titleByUser[uid] = `Tonight's dinner: ${meal} 🍽️`;
-            bodyByUser[uid] = "Tap to see the recipe and prep ahead.";
+            titleByUser[uid] = "Tonight's dinner 🍽️";
+            bodyByUser[uid] = `${meal} — tap for the recipe and prep tips.`;
           } else {
-            titleByUser[uid] = `How was ${meal}?`;
-            bodyByUser[uid] = "Quick check-in helps us plan smarter next week.";
+            titleByUser[uid] = "How did dinner go?";
+            bodyByUser[uid] = `Quick check-in for ${meal} — helps us plan smarter.`;
           }
         }
       }
