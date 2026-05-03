@@ -53,6 +53,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <InstallPrompt />
+        <UpdatePrompt />
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
