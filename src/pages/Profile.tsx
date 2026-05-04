@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Save, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { updateWithSync } from "@/lib/offlineSync";
 
 const Profile = () => {
   const { user } = useAuth();
