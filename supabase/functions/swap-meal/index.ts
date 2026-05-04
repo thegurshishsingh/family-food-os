@@ -240,7 +240,7 @@ serve(async (req) => {
         dislikedMeals.filter(m => !hardExcludeMeals.includes(m)).length ? `Soft-avoid (recently disliked once): ${dislikedMeals.filter(m => !hardExcludeMeals.includes(m)).join(", ")}.` : "",
         `Meal mode: ${currentDay.meal_mode}.`,
         preferences?.cooking_time_tolerance ? `Cooking time tolerance: ${preferences.cooking_time_tolerance}. Match the replacement meal's prep time to this preference.` : "",
-        `Include realistic nutrition estimates PER SINGLE SERVING.`,
+        `NUTRITION (PER SINGLE SERVING): SUM each ingredient's contribution — do not guess round numbers. Reference (cooked, per 100g): chicken breast 31g protein/165cal; chicken thigh 26g/209cal; ground beef 26g/250cal; salmon 22g/208cal; tofu 17g/144cal; canned chickpeas/beans drained 7g protein+7g fiber/120cal/20g carbs; cooked rice 2.7g/130cal/28g carbs; cooked pasta 6g/158cal/31g carbs; cheese 25g/400cal; olive oil 1 tbsp 14g fat/120cal. Conversions: 1 oz ≈ 28g (so 5 oz chicken ≈ 43g protein; 7.5 oz canned chickpeas ≈ 15g protein). Sanity check: any meal with ≥4 oz meat AND a legume/grain side must show 35g+ protein. Always include fiber_g.`,
         `IMPORTANT — Ingredient quantities must be for ONE SINGLE SERVING. Use sensible units (e.g. "1" chicken breast, "0.5" lb, "1" cup, "2" tbsp). Keep units in the "unit" field, numeric amounts in "quantity".`,
         `Provide detailed step-by-step cooking instructions with 6-10 steps.`,
         `IMPORTANT: Make the three suggestions varied — different cuisines or styles so the user has a real choice.`,
