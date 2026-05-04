@@ -664,16 +664,22 @@ async function buildCustomRecipe(
   }
   built.ingredients = Array.from(seen.values());
 
+  const macros = normalizeMacros(
+    { calories: built.calories, protein_g: built.protein_g, carbs_g: built.carbs_g, fat_g: built.fat_g, fiber_g: built.fiber_g },
+    built.ingredients,
+    1,
+  );
+
   return {
     meal_name: selected_meal.meal_name,
     meal_description: selected_meal.meal_description,
     cuisine_type: selected_meal.cuisine_type || built.cuisine_type,
     prep_time_minutes: selected_meal.prep_time_minutes || built.prep_time_minutes,
-    calories: built.calories,
-    protein_g: built.protein_g,
-    carbs_g: built.carbs_g,
-    fat_g: built.fat_g,
-    fiber_g: built.fiber_g,
+    calories: macros.calories || built.calories,
+    protein_g: macros.protein_g || built.protein_g,
+    carbs_g: macros.carbs_g || built.carbs_g,
+    fat_g: macros.fat_g || built.fat_g,
+    fiber_g: macros.fiber_g || built.fiber_g,
     ingredients: built.ingredients,
     instructions: built.instructions,
   };
