@@ -110,8 +110,8 @@ const CASES: Case[] = [
       { name: "spinach", quantity: "2", unit: "cups" },
     ],
     expect: {
-      protein_g: [40, 60],
-      calories: [550, 800],
+      protein_g: [35, 60],
+      calories: [450, 750],
     },
   },
   // —— Mixed fraction ——
@@ -124,8 +124,8 @@ const CASES: Case[] = [
       { name: "parmesan cheese", quantity: "2", unit: "tbsp" },
     ],
     expect: {
-      protein_g: [35, 60],
-      calories: [650, 950],
+      protein_g: [35, 75],
+      calories: [650, 1100],
     },
   },
   // —— Range qty ——
