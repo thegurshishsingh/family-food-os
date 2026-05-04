@@ -55,6 +55,7 @@ const App = () => (
         <Sonner />
         <InstallPrompt />
         <UpdatePrompt />
+        <PendingSyncIndicator />
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
