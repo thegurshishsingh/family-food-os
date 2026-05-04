@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Save, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { updateWithSync } from "@/lib/offlineSync";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -41,13 +42,17 @@ const Profile = () => {
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ display_name: displayName })
-      .eq("user_id", user.id);
+    const { queued, error } = await updateWithSync(
+      "profiles",
+      { display_name: displayName },
+      { user_id: user.id },
+      "Profile name",
+    );
     setSaving(false);
-    if (error) {
+    if (error && !queued) {
       toast({ variant: "destructive", title: "Failed to save", description: error.message });
+    } else if (queued) {
+      toast({ title: "Saved offline", description: "Will sync when you're back online." });
     } else {
       toast({ title: "Profile updated" });
     }
