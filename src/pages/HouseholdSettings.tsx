@@ -126,15 +126,17 @@ const HouseholdSettings = () => {
     if (!household) return;
     setSaving(true);
     try {
-      const { error: hhError } = await supabase
-        .from("households")
-        .update({ name, num_adults: numAdults, num_children: numChildren, child_age_bands: childAgeBands })
-        .eq("id", household.id);
-      if (hhError) throw hhError;
+      const hhRes = await updateWithSync(
+        "households",
+        { name, num_adults: numAdults, num_children: numChildren, child_age_bands: childAgeBands },
+        { id: household.id },
+        "Household details",
+      );
+      if (hhRes.error && !hhRes.queued) throw hhRes.error;
 
-      const { error: prefError } = await supabase
-        .from("household_preferences")
-        .update({
+      const prefRes = await updateWithSync(
+        "household_preferences",
+        {
           cuisines_liked: cuisinesLiked,
           cuisines_disliked: cuisinesDisliked,
           dietary_preferences: dietary,
@@ -146,11 +148,17 @@ const HouseholdSettings = () => {
           grocery_store: groceryStore || null,
           delivery_preference: deliveryPref,
           health_goal: healthGoal,
-        })
-        .eq("household_id", household.id);
-      if (prefError) throw prefError;
+        },
+        { household_id: household.id },
+        "Household preferences",
+      );
+      if (prefRes.error && !prefRes.queued) throw prefRes.error;
 
-      toast({ title: "Settings saved!" });
+      if (hhRes.queued || prefRes.queued) {
+        toast({ title: "Saved offline", description: "Changes will sync when you're back online." });
+      } else {
+        toast({ title: "Settings saved!" });
+      }
     } catch (err: any) {
       toast({ variant: "destructive", title: "Error saving", description: err.message });
     } finally {
