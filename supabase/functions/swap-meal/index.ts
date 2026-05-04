@@ -336,6 +336,16 @@ serve(async (req) => {
       ];
     }
 
+    // Normalize macros from per-serving ingredients before returning
+    suggestions = (suggestions || []).map((s: any) => {
+      const m = normalizeMacros(
+        { calories: s.calories, protein_g: s.protein_g, carbs_g: s.carbs_g, fat_g: s.fat_g, fiber_g: s.fiber_g },
+        s.ingredients,
+        1,
+      );
+      return { ...s, calories: m.calories || s.calories, protein_g: m.protein_g || s.protein_g, carbs_g: m.carbs_g || s.carbs_g, fat_g: m.fat_g || s.fat_g, fiber_g: m.fiber_g || s.fiber_g };
+    });
+
     // Return suggestions without saving — user picks one
     return new Response(JSON.stringify({ success: true, suggestions }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
