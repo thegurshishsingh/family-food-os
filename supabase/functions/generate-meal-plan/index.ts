@@ -766,10 +766,34 @@ INSTRUCTIONS: 6-10 detailed steps:
   5. End with plating/serving suggestions
   6. Note what can be prepped ahead if relevant
 
-NUTRITION: Per single serving, realistic ranges:
-  - Calories: 400-700 for dinner
-  - Protein: 20-45g meat-based, 12-25g vegetarian
-  - Include fiber_g
+NUTRITION: Calculate PER SINGLE SERVING by SUMMING each ingredient's contribution.
+  ⚠️ Do NOT guess a round number. Add up actual ingredient macros, then divide by servings if the recipe makes more than one.
+
+  Reference values (cooked, per 100g unless noted):
+    • Chicken breast: 165 cal, 31g protein, 0g carbs, 3.6g fat
+    • Chicken thigh (skinless): 209 cal, 26g protein, 0g carbs, 11g fat
+    • Ground beef 85/15: 250 cal, 26g protein, 0g carbs, 17g fat
+    • Salmon: 208 cal, 22g protein, 0g carbs, 13g fat
+    • Eggs (1 large, ~50g): 72 cal, 6g protein, 0.4g carbs, 5g fat
+    • Tofu firm: 144 cal, 17g protein, 3g carbs, 9g fat
+    • Canned chickpeas/beans (drained): 120 cal, 7g protein, 20g carbs, 2g fat, 7g fiber
+    • Lentils cooked: 116 cal, 9g protein, 20g carbs, 0.4g fat, 8g fiber
+    • Cooked rice: 130 cal, 2.7g protein, 28g carbs, 0.3g fat
+    • Cooked pasta: 158 cal, 6g protein, 31g carbs, 1g fat
+    • Bread (1 slice ~30g): 80 cal, 3g protein, 15g carbs, 1g fat
+    • Cheese (cheddar): 400 cal, 25g protein, 1g carbs, 33g fat
+    • Greek yogurt (plain, full-fat): 97 cal, 9g protein, 4g carbs, 5g fat
+    • Olive oil (1 tbsp ~14g): 120 cal, 0g protein, 0g carbs, 14g fat
+    • Butter (1 tbsp ~14g): 100 cal, 0g protein, 0g carbs, 11g fat
+    • Most vegetables: ~25-50 cal, 1-3g protein, 5-10g carbs per 100g
+  Conversions: 1 oz ≈ 28g. So 5 oz chicken breast ≈ 140g ≈ 43g protein. 7.5 oz canned chickpeas ≈ 210g ≈ 15g protein + 14g fiber.
+
+  Sanity check before returning:
+    • A meal with 5+ oz of meat/fish AND a legume/grain side should have 35g+ protein.
+    • A meal with 5-6 oz lean meat alone should have 30-40g protein.
+    • If your protein number is under 25g but the recipe contains ≥4 oz meat OR ≥4 oz legumes + dairy, RECALCULATE.
+  Realistic dinner ranges: 400-750 calories, protein 20-50g (meat-based) or 15-30g (vegetarian).
+  Always include fiber_g.
 
 GROCERY LIST:
   - COMBINE duplicate ingredients across meals (this is critical for ingredient reuse strategy)
