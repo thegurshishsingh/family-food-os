@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { computeRealityScore } from "../_shared/realityScore.ts";
 import { computeLearningInsights, renderInsightsForPrompt } from "../_shared/learningModel.ts";
+import { normalizeMacros } from "../_shared/nutrition.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -391,24 +392,31 @@ Return ONLY valid JSON, no markdown.`;
       .single();
     if (planError) throw planError;
 
-    const dayInserts = planData.days.map((d: any) => ({
-      plan_id: newPlan.id,
-      day_of_week: d.day_of_week,
-      meal_mode: d.meal_mode,
-      meal_name: d.meal_name,
-      meal_description: d.meal_description,
-      cuisine_type: d.cuisine_type || null,
-      prep_time_minutes: d.prep_time_minutes || null,
-      calories: d.calories,
-      protein_g: d.protein_g,
-      carbs_g: d.carbs_g,
-      fat_g: d.fat_g,
-      fiber_g: d.fiber_g || null,
-      notes: d.notes || null,
-      takeout_budget: d.takeout_budget || null,
-      ingredients: d.ingredients || null,
-      instructions: d.instructions || null,
-    }));
+    const dayInserts = planData.days.map((d: any) => {
+      const macros = normalizeMacros(
+        { calories: d.calories, protein_g: d.protein_g, carbs_g: d.carbs_g, fat_g: d.fat_g, fiber_g: d.fiber_g },
+        d.ingredients,
+        1, // AI was instructed to give per-serving ingredients
+      );
+      return {
+        plan_id: newPlan.id,
+        day_of_week: d.day_of_week,
+        meal_mode: d.meal_mode,
+        meal_name: d.meal_name,
+        meal_description: d.meal_description,
+        cuisine_type: d.cuisine_type || null,
+        prep_time_minutes: d.prep_time_minutes || null,
+        calories: macros.calories || d.calories,
+        protein_g: macros.protein_g || d.protein_g,
+        carbs_g: macros.carbs_g || d.carbs_g,
+        fat_g: macros.fat_g || d.fat_g,
+        fiber_g: macros.fiber_g || d.fiber_g || null,
+        notes: d.notes || null,
+        takeout_budget: d.takeout_budget || null,
+        ingredients: d.ingredients || null,
+        instructions: d.instructions || null,
+      };
+    });
     await supabaseClient.from("plan_days").insert(dayInserts);
 
     if (planData.grocery_items?.length) {

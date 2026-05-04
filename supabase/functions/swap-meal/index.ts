@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { normalizeMacros } from "../_shared/nutrition.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -335,6 +336,16 @@ serve(async (req) => {
       ];
     }
 
+    // Normalize macros from per-serving ingredients before returning
+    suggestions = (suggestions || []).map((s: any) => {
+      const m = normalizeMacros(
+        { calories: s.calories, protein_g: s.protein_g, carbs_g: s.carbs_g, fat_g: s.fat_g, fiber_g: s.fiber_g },
+        s.ingredients,
+        1,
+      );
+      return { ...s, calories: m.calories || s.calories, protein_g: m.protein_g || s.protein_g, carbs_g: m.carbs_g || s.carbs_g, fat_g: m.fat_g || s.fat_g, fiber_g: m.fiber_g || s.fiber_g };
+    });
+
     // Return suggestions without saving — user picks one
     return new Response(JSON.stringify({ success: true, suggestions }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -663,16 +674,22 @@ async function buildCustomRecipe(
   }
   built.ingredients = Array.from(seen.values());
 
+  const macros = normalizeMacros(
+    { calories: built.calories, protein_g: built.protein_g, carbs_g: built.carbs_g, fat_g: built.fat_g, fiber_g: built.fiber_g },
+    built.ingredients,
+    1,
+  );
+
   return {
     meal_name: selected_meal.meal_name,
     meal_description: selected_meal.meal_description,
     cuisine_type: selected_meal.cuisine_type || built.cuisine_type,
     prep_time_minutes: selected_meal.prep_time_minutes || built.prep_time_minutes,
-    calories: built.calories,
-    protein_g: built.protein_g,
-    carbs_g: built.carbs_g,
-    fat_g: built.fat_g,
-    fiber_g: built.fiber_g,
+    calories: macros.calories || built.calories,
+    protein_g: macros.protein_g || built.protein_g,
+    carbs_g: macros.carbs_g || built.carbs_g,
+    fat_g: macros.fat_g || built.fat_g,
+    fiber_g: macros.fiber_g || built.fiber_g,
     ingredients: built.ingredients,
     instructions: built.instructions,
   };
