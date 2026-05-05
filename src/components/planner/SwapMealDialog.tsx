@@ -264,14 +264,14 @@ const SwapMealDialog = ({
                               <Clock className="w-3 h-3" /> {meal.prep_time_minutes} min
                             </span>
                           )}
-                          {meal.calories && (
+                          {formatCalories(meal.calories) && (
                             <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
-                              <Flame className="w-3 h-3" /> {meal.calories} cal
+                              <Flame className="w-3 h-3" /> {formatCalories(meal.calories)}
                             </span>
                           )}
-                          {meal.protein_g && (
+                          {formatMacro(meal.protein_g, "protein") && (
                             <span className="text-[11px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
-                              {Math.round(Number(meal.protein_g))}g protein
+                              {formatMacro(meal.protein_g, "protein")}
                             </span>
                           )}
                         </div>
