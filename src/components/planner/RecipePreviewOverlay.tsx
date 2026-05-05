@@ -70,7 +70,7 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
               ].map(({ label, value, unit }) =>
                 value ? (
                   <div key={label} className="text-center rounded-lg bg-muted py-1.5 px-1 border border-border/60">
-                    <p className="text-xs font-semibold text-foreground">{value}{unit}</p>
+                    <p className="text-xs font-semibold text-foreground">{Math.round(Number(value))}{unit}</p>
                     <p className="text-[10px] font-medium text-muted-foreground dark:text-foreground/75">{label}</p>
                   </div>
                 ) : null

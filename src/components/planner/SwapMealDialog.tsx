@@ -270,7 +270,7 @@ const SwapMealDialog = ({
                           )}
                           {meal.protein_g && (
                             <span className="text-[11px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
-                              {meal.protein_g}g protein
+                              {Math.round(Number(meal.protein_g))}g protein
                             </span>
                           )}
                         </div>

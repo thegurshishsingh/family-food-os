@@ -74,10 +74,10 @@ const MealDetailDialog = ({ day, open, onOpenChange, defaultServings = 4 }: Meal
 
   const nutritionItems = [
     { label: "Calories", value: day.calories, unit: "kcal", icon: Flame, accent: "text-orange-500" },
-    { label: "Protein", value: day.protein_g ? Number(day.protein_g) : null, unit: "g", icon: Beef, accent: "text-red-500" },
-    { label: "Carbs", value: day.carbs_g ? Number(day.carbs_g) : null, unit: "g", icon: Wheat, accent: "text-amber-500" },
-    { label: "Fat", value: day.fat_g ? Number(day.fat_g) : null, unit: "g", icon: Droplets, accent: "text-blue-500" },
-    { label: "Fiber", value: day.fiber_g ? Number(day.fiber_g) : null, unit: "g", icon: Leaf, accent: "text-green-500" },
+    { label: "Protein", value: day.protein_g ? Math.round(Number(day.protein_g)) : null, unit: "g", icon: Beef, accent: "text-red-500" },
+    { label: "Carbs", value: day.carbs_g ? Math.round(Number(day.carbs_g)) : null, unit: "g", icon: Wheat, accent: "text-amber-500" },
+    { label: "Fat", value: day.fat_g ? Math.round(Number(day.fat_g)) : null, unit: "g", icon: Droplets, accent: "text-blue-500" },
+    { label: "Fiber", value: day.fiber_g ? Math.round(Number(day.fiber_g)) : null, unit: "g", icon: Leaf, accent: "text-green-500" },
   ].filter((item) => item.value != null);
 
   const ingredients = day.ingredients || [];
