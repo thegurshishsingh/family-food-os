@@ -11,7 +11,7 @@ const WeeklySummary = ({ days }: WeeklySummaryProps) => {
   if (days.length === 0) return null;
 
   const totalCals = days.reduce((s, d) => s + (d.calories || 0), 0);
-  const avgCals = days.length > 0 ? Math.round(totalCals / days.length) : 0;
+  const avgCals = days.length > 0 ? roundNutrition(totalCals / days.length) ?? 0 : 0;
   const cookDays = days.filter((d) => d.meal_mode === "cook").length;
   const takeoutDays = days.filter((d) => d.meal_mode === "takeout" || d.meal_mode === "dine_out").length;
 
