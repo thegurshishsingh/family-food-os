@@ -43,9 +43,9 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
                   <Clock className="w-3 h-3" /> {meal.prep_time_minutes} min
                 </span>
               )}
-              {meal.calories && (
+              {formatCalories(meal.calories) && (
                 <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                  <Flame className="w-3 h-3" /> {meal.calories} cal
+                  <Flame className="w-3 h-3" /> {formatCalories(meal.calories)}
                 </span>
               )}
             </div>
