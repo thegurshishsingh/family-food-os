@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock, Flame, Beef, Wheat, Droplets, Leaf, UtensilsCrossed, ShoppingBasket, ListOrdered, Printer, Share2, Minus, Plus, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { MODE_CONFIG, DAYS, type PlanDay } from "./types";
+import { roundNutrition } from "@/lib/nutritionFormat";
 
 interface MealDetailDialogProps {
   day: PlanDay | null;
