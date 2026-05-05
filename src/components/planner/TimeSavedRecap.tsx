@@ -90,6 +90,20 @@ function KPI({ label, value, accent = false }: { label: string; value: string; a
   );
 }
 
+// Shareable real-world comparison — concrete, relatable hook.
+function getRealWorldEquivalent(minutes: number): { emoji: string; text: string } {
+  if (minutes >= 360) return { emoji: "✈️", text: "a flight to the coast" };
+  if (minutes >= 240) return { emoji: "🎬", text: "two full movies" };
+  if (minutes >= 180) return { emoji: "🏃‍♀️", text: "a half-marathon (and a shower)" };
+  if (minutes >= 150) return { emoji: "🍿", text: "a feature film with previews" };
+  if (minutes >= 120) return { emoji: "🧘", text: "two yoga classes back-to-back" };
+  if (minutes >= 90) return { emoji: "📚", text: "three bedtime stories, twice" };
+  if (minutes >= 60) return { emoji: "☕", text: "a slow coffee with a friend" };
+  if (minutes >= 45) return { emoji: "🚶", text: "an evening walk around the block" };
+  if (minutes >= 30) return { emoji: "🛁", text: "a hot bath, no rushing" };
+  return { emoji: "📖", text: "one chapter, fully present" };
+}
+
 type RecapInputs = {
   plannedNights: number;
   cookNights: number;
