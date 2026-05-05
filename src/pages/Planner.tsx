@@ -639,7 +639,11 @@ const Planner = () => {
         {days.length > 0 && (
           <div className="space-y-3">
             <SwipeCoachMark show={days.length > 0} />
-            {days.map((day, i) => (
+            {[...days].sort((a, b) => {
+              const ra = (a.day_of_week - todayDow + 7) % 7;
+              const rb = (b.day_of_week - todayDow + 7) % 7;
+              return ra - rb;
+            }).map((day, i) => (
               <DayCard
                 key={day.id}
                 day={day}
