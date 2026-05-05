@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { MealSuggestion } from "./SwapMealDialog";
+import { formatCalories, formatGrams } from "@/lib/nutritionFormat";
 
 interface RecipePreviewOverlayProps {
   meal: MealSuggestion;
@@ -42,9 +43,9 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
                   <Clock className="w-3 h-3" /> {meal.prep_time_minutes} min
                 </span>
               )}
-              {meal.calories && (
+              {formatCalories(meal.calories) && (
                 <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                  <Flame className="w-3 h-3" /> {meal.calories} cal
+                  <Flame className="w-3 h-3" /> {formatCalories(meal.calories)}
                 </span>
               )}
             </div>
@@ -63,18 +64,19 @@ const RecipePreviewOverlay = forwardRef<HTMLDivElement, RecipePreviewOverlayProp
           <div className="px-4 py-3 space-y-4">
             <div className="grid grid-cols-4 gap-2">
               {[
-                { label: "Protein", value: meal.protein_g, unit: "g" },
-                { label: "Carbs", value: meal.carbs_g, unit: "g" },
-                { label: "Fat", value: meal.fat_g, unit: "g" },
-                { label: "Fiber", value: meal.fiber_g, unit: "g" },
-              ].map(({ label, value, unit }) =>
-                value ? (
+                { label: "Protein", value: meal.protein_g },
+                { label: "Carbs", value: meal.carbs_g },
+                { label: "Fat", value: meal.fat_g },
+                { label: "Fiber", value: meal.fiber_g },
+              ].map(({ label, value }) => {
+                const display = formatGrams(value);
+                return display ? (
                   <div key={label} className="text-center rounded-lg bg-muted py-1.5 px-1 border border-border/60">
-                    <p className="text-xs font-semibold text-foreground">{Math.round(Number(value))}{unit}</p>
+                    <p className="text-xs font-semibold text-foreground">{display}</p>
                     <p className="text-[10px] font-medium text-muted-foreground dark:text-foreground/75">{label}</p>
                   </div>
-                ) : null
-              )}
+                ) : null;
+              })}
             </div>
 
             {meal.ingredients && meal.ingredients.length > 0 && (

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
+import { formatCalories } from "@/lib/nutritionFormat";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -130,7 +131,7 @@ const PlanHistory = () => {
                             </Badge>
                           )}
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Flame className="w-3 h-3" /> {totalCals.toLocaleString()} cal
+                            <Flame className="w-3 h-3" /> {formatCalories(totalCals) ?? "0 cal"}
                           </span>
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <ChefHat className="w-3 h-3" /> {cookCount} cook
@@ -186,8 +187,8 @@ const PlanHistory = () => {
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2 shrink-0">
-                                    {day.calories && (
-                                      <Badge variant="secondary" className="text-[10px]">{day.calories} cal</Badge>
+                                    {formatCalories(day.calories) && (
+                                      <Badge variant="secondary" className="text-[10px]">{formatCalories(day.calories)}</Badge>
                                     )}
                                     {day.cuisine_type && (
                                       <Badge variant="outline" className="text-[10px] hidden sm:inline-flex">{day.cuisine_type}</Badge>
