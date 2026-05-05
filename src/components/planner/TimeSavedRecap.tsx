@@ -469,29 +469,17 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           </div>
         </motion.div>
 
-        {/* ── REAL-WORLD EQUIVALENT — the share hook ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55 }}
-          className="text-center mb-8"
-        >
-          <p className="text-base sm:text-lg text-foreground/70 font-serif italic">
-            that's about {equivalent.emoji} <span className="text-foreground font-medium not-italic">{equivalent.text}</span>
-          </p>
-        </motion.div>
-
-        {/* ── EMOTIONAL PAYOFF — highlighted sticker quote ── */}
+        {/* ── EMOTIONAL PAYOFF — highlighted sticker quote (single time-equivalent) ── */}
         {primaryReward && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, rotate: -1 }}
-            animate={{ opacity: 1, scale: 1, rotate: -1.2 }}
-            transition={{ delay: 0.7, type: "spring", stiffness: 180, damping: 18 }}
-            className="relative max-w-sm mx-auto mb-10"
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.55, type: "spring", stiffness: 180, damping: 18 }}
+            className="relative max-w-sm mx-auto mb-10 mt-6"
           >
             <div className="relative rounded-[20px] bg-gradient-to-br from-primary/15 via-primary/8 to-accent/12 border border-primary/20 px-5 py-5 text-center shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.4)]">
-              {/* tape strips */}
-              <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-3 bg-primary/15 rounded-sm rotate-[-3deg]" aria-hidden />
+              {/* tape strip */}
+              <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-3 bg-primary/15 rounded-sm" aria-hidden />
               <p className="text-base sm:text-lg font-serif text-foreground leading-snug">
                 {primaryReward.emoji} {primaryReward.text}
               </p>
