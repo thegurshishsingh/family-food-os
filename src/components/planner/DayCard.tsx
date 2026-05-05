@@ -12,6 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { DAYS, MODE_CONFIG, FEEDBACK_OPTIONS, type PlanDay, type FeedbackType } from "./types";
 import MealDetailDialog from "./MealDetailDialog";
 import { recordCoachGesture } from "@/lib/coachMarks";
+import { formatCalories, formatMacro } from "@/lib/nutritionFormat";
 
 interface DayCardProps {
   day: PlanDay;
