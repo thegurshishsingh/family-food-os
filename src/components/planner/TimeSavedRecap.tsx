@@ -57,6 +57,39 @@ function ConfettiParticle({ delay, x, color }: { delay: number; x: number; color
   );
 }
 
+function AnimatedHours({ minutes }: { minutes: number }) {
+  const target = minutes / 60;
+  const mv = useMotionValue(0);
+  const display = useTransform(mv, (v) => {
+    const rounded = Math.round(v * 10) / 10;
+    return rounded % 1 === 0 ? `${rounded.toFixed(0)}h` : `${rounded.toFixed(1)}h`;
+  });
+  useEffect(() => {
+    const controls = animate(mv, target, { duration: 1.4, ease: [0.22, 1, 0.36, 1] });
+    return () => controls.stop();
+  }, [target, mv]);
+  return (
+    <h2 className="text-[3.5rem] sm:text-[5rem] md:text-[6rem] font-serif font-semibold text-primary leading-none tracking-tight">
+      <motion.span>{display}</motion.span>
+    </h2>
+  );
+}
+
+function KPI({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div
+      className={`relative rounded-xl px-3 py-3 text-center border ${
+        accent
+          ? "bg-primary/5 border-primary/20"
+          : "bg-background/50 border-border/40"
+      }`}
+    >
+      <p className="text-base sm:text-lg font-serif font-bold text-foreground leading-none">{value}</p>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 mt-1.5">{label}</p>
+    </div>
+  );
+}
+
 type RecapInputs = {
   plannedNights: number;
   cookNights: number;
