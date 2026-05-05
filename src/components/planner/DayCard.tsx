@@ -130,12 +130,12 @@ const DayCard = ({
         ${day.is_locked ? "ring-1 ring-primary/20" : ""}
         ${isDragged ? "opacity-50 scale-[0.98]" : ""}
         ${isDragOver ? "ring-2 ring-primary shadow-lg" : ""}
-        ${isToday ? "ring-1 ring-primary/30 bg-primary/[0.02]" : ""}
+        ${isToday ? "ring-2 ring-primary/60 bg-primary/[0.04] shadow-md shadow-primary/10" : ""}
       `}
     >
       <div className="flex flex-col sm:flex-row">
         {/* Day label + mode */}
-        <div className="flex items-center gap-2 px-3 pt-3 pb-1 sm:flex-col sm:gap-1 sm:p-4 sm:w-44 sm:border-r border-border sm:items-start">
+        <div className={`flex items-center gap-2 px-3 pt-3 pb-1 sm:flex-col sm:gap-1 sm:p-4 sm:w-44 sm:border-r border-border sm:items-start ${isToday ? "sm:bg-primary/[0.06]" : ""}`}>
           {!day.is_locked && (
             <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 hidden sm:block" />
           )}
@@ -152,9 +152,10 @@ const DayCard = ({
             </button>
           )}
           <div className="flex items-center gap-1.5">
-            <p className="font-serif font-semibold text-foreground text-sm sm:text-base">{DAYS[day.day_of_week]}</p>
+            <p className={`font-serif font-semibold text-sm sm:text-base ${isToday ? "text-primary" : "text-foreground"}`}>{DAYS[day.day_of_week]}</p>
             {isToday && (
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-primary bg-primary/10 rounded-full px-1.5 py-0.5">
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground bg-primary rounded-full px-2 py-0.5 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground animate-pulse" />
                 Today
               </span>
             )}
