@@ -74,11 +74,11 @@ const MealDetailDialog = ({ day, open, onOpenChange, defaultServings = 4 }: Meal
   const multiplier = servings / defaultServings;
 
   const nutritionItems = [
-    { label: "Calories", value: day.calories, unit: "kcal", icon: Flame, accent: "text-orange-500" },
-    { label: "Protein", value: day.protein_g ? Math.round(Number(day.protein_g)) : null, unit: "g", icon: Beef, accent: "text-red-500" },
-    { label: "Carbs", value: day.carbs_g ? Math.round(Number(day.carbs_g)) : null, unit: "g", icon: Wheat, accent: "text-amber-500" },
-    { label: "Fat", value: day.fat_g ? Math.round(Number(day.fat_g)) : null, unit: "g", icon: Droplets, accent: "text-blue-500" },
-    { label: "Fiber", value: day.fiber_g ? Math.round(Number(day.fiber_g)) : null, unit: "g", icon: Leaf, accent: "text-green-500" },
+    { label: "Calories", value: roundNutrition(day.calories), unit: "kcal", icon: Flame, accent: "text-orange-500" },
+    { label: "Protein", value: roundNutrition(day.protein_g), unit: "g", icon: Beef, accent: "text-red-500" },
+    { label: "Carbs", value: roundNutrition(day.carbs_g), unit: "g", icon: Wheat, accent: "text-amber-500" },
+    { label: "Fat", value: roundNutrition(day.fat_g), unit: "g", icon: Droplets, accent: "text-blue-500" },
+    { label: "Fiber", value: roundNutrition(day.fiber_g), unit: "g", icon: Leaf, accent: "text-green-500" },
   ].filter((item) => item.value != null);
 
   const ingredients = day.ingredients || [];
