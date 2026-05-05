@@ -225,7 +225,7 @@ const ShareableRecapCard = ({
         className="text-muted-foreground hover:text-foreground text-xs gap-1.5"
       >
         <ImageIcon className="w-3.5 h-3.5" />
-        Share as image
+        Share on social
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
