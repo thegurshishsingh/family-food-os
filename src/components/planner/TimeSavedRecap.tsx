@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket, Share2, Star } from "lucide-react";
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { computeTimeSaved, computeCumulativeMinutesSaved, formatHours, type TimeSavedResult, type WeekInputs } from "@/lib/timeSaved";
 import { getHumanRewards, type HumanReward } from "@/lib/humanReward";
 import ShareableRecapCard from "./ShareableRecapCard";
@@ -54,6 +54,39 @@ function ConfettiParticle({ delay, x, color }: { delay: number; x: number; color
       }}
       transition={{ duration: 2.8, delay, ease: "easeOut" }}
     />
+  );
+}
+
+function AnimatedHours({ minutes }: { minutes: number }) {
+  const target = minutes / 60;
+  const mv = useMotionValue(0);
+  const display = useTransform(mv, (v) => {
+    const rounded = Math.round(v * 10) / 10;
+    return rounded % 1 === 0 ? `${rounded.toFixed(0)}h` : `${rounded.toFixed(1)}h`;
+  });
+  useEffect(() => {
+    const controls = animate(mv, target, { duration: 1.4, ease: [0.22, 1, 0.36, 1] });
+    return () => controls.stop();
+  }, [target, mv]);
+  return (
+    <h2 className="text-[3.5rem] sm:text-[5rem] md:text-[6rem] font-serif font-semibold text-primary leading-none tracking-tight">
+      <motion.span>{display}</motion.span>
+    </h2>
+  );
+}
+
+function KPI({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div
+      className={`relative rounded-xl px-3 py-3 text-center border ${
+        accent
+          ? "bg-primary/5 border-primary/20"
+          : "bg-background/50 border-border/40"
+      }`}
+    >
+      <p className="text-base sm:text-lg font-serif font-bold text-foreground leading-none">{value}</p>
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 mt-1.5">{label}</p>
+    </div>
   );
 }
 
@@ -291,6 +324,9 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
 
   if (!result) return null;
 
+  const hoursThisWeek = result.totalMinutesSaved / 60;
+  const starCount = Math.max(1, Math.min(5, Math.round(hoursThisWeek / 1.2)));
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -298,13 +334,36 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       className="mb-12"
     >
-      <div className="relative overflow-hidden rounded-2xl border border-border/30 bg-gradient-to-b from-card via-card to-background/40 px-6 py-12 sm:px-12 sm:py-16">
-
-        {/* Subtle decorative glow */}
+      <div
+        className="relative overflow-hidden rounded-[28px] px-6 py-12 sm:px-12 sm:py-16 shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.25)]"
+        style={{
+          background:
+            "radial-gradient(120% 80% at 20% 0%, hsl(var(--primary) / 0.10) 0%, transparent 55%), radial-gradient(120% 80% at 90% 100%, hsl(var(--accent) / 0.12) 0%, transparent 55%), linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)",
+        }}
+      >
+        {/* Decorative dotted frame */}
         <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[320px] h-[320px] rounded-full pointer-events-none"
-          style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.06) 0%, transparent 70%)" }}
+          className="absolute inset-3 rounded-[22px] border border-dashed border-primary/15 pointer-events-none"
+          aria-hidden
         />
+
+        {/* Floating sparkles */}
+        {[
+          { top: "8%", left: "8%", delay: 0, size: 14 },
+          { top: "14%", right: "12%", delay: 0.4, size: 10 },
+          { bottom: "18%", left: "10%", delay: 0.8, size: 12 },
+          { bottom: "10%", right: "8%", delay: 1.2, size: 16 },
+        ].map((s, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-primary/30 pointer-events-none"
+            style={{ top: s.top as any, left: s.left as any, right: s.right as any, bottom: s.bottom as any }}
+            animate={{ opacity: [0.2, 0.6, 0.2], scale: [0.9, 1.1, 0.9], rotate: [0, 15, 0] }}
+            transition={{ duration: 4, delay: s.delay, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Sparkles style={{ width: s.size, height: s.size }} />
+          </motion.div>
+        ))}
 
         {/* ── MILESTONE OVERLAY ── */}
         <AnimatePresence>
@@ -314,7 +373,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
-              className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl overflow-hidden"
+              className="absolute inset-0 z-10 flex items-center justify-center rounded-[28px] overflow-hidden"
             >
               <div className="absolute inset-0 bg-card/92 backdrop-blur-md" />
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -356,103 +415,104 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           )}
         </AnimatePresence>
 
-        {/* ── 1. TOP LABEL ── */}
+        {/* ── HEADER STAMP ── */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-center mb-6"
+          className="relative flex items-center justify-center gap-3 mb-8"
         >
-          <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground/60 font-medium">
-            Last Week Recap
+          <span className="h-px w-10 bg-border/60" />
+          <span className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground/70 font-semibold">
+            Week {totalWeeks} · Recap
           </span>
+          <span className="h-px w-10 bg-border/60" />
         </motion.div>
 
-        {/* ── 2. HERO NUMBER ── */}
+        {/* ── HERO: animated big number ── */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.18, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center mb-3"
+          transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="relative text-center mb-2"
         >
-          <h2 className="text-4xl sm:text-5xl md:text-[3.5rem] font-serif font-semibold text-foreground leading-none tracking-tight">
-            <span className="text-primary">{formatHours(result.totalMinutesSaved)}</span>
-            {" "}back.
-          </h2>
-        </motion.div>
-
-        {/* ── 3. SUPPORTING COPY ── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.32 }}
-          className="text-center mb-10"
-        >
-          <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
-            From smarter planning, fewer scrambles, and a week that mostly ran itself.
+          <div className="relative inline-block">
+            <AnimatedHours minutes={result.totalMinutesSaved} />
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ delay: 0.9, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute -bottom-1 left-0 right-0 h-[6px] origin-left rounded-full bg-primary/25"
+              aria-hidden
+            />
+          </div>
+          <p className="mt-3 text-xl sm:text-2xl font-serif text-foreground/80 italic">
+            of your week, returned.
           </p>
         </motion.div>
 
-        {/* ── 4. KPI ROW ── */}
+        {/* ── STAR RATING ── */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.42 }}
-          className="flex justify-center gap-8 sm:gap-12 mb-12"
+          transition={{ delay: 0.55 }}
+          className="flex justify-center gap-1 my-5"
         >
-          <div className="text-center">
-            <p className="text-2xl sm:text-3xl font-serif font-bold text-foreground leading-none">
-              {formatHours(result.totalMinutesSaved)}
-            </p>
-            <p className="text-[11px] text-muted-foreground/60 mt-1 tracking-wide">this week</p>
-          </div>
-          <div className="w-px bg-border/40 self-stretch" />
-          <div className="text-center">
-            <p className="text-2xl sm:text-3xl font-serif font-bold text-foreground leading-none">
-              {formatHours(cumulativeMinutes)}
-            </p>
-            <p className="text-[11px] text-muted-foreground/60 mt-1 tracking-wide">all time</p>
-          </div>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ scale: 0, rotate: -30 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.6 + i * 0.08, type: "spring", stiffness: 280, damping: 14 }}
+            >
+              <Star
+                className={`w-4 h-4 ${i < starCount ? "fill-primary text-primary" : "text-muted-foreground/25"}`}
+              />
+            </motion.div>
+          ))}
         </motion.div>
 
-        {/* ── 5. EMOTIONAL PAYOFF ── */}
+        {/* ── EMOTIONAL PAYOFF QUOTE CARD ── */}
         {primaryReward && (
           <motion.div
-            initial={{ opacity: 0, y: 6 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.52 }}
-            className="text-center mb-4"
+            transition={{ delay: 0.7 }}
+            className="relative max-w-md mx-auto mb-10"
           >
-            <p className="text-lg sm:text-xl font-serif text-foreground leading-snug">
-              {primaryReward.emoji} {primaryReward.text}
-            </p>
+            <div className="relative rounded-2xl bg-background/60 border border-border/40 px-5 py-5 text-center shadow-sm">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-3xl font-serif text-primary/30 leading-none">“</span>
+              <p className="text-base sm:text-lg font-serif text-foreground leading-snug">
+                {primaryReward.emoji} {primaryReward.text}
+              </p>
+            </div>
           </motion.div>
         )}
 
-        {/* ── 6. SYSTEM LEARNING ── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.58 }}
-          className="text-center mb-12"
-        >
-          <p className="text-xs text-muted-foreground/50">
-            We'll use last week's patterns to make this week even easier.
-          </p>
-        </motion.div>
-
-        {/* ── 7. CTA ── */}
+        {/* ── KPI TICKET ROW ── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.66, duration: 0.5 }}
-          className="flex justify-center mb-8"
+          transition={{ delay: 0.8 }}
+          className="relative grid grid-cols-3 gap-2 sm:gap-4 max-w-md mx-auto mb-10"
+        >
+          <KPI label="this week" value={formatHours(result.totalMinutesSaved)} accent />
+          <KPI label="planned" value={`${plannedNights}/7`} />
+          <KPI label="all time" value={formatHours(cumulativeMinutes)} accent />
+        </motion.div>
+
+        {/* ── CTA ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9, duration: 0.5 }}
+          className="flex flex-col items-center gap-3 mb-6"
         >
           <Button
             onClick={onGeneratePlan}
             disabled={generating}
             size="lg"
-            className="gap-2.5 w-full sm:w-auto text-base font-medium px-12 py-6 shadow-lg shadow-primary/15 rounded-xl"
+            className="gap-2.5 w-full sm:w-auto text-base font-medium px-10 py-6 shadow-lg shadow-primary/20 rounded-xl"
           >
             {generating ? (
               <>
@@ -466,6 +526,10 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
               </>
             )}
           </Button>
+          <p className="text-[11px] text-muted-foreground/60 flex items-center gap-1.5">
+            <Share2 className="w-3 h-3" />
+            Brag a little — share your week below
+          </p>
         </motion.div>
 
         {/* ── 8. SECONDARY LINKS ── */}
