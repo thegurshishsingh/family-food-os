@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Clock, Flame, Check, RefreshCw, Sparkles, Plus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import RecipePreviewOverlay from "./RecipePreviewOverlay";
+import { formatCalories, formatMacro } from "@/lib/nutritionFormat";
 
 export interface MealSuggestion {
   meal_name: string;
