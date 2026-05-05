@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Flame, Beef, ChefHat, Truck } from "lucide-react";
 import type { PlanDay } from "./types";
+import { roundNutrition } from "@/lib/nutritionFormat";
 
 interface WeeklySummaryProps {
   days: PlanDay[];
