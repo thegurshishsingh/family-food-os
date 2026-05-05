@@ -324,8 +324,10 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
 
   if (!result) return null;
 
-  const hoursThisWeek = result.totalMinutesSaved / 60;
-  const starCount = Math.max(1, Math.min(5, Math.round(hoursThisWeek / 1.2)));
+  // Real-world comparison — the share hook. Concrete, relatable, screenshot-worthy.
+  const equivalent = getRealWorldEquivalent(result.totalMinutesSaved);
+  const issueNumber = String(totalWeeks).padStart(2, "0");
+  const dateStamp = new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }).toUpperCase();
 
   return (
     <motion.div
@@ -335,7 +337,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
       className="mb-12"
     >
       <div
-        className="relative overflow-hidden rounded-[28px] px-6 py-12 sm:px-12 sm:py-16 shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.25)]"
+        className="relative overflow-hidden rounded-[28px] px-6 py-10 sm:px-12 sm:py-14 shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.25)]"
         style={{
           background:
             "radial-gradient(120% 80% at 20% 0%, hsl(var(--primary) / 0.10) 0%, transparent 55%), radial-gradient(120% 80% at 90% 100%, hsl(var(--accent) / 0.12) 0%, transparent 55%), linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)",
@@ -351,7 +353,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
         {[
           { top: "8%", left: "8%", delay: 0, size: 14 },
           { top: "14%", right: "12%", delay: 0.4, size: 10 },
-          { bottom: "18%", left: "10%", delay: 0.8, size: 12 },
+          { bottom: "22%", left: "10%", delay: 0.8, size: 12 },
           { bottom: "10%", right: "8%", delay: 1.2, size: 16 },
         ].map((s, i) => (
           <motion.div
@@ -415,18 +417,20 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           )}
         </AnimatePresence>
 
-        {/* ── HEADER STAMP ── */}
+        {/* ── ISSUE STAMP — collectible & screenshotable ── */}
         <motion.div
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="relative flex items-center justify-center gap-3 mb-8"
+          className="relative flex items-center justify-between gap-3 mb-10 max-w-md mx-auto"
         >
-          <span className="h-px w-10 bg-border/60" />
-          <span className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground/70 font-semibold">
-            Week {totalWeeks} · Recap
-          </span>
-          <span className="h-px w-10 bg-border/60" />
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-muted-foreground/70 font-semibold">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            Weekly Recap
+          </div>
+          <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground/50 font-medium tabular-nums">
+            №{issueNumber} · {dateStamp}
+          </div>
         </motion.div>
 
         {/* ── HERO: animated big number ── */}
@@ -434,8 +438,11 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="relative text-center mb-2"
+          className="relative text-center mb-3"
         >
+          <p className="text-sm sm:text-base text-muted-foreground/80 font-medium mb-2">
+            You got back
+          </p>
           <div className="relative inline-block">
             <AnimatedHours minutes={result.totalMinutesSaved} />
             <motion.div
@@ -446,42 +453,31 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
               aria-hidden
             />
           </div>
-          <p className="mt-3 text-xl sm:text-2xl font-serif text-foreground/80 italic">
-            of your week, returned.
+        </motion.div>
+
+        {/* ── REAL-WORLD EQUIVALENT — the share hook ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="text-center mb-8"
+        >
+          <p className="text-base sm:text-lg text-foreground/70 font-serif italic">
+            that's about {equivalent.emoji} <span className="text-foreground font-medium not-italic">{equivalent.text}</span>
           </p>
         </motion.div>
 
-        {/* ── STAR RATING ── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.55 }}
-          className="flex justify-center gap-1 my-5"
-        >
-          {Array.from({ length: 5 }).map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ scale: 0, rotate: -30 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.6 + i * 0.08, type: "spring", stiffness: 280, damping: 14 }}
-            >
-              <Star
-                className={`w-4 h-4 ${i < starCount ? "fill-primary text-primary" : "text-muted-foreground/25"}`}
-              />
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* ── EMOTIONAL PAYOFF QUOTE CARD ── */}
+        {/* ── EMOTIONAL PAYOFF — highlighted sticker quote ── */}
         {primaryReward && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="relative max-w-md mx-auto mb-10"
+            initial={{ opacity: 0, scale: 0.96, rotate: -1 }}
+            animate={{ opacity: 1, scale: 1, rotate: -1.2 }}
+            transition={{ delay: 0.7, type: "spring", stiffness: 180, damping: 18 }}
+            className="relative max-w-sm mx-auto mb-10"
           >
-            <div className="relative rounded-2xl bg-background/60 border border-border/40 px-5 py-5 text-center shadow-sm">
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-3xl font-serif text-primary/30 leading-none">“</span>
+            <div className="relative rounded-[20px] bg-gradient-to-br from-primary/15 via-primary/8 to-accent/12 border border-primary/20 px-5 py-5 text-center shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.4)]">
+              {/* tape strips */}
+              <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-3 bg-primary/15 rounded-sm rotate-[-3deg]" aria-hidden />
               <p className="text-base sm:text-lg font-serif text-foreground leading-snug">
                 {primaryReward.emoji} {primaryReward.text}
               </p>
@@ -489,7 +485,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           </motion.div>
         )}
 
-        {/* ── KPI TICKET ROW ── */}
+        {/* ── KPI ROW ── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -497,16 +493,16 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           className="relative grid grid-cols-3 gap-2 sm:gap-4 max-w-md mx-auto mb-10"
         >
           <KPI label="this week" value={formatHours(result.totalMinutesSaved)} accent />
-          <KPI label="planned" value={`${plannedNights}/7`} />
+          <KPI label="dinners won" value={`${plannedNights}/7`} />
           <KPI label="all time" value={formatHours(cumulativeMinutes)} accent />
         </motion.div>
 
-        {/* ── CTA ── */}
+        {/* ── PRIMARY ACTIONS — Generate + Share (both prominent) ── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.5 }}
-          className="flex flex-col items-center gap-3 mb-6"
+          className="flex flex-col items-center gap-3 mb-2"
         >
           <Button
             onClick={onGeneratePlan}
@@ -526,10 +522,18 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
               </>
             )}
           </Button>
-          <p className="text-[11px] text-muted-foreground/60 flex items-center gap-1.5">
-            <Share2 className="w-3 h-3" />
-            Brag a little — share your week below
-          </p>
+
+          {/* Share — promoted to primary-adjacent action */}
+          <div className="[&_button]:!text-foreground [&_button]:!font-medium [&_button]:!text-sm [&_button]:gap-2 [&_button]:px-5 [&_button]:py-2.5 [&_button]:rounded-full [&_button]:border [&_button]:border-primary/25 [&_button]:bg-background/60 [&_button]:hover:bg-primary/5 [&_button_svg]:!w-4 [&_button_svg]:!h-4 [&_button_svg]:text-primary">
+            <ShareableRecapCard
+              result={result}
+              cumulativeMinutes={cumulativeMinutes}
+              totalWeeks={totalWeeks}
+              plannedNights={plannedNights}
+              humanRewards={humanRewards}
+              householdName={householdName}
+            />
+          </div>
         </motion.div>
 
         {/* ── 8. SECONDARY LINKS ── */}
