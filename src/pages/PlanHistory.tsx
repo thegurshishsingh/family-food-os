@@ -131,7 +131,7 @@ const PlanHistory = () => {
                             </Badge>
                           )}
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Flame className="w-3 h-3" /> {totalCals.toLocaleString()} cal
+                            <Flame className="w-3 h-3" /> {formatCalories(totalCals) ?? "0 cal"}
                           </span>
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <ChefHat className="w-3 h-3" /> {cookCount} cook
