@@ -338,8 +338,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
 
   if (!result) return null;
 
-  // Real-world comparison — the share hook. Concrete, relatable, screenshot-worthy.
-  const equivalent = getRealWorldEquivalent(result.totalMinutesSaved);
+  // Issue stamp metadata
   const issueNumber = String(totalWeeks).padStart(2, "0");
   const dateStamp = new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }).toUpperCase();
 
