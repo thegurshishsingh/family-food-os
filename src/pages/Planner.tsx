@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useHousehold } from "@/hooks/useHousehold";
@@ -64,10 +64,36 @@ const Planner = () => {
 
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const jsDay = new Date().getDay();
-  const todayDow = jsDay === 0 ? 6 : jsDay - 1; // 0=Mon..6=Sun
+  const actualTodayDow = jsDay === 0 ? 6 : jsDay - 1; // 0=Mon..6=Sun
+
+  // Persisted "focus day" — restored from URL (?day=) or localStorage on refresh.
+  // Falls back to the real current day of week.
+  const parseDow = (v: string | null): number | null => {
+    if (v === null) return null;
+    const n = parseInt(v, 10);
+    return Number.isInteger(n) && n >= 0 && n <= 6 ? n : null;
+  };
+  const urlDay = parseDow(searchParams.get("day"));
+  const storedDay = typeof window !== "undefined" ? parseDow(localStorage.getItem("planner:focusDay")) : null;
+  const todayDow = urlDay ?? storedDay ?? actualTodayDow;
   const remainingDaysInWeek = 7 - todayDow; // including today
+
+  // Keep URL + localStorage in sync with the real current day on mount / day rollover.
+  useEffect(() => {
+    if (urlDay === null) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("day", String(actualTodayDow));
+        return next;
+      }, { replace: true });
+    }
+    try { localStorage.setItem("planner:focusDay", String(urlDay ?? actualTodayDow)); } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actualTodayDow, urlDay]);
+
 
   useEffect(() => {
     if (hhLoading) return;
