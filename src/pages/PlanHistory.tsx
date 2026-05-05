@@ -187,8 +187,8 @@ const PlanHistory = () => {
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2 shrink-0">
-                                    {day.calories && (
-                                      <Badge variant="secondary" className="text-[10px]">{day.calories} cal</Badge>
+                                    {formatCalories(day.calories) && (
+                                      <Badge variant="secondary" className="text-[10px]">{formatCalories(day.calories)}</Badge>
                                     )}
                                     {day.cuisine_type && (
                                       <Badge variant="outline" className="text-[10px] hidden sm:inline-flex">{day.cuisine_type}</Badge>
