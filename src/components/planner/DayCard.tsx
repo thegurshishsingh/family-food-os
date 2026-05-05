@@ -365,9 +365,10 @@ const DayCard = ({
   return (
     <motion.div
       key={day.id}
+      layout="position"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ layout: { type: "spring", stiffness: 350, damping: 32 }, delay: index * 0.03 }}
       className="min-w-0 overflow-hidden"
       draggable={!isMobile && !day.is_locked}
       onDragStart={() => !isMobile && onDragStart(day.id)}
