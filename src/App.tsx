@@ -19,7 +19,6 @@ import FamilyProfile from "./pages/FamilyProfile";
 import HouseholdSettings from "./pages/HouseholdSettings";
 import Profile from "./pages/Profile";
 import PlanHistory from "./pages/PlanHistory";
-import CheckIn from "./pages/CheckIn";
 import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
