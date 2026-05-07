@@ -90,6 +90,19 @@ function KPI({ label, value, accent = false }: { label: string; value: string; a
   );
 }
 
+function RecapStat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="flex flex-col items-center text-center px-1">
+      <p className="text-2xl sm:text-3xl font-serif font-semibold text-foreground leading-none tabular-nums">
+        {value}
+      </p>
+      <p className="text-[11px] sm:text-xs text-muted-foreground mt-1.5 leading-tight">
+        {label}
+      </p>
+    </div>
+  );
+}
+
 // Shareable real-world comparison — concrete, relatable hook.
 function getRealWorldEquivalent(minutes: number): { emoji: string; text: string } {
   if (minutes >= 360) return { emoji: "✈️", text: "a flight to the coast" };
