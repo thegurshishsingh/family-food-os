@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket, Share2, Home } from "lucide-react";
+import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket, Share2, Home, Flame, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { computeTimeSaved, computePerWeekResults, formatHours, type TimeSavedResult, type WeekInputs, type PerWeekResult } from "@/lib/timeSaved";
 import { getHumanRewards, type HumanReward } from "@/lib/humanReward";
