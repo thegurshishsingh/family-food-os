@@ -5,7 +5,7 @@ import UpdatePrompt from "@/components/UpdatePrompt";
 import PendingSyncIndicator from "@/components/PendingSyncIndicator";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { RequireAuth, RequireHousehold, RedirectIfAuthed } from "@/components/RouteGuards";
 import Index from "./pages/Index";
@@ -19,7 +19,6 @@ import FamilyProfile from "./pages/FamilyProfile";
 import HouseholdSettings from "./pages/HouseholdSettings";
 import Profile from "./pages/Profile";
 import PlanHistory from "./pages/PlanHistory";
-import CheckIn from "./pages/CheckIn";
 import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
@@ -40,7 +39,7 @@ const AppRoutes = () => {
       <Route path="/memory" element={<RequireHousehold><MealMemory /></RequireHousehold>} />
       <Route path="/family-profile" element={<RequireHousehold><FamilyProfile /></RequireHousehold>} />
       <Route path="/history" element={<RequireHousehold><PlanHistory /></RequireHousehold>} />
-      <Route path="/checkin" element={<RequireHousehold><CheckIn /></RequireHousehold>} />
+      <Route path="/checkin" element={<Navigate to="/planner" replace />} />
       <Route path="/settings" element={<RequireHousehold><HouseholdSettings /></RequireHousehold>} />
       <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
       <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />

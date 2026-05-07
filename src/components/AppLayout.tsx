@@ -5,12 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { CalendarDays, ShoppingCart, Heart, Settings, LogOut, User, History, MessageCircle, Bell } from "lucide-react";
+import { CalendarDays, ShoppingCart, Heart, Settings, LogOut, User, History, Bell } from "lucide-react";
 import Logo from "@/components/Logo";
 
 const NAV = [
   { to: "/planner", label: "Weekly Plan", icon: CalendarDays },
-  { to: "/checkin", label: "Check-in", icon: MessageCircle },
   { to: "/history", label: "History", icon: History },
   { to: "/groceries", label: "Groceries", icon: ShoppingCart },
   { to: "/memory", label: "Meal Memory", icon: Heart },
@@ -63,7 +62,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
                 variant={location.pathname === n.to ? "secondary" : "ghost"}
                 size="sm"
                 className={`gap-1.5 px-2 sm:px-3 ${
-                  ["/planner", "/groceries", "/checkin"].includes(n.to) ? "" : "hidden md:inline-flex"
+                  ["/planner", "/groceries"].includes(n.to) ? "" : "hidden md:inline-flex"
                 }`}
                 asChild
               >
@@ -86,7 +85,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
                 {/* Show hidden nav items on mobile */}
-                {NAV.filter((n) => !["/planner", "/groceries", "/checkin"].includes(n.to)).map((n) => (
+                {NAV.filter((n) => !["/planner", "/groceries"].includes(n.to)).map((n) => (
                   <DropdownMenuItem key={n.to} onClick={() => navigate(n.to)} className="cursor-pointer gap-2 md:hidden">
                     <n.icon className="w-4 h-4" /> {n.label}
                   </DropdownMenuItem>

@@ -1,16 +1,17 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { motion } from "framer-motion";
 import { Sparkles, Plus, ShoppingBag, Ban, Flame } from "lucide-react";
 import { DAYS, MODE_CONFIG, type PlanDay, type FeedbackType } from "./types";
 
 const QUICK_ACTIONS = [
   { value: "cooked_it", label: "Cooked it", emoji: "🍳", sentiment: "positive" },
   { value: "ordered_instead", label: "Ordered instead", emoji: "📦", sentiment: "neutral" },
-  { value: "kids_loved", label: "Kids loved it", emoji: "😋", sentiment: "positive" },
+  { value: "kids_loved", label: "Loved it", emoji: "😋", sentiment: "positive" },
   { value: "too_much_work", label: "Too much work", emoji: "😮‍💨", sentiment: "neutral" },
 ] as const;
 
@@ -25,7 +26,7 @@ function generateSmartLine(action: QuickAction, day: PlanDay): string {
     case "ordered_instead":
       return `Got it. ${dayName} dinners should stay quick.`;
     case "kids_loved":
-      return `Kids seem to enjoy ${day.cuisine_type || "this style"}. We'll remember.`;
+      return `Glad you loved it. We'll lean into ${day.cuisine_type || "this style"} more.`;
     case "too_much_work":
       return `Noted. We'll keep ${dayName}s lighter next week.`;
   }
@@ -79,6 +80,8 @@ const DailyDinnerCard = ({
   const [smartLine, setSmartLine] = useState("");
   const [streak, setStreak] = useState(0);
   const [streakMessage, setStreakMessage] = useState("");
+  const [orderedDetail, setOrderedDetail] = useState("");
+  const [showOrderedInput, setShowOrderedInput] = useState(false);
   const { toast } = useToast();
 
   const jsDay = new Date().getDay();
@@ -186,7 +189,7 @@ const DailyDinnerCard = ({
     if (todayDay.meal_mode !== "cook") subtextParts.push(mode.label);
   }
 
-  const handleQuickAction = async (action: QuickAction) => {
+  const submitCheckIn = async (action: QuickAction, orderNote?: string) => {
     if (!todayDay) return;
     setSelectedAction(action);
     setSaving(true);
@@ -205,11 +208,32 @@ const DailyDinnerCard = ({
       return;
     }
 
+    // Capture what they ordered as meal feedback notes so the planner can learn from it.
+    if (action === "ordered_instead" && orderNote && orderNote.trim()) {
+      await supabase.from("meal_feedback").insert({
+        household_id: householdId,
+        plan_day_id: todayDay.id,
+        meal_name: `Ordered: ${orderNote.trim()}`,
+        feedback: "okay",
+        notes: orderNote.trim(),
+      });
+    }
+
     onFeedback(todayDay, actionToFeedback(action));
     setSmartLine(generateSmartLine(action, todayDay));
     setDone(true);
     setSaving(false);
+    setShowOrderedInput(false);
     setTimeout(() => onCheckedIn(todayDay.id), 3000);
+  };
+
+  const handleQuickAction = (action: QuickAction) => {
+    if (action === "ordered_instead") {
+      setSelectedAction(action);
+      setShowOrderedInput(true);
+      return;
+    }
+    void submitCheckIn(action);
   };
 
   // Empty state
@@ -341,6 +365,51 @@ const DailyDinnerCard = ({
               );
             })}
           </div>
+
+          {/* Inline "what did you order?" capture */}
+          {showOrderedInput && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              transition={{ duration: 0.25 }}
+              className="mt-3 overflow-hidden"
+            >
+              <div className="p-3 rounded-xl border border-primary/15 bg-primary/[0.03]">
+                <label className="block text-xs font-medium text-foreground mb-1.5">
+                  What did you order? <span className="text-muted-foreground font-normal">(optional)</span>
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    value={orderedDetail}
+                    onChange={(e) => setOrderedDetail(e.target.value)}
+                    placeholder="e.g. Thai curry from Bangkok Bistro"
+                    disabled={saving}
+                    className="h-9 text-sm"
+                    autoFocus
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => submitCheckIn("ordered_instead", orderedDetail)}
+                    disabled={saving}
+                    className="h-9"
+                  >
+                    {saving ? "Saving…" : "Log it"}
+                  </Button>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
+                  ✨ This helps us improve your future weekly dinner plans — we'll learn which takeout fits {dayName} nights.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setShowOrderedInput(false); setSelectedAction(null); setOrderedDetail(""); }}
+                  className="text-[11px] text-muted-foreground hover:text-foreground mt-2 underline-offset-2 hover:underline"
+                  disabled={saving}
+                >
+                  Skip and just log it
+                </button>
+              </div>
+            </motion.div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
