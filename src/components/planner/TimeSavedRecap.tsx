@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket, Share2 } from "lucide-react";
+import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket, Share2, Home } from "lucide-react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { computeTimeSaved, computeCumulativeMinutesSaved, formatHours, type TimeSavedResult, type WeekInputs } from "@/lib/timeSaved";
 import { getHumanRewards, type HumanReward } from "@/lib/humanReward";
@@ -86,6 +86,19 @@ function KPI({ label, value, accent = false }: { label: string; value: string; a
     >
       <p className="text-base sm:text-lg font-serif font-bold text-foreground leading-none">{value}</p>
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 mt-1.5">{label}</p>
+    </div>
+  );
+}
+
+function RecapStat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="flex flex-col items-center text-center px-1">
+      <p className="text-2xl sm:text-3xl font-serif font-semibold text-foreground leading-none tabular-nums">
+        {value}
+      </p>
+      <p className="text-[11px] sm:text-xs text-muted-foreground mt-1.5 leading-tight">
+        {label}
+      </p>
     </div>
   );
 }
@@ -283,6 +296,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   if (!result || result.totalMinutesSaved === 0) return null;
 
   const plannedNights = days.filter(d => d.meal_name).length;
+  const takeoutNights = days.filter(d => ["takeout", "dine_out"].includes(d.meal_mode as string)).length;
   const humanRewards = getHumanRewards(result.totalMinutesSaved, plannedNights);
   const primaryReward = humanRewards[0];
   const milestone = getMilestone(cumulativeMinutes);
@@ -342,6 +356,15 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   const issueNumber = String(totalWeeks).padStart(2, "0");
   const dateStamp = new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }).toUpperCase();
 
+  // Confetti pieces for celebratory background
+  const confettiPieces = Array.from({ length: 32 }).map((_, i) => ({
+    left: (i * 9.7) % 100,
+    top: (i * 13.3) % 100,
+    delay: (i % 8) * 0.15,
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    size: 4 + (i % 3) * 2,
+  }));
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -350,35 +373,32 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
       className="mb-12"
     >
       <div
-        className="relative overflow-hidden rounded-[28px] px-6 py-10 sm:px-12 sm:py-14 shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.25)]"
+        className="relative overflow-hidden rounded-[28px] px-6 py-10 sm:px-10 sm:py-14 text-center shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.25)]"
         style={{
           background:
-            "radial-gradient(120% 80% at 20% 0%, hsl(var(--primary) / 0.10) 0%, transparent 55%), radial-gradient(120% 80% at 90% 100%, hsl(var(--accent) / 0.12) 0%, transparent 55%), linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)",
+            "radial-gradient(120% 80% at 50% 0%, hsl(var(--primary) / 0.08) 0%, transparent 60%), linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)",
         }}
       >
-        {/* Decorative dotted frame */}
-        <div
-          className="absolute inset-3 rounded-[22px] border border-dashed border-primary/15 pointer-events-none"
-          aria-hidden
-        />
-
-        {/* Floating sparkles */}
-        {[
-          { top: "8%", left: "8%", delay: 0, size: 14 },
-          { top: "14%", right: "12%", delay: 0.4, size: 10 },
-          { bottom: "22%", left: "10%", delay: 0.8, size: 12 },
-          { bottom: "10%", right: "8%", delay: 1.2, size: 16 },
-        ].map((s, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-primary/30 pointer-events-none"
-            style={{ top: s.top as any, left: s.left as any, right: s.right as any, bottom: s.bottom as any }}
-            animate={{ opacity: [0.2, 0.6, 0.2], scale: [0.9, 1.1, 0.9], rotate: [0, 15, 0] }}
-            transition={{ duration: 4, delay: s.delay, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Sparkles style={{ width: s.size, height: s.size }} />
-          </motion.div>
-        ))}
+        {/* Confetti background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+          {confettiPieces.map((p, i) => (
+            <motion.span
+              key={i}
+              className="absolute rounded-[2px]"
+              style={{
+                left: `${p.left}%`,
+                top: `${p.top}%`,
+                width: p.size,
+                height: p.size + 2,
+                backgroundColor: p.color,
+                transformOrigin: "center",
+              }}
+              initial={{ opacity: 0, scale: 0, rotate: 0 }}
+              animate={{ opacity: [0, 0.85, 0.6], scale: [0, 1, 1], rotate: [0, 180, 360] }}
+              transition={{ duration: 2.2, delay: p.delay, ease: "easeOut" }}
+            />
+          ))}
+        </div>
 
         {/* ── MILESTONE OVERLAY ── */}
         <AnimatePresence>
@@ -430,80 +450,75 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           )}
         </AnimatePresence>
 
-        {/* ── ISSUE STAMP — collectible & screenshotable ── */}
+        {/* hidden stamp for a11y / screenshots */}
+        <span className="sr-only">Weekly Recap №{issueNumber} · {dateStamp}</span>
+
+        {/* ── HEADLINE ── */}
         <motion.div
-          initial={{ opacity: 0, y: -6 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="relative flex items-center justify-between gap-3 mb-10 max-w-md mx-auto"
+          transition={{ delay: 0.15, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="relative mb-2"
         >
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-muted-foreground/70 font-semibold">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            Weekly Recap
-          </div>
-          <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground/50 font-medium tabular-nums">
-            №{issueNumber} · {dateStamp}
-          </div>
+          <h2 className="text-3xl sm:text-4xl font-serif font-semibold text-foreground leading-tight">
+            You did it!
+          </h2>
         </motion.div>
 
-        {/* ── HERO: animated big number ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="relative text-center mb-3"
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="relative text-sm sm:text-base text-muted-foreground mb-7 max-w-xs mx-auto"
         >
-          <p className="text-sm sm:text-base text-muted-foreground/80 font-medium mb-2">
-            You got back
-          </p>
-          <div className="relative inline-block">
-            <AnimatedHours minutes={result.totalMinutesSaved} />
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 0.9, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute -bottom-1 left-0 right-0 h-[6px] origin-left rounded-full bg-primary/25"
-              aria-hidden
-            />
-          </div>
+          Great job planning your week.
+        </motion.p>
+
+        {/* ── HOUSE BADGE ── */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.6 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4, type: "spring", stiffness: 220, damping: 16 }}
+          className="relative mx-auto mb-8 inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-primary-foreground shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.6)]"
+          aria-hidden
+        >
+          <Home className="w-7 h-7" strokeWidth={2} />
         </motion.div>
 
-        {/* ── EMOTIONAL PAYOFF — highlighted sticker quote (single time-equivalent) ── */}
+        {/* ── STATS ROW ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55, duration: 0.5 }}
+          className="relative grid grid-cols-3 gap-3 max-w-md mx-auto mb-8"
+        >
+          <RecapStat value={String(plannedNights)} label="Meals planned" />
+          <RecapStat value={String(takeoutNights)} label={takeoutNights === 1 ? "Takeout night" : "Takeout nights"} />
+          <RecapStat value={formatHours(result.totalMinutesSaved)} label="Time saved" />
+        </motion.div>
+
+        {/* ── EMOTIONAL PAYOFF — sticker quote ── */}
         {primaryReward && (
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ delay: 0.55, type: "spring", stiffness: 180, damping: 18 }}
-            className="relative max-w-sm mx-auto mb-10 mt-6"
+            transition={{ delay: 0.7, type: "spring", stiffness: 180, damping: 18 }}
+            className="relative max-w-sm mx-auto mb-8"
           >
-            <div className="relative rounded-[20px] bg-gradient-to-br from-primary/15 via-primary/8 to-accent/12 border border-primary/20 px-5 py-5 text-center shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.4)]">
-              {/* tape strip */}
-              <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-3 bg-primary/15 rounded-sm" aria-hidden />
-              <p className="text-base sm:text-lg font-serif text-foreground leading-snug">
-                {primaryReward.emoji} {primaryReward.text}
+            <div className="relative rounded-full bg-gradient-to-br from-primary/15 via-primary/8 to-accent/12 border border-primary/20 px-5 py-3 text-center shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.35)]">
+              <p className="text-sm sm:text-base font-serif text-foreground leading-snug">
+                That's <span className="font-semibold">{formatHours(result.totalMinutesSaved)}</span> saved in your week!
               </p>
             </div>
           </motion.div>
         )}
 
-        {/* ── KPI ROW ── */}
+        {/* ── PRIMARY ACTION ── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="relative grid grid-cols-3 gap-2 sm:gap-4 max-w-md mx-auto mb-10"
-        >
-          <KPI label="this week" value={formatHours(result.totalMinutesSaved)} accent />
-          <KPI label="dinners won" value={`${plannedNights}/7`} />
-          <KPI label="all time" value={formatHours(cumulativeMinutes)} accent />
-        </motion.div>
-
-        {/* ── PRIMARY ACTIONS — Generate + Share (both prominent) ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9, duration: 0.5 }}
-          className="flex flex-col items-center gap-3 mb-2"
+          transition={{ delay: 0.85, duration: 0.5 }}
+          className="relative flex flex-col items-center gap-3 mb-2"
         >
           <Button
             onClick={onGeneratePlan}
@@ -518,14 +533,14 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
               </>
             ) : (
               <>
-                Generate this week's plan
+                Plan Next Week
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
           </Button>
 
-          {/* Share — promoted to primary-adjacent action */}
-          <div className="[&_button]:!text-foreground [&_button]:!font-medium [&_button]:!text-sm [&_button]:gap-2 [&_button]:px-5 [&_button]:py-2.5 [&_button]:rounded-full [&_button]:border [&_button]:border-primary/25 [&_button]:bg-background/60 [&_button]:hover:bg-primary/5 [&_button_svg]:!w-4 [&_button_svg]:!h-4 [&_button_svg]:text-primary">
+          {/* Share — secondary */}
+          <div className="[&_button]:!text-muted-foreground [&_button]:!font-medium [&_button]:!text-xs [&_button]:gap-1.5 [&_button]:px-3 [&_button]:py-1.5 [&_button]:rounded-full [&_button]:bg-transparent [&_button]:hover:bg-primary/5 [&_button]:border-0 [&_button_svg]:!w-3.5 [&_button_svg]:!h-3.5">
             <ShareableRecapCard
               result={result}
               cumulativeMinutes={cumulativeMinutes}
