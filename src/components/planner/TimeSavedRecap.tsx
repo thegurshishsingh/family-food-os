@@ -296,6 +296,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   if (!result || result.totalMinutesSaved === 0) return null;
 
   const plannedNights = days.filter(d => d.meal_name).length;
+  const takeoutNights = days.filter(d => ["takeout", "dine_out"].includes(d.meal_mode as string)).length;
   const humanRewards = getHumanRewards(result.totalMinutesSaved, plannedNights);
   const primaryReward = humanRewards[0];
   const milestone = getMilestone(cumulativeMinutes);
