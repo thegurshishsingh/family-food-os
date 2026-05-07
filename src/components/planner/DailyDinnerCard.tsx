@@ -80,6 +80,8 @@ const DailyDinnerCard = ({
   const [smartLine, setSmartLine] = useState("");
   const [streak, setStreak] = useState(0);
   const [streakMessage, setStreakMessage] = useState("");
+  const [orderedDetail, setOrderedDetail] = useState("");
+  const [showOrderedInput, setShowOrderedInput] = useState(false);
   const { toast } = useToast();
 
   const jsDay = new Date().getDay();
