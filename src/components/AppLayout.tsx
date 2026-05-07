@@ -62,7 +62,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
                 variant={location.pathname === n.to ? "secondary" : "ghost"}
                 size="sm"
                 className={`gap-1.5 px-2 sm:px-3 ${
-                  ["/planner", "/groceries", "/checkin"].includes(n.to) ? "" : "hidden md:inline-flex"
+                  ["/planner", "/groceries"].includes(n.to) ? "" : "hidden md:inline-flex"
                 }`}
                 asChild
               >
@@ -85,7 +85,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
                 {/* Show hidden nav items on mobile */}
-                {NAV.filter((n) => !["/planner", "/groceries", "/checkin"].includes(n.to)).map((n) => (
+                {NAV.filter((n) => !["/planner", "/groceries"].includes(n.to)).map((n) => (
                   <DropdownMenuItem key={n.to} onClick={() => navigate(n.to)} className="cursor-pointer gap-2 md:hidden">
                     <n.icon className="w-4 h-4" /> {n.label}
                   </DropdownMenuItem>
