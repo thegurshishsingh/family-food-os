@@ -128,6 +128,7 @@ type RecapInputs = {
 const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan, onViewDetails, generating }: TimeSavedRecapProps) => {
   const [result, setResult] = useState<TimeSavedResult | null>(null);
   const [cumulativeMinutes, setCumulativeMinutes] = useState(0);
+  const [pastWeekResults, setPastWeekResults] = useState<PerWeekResult[]>([]);
   const [isFirstWeek, setIsFirstWeek] = useState(false);
   const [totalWeeks, setTotalWeeks] = useState(1);
   const [showEstimation, setShowEstimation] = useState(false);
