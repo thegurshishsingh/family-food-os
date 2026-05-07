@@ -39,24 +39,32 @@ export const SignupEmail = ({
         <Section style={logoSection}>
           <Img src={LOGO_URL} alt="Family Food OS" width="56" height="56" style={logo} />
         </Section>
-        <Heading style={h1}>Welcome to the table 🍽️</Heading>
+        <Heading style={h1}>Welcome to Family Food OS</Heading>
         <Text style={text}>
-          Thanks for joining{' '}
-          <Link href={siteUrl} style={link}>
-            <strong>Family Food OS</strong>
-          </Link>
-          . You're one click away from a calmer week of family dinners.
+          Dinner should not feel like a daily negotiation.
         </Text>
         <Text style={text}>
-          Confirm your email ({recipient}) to activate your account and start planning:
+          <Link href={siteUrl} style={link}><strong>Family Food OS</strong></Link>{' '}
+          helps your family stop restarting the "what's for dinner?" conversation every night.
+          It builds a weekly dinner rhythm around how your household actually works: busy
+          nights, leftovers, takeout, picky eaters, repeat favorites, and the meals that
+          make life easier.
+        </Text>
+        <Text style={text}>
+          Confirm your email to activate your account and start your first weekly plan.
         </Text>
         <Section style={buttonSection}>
           <Button style={button} href={confirmationUrl}>
             Confirm my email
           </Button>
         </Section>
+        <Text style={text}>
+          After you log in, you can add Family Food OS to your phone's Home Screen so it
+          opens like an app. That also makes it easier to keep up with quick dinner
+          check-ins, which help your plan get smarter each week.
+        </Text>
         <Text style={smallText}>
-          Or paste this link into your browser:
+          If the button doesn't work, paste this link into your browser:
           <br />
           <Link href={confirmationUrl} style={linkSmall}>{confirmationUrl}</Link>
         </Text>
