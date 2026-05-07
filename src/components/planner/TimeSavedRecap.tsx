@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket, Share2, Home } from "lucide-react";
+import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket, Share2, Home, Flame, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { computeTimeSaved, computePerWeekResults, formatHours, type TimeSavedResult, type WeekInputs, type PerWeekResult } from "@/lib/timeSaved";
 import { getHumanRewards, type HumanReward } from "@/lib/humanReward";
@@ -304,6 +304,25 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   const primaryReward = humanRewards[0];
   const milestone = getMilestone(cumulativeMinutes);
 
+  // ── Improvement streak: consecutive weeks (including current) where
+  // time-saved increased vs the prior week. pastWeekResults is most-recent-first.
+  const chronologicalAll = [...pastWeekResults].reverse().concat([
+    { planId: plan.id, minutesSaved: result.totalMinutesSaved, plannedNights, weekStart: plan.week_start },
+  ]);
+  let improvementStreak = 0;
+  for (let i = chronologicalAll.length - 1; i > 0; i--) {
+    if (chronologicalAll[i].minutesSaved > chronologicalAll[i - 1].minutesSaved) {
+      improvementStreak++;
+    } else break;
+  }
+  const STREAK_BADGES: { min: number; label: string; sublabel: string; icon: typeof Flame }[] = [
+    { min: 6, label: "Unstoppable", sublabel: "6+ weeks of growth", icon: Award },
+    { min: 4, label: "On fire", sublabel: "4 weeks improving", icon: Flame },
+    { min: 3, label: "Hat trick", sublabel: "3 weeks improving", icon: Flame },
+    { min: 2, label: "Building momentum", sublabel: "2 weeks improving", icon: TrendingUp },
+  ];
+  const streakBadge = STREAK_BADGES.find((b) => improvementStreak >= b.min) || null;
+
   const dismissMilestone = () => {
     setShowMilestone(false);
     setMilestoneAcknowledged(true);
@@ -499,6 +518,29 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           <RecapStat value={String(takeoutNights)} label={takeoutNights === 1 ? "Takeout night" : "Takeout nights"} />
           <RecapStat value={formatHours(result.totalMinutesSaved)} label="Time saved" />
         </motion.div>
+
+        {/* ── STREAK BADGE — consecutive weeks of growth ── */}
+        {streakBadge && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.62, type: "spring", stiffness: 240, damping: 18 }}
+            className="relative flex justify-center mb-7"
+          >
+            <div className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-warm/15 via-primary/15 to-warm/15 border border-primary/25 px-4 py-2 shadow-[0_6px_20px_-10px_hsl(var(--primary)/0.4)]">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary text-primary-foreground shrink-0">
+                <streakBadge.icon className="w-3.5 h-3.5" strokeWidth={2.5} />
+              </span>
+              <div className="text-left leading-tight">
+                <p className="text-xs sm:text-sm font-semibold text-foreground">{streakBadge.label}</p>
+                <p className="text-[10px] sm:text-[11px] text-muted-foreground">{streakBadge.sublabel}</p>
+              </div>
+              <span className="text-sm font-serif font-semibold text-primary tabular-nums pl-1 pr-0.5">
+                ×{improvementStreak}
+              </span>
+            </div>
+          </motion.div>
+        )}
 
         {/* ── EMOTIONAL PAYOFF — what you can use this time for ── */}
         <motion.div
