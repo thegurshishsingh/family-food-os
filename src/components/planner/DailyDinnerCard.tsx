@@ -10,7 +10,7 @@ import { DAYS, MODE_CONFIG, type PlanDay, type FeedbackType } from "./types";
 const QUICK_ACTIONS = [
   { value: "cooked_it", label: "Cooked it", emoji: "🍳", sentiment: "positive" },
   { value: "ordered_instead", label: "Ordered instead", emoji: "📦", sentiment: "neutral" },
-  { value: "kids_loved", label: "Kids loved it", emoji: "😋", sentiment: "positive" },
+  { value: "kids_loved", label: "Loved it", emoji: "😋", sentiment: "positive" },
   { value: "too_much_work", label: "Too much work", emoji: "😮‍💨", sentiment: "neutral" },
 ] as const;
 
@@ -25,7 +25,7 @@ function generateSmartLine(action: QuickAction, day: PlanDay): string {
     case "ordered_instead":
       return `Got it. ${dayName} dinners should stay quick.`;
     case "kids_loved":
-      return `Kids seem to enjoy ${day.cuisine_type || "this style"}. We'll remember.`;
+      return `Glad you loved it. We'll lean into ${day.cuisine_type || "this style"} more.`;
     case "too_much_work":
       return `Noted. We'll keep ${dayName}s lighter next week.`;
   }
