@@ -342,6 +342,15 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   const issueNumber = String(totalWeeks).padStart(2, "0");
   const dateStamp = new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }).toUpperCase();
 
+  // Confetti pieces for celebratory background
+  const confettiPieces = Array.from({ length: 32 }).map((_, i) => ({
+    left: (i * 9.7) % 100,
+    top: (i * 13.3) % 100,
+    delay: (i % 8) * 0.15,
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    size: 4 + (i % 3) * 2,
+  }));
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -350,35 +359,32 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
       className="mb-12"
     >
       <div
-        className="relative overflow-hidden rounded-[28px] px-6 py-10 sm:px-12 sm:py-14 shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.25)]"
+        className="relative overflow-hidden rounded-[28px] px-6 py-10 sm:px-10 sm:py-14 text-center shadow-[0_20px_60px_-20px_hsl(var(--primary)/0.25)]"
         style={{
           background:
-            "radial-gradient(120% 80% at 20% 0%, hsl(var(--primary) / 0.10) 0%, transparent 55%), radial-gradient(120% 80% at 90% 100%, hsl(var(--accent) / 0.12) 0%, transparent 55%), linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)",
+            "radial-gradient(120% 80% at 50% 0%, hsl(var(--primary) / 0.08) 0%, transparent 60%), linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)",
         }}
       >
-        {/* Decorative dotted frame */}
-        <div
-          className="absolute inset-3 rounded-[22px] border border-dashed border-primary/15 pointer-events-none"
-          aria-hidden
-        />
-
-        {/* Floating sparkles */}
-        {[
-          { top: "8%", left: "8%", delay: 0, size: 14 },
-          { top: "14%", right: "12%", delay: 0.4, size: 10 },
-          { bottom: "22%", left: "10%", delay: 0.8, size: 12 },
-          { bottom: "10%", right: "8%", delay: 1.2, size: 16 },
-        ].map((s, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-primary/30 pointer-events-none"
-            style={{ top: s.top as any, left: s.left as any, right: s.right as any, bottom: s.bottom as any }}
-            animate={{ opacity: [0.2, 0.6, 0.2], scale: [0.9, 1.1, 0.9], rotate: [0, 15, 0] }}
-            transition={{ duration: 4, delay: s.delay, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Sparkles style={{ width: s.size, height: s.size }} />
-          </motion.div>
-        ))}
+        {/* Confetti background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+          {confettiPieces.map((p, i) => (
+            <motion.span
+              key={i}
+              className="absolute rounded-[2px]"
+              style={{
+                left: `${p.left}%`,
+                top: `${p.top}%`,
+                width: p.size,
+                height: p.size + 2,
+                backgroundColor: p.color,
+                transformOrigin: "center",
+              }}
+              initial={{ opacity: 0, scale: 0, rotate: 0 }}
+              animate={{ opacity: [0, 0.85, 0.6], scale: [0, 1, 1], rotate: [0, 180, 360] }}
+              transition={{ duration: 2.2, delay: p.delay, ease: "easeOut" }}
+            />
+          ))}
+        </div>
 
         {/* ── MILESTONE OVERLAY ── */}
         <AnimatePresence>
@@ -430,7 +436,10 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           )}
         </AnimatePresence>
 
-        {/* ── ISSUE STAMP — collectible & screenshotable ── */}
+        {/* hidden stamp for a11y / screenshots */}
+        <span className="sr-only">Weekly Recap №{issueNumber} · {dateStamp}</span>
+
+        {/* ── HERO HEADING ── */}
         <motion.div
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
