@@ -365,6 +365,51 @@ const DailyDinnerCard = ({
               );
             })}
           </div>
+
+          {/* Inline "what did you order?" capture */}
+          {showOrderedInput && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              transition={{ duration: 0.25 }}
+              className="mt-3 overflow-hidden"
+            >
+              <div className="p-3 rounded-xl border border-primary/15 bg-primary/[0.03]">
+                <label className="block text-xs font-medium text-foreground mb-1.5">
+                  What did you order? <span className="text-muted-foreground font-normal">(optional)</span>
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    value={orderedDetail}
+                    onChange={(e) => setOrderedDetail(e.target.value)}
+                    placeholder="e.g. Thai curry from Bangkok Bistro"
+                    disabled={saving}
+                    className="h-9 text-sm"
+                    autoFocus
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => submitCheckIn("ordered_instead", orderedDetail)}
+                    disabled={saving}
+                    className="h-9"
+                  >
+                    {saving ? "Saving…" : "Log it"}
+                  </Button>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
+                  ✨ This helps us improve your future weekly dinner plans — we'll learn which takeout fits {dayName} nights.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setShowOrderedInput(false); setSelectedAction(null); setOrderedDetail(""); }}
+                  className="text-[11px] text-muted-foreground hover:text-foreground mt-2 underline-offset-2 hover:underline"
+                  disabled={saving}
+                >
+                  Skip and just log it
+                </button>
+              </div>
+            </motion.div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
