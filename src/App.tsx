@@ -20,6 +20,7 @@ import HouseholdSettings from "./pages/HouseholdSettings";
 import Profile from "./pages/Profile";
 import PlanHistory from "./pages/PlanHistory";
 import CheckIn from "./pages/CheckIn";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 import { usePushOpenTracker } from "@/hooks/usePushOpenTracker";
@@ -41,6 +42,7 @@ const AppRoutes = () => {
       <Route path="/history" element={<RequireHousehold><PlanHistory /></RequireHousehold>} />
       <Route path="/checkin" element={<RequireHousehold><CheckIn /></RequireHousehold>} />
       <Route path="/settings" element={<RequireHousehold><HouseholdSettings /></RequireHousehold>} />
+      <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
       <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
       <Route path="*" element={<NotFound />} />
     </Routes>

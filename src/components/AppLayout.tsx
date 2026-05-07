@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { CalendarDays, ShoppingCart, Heart, Settings, LogOut, User, History, MessageCircle } from "lucide-react";
+import { CalendarDays, ShoppingCart, Heart, Settings, LogOut, User, History, MessageCircle, Bell } from "lucide-react";
 import Logo from "@/components/Logo";
 
 const NAV = [
@@ -14,6 +14,7 @@ const NAV = [
   { to: "/history", label: "History", icon: History },
   { to: "/groceries", label: "Groceries", icon: ShoppingCart },
   { to: "/memory", label: "Meal Memory", icon: Heart },
+  { to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/settings", label: "Settings", icon: Settings },
   { to: "/profile", label: "Profile", icon: User },
 ];
@@ -93,6 +94,9 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
                 <DropdownMenuSeparator className="md:hidden" />
                 <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer gap-2 hidden md:flex">
                   <User className="w-4 h-4" /> Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/notifications")} className="cursor-pointer gap-2 hidden md:flex">
+                  <Bell className="w-4 h-4" /> Notifications
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer gap-2 hidden md:flex">
                   <Settings className="w-4 h-4" /> Settings
