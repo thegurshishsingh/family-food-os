@@ -189,7 +189,7 @@ const DailyDinnerCard = ({
     if (todayDay.meal_mode !== "cook") subtextParts.push(mode.label);
   }
 
-  const handleQuickAction = async (action: QuickAction) => {
+  const submitCheckIn = async (action: QuickAction, orderNote?: string) => {
     if (!todayDay) return;
     setSelectedAction(action);
     setSaving(true);
@@ -208,11 +208,32 @@ const DailyDinnerCard = ({
       return;
     }
 
+    // Capture what they ordered as meal feedback notes so the planner can learn from it.
+    if (action === "ordered_instead" && orderNote && orderNote.trim()) {
+      await supabase.from("meal_feedback").insert({
+        household_id: householdId,
+        plan_day_id: todayDay.id,
+        meal_name: `Ordered: ${orderNote.trim()}`,
+        feedback: "okay",
+        notes: orderNote.trim(),
+      });
+    }
+
     onFeedback(todayDay, actionToFeedback(action));
     setSmartLine(generateSmartLine(action, todayDay));
     setDone(true);
     setSaving(false);
+    setShowOrderedInput(false);
     setTimeout(() => onCheckedIn(todayDay.id), 3000);
+  };
+
+  const handleQuickAction = (action: QuickAction) => {
+    if (action === "ordered_instead") {
+      setSelectedAction(action);
+      setShowOrderedInput(true);
+      return;
+    }
+    void submitCheckIn(action);
   };
 
   // Empty state
