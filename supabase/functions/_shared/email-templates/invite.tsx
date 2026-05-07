@@ -36,17 +36,32 @@ export const InviteEmail = ({ siteUrl, confirmationUrl }: InviteEmailProps) => (
         </Section>
         <Heading style={h1}>You're invited to the table</Heading>
         <Text style={text}>
-          You've been invited to join{' '}
+          Someone invited you to join their{' '}
           <Link href={siteUrl} style={link}>
             <strong>Family Food OS</strong>
-          </Link>
-          — the calm weekly dinner system for families. Accept your invite to get started.
+          </Link>{' '}
+          household.
+        </Text>
+        <Text style={text}>
+          Family Food OS helps families make dinner feel less chaotic: fewer "what's for
+          dinner?" texts, fewer last-minute decisions, and a weekly plan that actually
+          fits real life.
+        </Text>
+        <Text style={text}>
+          Accept your invite to join the household and help shape the week ahead.
         </Text>
         <Section style={buttonSection}>
           <Button style={button} href={confirmationUrl}>
             Accept invitation
           </Button>
         </Section>
+        <Text style={text}>
+          Once you're in, you'll be able to see the weekly dinner plan, check what's
+          coming up, and help the system learn what your family actually eats.
+        </Text>
+        <Text style={text}>
+          Real dinners. Real schedules. A calmer week.
+        </Text>
         <Hr style={hr} />
         <Text style={footer}>
           If you weren't expecting this invitation, you can safely ignore this email.
