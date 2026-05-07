@@ -304,6 +304,25 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
   const primaryReward = humanRewards[0];
   const milestone = getMilestone(cumulativeMinutes);
 
+  // ── Improvement streak: consecutive weeks (including current) where
+  // time-saved increased vs the prior week. pastWeekResults is most-recent-first.
+  const chronologicalAll = [...pastWeekResults].reverse().concat([
+    { planId: plan.id, minutesSaved: result.totalMinutesSaved, plannedNights, weekStart: plan.week_start },
+  ]);
+  let improvementStreak = 0;
+  for (let i = chronologicalAll.length - 1; i > 0; i--) {
+    if (chronologicalAll[i].minutesSaved > chronologicalAll[i - 1].minutesSaved) {
+      improvementStreak++;
+    } else break;
+  }
+  const STREAK_BADGES: { min: number; label: string; sublabel: string; icon: typeof Flame }[] = [
+    { min: 6, label: "Unstoppable", sublabel: "6+ weeks of growth", icon: Award },
+    { min: 4, label: "On fire", sublabel: "4 weeks improving", icon: Flame },
+    { min: 3, label: "Hat trick", sublabel: "3 weeks improving", icon: Flame },
+    { min: 2, label: "Building momentum", sublabel: "2 weeks improving", icon: TrendingUp },
+  ];
+  const streakBadge = STREAK_BADGES.find((b) => improvementStreak >= b.min) || null;
+
   const dismissMilestone = () => {
     setShowMilestone(false);
     setMilestoneAcknowledged(true);
