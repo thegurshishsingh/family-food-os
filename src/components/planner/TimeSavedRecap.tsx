@@ -519,6 +519,29 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           <RecapStat value={formatHours(result.totalMinutesSaved)} label="Time saved" />
         </motion.div>
 
+        {/* ── STREAK BADGE — consecutive weeks of growth ── */}
+        {streakBadge && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.62, type: "spring", stiffness: 240, damping: 18 }}
+            className="relative flex justify-center mb-7"
+          >
+            <div className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-warm/15 via-primary/15 to-warm/15 border border-primary/25 px-4 py-2 shadow-[0_6px_20px_-10px_hsl(var(--primary)/0.4)]">
+              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary text-primary-foreground shrink-0">
+                <streakBadge.icon className="w-3.5 h-3.5" strokeWidth={2.5} />
+              </span>
+              <div className="text-left leading-tight">
+                <p className="text-xs sm:text-sm font-semibold text-foreground">{streakBadge.label}</p>
+                <p className="text-[10px] sm:text-[11px] text-muted-foreground">{streakBadge.sublabel}</p>
+              </div>
+              <span className="text-sm font-serif font-semibold text-primary tabular-nums pl-1 pr-0.5">
+                ×{improvementStreak}
+              </span>
+            </div>
+          </motion.div>
+        )}
+
         {/* ── EMOTIONAL PAYOFF — what you can use this time for ── */}
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 8 }}
