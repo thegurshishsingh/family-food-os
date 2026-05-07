@@ -39,7 +39,7 @@ const AppRoutes = () => {
       <Route path="/memory" element={<RequireHousehold><MealMemory /></RequireHousehold>} />
       <Route path="/family-profile" element={<RequireHousehold><FamilyProfile /></RequireHousehold>} />
       <Route path="/history" element={<RequireHousehold><PlanHistory /></RequireHousehold>} />
-      <Route path="/checkin" element={<RequireHousehold><CheckIn /></RequireHousehold>} />
+      <Route path="/checkin" element={<Navigate to="/planner" replace />} />
       <Route path="/settings" element={<RequireHousehold><HouseholdSettings /></RequireHousehold>} />
       <Route path="/notifications" element={<RequireAuth><Notifications /></RequireAuth>} />
       <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
