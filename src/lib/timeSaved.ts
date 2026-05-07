@@ -221,17 +221,37 @@ export type WeekInputs = {
  * complete each week's plan + execution was.
  */
 export function computeCumulativeMinutesSaved(weeks: WeekInputs[]): number {
-  if (!weeks.length) return 0;
+  return computePerWeekResults(weeks).total;
+}
+
+export type PerWeekResult = {
+  planId: string;
+  weekStart?: string;
+  minutesSaved: number;
+  plannedNights: number;
+};
+
+/** Per-week breakdowns. Pass weeks chronologically (oldest → newest). */
+export function computePerWeekResults(
+  weeks: (WeekInputs & { weekStart?: string })[],
+): { total: number; perWeek: PerWeekResult[] } {
   let total = 0;
+  const perWeek: PerWeekResult[] = [];
   for (let i = 0; i < weeks.length; i++) {
     const w = weeks[i];
     const r = computeTimeSaved(w.days, {
       groceryListUsed: w.groceryListUsed,
       checkinCount: w.checkinCount,
-      totalPlansCompleted: i + 1, // history grows week by week
+      totalPlansCompleted: i + 1,
     });
     total += r.totalMinutesSaved;
+    perWeek.push({
+      planId: w.planId,
+      weekStart: w.weekStart,
+      minutesSaved: r.totalMinutesSaved,
+      plannedNights: w.days.filter((d) => d.meal_name).length,
+    });
   }
-  return total;
+  return { total, perWeek };
 }
 
