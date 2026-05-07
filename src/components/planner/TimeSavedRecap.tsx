@@ -557,8 +557,8 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
             )}
           </Button>
 
-          {/* Share — secondary */}
-          <div className="[&_button]:!text-muted-foreground [&_button]:!font-medium [&_button]:!text-xs [&_button]:gap-1.5 [&_button]:px-3 [&_button]:py-1.5 [&_button]:rounded-full [&_button]:bg-transparent [&_button]:hover:bg-primary/5 [&_button]:border-0 [&_button_svg]:!w-3.5 [&_button_svg]:!h-3.5">
+          {/* Share — generates a clean image */}
+          <div className="[&_button]:!text-primary [&_button]:!font-medium [&_button]:!text-sm [&_button]:gap-2 [&_button]:px-4 [&_button]:py-2 [&_button]:rounded-full [&_button]:bg-primary/10 [&_button]:hover:bg-primary/15 [&_button]:border [&_button]:border-primary/20 [&_button_svg]:!w-4 [&_button_svg]:!h-4">
             <ShareableRecapCard
               result={result}
               cumulativeMinutes={cumulativeMinutes}
