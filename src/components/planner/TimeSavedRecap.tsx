@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ArrowRight, ChevronDown, Sparkles, Award, X, Rocket, Share2, Home } from "lucide-react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
-import { computeTimeSaved, computeCumulativeMinutesSaved, formatHours, type TimeSavedResult, type WeekInputs } from "@/lib/timeSaved";
+import { computeTimeSaved, computePerWeekResults, formatHours, type TimeSavedResult, type WeekInputs, type PerWeekResult } from "@/lib/timeSaved";
 import { getHumanRewards, type HumanReward } from "@/lib/humanReward";
 import ShareableRecapCard from "./ShareableRecapCard";
 import type { PlanDay, WeeklyPlan } from "./types";
@@ -128,6 +128,7 @@ type RecapInputs = {
 const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan, onViewDetails, generating }: TimeSavedRecapProps) => {
   const [result, setResult] = useState<TimeSavedResult | null>(null);
   const [cumulativeMinutes, setCumulativeMinutes] = useState(0);
+  const [pastWeekResults, setPastWeekResults] = useState<PerWeekResult[]>([]);
   const [isFirstWeek, setIsFirstWeek] = useState(false);
   const [totalWeeks, setTotalWeeks] = useState(1);
   const [showEstimation, setShowEstimation] = useState(false);
@@ -210,19 +211,10 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
     // ── Cumulative: sum per-week actuals ──
     try {
       const pastPlanIds = (allPlans || []).filter(p => p.id !== plan.id).map(p => p.id);
-      const weekInputs: WeekInputs[] = [];
+      const weekInputs: (WeekInputs & { weekStart?: string })[] = [];
 
-      // Always include current week first so it contributes too.
-      weekInputs.push({
-        planId: plan.id,
-        days,
-        groceryListUsed: currentGroceryUsed,
-        checkinCount,
-      });
-
+      // Past weeks first (chronological), then current week last.
       if (pastPlanIds.length) {
-        // Fetch ALL plan_days for past plans (so we can correctly map
-        // check-ins per plan_day → per plan and never overcount).
         const [{ data: pastDays }, { data: pastGrocery }] = await Promise.all([
           supabase
             .from("plan_days")
@@ -239,7 +231,6 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           (daysByPlan[d.plan_id] ||= []).push(d as PlanDay);
         });
 
-        // Real grocery-engagement signal per plan
         const groceryUsedByPlan = new Set<string>();
         (pastGrocery || []).forEach((g: any) => {
           if (g.is_checked === true || g.source === "swap") {
@@ -247,8 +238,6 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           }
         });
 
-        // Fetch check-ins scoped to the actual past plan_day ids only
-        // (prevents counting check-ins from current week or unrelated plans).
         const allPastDayIds = (pastDays || []).map((d: any) => d.id);
         let checkinDayIds = new Set<string>();
         if (allPastDayIds.length) {
@@ -260,25 +249,39 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           checkinDayIds = new Set((pastCheckins || []).map((c: any) => c.plan_day_id));
         }
 
-        for (const pid of pastPlanIds) {
-          const pd = daysByPlan[pid] || [];
+        // Preserve chronological order from allPlans
+        const pastPlansChrono = (allPlans || []).filter(p => p.id !== plan.id);
+        for (const p of pastPlansChrono) {
+          const pd = daysByPlan[p.id] || [];
           if (!pd.length) continue;
-          // Unique plan_days with a check-in (capped at # of plan_days).
           const checkinsForWeek = pd.filter(d => checkinDayIds.has(d.id)).length;
           weekInputs.push({
-            planId: pid,
+            planId: p.id,
+            weekStart: p.week_start,
             days: pd,
-            groceryListUsed: groceryUsedByPlan.has(pid),
+            groceryListUsed: groceryUsedByPlan.has(p.id),
             checkinCount: checkinsForWeek,
           });
         }
       }
 
-      const cumulative = computeCumulativeMinutesSaved(weekInputs);
-      setCumulativeMinutes(cumulative);
+      // Current week last
+      weekInputs.push({
+        planId: plan.id,
+        weekStart: plan.week_start,
+        days,
+        groceryListUsed: currentGroceryUsed,
+        checkinCount,
+      });
+
+      const { total, perWeek } = computePerWeekResults(weekInputs);
+      setCumulativeMinutes(total);
+      // Past weeks only (exclude current), most recent first
+      const past = perWeek.filter(w => w.planId !== plan.id).reverse();
+      setPastWeekResults(past);
     } catch {
-      // Fall back to a conservative estimate if anything fails.
       setCumulativeMinutes(computed.totalMinutesSaved * weeks);
+      setPastWeekResults([]);
     }
   };
 
@@ -524,12 +527,74 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
             </div>
           )}
 
-          {cumulativeMinutes > result.totalMinutesSaved && (
+          {cumulativeMinutes > result.totalMinutesSaved && pastWeekResults.length === 0 && (
             <p className="text-[11px] text-muted-foreground/70 text-center pt-1">
               <span className="font-medium text-foreground/70">{formatHours(cumulativeMinutes)}</span> reclaimed across {totalWeeks} weeks with Family Food OS
             </p>
           )}
         </motion.div>
+
+        {/* ── JOURNEY SO FAR — past weeks comparison ── */}
+        {pastWeekResults.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.78, duration: 0.5 }}
+            className="relative max-w-md mx-auto mb-8"
+          >
+            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 font-medium text-center mb-3">
+              Your journey so far
+            </p>
+            <div className="rounded-2xl bg-background/50 border border-border/40 p-3 sm:p-4 space-y-2">
+              {pastWeekResults.slice(0, 5).map((w) => {
+                const max = Math.max(
+                  result.totalMinutesSaved,
+                  ...pastWeekResults.map((p) => p.minutesSaved),
+                  1,
+                );
+                const pct = Math.max(8, Math.round((w.minutesSaved / max) * 100));
+                const label = w.weekStart
+                  ? new Date(w.weekStart).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+                  : "Past week";
+                return (
+                  <div key={w.planId} className="flex items-center gap-3">
+                    <span className="text-[11px] text-muted-foreground/80 w-14 shrink-0 tabular-nums">{label}</span>
+                    <div className="flex-1 h-2 rounded-full bg-muted/60 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                        className="h-full rounded-full bg-gradient-to-r from-primary/60 to-primary"
+                      />
+                    </div>
+                    <span className="text-[11px] font-medium text-foreground/80 w-14 text-right tabular-nums shrink-0">
+                      {formatHours(w.minutesSaved)}
+                    </span>
+                  </div>
+                );
+              })}
+              <div className="flex items-center gap-3 pt-1.5 border-t border-border/40">
+                <span className="text-[11px] font-semibold text-primary w-14 shrink-0">This week</span>
+                <div className="flex-1 h-2 rounded-full bg-primary/15 overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{
+                      width: `${Math.max(8, Math.round((result.totalMinutesSaved / Math.max(result.totalMinutesSaved, ...pastWeekResults.map((p) => p.minutesSaved), 1)) * 100))}%`,
+                    }}
+                    transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    className="h-full rounded-full bg-primary"
+                  />
+                </div>
+                <span className="text-[11px] font-semibold text-primary w-14 text-right tabular-nums shrink-0">
+                  {formatHours(result.totalMinutesSaved)}
+                </span>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground/60 text-center mt-2.5">
+              <span className="font-medium text-foreground/70">{formatHours(cumulativeMinutes)}</span> reclaimed across {totalWeeks} week{totalWeeks !== 1 ? "s" : ""} — keep the streak going.
+            </p>
+          </motion.div>
+        )}
 
         {/* ── PRIMARY ACTION ── */}
         <motion.div
