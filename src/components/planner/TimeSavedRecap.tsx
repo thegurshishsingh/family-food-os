@@ -527,7 +527,7 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
             </div>
           )}
 
-          {cumulativeMinutes > result.totalMinutesSaved && (
+          {cumulativeMinutes > result.totalMinutesSaved && pastWeekResults.length === 0 && (
             <p className="text-[11px] text-muted-foreground/70 text-center pt-1">
               <span className="font-medium text-foreground/70">{formatHours(cumulativeMinutes)}</span> reclaimed across {totalWeeks} weeks with Family Food OS
             </p>
