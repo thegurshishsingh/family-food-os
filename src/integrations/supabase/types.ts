@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          properties: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          properties?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          properties?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       cached_recommendations: {
         Row: {
           created_at: string
@@ -453,6 +477,8 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           display_name: string | null
+          home_screen_setup_dismissed: boolean
+          home_screen_setup_dismissed_at: string | null
           id: string
           updated_at: string
           user_id: string
@@ -461,6 +487,8 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          home_screen_setup_dismissed?: boolean
+          home_screen_setup_dismissed_at?: string | null
           id?: string
           updated_at?: string
           user_id: string
@@ -469,6 +497,8 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          home_screen_setup_dismissed?: boolean
+          home_screen_setup_dismissed_at?: string | null
           id?: string
           updated_at?: string
           user_id?: string

@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/analytics";
 import desktopIllustration from "@/assets/home-screen-setup-desktop.png";
 import mobileIllustration from "@/assets/home-screen-setup-mobile.png";
 
@@ -35,6 +38,7 @@ const isStandalone = () => {
 };
 
 const HomeScreenSetupCard = () => {
+  const { user } = useAuth();
   const isMobile = useIsMobile();
   const [visible, setVisible] = useState(false);
   const [showHow, setShowHow] = useState(false);
@@ -42,21 +46,77 @@ const HomeScreenSetupCard = () => {
 
   useEffect(() => {
     if (isStandalone()) return;
-    if (localStorage.getItem(STORAGE_KEY)) return;
-    setDevice(detectDevice());
-    setVisible(true);
-  }, []);
+    const detected = detectDevice();
+    setDevice(detected);
 
-  const dismiss = () => {
+    const showIfNotDismissed = (dismissed: boolean) => {
+      if (dismissed) {
+        localStorage.setItem(STORAGE_KEY, "true");
+        return;
+      }
+      setVisible(true);
+      trackEvent("home_screen_card_shown", { device: detected });
+    };
+
+    // Local fallback first to avoid a flash if profile fetch is slow.
+    if (!user) {
+      if (localStorage.getItem(STORAGE_KEY)) return;
+      showIfNotDismissed(false);
+      return;
+    }
+
+    // Cross-device: source of truth is the profile.
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("home_screen_setup_dismissed")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const dismissed =
+        data?.home_screen_setup_dismissed === true ||
+        localStorage.getItem(STORAGE_KEY) === "true";
+      showIfNotDismissed(dismissed);
+    })();
+  }, [user]);
+
+  const persistDismissed = async () => {
     localStorage.setItem(STORAGE_KEY, "true");
-    setVisible(false);
+    if (!user) return;
+    await supabase
+      .from("profiles")
+      .update({
+        home_screen_setup_dismissed: true,
+        home_screen_setup_dismissed_at: new Date().toISOString(),
+      })
+      .eq("user_id", user.id);
   };
 
-  const handleShowHow = () => setShowHow(true);
+  const handleDismiss = async (source: "close" | "maybe_later") => {
+    trackEvent("home_screen_card_dismissed", { source, device });
+    setVisible(false);
+    await persistDismissed();
+  };
 
-  const handleCloseModal = () => {
+  const handleShowHow = () => {
+    trackEvent("home_screen_guide_opened", { device });
+    setShowHow(true);
+  };
+
+  const handleComplete = async () => {
+    trackEvent("home_screen_setup_completed", { device });
     setShowHow(false);
-    dismiss();
+    setVisible(false);
+    await persistDismissed();
+  };
+
+  const handleModalOpenChange = (open: boolean) => {
+    if (!open && showHow) {
+      // Closed without explicit "Got it" — treat as dismissed but not completed.
+      trackEvent("home_screen_guide_closed", { device });
+      setShowHow(false);
+      setVisible(false);
+      void persistDismissed();
+    }
   };
 
   if (!visible) return null;
@@ -75,7 +135,7 @@ const HomeScreenSetupCard = () => {
         >
           <div className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.06] via-background to-background backdrop-blur-sm shadow-sm">
             <button
-              onClick={dismiss}
+              onClick={() => handleDismiss("close")}
               aria-label="Dismiss"
               className="absolute top-3 right-3 z-10 p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
             >
@@ -104,7 +164,7 @@ const HomeScreenSetupCard = () => {
                   <Button onClick={handleShowHow} size="sm" className="h-9">
                     Show me how
                   </Button>
-                  <Button onClick={dismiss} variant="ghost" size="sm" className="h-9">
+                  <Button onClick={() => handleDismiss("maybe_later")} variant="ghost" size="sm" className="h-9">
                     Maybe later
                   </Button>
                 </div>
@@ -114,7 +174,7 @@ const HomeScreenSetupCard = () => {
         </motion.div>
       </AnimatePresence>
 
-      <Dialog open={showHow} onOpenChange={(open) => !open && handleCloseModal()}>
+      <Dialog open={showHow} onOpenChange={handleModalOpenChange}>
         <DialogContent className="max-w-2xl gap-0 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif text-xl">
@@ -167,7 +227,7 @@ const HomeScreenSetupCard = () => {
           </div>
 
           <div className="mt-5 flex justify-end">
-            <Button onClick={handleCloseModal} size="sm">Got it</Button>
+            <Button onClick={handleComplete} size="sm">Got it</Button>
           </div>
         </DialogContent>
       </Dialog>
