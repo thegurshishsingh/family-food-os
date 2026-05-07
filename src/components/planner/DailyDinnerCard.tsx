@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { motion } from "framer-motion";
 import { Sparkles, Plus, ShoppingBag, Ban, Flame } from "lucide-react";
 import { DAYS, MODE_CONFIG, type PlanDay, type FeedbackType } from "./types";
 
