@@ -534,6 +534,68 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           )}
         </motion.div>
 
+        {/* ── JOURNEY SO FAR — past weeks comparison ── */}
+        {pastWeekResults.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.78, duration: 0.5 }}
+            className="relative max-w-md mx-auto mb-8"
+          >
+            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 font-medium text-center mb-3">
+              Your journey so far
+            </p>
+            <div className="rounded-2xl bg-background/50 border border-border/40 p-3 sm:p-4 space-y-2">
+              {pastWeekResults.slice(0, 5).map((w) => {
+                const max = Math.max(
+                  result.totalMinutesSaved,
+                  ...pastWeekResults.map((p) => p.minutesSaved),
+                  1,
+                );
+                const pct = Math.max(8, Math.round((w.minutesSaved / max) * 100));
+                const label = w.weekStart
+                  ? new Date(w.weekStart).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+                  : "Past week";
+                return (
+                  <div key={w.planId} className="flex items-center gap-3">
+                    <span className="text-[11px] text-muted-foreground/80 w-14 shrink-0 tabular-nums">{label}</span>
+                    <div className="flex-1 h-2 rounded-full bg-muted/60 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                        className="h-full rounded-full bg-gradient-to-r from-primary/60 to-primary"
+                      />
+                    </div>
+                    <span className="text-[11px] font-medium text-foreground/80 w-14 text-right tabular-nums shrink-0">
+                      {formatHours(w.minutesSaved)}
+                    </span>
+                  </div>
+                );
+              })}
+              <div className="flex items-center gap-3 pt-1.5 border-t border-border/40">
+                <span className="text-[11px] font-semibold text-primary w-14 shrink-0">This week</span>
+                <div className="flex-1 h-2 rounded-full bg-primary/15 overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{
+                      width: `${Math.max(8, Math.round((result.totalMinutesSaved / Math.max(result.totalMinutesSaved, ...pastWeekResults.map((p) => p.minutesSaved), 1)) * 100))}%`,
+                    }}
+                    transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    className="h-full rounded-full bg-primary"
+                  />
+                </div>
+                <span className="text-[11px] font-semibold text-primary w-14 text-right tabular-nums shrink-0">
+                  {formatHours(result.totalMinutesSaved)}
+                </span>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground/60 text-center mt-2.5">
+              <span className="font-medium text-foreground/70">{formatHours(cumulativeMinutes)}</span> reclaimed across {totalWeeks} week{totalWeeks !== 1 ? "s" : ""} — keep the streak going.
+            </p>
+          </motion.div>
+        )}
+
         {/* ── PRIMARY ACTION ── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
