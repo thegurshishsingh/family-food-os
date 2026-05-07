@@ -497,21 +497,39 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
           <RecapStat value={formatHours(result.totalMinutesSaved)} label="Time saved" />
         </motion.div>
 
-        {/* ── EMOTIONAL PAYOFF — sticker quote ── */}
-        {primaryReward && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ delay: 0.7, type: "spring", stiffness: 180, damping: 18 }}
-            className="relative max-w-sm mx-auto mb-8"
-          >
-            <div className="relative rounded-full bg-gradient-to-br from-primary/15 via-primary/8 to-accent/12 border border-primary/20 px-5 py-3 text-center shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.35)]">
-              <p className="text-sm sm:text-base font-serif text-foreground leading-snug">
-                That's <span className="font-semibold">{formatHours(result.totalMinutesSaved)}</span> saved in your week!
-              </p>
+        {/* ── EMOTIONAL PAYOFF — what you can use this time for ── */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, y: 8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ delay: 0.7, type: "spring", stiffness: 180, damping: 18 }}
+          className="relative max-w-md mx-auto mb-8 space-y-2.5"
+        >
+          <div className="relative rounded-2xl bg-gradient-to-br from-primary/15 via-primary/8 to-accent/12 border border-primary/20 px-5 py-3.5 text-center shadow-[0_8px_24px_-12px_hsl(var(--primary)/0.35)]">
+            <p className="text-sm sm:text-base font-serif text-foreground leading-snug">
+              That's <span className="font-semibold">{formatHours(result.totalMinutesSaved)}</span> back in your week
+            </p>
+          </div>
+
+          {humanRewards.length > 0 && (
+            <div className="space-y-1.5">
+              {humanRewards.map((r, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2.5 rounded-xl bg-background/60 border border-border/40 px-4 py-2.5 text-left"
+                >
+                  <span className="text-lg shrink-0" aria-hidden>{r.emoji}</span>
+                  <p className="text-xs sm:text-sm text-foreground/80 leading-snug">{r.text}</p>
+                </div>
+              ))}
             </div>
-          </motion.div>
-        )}
+          )}
+
+          {cumulativeMinutes > result.totalMinutesSaved && (
+            <p className="text-[11px] text-muted-foreground/70 text-center pt-1">
+              <span className="font-medium text-foreground/70">{formatHours(cumulativeMinutes)}</span> reclaimed across {totalWeeks} weeks with Family Food OS
+            </p>
+          )}
+        </motion.div>
 
         {/* ── PRIMARY ACTION ── */}
         <motion.div
@@ -539,8 +557,8 @@ const TimeSavedRecap = ({ plan, days, householdId, householdName, onGeneratePlan
             )}
           </Button>
 
-          {/* Share — secondary */}
-          <div className="[&_button]:!text-muted-foreground [&_button]:!font-medium [&_button]:!text-xs [&_button]:gap-1.5 [&_button]:px-3 [&_button]:py-1.5 [&_button]:rounded-full [&_button]:bg-transparent [&_button]:hover:bg-primary/5 [&_button]:border-0 [&_button_svg]:!w-3.5 [&_button_svg]:!h-3.5">
+          {/* Share — generates a clean image */}
+          <div className="[&_button]:!text-primary [&_button]:!font-medium [&_button]:!text-sm [&_button]:gap-2 [&_button]:px-4 [&_button]:py-2 [&_button]:rounded-full [&_button]:bg-primary/10 [&_button]:hover:bg-primary/15 [&_button]:border [&_button]:border-primary/20 [&_button_svg]:!w-4 [&_button_svg]:!h-4">
             <ShareableRecapCard
               result={result}
               cumulativeMinutes={cumulativeMinutes}
