@@ -5,7 +5,7 @@ import UpdatePrompt from "@/components/UpdatePrompt";
 import PendingSyncIndicator from "@/components/PendingSyncIndicator";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { RequireAuth, RequireHousehold, RedirectIfAuthed } from "@/components/RouteGuards";
 import Index from "./pages/Index";
