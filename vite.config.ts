@@ -26,11 +26,14 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
-      registerType: "prompt",
+      registerType: "autoUpdate",
       strategies: "injectManifest",
       srcDir: "src/sw",
       filename: "sw.ts",
-      injectRegister: "auto",
+      // Disable the auto-injected <script> registration so only our React
+      // hook (`useRegisterSW` in UpdatePrompt) registers the SW. Otherwise
+      // two registrations race and `needRefresh` never fires reliably.
+      injectRegister: false,
       devOptions: {
         enabled: false,
       },
