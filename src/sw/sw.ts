@@ -233,7 +233,10 @@ self.addEventListener("message", (event) => {
   if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
-self.skipWaiting();
+// NOTE: Do NOT call self.skipWaiting() unconditionally here. With the
+// "prompt" update flow, the new SW must stay in the "waiting" state so
+// `useRegisterSW` can surface the `needRefresh` toast. The user clicking
+// "Update" then posts SKIP_WAITING (handled above) to activate it.
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
 });
