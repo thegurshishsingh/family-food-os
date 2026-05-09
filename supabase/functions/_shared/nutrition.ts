@@ -351,6 +351,9 @@ export const computeMacrosFromIngredients = (
       if (fromName) grams = fromName;
     }
     if (grams <= 0) continue;
+    // Sanity clamp: no single ingredient in a per-serving recipe should exceed ~2 kg.
+    // This guards against AI hallucinations like "255850 g of mozzarella".
+    if (grams > 2000) grams = 2000;
     const factor = grams / 100;
     total.calories += ref.cal * factor;
     total.protein_g += ref.p * factor;
