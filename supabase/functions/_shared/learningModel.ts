@@ -73,6 +73,21 @@ export type LearningInsights = {
   softAvoidMeals: string[];           // disliked 1x in last 28 days
   lovedMeals: string[];               // any love in last 90 days
 
+  // Takeout fidelity — did the family actually order what we suggested?
+  takeoutFidelity: {
+    overallSuggestedRate: number | null;   // suggested / (suggested + different)
+    sampleSize: number;
+    perDay: {
+      day_of_week: number;
+      suggestedCount: number;
+      differentCount: number;
+      sampleSize: number;
+    }[];
+    keepers: string[];                     // suggested meals that got ordered (winners)
+    misses: string[];                      // suggested meals where family picked something else
+    alternativeChoices: string[];          // free-text "ordered: X" notes (most recent)
+  };
+
   // Confidence
   totalFeedback: number;
   totalCheckins: number;
@@ -279,6 +294,55 @@ export function computeLearningInsights(args: {
     }
   }
 
+  // ── Takeout fidelity (suggested vs different) ──
+  type TakeoutAcc = { suggested: number; different: number };
+  const takeoutPerDow: Record<number, TakeoutAcc> = {};
+  const keeperCounts: Record<string, number> = {};
+  const missCounts: Record<string, number> = {};
+  let suggestedTotal = 0, differentTotal = 0;
+
+  for (const c of args.checkins) {
+    const tags = new Set(c.tags ?? []);
+    const isSuggested = tags.has("ordered_suggested");
+    const isDifferent = tags.has("ordered_different");
+    if (!isSuggested && !isDifferent) continue;
+    const pd = dayMap.get(c.plan_day_id);
+    if (!pd) continue;
+    if (!takeoutPerDow[pd.day_of_week]) takeoutPerDow[pd.day_of_week] = { suggested: 0, different: 0 };
+    if (isSuggested) {
+      takeoutPerDow[pd.day_of_week].suggested += 1;
+      suggestedTotal += 1;
+      if (pd.meal_name) keeperCounts[pd.meal_name] = (keeperCounts[pd.meal_name] ?? 0) + 1;
+    } else {
+      takeoutPerDow[pd.day_of_week].different += 1;
+      differentTotal += 1;
+      if (pd.meal_name) missCounts[pd.meal_name] = (missCounts[pd.meal_name] ?? 0) + 1;
+    }
+  }
+
+  // Pull free-text "Ordered: ..." alternative choices from meal_feedback
+  const alternativeChoices = args.feedback
+    .filter(f => f.meal_name?.startsWith("Ordered: "))
+    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+    .slice(0, 8)
+    .map(f => f.meal_name.replace(/^Ordered:\s*/, ""));
+
+  const takeoutFidelity = {
+    overallSuggestedRate: (suggestedTotal + differentTotal) > 0
+      ? suggestedTotal / (suggestedTotal + differentTotal)
+      : null,
+    sampleSize: suggestedTotal + differentTotal,
+    perDay: Object.entries(takeoutPerDow).map(([dow, v]) => ({
+      day_of_week: Number(dow),
+      suggestedCount: v.suggested,
+      differentCount: v.different,
+      sampleSize: v.suggested + v.different,
+    })).filter(p => p.sampleSize >= 1),
+    keepers: Object.entries(keeperCounts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n]) => n),
+    misses: Object.entries(missCounts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n]) => n),
+    alternativeChoices,
+  };
+
   return {
     cuisinesLoved, cuisinesAvoided,
     proteinsLoved, proteinsAvoided,
@@ -286,6 +350,7 @@ export function computeLearningInsights(args: {
     cookThroughRate, swapRate, effortOverloadRate,
     prepToleranceDrift, recommendedMaxPrep,
     hardExcludeMeals, softAvoidMeals, lovedMeals,
+    takeoutFidelity,
     totalFeedback: args.feedback.length,
     totalCheckins,
   };
@@ -337,6 +402,40 @@ export function renderInsightsForPrompt(ins: LearningInsights): string {
   }
   if (ins.prepToleranceDrift && ins.recommendedMaxPrep) {
     lines.push(`    Prep tolerance: ${ins.prepToleranceDrift} → keep cook nights under ~${ins.recommendedMaxPrep} min`);
+  }
+
+  // Takeout fidelity — critical for tuning takeout suggestions
+  const tf = ins.takeoutFidelity;
+  if (tf.sampleSize >= 1) {
+    lines.push("\n  TAKEOUT FIDELITY (did the family order what we suggested?):");
+    if (tf.overallSuggestedRate !== null) {
+      const pct = Math.round(tf.overallSuggestedRate * 100);
+      const verdict = pct >= 70
+        ? "your takeout picks are landing — keep this style"
+        : pct >= 40
+          ? "mixed — try suggestions closer to what they actually order"
+          : "your takeout suggestions rarely match what they order — switch the cuisine/restaurant style";
+      lines.push(`    Overall: ${pct}% of suggested takeouts were actually ordered (n=${tf.sampleSize}) — ${verdict}`);
+    }
+    for (const p of tf.perDay) {
+      if (p.sampleSize < 2) continue;
+      const pct = Math.round((p.suggestedCount / p.sampleSize) * 100);
+      const note = pct >= 70
+        ? `keep this takeout style on ${DAY_NAMES[p.day_of_week]}s`
+        : pct <= 30
+          ? `${DAY_NAMES[p.day_of_week]} takeout suggestions keep getting overridden — change the cuisine/restaurant`
+          : `mixed results on ${DAY_NAMES[p.day_of_week]} — vary the suggestion`;
+      lines.push(`    ${DAY_NAMES[p.day_of_week]}: ${p.suggestedCount}/${p.sampleSize} took the suggestion → ${note}`);
+    }
+    if (tf.keepers.length) {
+      lines.push(`    ✅ Takeout KEEPERS (they actually ordered these): ${tf.keepers.join(", ")} → reuse / suggest variations`);
+    }
+    if (tf.misses.length) {
+      lines.push(`    ❌ Takeout MISSES (suggested but they ordered something else): ${tf.misses.join(", ")} → avoid these for takeout slots`);
+    }
+    if (tf.alternativeChoices.length) {
+      lines.push(`    What they actually ordered instead (recent): ${tf.alternativeChoices.join("; ")} → match this style/cuisine for future takeout suggestions`);
+    }
   }
 
   if (ins.hardExcludeMeals.length) {
@@ -408,6 +507,19 @@ export function renderInsightsForUser(ins: LearningInsights): UserInsight[] {
 
   if (ins.swapRate > 0.3) {
     out.push({ icon: "info", text: `Many AI suggestions are getting swapped — leaning more on your saved meals.` });
+  }
+
+  // Takeout fidelity insight
+  const tf = ins.takeoutFidelity;
+  if (tf.overallSuggestedRate !== null && tf.sampleSize >= 3) {
+    const pct = Math.round(tf.overallSuggestedRate * 100);
+    if (pct >= 70) {
+      out.push({ icon: "love", text: `You actually order our takeout picks ${pct}% of the time — we'll keep that style.` });
+    } else if (pct <= 30) {
+      out.push({ icon: "trend", text: `You usually order something different than what we suggest — switching to cuisines closer to your real picks.` });
+    }
+  } else if (tf.keepers.length >= 1 && tf.sampleSize >= 1) {
+    out.push({ icon: "love", text: `"${tf.keepers[0]}" was a takeout hit — we'll keep it in rotation.` });
   }
 
   if (ins.prepToleranceDrift === "tightening" && ins.recommendedMaxPrep) {
