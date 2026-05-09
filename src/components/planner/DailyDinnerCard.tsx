@@ -260,13 +260,15 @@ const DailyDinnerCard = ({
   };
 
   const handleQuickAction = (action: QuickAction) => {
-    if (action === "ordered_instead") {
+    if (action === "ordered_instead" || action === "ordered_different") {
       setSelectedAction(action);
       setShowOrderedInput(true);
       return;
     }
     void submitCheckIn(action);
   };
+
+  const activeActions = todayDay && isTakeoutMode(todayDay) ? TAKEOUT_ACTIONS : COOK_ACTIONS;
 
   // Empty state
   if (!todayDay || !todayDay.meal_name) {
