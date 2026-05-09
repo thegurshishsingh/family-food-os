@@ -397,22 +397,29 @@ export const normalizeMacros = (
     (i) => lookup((i?.name || "").toString()),
   ).length;
 
-  // Not enough signal — keep AI values.
-  if (knownCount < 3 || computed.calories === 0) return aiSafe;
+  // Final per-serving sanity clamp. No realistic single dinner serving should
+  // exceed these maxima — guards against AI / ingredient hallucinations.
+  const clamp = (m: Macros): Macros => ({
+    calories: Math.min(Math.max(m.calories, 0), 2500),
+    protein_g: Math.min(Math.max(m.protein_g, 0), 250),
+    carbs_g: Math.min(Math.max(m.carbs_g, 0), 350),
+    fat_g: Math.min(Math.max(m.fat_g, 0), 200),
+    fiber_g: Math.min(Math.max(m.fiber_g, 0), 80),
+  });
+
+  // Not enough signal — keep AI values (still clamped).
+  if (knownCount < 3 || computed.calories === 0) return clamp(aiSafe);
 
   const proteinDiff = Math.abs(aiSafe.protein_g - computed.protein_g) / Math.max(computed.protein_g, 1);
   const calorieDiff = Math.abs(aiSafe.calories - computed.calories) / Math.max(computed.calories, 1);
 
-  // AI is within 35% on both → trust AI (it may know recipe-specific cooking losses).
-  if (proteinDiff <= 0.35 && calorieDiff <= 0.35) return aiSafe;
+  if (proteinDiff <= 0.35 && calorieDiff <= 0.35) return clamp(aiSafe);
 
-  // Otherwise correct toward the computed values, preferring the higher of the two
-  // for protein (AI tends to under-report, never over-report meat-heavy meals).
-  return {
+  return clamp({
     calories: Math.round((aiSafe.calories + computed.calories) / 2) || computed.calories,
     protein_g: Math.max(aiSafe.protein_g, computed.protein_g),
     carbs_g: Math.round(((aiSafe.carbs_g + computed.carbs_g) / 2) * 10) / 10 || computed.carbs_g,
     fat_g: Math.round(((aiSafe.fat_g + computed.fat_g) / 2) * 10) / 10 || computed.fat_g,
     fiber_g: Math.max(aiSafe.fiber_g, computed.fiber_g),
-  };
+  });
 };
