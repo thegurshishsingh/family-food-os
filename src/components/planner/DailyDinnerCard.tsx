@@ -8,14 +8,26 @@ import { motion } from "framer-motion";
 import { Sparkles, Plus, ShoppingBag, Ban, Flame } from "lucide-react";
 import { DAYS, MODE_CONFIG, type PlanDay, type FeedbackType } from "./types";
 
-const QUICK_ACTIONS = [
+const COOK_ACTIONS = [
   { value: "cooked_it", label: "Cooked it", emoji: "🍳", sentiment: "positive" },
   { value: "ordered_instead", label: "Ordered instead", emoji: "📦", sentiment: "neutral" },
   { value: "kids_loved", label: "Loved it", emoji: "😋", sentiment: "positive" },
   { value: "too_much_work", label: "Too much work", emoji: "😮‍💨", sentiment: "neutral" },
 ] as const;
 
-type QuickAction = typeof QUICK_ACTIONS[number]["value"];
+const TAKEOUT_ACTIONS = [
+  { value: "ordered_suggested", label: "Ordered the suggestion", emoji: "✅", sentiment: "positive" },
+  { value: "ordered_different", label: "Ordered something else", emoji: "🔄", sentiment: "neutral" },
+  { value: "takeout_loved", label: "Loved it", emoji: "😋", sentiment: "positive" },
+  { value: "takeout_skipped", label: "Skipped takeout", emoji: "🚫", sentiment: "neutral" },
+] as const;
+
+type QuickAction =
+  | typeof COOK_ACTIONS[number]["value"]
+  | typeof TAKEOUT_ACTIONS[number]["value"];
+
+const isTakeoutMode = (day: PlanDay) =>
+  day.meal_mode === "takeout" || day.meal_mode === "dine_out";
 
 function generateSmartLine(action: QuickAction, day: PlanDay): string {
   const dayName = DAYS[day.day_of_week];
@@ -29,6 +41,14 @@ function generateSmartLine(action: QuickAction, day: PlanDay): string {
       return `Glad you loved it. We'll lean into ${day.cuisine_type || "this style"} more.`;
     case "too_much_work":
       return `Noted. We'll keep ${dayName}s lighter next week.`;
+    case "ordered_suggested":
+      return `Great — "${name}" is a keeper for ${dayName}s.`;
+    case "ordered_different":
+      return `Got it. We'll learn what you actually crave on ${dayName}s.`;
+    case "takeout_loved":
+      return `Awesome. We'll lean into ${day.cuisine_type || "this"} for future takeout nights.`;
+    case "takeout_skipped":
+      return `Noted. We'll rethink ${dayName} takeout next week.`;
   }
 }
 
@@ -38,6 +58,10 @@ function actionToFeedback(action: QuickAction): FeedbackType {
     case "ordered_instead": return "okay";
     case "kids_loved": return "loved";
     case "too_much_work": return "too_hard";
+    case "ordered_suggested": return "reorder_worthy";
+    case "ordered_different": return "okay";
+    case "takeout_loved": return "loved";
+    case "takeout_skipped": return "okay";
   }
 }
 
@@ -47,6 +71,10 @@ function actionToTags(action: QuickAction): string[] {
     case "ordered_instead": return ["ordered_out"];
     case "kids_loved": return ["everyone_liked"];
     case "too_much_work": return [];
+    case "ordered_suggested": return ["ordered_out", "ordered_suggested"];
+    case "ordered_different": return ["ordered_out", "ordered_different"];
+    case "takeout_loved": return ["ordered_out", "everyone_liked"];
+    case "takeout_skipped": return ["skipped"];
   }
 }
 
@@ -56,6 +84,10 @@ function actionToEffort(action: QuickAction): string | null {
     case "ordered_instead": return null;
     case "kids_loved": return "easy";
     case "too_much_work": return "too_much";
+    case "ordered_suggested": return "easy";
+    case "ordered_different": return "easy";
+    case "takeout_loved": return "easy";
+    case "takeout_skipped": return null;
   }
 }
 
@@ -209,7 +241,7 @@ const DailyDinnerCard = ({
     }
 
     // Capture what they ordered as meal feedback notes so the planner can learn from it.
-    if (action === "ordered_instead" && orderNote && orderNote.trim()) {
+    if ((action === "ordered_instead" || action === "ordered_different") && orderNote && orderNote.trim()) {
       await supabase.from("meal_feedback").insert({
         household_id: householdId,
         plan_day_id: todayDay.id,
@@ -228,13 +260,15 @@ const DailyDinnerCard = ({
   };
 
   const handleQuickAction = (action: QuickAction) => {
-    if (action === "ordered_instead") {
+    if (action === "ordered_instead" || action === "ordered_different") {
       setSelectedAction(action);
       setShowOrderedInput(true);
       return;
     }
     void submitCheckIn(action);
   };
+
+  const activeActions = todayDay && isTakeoutMode(todayDay) ? TAKEOUT_ACTIONS : COOK_ACTIONS;
 
   // Empty state
   if (!todayDay || !todayDay.meal_name) {
@@ -336,7 +370,7 @@ const DailyDinnerCard = ({
 
           {/* Quick feedback buttons */}
           <div className="grid grid-cols-2 gap-2">
-            {QUICK_ACTIONS.map((action) => {
+            {activeActions.map((action) => {
               const isSelected = selectedAction === action.value;
               const isPositive = action.sentiment === "positive";
               return (
@@ -376,7 +410,9 @@ const DailyDinnerCard = ({
             >
               <div className="p-3 rounded-xl border border-primary/15 bg-primary/[0.03]">
                 <label className="block text-xs font-medium text-foreground mb-1.5">
-                  What did you order? <span className="text-muted-foreground font-normal">(optional)</span>
+                  {selectedAction === "ordered_different"
+                    ? <>What did you order instead? <span className="text-muted-foreground font-normal">(optional)</span></>
+                    : <>What did you order? <span className="text-muted-foreground font-normal">(optional)</span></>}
                 </label>
                 <div className="flex gap-2">
                   <Input
@@ -389,7 +425,7 @@ const DailyDinnerCard = ({
                   />
                   <Button
                     size="sm"
-                    onClick={() => submitCheckIn("ordered_instead", orderedDetail)}
+                    onClick={() => submitCheckIn(selectedAction === "ordered_different" ? "ordered_different" : "ordered_instead", orderedDetail)}
                     disabled={saving}
                     className="h-9"
                   >
