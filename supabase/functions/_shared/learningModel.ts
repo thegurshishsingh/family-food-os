@@ -404,6 +404,40 @@ export function renderInsightsForPrompt(ins: LearningInsights): string {
     lines.push(`    Prep tolerance: ${ins.prepToleranceDrift} → keep cook nights under ~${ins.recommendedMaxPrep} min`);
   }
 
+  // Takeout fidelity — critical for tuning takeout suggestions
+  const tf = ins.takeoutFidelity;
+  if (tf.sampleSize >= 1) {
+    lines.push("\n  TAKEOUT FIDELITY (did the family order what we suggested?):");
+    if (tf.overallSuggestedRate !== null) {
+      const pct = Math.round(tf.overallSuggestedRate * 100);
+      const verdict = pct >= 70
+        ? "your takeout picks are landing — keep this style"
+        : pct >= 40
+          ? "mixed — try suggestions closer to what they actually order"
+          : "your takeout suggestions rarely match what they order — switch the cuisine/restaurant style";
+      lines.push(`    Overall: ${pct}% of suggested takeouts were actually ordered (n=${tf.sampleSize}) — ${verdict}`);
+    }
+    for (const p of tf.perDay) {
+      if (p.sampleSize < 2) continue;
+      const pct = Math.round((p.suggestedCount / p.sampleSize) * 100);
+      const note = pct >= 70
+        ? `keep this takeout style on ${DAY_NAMES[p.day_of_week]}s`
+        : pct <= 30
+          ? `${DAY_NAMES[p.day_of_week]} takeout suggestions keep getting overridden — change the cuisine/restaurant`
+          : `mixed results on ${DAY_NAMES[p.day_of_week]} — vary the suggestion`;
+      lines.push(`    ${DAY_NAMES[p.day_of_week]}: ${p.suggestedCount}/${p.sampleSize} took the suggestion → ${note}`);
+    }
+    if (tf.keepers.length) {
+      lines.push(`    ✅ Takeout KEEPERS (they actually ordered these): ${tf.keepers.join(", ")} → reuse / suggest variations`);
+    }
+    if (tf.misses.length) {
+      lines.push(`    ❌ Takeout MISSES (suggested but they ordered something else): ${tf.misses.join(", ")} → avoid these for takeout slots`);
+    }
+    if (tf.alternativeChoices.length) {
+      lines.push(`    What they actually ordered instead (recent): ${tf.alternativeChoices.join("; ")} → match this style/cuisine for future takeout suggestions`);
+    }
+  }
+
   if (ins.hardExcludeMeals.length) {
     lines.push(`\n  🚫 HARD EXCLUDE (disliked 2+ times in 28d) — never include these or close variations:\n${ins.hardExcludeMeals.map(m => `    - ${m}`).join("\n")}`);
   }
