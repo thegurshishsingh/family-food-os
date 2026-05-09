@@ -294,6 +294,55 @@ export function computeLearningInsights(args: {
     }
   }
 
+  // ── Takeout fidelity (suggested vs different) ──
+  type TakeoutAcc = { suggested: number; different: number };
+  const takeoutPerDow: Record<number, TakeoutAcc> = {};
+  const keeperCounts: Record<string, number> = {};
+  const missCounts: Record<string, number> = {};
+  let suggestedTotal = 0, differentTotal = 0;
+
+  for (const c of args.checkins) {
+    const tags = new Set(c.tags ?? []);
+    const isSuggested = tags.has("ordered_suggested");
+    const isDifferent = tags.has("ordered_different");
+    if (!isSuggested && !isDifferent) continue;
+    const pd = dayMap.get(c.plan_day_id);
+    if (!pd) continue;
+    if (!takeoutPerDow[pd.day_of_week]) takeoutPerDow[pd.day_of_week] = { suggested: 0, different: 0 };
+    if (isSuggested) {
+      takeoutPerDow[pd.day_of_week].suggested += 1;
+      suggestedTotal += 1;
+      if (pd.meal_name) keeperCounts[pd.meal_name] = (keeperCounts[pd.meal_name] ?? 0) + 1;
+    } else {
+      takeoutPerDow[pd.day_of_week].different += 1;
+      differentTotal += 1;
+      if (pd.meal_name) missCounts[pd.meal_name] = (missCounts[pd.meal_name] ?? 0) + 1;
+    }
+  }
+
+  // Pull free-text "Ordered: ..." alternative choices from meal_feedback
+  const alternativeChoices = args.feedback
+    .filter(f => f.meal_name?.startsWith("Ordered: "))
+    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+    .slice(0, 8)
+    .map(f => f.meal_name.replace(/^Ordered:\s*/, ""));
+
+  const takeoutFidelity = {
+    overallSuggestedRate: (suggestedTotal + differentTotal) > 0
+      ? suggestedTotal / (suggestedTotal + differentTotal)
+      : null,
+    sampleSize: suggestedTotal + differentTotal,
+    perDay: Object.entries(takeoutPerDow).map(([dow, v]) => ({
+      day_of_week: Number(dow),
+      suggestedCount: v.suggested,
+      differentCount: v.different,
+      sampleSize: v.suggested + v.different,
+    })).filter(p => p.sampleSize >= 1),
+    keepers: Object.entries(keeperCounts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n]) => n),
+    misses: Object.entries(missCounts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n]) => n),
+    alternativeChoices,
+  };
+
   return {
     cuisinesLoved, cuisinesAvoided,
     proteinsLoved, proteinsAvoided,
@@ -301,6 +350,7 @@ export function computeLearningInsights(args: {
     cookThroughRate, swapRate, effortOverloadRate,
     prepToleranceDrift, recommendedMaxPrep,
     hardExcludeMeals, softAvoidMeals, lovedMeals,
+    takeoutFidelity,
     totalFeedback: args.feedback.length,
     totalCheckins,
   };
