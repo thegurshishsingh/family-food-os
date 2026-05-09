@@ -410,7 +410,9 @@ const DailyDinnerCard = ({
             >
               <div className="p-3 rounded-xl border border-primary/15 bg-primary/[0.03]">
                 <label className="block text-xs font-medium text-foreground mb-1.5">
-                  What did you order? <span className="text-muted-foreground font-normal">(optional)</span>
+                  {selectedAction === "ordered_different"
+                    ? <>What did you order instead? <span className="text-muted-foreground font-normal">(optional)</span></>
+                    : <>What did you order? <span className="text-muted-foreground font-normal">(optional)</span></>}
                 </label>
                 <div className="flex gap-2">
                   <Input
@@ -423,7 +425,7 @@ const DailyDinnerCard = ({
                   />
                   <Button
                     size="sm"
-                    onClick={() => submitCheckIn("ordered_instead", orderedDetail)}
+                    onClick={() => submitCheckIn(selectedAction === "ordered_different" ? "ordered_different" : "ordered_instead", orderedDetail)}
                     disabled={saving}
                     className="h-9"
                   >
