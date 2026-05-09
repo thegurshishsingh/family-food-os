@@ -241,7 +241,7 @@ const DailyDinnerCard = ({
     }
 
     // Capture what they ordered as meal feedback notes so the planner can learn from it.
-    if (action === "ordered_instead" && orderNote && orderNote.trim()) {
+    if ((action === "ordered_instead" || action === "ordered_different") && orderNote && orderNote.trim()) {
       await supabase.from("meal_feedback").insert({
         household_id: householdId,
         plan_day_id: todayDay.id,
