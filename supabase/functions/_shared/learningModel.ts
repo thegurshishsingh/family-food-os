@@ -73,6 +73,21 @@ export type LearningInsights = {
   softAvoidMeals: string[];           // disliked 1x in last 28 days
   lovedMeals: string[];               // any love in last 90 days
 
+  // Takeout fidelity — did the family actually order what we suggested?
+  takeoutFidelity: {
+    overallSuggestedRate: number | null;   // suggested / (suggested + different)
+    sampleSize: number;
+    perDay: {
+      day_of_week: number;
+      suggestedCount: number;
+      differentCount: number;
+      sampleSize: number;
+    }[];
+    keepers: string[];                     // suggested meals that got ordered (winners)
+    misses: string[];                      // suggested meals where family picked something else
+    alternativeChoices: string[];          // free-text "ordered: X" notes (most recent)
+  };
+
   // Confidence
   totalFeedback: number;
   totalCheckins: number;
