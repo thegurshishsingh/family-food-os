@@ -509,6 +509,19 @@ export function renderInsightsForUser(ins: LearningInsights): UserInsight[] {
     out.push({ icon: "info", text: `Many AI suggestions are getting swapped — leaning more on your saved meals.` });
   }
 
+  // Takeout fidelity insight
+  const tf = ins.takeoutFidelity;
+  if (tf.overallSuggestedRate !== null && tf.sampleSize >= 3) {
+    const pct = Math.round(tf.overallSuggestedRate * 100);
+    if (pct >= 70) {
+      out.push({ icon: "love", text: `You actually order our takeout picks ${pct}% of the time — we'll keep that style.` });
+    } else if (pct <= 30) {
+      out.push({ icon: "trend", text: `You usually order something different than what we suggest — switching to cuisines closer to your real picks.` });
+    }
+  } else if (tf.keepers.length >= 1 && tf.sampleSize >= 1) {
+    out.push({ icon: "love", text: `"${tf.keepers[0]}" was a takeout hit — we'll keep it in rotation.` });
+  }
+
   if (ins.prepToleranceDrift === "tightening" && ins.recommendedMaxPrep) {
     out.push({ icon: "trend", text: `Shorter recipes are working better lately — capping cook times at ~${ins.recommendedMaxPrep} min.` });
   } else if (ins.prepToleranceDrift === "loosening") {
