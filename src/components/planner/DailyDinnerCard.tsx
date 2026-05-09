@@ -8,14 +8,26 @@ import { motion } from "framer-motion";
 import { Sparkles, Plus, ShoppingBag, Ban, Flame } from "lucide-react";
 import { DAYS, MODE_CONFIG, type PlanDay, type FeedbackType } from "./types";
 
-const QUICK_ACTIONS = [
+const COOK_ACTIONS = [
   { value: "cooked_it", label: "Cooked it", emoji: "🍳", sentiment: "positive" },
   { value: "ordered_instead", label: "Ordered instead", emoji: "📦", sentiment: "neutral" },
   { value: "kids_loved", label: "Loved it", emoji: "😋", sentiment: "positive" },
   { value: "too_much_work", label: "Too much work", emoji: "😮‍💨", sentiment: "neutral" },
 ] as const;
 
-type QuickAction = typeof QUICK_ACTIONS[number]["value"];
+const TAKEOUT_ACTIONS = [
+  { value: "ordered_suggested", label: "Ordered the suggestion", emoji: "✅", sentiment: "positive" },
+  { value: "ordered_different", label: "Ordered something else", emoji: "🔄", sentiment: "neutral" },
+  { value: "takeout_loved", label: "Loved it", emoji: "😋", sentiment: "positive" },
+  { value: "takeout_skipped", label: "Skipped takeout", emoji: "🚫", sentiment: "neutral" },
+] as const;
+
+type QuickAction =
+  | typeof COOK_ACTIONS[number]["value"]
+  | typeof TAKEOUT_ACTIONS[number]["value"];
+
+const isTakeoutMode = (day: PlanDay) =>
+  day.meal_mode === "takeout" || day.meal_mode === "dine_out";
 
 function generateSmartLine(action: QuickAction, day: PlanDay): string {
   const dayName = DAYS[day.day_of_week];
@@ -29,6 +41,14 @@ function generateSmartLine(action: QuickAction, day: PlanDay): string {
       return `Glad you loved it. We'll lean into ${day.cuisine_type || "this style"} more.`;
     case "too_much_work":
       return `Noted. We'll keep ${dayName}s lighter next week.`;
+    case "ordered_suggested":
+      return `Great — "${name}" is a keeper for ${dayName}s.`;
+    case "ordered_different":
+      return `Got it. We'll learn what you actually crave on ${dayName}s.`;
+    case "takeout_loved":
+      return `Awesome. We'll lean into ${day.cuisine_type || "this"} for future takeout nights.`;
+    case "takeout_skipped":
+      return `Noted. We'll rethink ${dayName} takeout next week.`;
   }
 }
 
@@ -38,6 +58,10 @@ function actionToFeedback(action: QuickAction): FeedbackType {
     case "ordered_instead": return "okay";
     case "kids_loved": return "loved";
     case "too_much_work": return "too_hard";
+    case "ordered_suggested": return "reorder_worthy";
+    case "ordered_different": return "okay";
+    case "takeout_loved": return "loved";
+    case "takeout_skipped": return "okay";
   }
 }
 
@@ -47,6 +71,10 @@ function actionToTags(action: QuickAction): string[] {
     case "ordered_instead": return ["ordered_out"];
     case "kids_loved": return ["everyone_liked"];
     case "too_much_work": return [];
+    case "ordered_suggested": return ["ordered_out", "ordered_suggested"];
+    case "ordered_different": return ["ordered_out", "ordered_different"];
+    case "takeout_loved": return ["ordered_out", "everyone_liked"];
+    case "takeout_skipped": return ["skipped"];
   }
 }
 
@@ -56,6 +84,10 @@ function actionToEffort(action: QuickAction): string | null {
     case "ordered_instead": return null;
     case "kids_loved": return "easy";
     case "too_much_work": return "too_much";
+    case "ordered_suggested": return "easy";
+    case "ordered_different": return "easy";
+    case "takeout_loved": return "easy";
+    case "takeout_skipped": return null;
   }
 }
 
