@@ -370,7 +370,7 @@ const DailyDinnerCard = ({
 
           {/* Quick feedback buttons */}
           <div className="grid grid-cols-2 gap-2">
-            {QUICK_ACTIONS.map((action) => {
+            {activeActions.map((action) => {
               const isSelected = selectedAction === action.value;
               const isPositive = action.sentiment === "positive";
               return (
