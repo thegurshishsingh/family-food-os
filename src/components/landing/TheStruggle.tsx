@@ -73,12 +73,12 @@ const TheStruggle = () => {
           variants={fadeUp}
           custom={6}
         >
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-strong">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-sky flex items-center justify-center">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/[0.06] border border-primary/15">
+            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
               <Lightbulb className="w-3 h-3 text-primary-foreground" />
             </div>
-            <span className="text-sm font-semibold text-primary">
-              What if dinner was already figured out before 5pm?
+            <span className="text-sm font-medium text-primary">
+              Plan the week. Shop with a clean list. Check in after dinner.
             </span>
           </div>
         </motion.div>
