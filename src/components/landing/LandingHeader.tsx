@@ -83,7 +83,7 @@ const LandingHeader = ({ locale }: LandingHeaderProps) => {
           {/* Primary CTA: token widths per breakpoint, both labels truncate */}
           <Button
             size="sm"
-            className="h-header-btn w-header-cta-xxs xs:w-header-cta-xs md:w-header-cta-md px-3 md:px-4 bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-md whitespace-nowrap overflow-hidden font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased flex-shrink-0"
+            className="h-header-btn w-header-cta-xxs xs:w-header-cta-xs md:w-header-cta-md px-3 md:px-4 bg-primary text-primary-foreground hover:bg-primary/90 shadow-md whitespace-nowrap overflow-hidden font-sans text-sm font-medium leading-[1] [font-feature-settings:'tnum'] antialiased flex-shrink-0"
             asChild
           >
             <Link

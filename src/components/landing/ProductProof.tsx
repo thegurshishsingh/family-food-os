@@ -33,12 +33,12 @@ const ProductProof = () => {
           variants={fadeUp}
           custom={0}
         >
-          <h2 className="text-3xl md:text-5xl font-serif font-semibold text-foreground mb-4 tracking-tight leading-[1.1]">
-            It learns from real life,<br className="hidden md:block" /> not just recipes.
+          <h2 className="text-3xl md:text-5xl font-serif font-medium text-foreground mb-5 tracking-[-0.02em] leading-[1.05]">
+            Plans that fit<br className="hidden md:block" /> <span className="italic text-primary">real life.</span>
           </h2>
-          <p className="text-muted-foreground/80 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Most meal apps stop at planning. Family Food OS keeps learning after
-            dinner, so each week's dinners fit your family better.
+          <p className="text-muted-foreground/80 text-base md:text-lg max-w-xl mx-auto leading-relaxed font-light">
+            One structured week — cook nights, leftovers, takeout, dine out.
+            Built around how your family actually eats, not just a folder of recipes.
           </p>
         </motion.div>
 
@@ -49,15 +49,12 @@ const ProductProof = () => {
           variants={fadeUp}
           custom={2}
         >
-          <p className="text-center text-sm font-medium text-muted-foreground mb-3">
-            Here's what a real family's week looks like →
-          </p>
           <div className="max-w-2xl mx-auto">
             <WeeklyPlanCard isMobile={isMobile} viewport={viewport} />
           </div>
-          <div className="text-center mt-5">
-            <Button size="lg" className="text-base px-8 h-12 rounded-xl bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.4)]" asChild>
-              <Link to="/signup">This could be your week. Start free <ArrowRight className="w-4 h-4 ml-2" /></Link>
+          <div className="text-center mt-8">
+            <Button size="lg" className="text-base px-9 h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.4)] transition-all hover:-translate-y-0.5" asChild>
+              <Link to="/signup">Start your week <ArrowRight className="w-4 h-4 ml-1" /></Link>
             </Button>
           </div>
         </motion.div>
