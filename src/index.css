@@ -72,8 +72,8 @@
     --header-height: 4rem;                /* 64px nav bar */
     --header-btn-height: 2.25rem;         /* 36px (h-9) */
     --header-cta-w-xxs: 6rem;             /* 96px  — <390px ("Start") */
-    --header-cta-w-xs: 8.25rem;           /* 132px — ≥390px ("Start free") */
-    --header-cta-w-md: 9.25rem;           /* 148px — ≥768px */
+    --header-cta-w-xs: 9.75rem;           /* 156px — ≥390px ("Start your week") */
+    --header-cta-w-md: 11.25rem;          /* 180px — ≥768px */
     --header-login-min: 2.75rem;          /* 44px  — min tap target */
     --header-login-max-xs: 5.5rem;        /* 88px  */
     --header-login-max-md: 7.5rem;        /* 120px */
