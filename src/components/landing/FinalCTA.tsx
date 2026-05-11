@@ -8,12 +8,12 @@ const FinalCTA = () => {
   const { fadeUp, viewport, initialState } = useScrollReveal();
 
   return (
-    <section className="py-16 md:py-24 px-4 relative overflow-hidden">
+    <section className="py-20 md:py-32 px-4 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-gradient-to-r from-primary/8 via-sky/5 to-violet/6 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] rounded-full bg-sage/10 blur-3xl" />
       </div>
 
-      <div className="container max-w-2xl text-center relative z-10">
+      <div className="container max-w-3xl text-center relative z-10">
         <motion.div
           initial={initialState}
           whileInView="visible"
@@ -21,31 +21,37 @@ const FinalCTA = () => {
           variants={fadeUp}
           custom={0}
         >
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-3xl bg-gradient-to-br from-primary via-sky to-primary mb-6 shadow-xl">
-            <Sparkles className="w-7 h-7 text-primary-foreground" />
+          <div className="inline-flex items-center gap-2 mb-6">
+            <span className="w-8 h-px bg-primary/40" />
+            <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-primary/80">
+              For your family
+            </span>
+            <span className="w-8 h-px bg-primary/40" />
           </div>
-          <h2 className="text-4xl md:text-6xl font-serif font-semibold text-foreground mb-4 leading-[1.05] tracking-tight">
-            Tonight's dinner?
-            <br />
-            <span className="bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent">Already handled.</span>
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-serif font-medium text-foreground mb-6 leading-[1.02] tracking-[-0.02em]">
+            Dinner, handled<br />
+            <span className="italic text-primary">for your family.</span>
           </h2>
-          <p className="text-muted-foreground/80 text-base md:text-lg max-w-md mx-auto mb-8 leading-relaxed">
-            Join our founding families
+          <p className="text-muted-foreground/80 text-lg md:text-xl max-w-xl mx-auto mb-10 leading-relaxed font-light">
+            Set up in five minutes. Better every week after that.
           </p>
-          <Button size="lg" className="text-base px-10 h-14 rounded-xl text-lg bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.5)]" asChild>
+          <Button
+            size="lg"
+            className="text-base px-10 h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_10px_40px_-10px_hsl(var(--primary)/0.6)] transition-all hover:-translate-y-0.5"
+            asChild
+          >
             <Link to="/signup">
-              Start your first week — free <ArrowRight className="w-5 h-5 ml-2" />
+              Start your first week <ArrowRight className="w-4 h-4 ml-1" />
             </Link>
           </Button>
-          <p className="text-xs text-muted-foreground/60 mt-4">
-            No credit card needed · Set up in 5 minutes · Cancel anytime
+          <p className="text-sm text-muted-foreground/60 mt-5">
+            Free to start · No credit card · Cancel anytime
           </p>
-          <p className="text-xs text-muted-foreground/40 mt-4">
+          <p className="text-sm text-muted-foreground/50 mt-6">
             Questions? Reach us at{" "}
-            <a href="mailto:hello@familyfoodOS.com" className="text-primary/70 hover:text-primary underline underline-offset-2 transition-colors">
+            <a href="mailto:hello@familyfoodOS.com" className="text-primary/80 hover:text-primary underline underline-offset-4 transition-colors">
               hello@familyfoodOS.com
             </a>
-            {" "}— we're parents too, we get it.
           </p>
         </motion.div>
       </div>
