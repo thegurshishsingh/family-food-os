@@ -1,22 +1,10 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, Flame, Brain, Sparkles, TrendingUp, CalendarDays, Utensils, Package, Store } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
 import { GlassCard, IconTile } from "./primitives";
-
-const rotatingWords = [
-  "Dinner decisions",
-  "Sports nights",
-  "Picky eaters",
-  "Leftover overload",
-  "Grocery runs",
-  "Takeout traps",
-  "Busy weeknights",
-  "5 pm panic",
-];
 
 const WeeklyPlanCard = () => (
   <GlassCard size="md" halo="primary" outerClassName="w-[140px]">
