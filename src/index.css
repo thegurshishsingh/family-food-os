@@ -47,24 +47,24 @@
     --sidebar-border: 35 18% 88%;
     --sidebar-ring: 152 28% 38%;
 
-    /* Custom tokens */
-    --sage: 152 28% 38%;
-    --sage-light: 152 22% 92%;
-    --sage-dark: 152 32% 28%;
-    --warm: 28 60% 58%;
-    --warm-light: 28 50% 94%;
-    --cream: 40 30% 96%;
-    --charcoal: 30 10% 12%;
+    /* Custom tokens — brand */
+    --sage: 140 17% 62%;
+    --sage-light: 140 18% 90%;
+    --sage-dark: 146 28% 20%;
+    --warm: 30 74% 63%;
+    --warm-light: 30 60% 93%;
+    --cream: 40 28% 95%;
+    --charcoal: 0 0% 12%;
 
-    /* New design tokens */
-    --coral: 12 80% 62%;
-    --coral-light: 12 60% 94%;
-    --sky: 200 70% 55%;
-    --sky-light: 200 50% 94%;
-    --violet: 262 50% 58%;
-    --violet-light: 262 40% 94%;
-    --lemon: 48 90% 60%;
-    --lemon-light: 48 60% 94%;
+    /* Secondary palette — used sparingly */
+    --coral: 12 60% 60%;
+    --coral-light: 12 50% 94%;
+    --sky: 200 35% 55%;
+    --sky-light: 200 30% 94%;
+    --violet: 262 30% 55%;
+    --violet-light: 262 25% 94%;
+    --lemon: 42 75% 60%;
+    --lemon-light: 42 60% 94%;
 
     /* Header sizing tokens — single source of truth for nav layout.
      * Update here to keep header buttons stable across locales.
