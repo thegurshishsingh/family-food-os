@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Quote, TrendingUp, Sparkles } from "lucide-r
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { ContentCard, IconTile } from "./primitives";
 import { cn } from "@/lib/utils";
+import { useMockupMode, type MockupMode } from "./mockupModeStore";
 
 type Story = {
   family: string;
@@ -16,6 +17,8 @@ type Story = {
   outcome: { label: string; value: string };
   quote: string;
   modeFocus: string;
+  mode: MockupMode;
+  modeLabel: string;
 };
 
 const STORIES: Story[] = [
@@ -31,6 +34,8 @@ const STORIES: Story[] = [
     quote:
       "I stopped feeling like I was failing dinner. The plan finally matched the life we're actually living.",
     modeFocus: "Reality Score",
+    mode: "cook",
+    modeLabel: "Cook night",
   },
   {
     family: "Marcus & the boys",
@@ -44,6 +49,8 @@ const STORIES: Story[] = [
     quote:
       "Leftovers used to feel lazy. Now they feel like strategy. The boys actually look forward to taco night.",
     modeFocus: "Leftovers",
+    mode: "leftovers",
+    modeLabel: "Leftover night",
   },
   {
     family: "The Patels",
@@ -57,6 +64,8 @@ const STORIES: Story[] = [
     quote:
       "It learns. That's the part nobody else does. Week six felt like the app finally knew our family.",
     modeFocus: "Meal memory",
+    mode: "cook",
+    modeLabel: "Cook night",
   },
   {
     family: "The Okonkwos",
@@ -70,6 +79,8 @@ const STORIES: Story[] = [
     quote:
       "Naming Friday as 'dine out night' on purpose changed everything. It stopped feeling like we'd given up.",
     modeFocus: "Dine Out",
+    mode: "dine_out",
+    modeLabel: "Dine out night",
   },
   {
     family: "The Bauers",
@@ -83,6 +94,8 @@ const STORIES: Story[] = [
     quote:
       "I finally have my Saturday morning back. The list is done before I've finished my coffee.",
     modeFocus: "Takeout",
+    mode: "takeout",
+    modeLabel: "Takeout night",
   },
 ];
 
@@ -94,16 +107,32 @@ const FamilyStories = () => {
     skipSnaps: false,
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [mode, setMode] = useMockupMode();
 
+  // Carousel → mode
   useEffect(() => {
     if (!emblaApi) return;
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+    const onSelect = () => {
+      const i = emblaApi.selectedScrollSnap();
+      setSelectedIndex(i);
+      const story = STORIES[i];
+      if (story) setMode(story.mode);
+    };
     emblaApi.on("select", onSelect);
     onSelect();
     return () => {
       emblaApi.off("select", onSelect);
     };
-  }, [emblaApi]);
+  }, [emblaApi, setMode]);
+
+  // Mode → carousel (jump to first matching story if current isn't a match)
+  useEffect(() => {
+    if (!emblaApi) return;
+    const currentStory = STORIES[emblaApi.selectedScrollSnap()];
+    if (currentStory?.mode === mode) return;
+    const target = STORIES.findIndex((s) => s.mode === mode);
+    if (target >= 0) emblaApi.scrollTo(target);
+  }, [mode, emblaApi]);
 
   const scrollPrev = () => emblaApi?.scrollPrev();
   const scrollNext = () => emblaApi?.scrollNext();

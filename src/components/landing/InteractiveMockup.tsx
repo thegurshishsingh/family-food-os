@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMockupMode, type MockupMode } from "./mockupModeStore";
 import {
   Utensils,
   Package,
@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Mode = "cook" | "leftovers" | "takeout" | "dine_out";
+type Mode = MockupMode;
 
 const MODES: { id: Mode; label: string; icon: typeof Utensils; gradient: string }[] = [
   { id: "cook", label: "Cook", icon: Utensils, gradient: "from-primary to-sage-dark" },
@@ -27,7 +27,7 @@ const MODES: { id: Mode; label: string; icon: typeof Utensils; gradient: string 
 ];
 
 const InteractiveMockup = () => {
-  const [mode, setMode] = useState<Mode>("cook");
+  const [mode, setMode] = useMockupMode();
   const active = MODES.find((m) => m.id === mode)!;
 
   return (
