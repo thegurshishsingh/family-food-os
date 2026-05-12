@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMockupMode, type MockupMode } from "./mockupModeStore";
 import {
   Utensils,
   Package,
