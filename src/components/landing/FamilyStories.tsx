@@ -94,6 +94,8 @@ const STORIES: Story[] = [
     quote:
       "I finally have my Saturday morning back. The list is done before I've finished my coffee.",
     modeFocus: "Takeout",
+    mode: "takeout",
+    modeLabel: "Takeout night",
   },
 ];
 
