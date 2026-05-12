@@ -59,7 +59,7 @@ const Landing = () => {
         </div>
       </section>
 
-      <FamilyVoices />
+      <FamilyStories />
 
       <FinalCTA />
 
