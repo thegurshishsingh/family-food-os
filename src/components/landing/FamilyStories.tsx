@@ -95,10 +95,15 @@ const FamilyStories = () => {
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // Sync selected dot
-  if (emblaApi) {
-    emblaApi.on("select", () => setSelectedIndex(emblaApi.selectedScrollSnap()));
-  }
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi]);
 
   const scrollPrev = () => emblaApi?.scrollPrev();
   const scrollNext = () => emblaApi?.scrollNext();
