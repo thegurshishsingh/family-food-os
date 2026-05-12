@@ -7,6 +7,7 @@ import HeroSection from "@/components/landing/HeroSection";
 import TheStruggle from "@/components/landing/TheStruggle";
 import ProductProof from "@/components/landing/ProductProof";
 import HowItWorksPlayful from "@/components/landing/HowItWorksPlayful";
+import GroceryShowcase from "@/components/landing/GroceryShowcase";
 import WhyDifferent from "@/components/landing/WhyDifferent";
 
 import InteractiveTagCloud from "@/components/landing/InteractiveTagCloud";
