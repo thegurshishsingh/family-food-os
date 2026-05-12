@@ -4,11 +4,11 @@ import { Snowflake, Search, HelpCircle, ShoppingCart, Flame, Lightbulb } from "l
 import { ContentCard, IconTile } from "./primitives";
 
 const SCENES = [
-  { time: "4:45 PM", icon: Snowflake, color: "from-sky to-primary", text: "\"Ugh, I forgot to defrost the chicken.\"" },
-  { time: "5:10 PM", icon: Search, color: "from-violet to-primary", text: "Scrolling through 400 saved recipes... nothing sounds good." },
-  { time: "5:25 PM", icon: HelpCircle, color: "from-coral to-accent", text: "\"Kids, what do you want?\" — \"NUGGETS!\" (for the 4th time)." },
-  { time: "5:40 PM", icon: ShoppingCart, color: "from-lemon to-accent", text: "Emergency grocery run. Again." },
-  { time: "6:15 PM", icon: Flame, color: "from-coral to-destructive", text: "Cooking something nobody asked for while everyone's hangry." },
+  { time: "4:45 PM", icon: Snowflake, color: "from-sage to-primary", text: "\"Ugh, I forgot to defrost the chicken.\"" },
+  { time: "5:10 PM", icon: Search, color: "from-primary to-sage-dark", text: "Scrolling through 400 saved recipes... nothing sounds good." },
+  { time: "5:25 PM", icon: HelpCircle, color: "from-accent to-accent/70", text: "\"Kids, what do you want?\" — \"NUGGETS!\" (for the 4th time)." },
+  { time: "5:40 PM", icon: ShoppingCart, color: "from-sage-dark to-primary", text: "Emergency grocery run. Again." },
+  { time: "6:15 PM", icon: Flame, color: "from-coral to-accent", text: "Cooking something nobody asked for while everyone's hangry." },
 ];
 
 const TheStruggle = () => {

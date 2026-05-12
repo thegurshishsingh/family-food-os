@@ -4,15 +4,16 @@ import { TrendingUp, ArrowRight, Utensils, Package, Store, UtensilsCrossed } fro
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { ContentCard } from "./primitives";
+import checkinMockup from "@/assets/app-mockup-checkin.png";
 
 const WEEK_PREVIEW = [
   { day: "Mon", date: "10", mode: "Cook", meal: "Lemon chicken bowls", time: "30 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
-  { day: "Tue", date: "11", mode: "Leftovers", meal: "Leftover taco bowls", time: "5 min", icon: Package, modeGradient: "from-sky to-primary" },
-  { day: "Wed", date: "12", mode: "Takeout", meal: "Family sushi takeout", time: "—", icon: Store, modeGradient: "from-accent to-coral" },
+  { day: "Tue", date: "11", mode: "Leftovers", meal: "Leftover taco bowls", time: "5 min", icon: Package, modeGradient: "from-sage to-primary" },
+  { day: "Wed", date: "12", mode: "Takeout", meal: "Family sushi takeout", time: "—", icon: Store, modeGradient: "from-accent to-accent" },
   { day: "Thu", date: "13", mode: "Cook", meal: "Sheet pan salmon", time: "25 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
-  { day: "Fri", date: "14", mode: "Dine Out", meal: "Dinner out", time: "—", icon: UtensilsCrossed, modeGradient: "from-violet to-primary" },
+  { day: "Fri", date: "14", mode: "Dine Out", meal: "Dinner out", time: "—", icon: UtensilsCrossed, modeGradient: "from-sage-dark to-primary" },
   { day: "Sat", date: "15", mode: "Cook", meal: "Slow cooker chili", time: "15 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
-  { day: "Sun", date: "16", mode: "Leftovers", meal: "Leftover chili nachos", time: "10 min", icon: Package, modeGradient: "from-sky to-primary" },
+  { day: "Sun", date: "16", mode: "Leftovers", meal: "Leftover chili nachos", time: "10 min", icon: Package, modeGradient: "from-sage to-primary" },
 ];
 
 const ProductProof = () => {
@@ -49,10 +50,27 @@ const ProductProof = () => {
           variants={fadeUp}
           custom={2}
         >
-          <div className="max-w-2xl mx-auto">
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_380px] gap-8 lg:gap-12 items-center max-w-5xl mx-auto">
             <WeeklyPlanCard isMobile={isMobile} viewport={viewport} />
+            <motion.div
+              className="relative hidden lg:block"
+              initial={{ opacity: 0, y: 30, rotate: -2 }}
+              whileInView={{ opacity: 1, y: 0, rotate: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="absolute -inset-8 bg-gradient-to-br from-primary/15 via-sage/10 to-accent/10 rounded-[3rem] blur-3xl" aria-hidden="true" />
+              <img
+                src={checkinMockup}
+                alt="Family Food OS dinner check-in screen on a phone"
+                loading="lazy"
+                width={1024}
+                height={1536}
+                className="relative w-full h-auto drop-shadow-[0_30px_60px_hsl(var(--primary)/0.25)]"
+              />
+            </motion.div>
           </div>
-          <div className="text-center mt-8">
+          <div className="text-center mt-10">
             <Button size="lg" className="text-base px-9 h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.4)] transition-all hover:-translate-y-0.5" asChild>
               <Link to="/signup">Start your week <ArrowRight className="w-4 h-4 ml-1" /></Link>
             </Button>
