@@ -64,6 +64,8 @@ const STORIES: Story[] = [
     quote:
       "It learns. That's the part nobody else does. Week six felt like the app finally knew our family.",
     modeFocus: "Meal memory",
+    mode: "cook",
+    modeLabel: "Cook night",
   },
   {
     family: "The Okonkwos",
