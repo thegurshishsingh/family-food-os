@@ -53,21 +53,13 @@ const ProductProof = () => {
           <div className="grid lg:grid-cols-[minmax(0,1fr)_380px] gap-8 lg:gap-12 items-center max-w-5xl mx-auto">
             <WeeklyPlanCard isMobile={isMobile} viewport={viewport} />
             <motion.div
-              className="relative hidden lg:block"
-              initial={{ opacity: 0, y: 30, rotate: -2 }}
-              whileInView={{ opacity: 1, y: 0, rotate: 0 }}
+              className="relative"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={viewport}
               transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="absolute -inset-8 bg-gradient-to-br from-primary/15 via-sage/10 to-accent/10 rounded-[3rem] blur-3xl" aria-hidden="true" />
-              <img
-                src={checkinMockup}
-                alt="Family Food OS dinner check-in screen on a phone"
-                loading="lazy"
-                width={1024}
-                height={1536}
-                className="relative w-full h-auto drop-shadow-[0_30px_60px_hsl(var(--primary)/0.25)]"
-              />
+              <InteractiveMockup />
             </motion.div>
           </div>
           <div className="text-center mt-10">
