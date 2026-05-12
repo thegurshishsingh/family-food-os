@@ -26,8 +26,17 @@ const MODES: { id: Mode; label: string; icon: typeof Utensils; gradient: string 
   { id: "dine_out", label: "Dine Out", icon: UtensilsCrossed, gradient: "from-sage-dark to-primary" },
 ];
 
+type Mode = MockupMode;
+
+const MODES: { id: Mode; label: string; icon: typeof Utensils; gradient: string }[] = [
+  { id: "cook", label: "Cook", icon: Utensils, gradient: "from-primary to-sage-dark" },
+  { id: "leftovers", label: "Leftovers", icon: Package, gradient: "from-sage to-primary" },
+  { id: "takeout", label: "Takeout", icon: Store, gradient: "from-accent to-accent/70" },
+  { id: "dine_out", label: "Dine Out", icon: UtensilsCrossed, gradient: "from-sage-dark to-primary" },
+];
+
 const InteractiveMockup = () => {
-  const [mode, setMode] = useState<Mode>("cook");
+  const [mode, setMode] = useMockupMode();
   const active = MODES.find((m) => m.id === mode)!;
 
   return (
