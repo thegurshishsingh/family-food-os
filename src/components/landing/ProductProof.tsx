@@ -4,6 +4,7 @@ import { TrendingUp, ArrowRight, Utensils, Package, Store, UtensilsCrossed } fro
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { ContentCard } from "./primitives";
+import checkinMockup from "@/assets/app-mockup-checkin.png";
 
 const WEEK_PREVIEW = [
   { day: "Mon", date: "10", mode: "Cook", meal: "Lemon chicken bowls", time: "30 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
