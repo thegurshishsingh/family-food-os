@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, Quote, TrendingUp, Sparkles } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
