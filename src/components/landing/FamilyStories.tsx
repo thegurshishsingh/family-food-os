@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Quote, TrendingUp, Sparkles } from "lucide-r
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { ContentCard, IconTile } from "./primitives";
 import { cn } from "@/lib/utils";
+import { useMockupMode, type MockupMode } from "./mockupModeStore";
 
 type Story = {
   family: string;
