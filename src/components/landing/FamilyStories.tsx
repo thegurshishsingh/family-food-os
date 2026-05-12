@@ -107,16 +107,32 @@ const FamilyStories = () => {
     skipSnaps: false,
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [mode, setMode] = useMockupMode();
 
+  // Carousel → mode
   useEffect(() => {
     if (!emblaApi) return;
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+    const onSelect = () => {
+      const i = emblaApi.selectedScrollSnap();
+      setSelectedIndex(i);
+      const story = STORIES[i];
+      if (story) setMode(story.mode);
+    };
     emblaApi.on("select", onSelect);
     onSelect();
     return () => {
       emblaApi.off("select", onSelect);
     };
-  }, [emblaApi]);
+  }, [emblaApi, setMode]);
+
+  // Mode → carousel (jump to first matching story if current isn't a match)
+  useEffect(() => {
+    if (!emblaApi) return;
+    const currentStory = STORIES[emblaApi.selectedScrollSnap()];
+    if (currentStory?.mode === mode) return;
+    const target = STORIES.findIndex((s) => s.mode === mode);
+    if (target >= 0) emblaApi.scrollTo(target);
+  }, [mode, emblaApi]);
 
   const scrollPrev = () => emblaApi?.scrollPrev();
   const scrollNext = () => emblaApi?.scrollNext();
