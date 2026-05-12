@@ -49,6 +49,8 @@ const STORIES: Story[] = [
     quote:
       "Leftovers used to feel lazy. Now they feel like strategy. The boys actually look forward to taco night.",
     modeFocus: "Leftovers",
+    mode: "leftovers",
+    modeLabel: "Leftover night",
   },
   {
     family: "The Patels",
