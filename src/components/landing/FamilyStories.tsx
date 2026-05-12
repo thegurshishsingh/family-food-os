@@ -34,6 +34,8 @@ const STORIES: Story[] = [
     quote:
       "I stopped feeling like I was failing dinner. The plan finally matched the life we're actually living.",
     modeFocus: "Reality Score",
+    mode: "cook",
+    modeLabel: "Cook night",
   },
   {
     family: "Marcus & the boys",
