@@ -31,6 +31,8 @@ const Landing = () => {
 
       <HowItWorksPlayful />
 
+      <GroceryShowcase />
+
       <WhyDifferent />
 
       
