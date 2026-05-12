@@ -7,12 +7,12 @@ import { ContentCard } from "./primitives";
 
 const WEEK_PREVIEW = [
   { day: "Mon", date: "10", mode: "Cook", meal: "Lemon chicken bowls", time: "30 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
-  { day: "Tue", date: "11", mode: "Leftovers", meal: "Leftover taco bowls", time: "5 min", icon: Package, modeGradient: "from-sky to-primary" },
-  { day: "Wed", date: "12", mode: "Takeout", meal: "Family sushi takeout", time: "—", icon: Store, modeGradient: "from-accent to-coral" },
+  { day: "Tue", date: "11", mode: "Leftovers", meal: "Leftover taco bowls", time: "5 min", icon: Package, modeGradient: "from-sage to-primary" },
+  { day: "Wed", date: "12", mode: "Takeout", meal: "Family sushi takeout", time: "—", icon: Store, modeGradient: "from-accent to-accent" },
   { day: "Thu", date: "13", mode: "Cook", meal: "Sheet pan salmon", time: "25 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
-  { day: "Fri", date: "14", mode: "Dine Out", meal: "Dinner out", time: "—", icon: UtensilsCrossed, modeGradient: "from-violet to-primary" },
+  { day: "Fri", date: "14", mode: "Dine Out", meal: "Dinner out", time: "—", icon: UtensilsCrossed, modeGradient: "from-sage-dark to-primary" },
   { day: "Sat", date: "15", mode: "Cook", meal: "Slow cooker chili", time: "15 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
-  { day: "Sun", date: "16", mode: "Leftovers", meal: "Leftover chili nachos", time: "10 min", icon: Package, modeGradient: "from-sky to-primary" },
+  { day: "Sun", date: "16", mode: "Leftovers", meal: "Leftover chili nachos", time: "10 min", icon: Package, modeGradient: "from-sage to-primary" },
 ];
 
 const ProductProof = () => {
