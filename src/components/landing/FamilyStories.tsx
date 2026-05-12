@@ -79,6 +79,8 @@ const STORIES: Story[] = [
     quote:
       "Naming Friday as 'dine out night' on purpose changed everything. It stopped feeling like we'd given up.",
     modeFocus: "Dine Out",
+    mode: "dine_out",
+    modeLabel: "Dine out night",
   },
   {
     family: "The Bauers",
