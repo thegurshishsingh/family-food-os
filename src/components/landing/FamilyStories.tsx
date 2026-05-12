@@ -17,6 +17,8 @@ type Story = {
   outcome: { label: string; value: string };
   quote: string;
   modeFocus: string;
+  mode: MockupMode;
+  modeLabel: string;
 };
 
 const STORIES: Story[] = [
