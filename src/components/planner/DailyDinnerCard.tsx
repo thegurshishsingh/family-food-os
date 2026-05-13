@@ -202,7 +202,7 @@ const DailyDinnerCard = ({
           </p>
           {streak > 0 && (
             <div className="flex items-center gap-1.5 mt-3">
-              <Flame className={`w-3.5 h-3.5 ${streak >= 7 ? "text-orange-500" : streak >= 3 ? "text-amber-500" : "text-muted-foreground"}`} />
+              <Flame className={`w-3.5 h-3.5 ${streak >= 7 ? "text-accent" : streak >= 3 ? "text-accent" : "text-muted-foreground"}`} />
               <span className="text-xs font-medium text-foreground">Dinner streak: {streak} nights</span>
               <span className="text-xs text-muted-foreground hidden sm:inline">· {streakMessage}</span>
             </div>
@@ -361,7 +361,7 @@ const DailyDinnerCard = ({
                 animate={streak >= 3 ? { scale: [1, 1.15, 1] } : {}}
                 transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
               >
-                <Flame className={`w-4 h-4 ${streak >= 7 ? "text-orange-500" : streak >= 3 ? "text-amber-500" : "text-muted-foreground"}`} />
+                <Flame className={`w-4 h-4 ${streak >= 7 ? "text-accent" : streak >= 3 ? "text-accent" : "text-muted-foreground"}`} />
               </motion.div>
               <span className="text-sm font-semibold text-foreground">Dinner streak: {streak} nights</span>
               <span className="text-xs text-muted-foreground hidden sm:inline ml-1">· {streakMessage}</span>

@@ -73,12 +73,14 @@ const MealDetailDialog = ({ day, open, onOpenChange, defaultServings = 4 }: Meal
   const ModeIcon = mode.icon;
   const multiplier = servings / defaultServings;
 
+  // Brand-tinted macro palette: distinct but cohesive within the
+  // Family Food OS brand (Deep Moss, Soft Amber, Muted Sage tokens).
   const nutritionItems = [
-    { label: "Calories", value: roundNutrition(day.calories), unit: "kcal", icon: Flame, accent: "text-orange-500" },
-    { label: "Protein", value: roundNutrition(day.protein_g), unit: "g", icon: Beef, accent: "text-red-500" },
-    { label: "Carbs", value: roundNutrition(day.carbs_g), unit: "g", icon: Wheat, accent: "text-amber-500" },
-    { label: "Fat", value: roundNutrition(day.fat_g), unit: "g", icon: Droplets, accent: "text-blue-500" },
-    { label: "Fiber", value: roundNutrition(day.fiber_g), unit: "g", icon: Leaf, accent: "text-green-500" },
+    { label: "Calories", value: roundNutrition(day.calories), unit: "kcal", icon: Flame, accent: "text-accent" },
+    { label: "Protein", value: roundNutrition(day.protein_g), unit: "g", icon: Beef, accent: "text-destructive" },
+    { label: "Carbs", value: roundNutrition(day.carbs_g), unit: "g", icon: Wheat, accent: "text-warm" },
+    { label: "Fat", value: roundNutrition(day.fat_g), unit: "g", icon: Droplets, accent: "text-sage" },
+    { label: "Fiber", value: roundNutrition(day.fiber_g), unit: "g", icon: Leaf, accent: "text-primary" },
   ].filter((item) => item.value != null);
 
   const ingredients = day.ingredients || [];
