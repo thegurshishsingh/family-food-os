@@ -42,8 +42,8 @@ function renderCard(
 
   // ── Background ──
   const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, "#f8f6f2");
-  bg.addColorStop(1, "#f0ede7");
+  bg.addColorStop(0, "#F6F4EF");
+  bg.addColorStop(1, "#EDEAE3");
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
@@ -51,7 +51,7 @@ function renderCard(
   const glowY = format === "story" ? H * 0.28 : H * 0.38;
   const glowR = format === "landscape" ? 420 : 360;
   const glow = ctx.createRadialGradient(cx, glowY, 0, cx, glowY, glowR);
-  glow.addColorStop(0, "rgba(74, 140, 111, 0.06)");
+  glow.addColorStop(0, "rgba(47, 79, 62, 0.08)");
   glow.addColorStop(1, "transparent");
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
@@ -63,7 +63,7 @@ function renderCard(
   const topY = format === "story" ? H * 0.2 : format === "landscape" ? H * 0.15 : 130;
 
   // ── TOP LABEL ──
-  ctx.fillStyle = "#9a9590";
+  ctx.fillStyle = "#6B6F6A";
   ctx.font = `500 ${Math.round(16 * scale)}px 'DM Sans', system-ui, sans-serif`;
   ctx.letterSpacing = "4px";
   ctx.fillText("LAST WEEK RECAP", cx, topY);
@@ -71,17 +71,17 @@ function renderCard(
 
   // ── HERO NUMBER ──
   const heroY = topY + 120 * scale;
-  ctx.fillStyle = "#4a8c6f";
+  ctx.fillStyle = "#2F4F3E";
   ctx.font = `700 ${Math.round(72 * scale)}px 'Fraunces', Georgia, serif`;
   ctx.fillText(formatHours(result.totalMinutesSaved), cx, heroY);
 
-  ctx.fillStyle = "#1f1d1a";
+  ctx.fillStyle = "#1F1F1F";
   ctx.font = `600 ${Math.round(38 * scale)}px 'Fraunces', Georgia, serif`;
   ctx.fillText("back.", cx, heroY + 50 * scale);
 
   // ── SUPPORTING COPY ──
   const copyY = heroY + 110 * scale;
-  ctx.fillStyle = "#9a9590";
+  ctx.fillStyle = "#6B6F6A";
   ctx.font = `400 ${Math.round(20 * scale)}px 'DM Sans', system-ui, sans-serif`;
   ctx.fillText("From smarter planning, fewer scrambles,", cx, copyY);
   ctx.fillText("and a week that mostly ran itself.", cx, copyY + 28 * scale);
@@ -89,7 +89,7 @@ function renderCard(
   // ── DIVIDER ──
   const divY = copyY + 65 * scale;
   const divPad = format === "landscape" ? W * 0.3 : W * 0.17;
-  ctx.fillStyle = "rgba(74, 140, 111, 0.12)";
+  ctx.fillStyle = "rgba(47, 79, 62, 0.15)";
   ctx.fillRect(divPad, divY, W - divPad * 2, 1);
 
   // ── KPIs ──
@@ -98,20 +98,20 @@ function renderCard(
   const kpiFontSize = Math.round(40 * scale);
   const kpiLabelSize = Math.round(16 * scale);
 
-  ctx.fillStyle = "#1f1d1a";
+  ctx.fillStyle = "#1F1F1F";
   ctx.font = `700 ${kpiFontSize}px 'Fraunces', Georgia, serif`;
   ctx.fillText(formatHours(result.totalMinutesSaved), cx - kpiSpread, kpiY);
-  ctx.fillStyle = "#9a9590";
+  ctx.fillStyle = "#6B6F6A";
   ctx.font = `400 ${kpiLabelSize}px 'DM Sans', system-ui, sans-serif`;
   ctx.fillText("this week", cx - kpiSpread, kpiY + 28 * scale);
 
   ctx.fillStyle = "rgba(0,0,0,0.08)";
   ctx.fillRect(cx, kpiY - 30, 1, 60);
 
-  ctx.fillStyle = "#1f1d1a";
+  ctx.fillStyle = "#1F1F1F";
   ctx.font = `700 ${kpiFontSize}px 'Fraunces', Georgia, serif`;
   ctx.fillText(formatHours(cumulativeMinutes), cx + kpiSpread, kpiY);
-  ctx.fillStyle = "#9a9590";
+  ctx.fillStyle = "#6B6F6A";
   ctx.font = `400 ${kpiLabelSize}px 'DM Sans', system-ui, sans-serif`;
   ctx.fillText("all time", cx + kpiSpread, kpiY + 28 * scale);
 
@@ -119,7 +119,7 @@ function renderCard(
   const rewardY = kpiY + 100 * scale;
   if (humanRewards.length > 0) {
     const reward = humanRewards[0];
-    ctx.fillStyle = "#1f1d1a";
+    ctx.fillStyle = "#1F1F1F";
     ctx.font = `500 ${Math.round(26 * scale)}px 'Fraunces', Georgia, serif`;
     ctx.fillText(`${reward.emoji}  ${reward.text}`, cx, rewardY);
   }
