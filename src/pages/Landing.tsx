@@ -5,9 +5,12 @@ import LandingHeader from "@/components/landing/LandingHeader";
 import footerScene from "@/assets/footer-dinner-scene.jpg";
 import HeroSection from "@/components/landing/HeroSection";
 import TheStruggle from "@/components/landing/TheStruggle";
-import ProductProof from "@/components/landing/ProductProof";
+import PlansThatFitRealLife from "@/components/landing/PlansThatFitRealLife";
+import SixQuietThings from "@/components/landing/SixQuietThings";
+import GroceryListSection from "@/components/landing/GroceryListSection";
 import HowItWorksPlayful from "@/components/landing/HowItWorksPlayful";
-import WhyDifferent from "@/components/landing/WhyDifferent";
+import SmoothScroll from "@/components/landing/SmoothScroll";
+import { MealModeProvider } from "@/components/landing/MealModeContext";
 
 import InteractiveTagCloud from "@/components/landing/InteractiveTagCloud";
 import FamilyVoices from "@/components/landing/FamilyVoices";
@@ -19,6 +22,8 @@ const Landing = () => {
   const { fadeUp, viewport, initialState } = useScrollReveal();
 
   return (
+    <MealModeProvider>
+    <SmoothScroll>
     <div className="min-h-screen bg-background max-w-full overflow-x-hidden">
       <LandingHeader />
 
@@ -26,16 +31,18 @@ const Landing = () => {
 
       <TheStruggle />
 
-      <ProductProof />
+      <PlansThatFitRealLife />
+
+      <SixQuietThings />
+
+      <GroceryListSection />
 
       <HowItWorksPlayful />
-
-      <WhyDifferent />
 
       
 
       {/* Family situations */}
-      <section className="py-14 md:py-20 px-4 relative">
+      <section className="py-16 md:py-24 px-4 relative">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
           <div className="absolute bottom-0 left-1/4 w-[500px] h-[300px] rounded-full bg-gradient-to-t from-sky/5 to-transparent blur-3xl" />
         </div>
