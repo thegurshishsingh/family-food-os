@@ -1,0 +1,9 @@
+# Family Food OS
+
+> The weekly dinner system for busy families. Plan cook nights, leftovers, takeout, and dine-out in one app that learns your family's real life — picky eaters, sports nights, budgets, and all.
+
+## Pages
+
+- [Home](/): Overview of Family Food OS — weekly dinner planning, grocery sync, and meal-mode mix (Cook / Leftovers / Takeout / Dine Out).
+- [Sign up](/signup): Create a free account and set up your household in about two minutes.
+- [Log in](/login): Sign in to your weekly planner.
