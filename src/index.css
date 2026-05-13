@@ -6,54 +6,57 @@
 
 @layer base {
   :root {
-    /* Warm sage & neutral palette */
-    --background: 40 20% 98%;
-    --foreground: 30 10% 12%;
+    /* Family Food OS brand palette
+     * Primary: Deep Moss #2F4F3E · Soft Cream #F6F4EF · Pure White #FFFFFF
+     * Secondary: Warm Gray #6B6F6A · Muted Sage #8FAF9A · Charcoal #1F1F1F
+     * Accent: Soft Amber #E6A85C (sparingly) */
+    --background: 40 27% 95%;        /* Soft Cream */
+    --foreground: 0 0% 12%;          /* Charcoal */
 
-    --card: 40 25% 97%;
-    --card-foreground: 30 10% 12%;
+    --card: 0 0% 100%;               /* Pure White */
+    --card-foreground: 0 0% 12%;
 
-    --popover: 40 25% 97%;
-    --popover-foreground: 30 10% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 12%;
 
-    --primary: 152 28% 38%;
-    --primary-foreground: 40 20% 98%;
+    --primary: 148 25% 25%;          /* Deep Moss */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 35 30% 93%;
-    --secondary-foreground: 30 10% 20%;
+    --secondary: 138 16% 90%;        /* Muted Sage tint */
+    --secondary-foreground: 0 0% 12%;
 
-    --muted: 35 18% 93%;
-    --muted-foreground: 30 8% 46%;
+    --muted: 40 18% 92%;             /* Warm cream-gray */
+    --muted-foreground: 100 3% 43%;  /* Warm Gray */
 
-    --accent: 28 60% 58%;
-    --accent-foreground: 40 20% 98%;
+    --accent: 33 73% 63%;            /* Soft Amber */
+    --accent-foreground: 0 0% 12%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 40 20% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 35 18% 88%;
-    --input: 35 18% 88%;
-    --ring: 152 28% 38%;
+    --border: 40 14% 86%;
+    --input: 40 14% 86%;
+    --ring: 148 25% 25%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 40 20% 96%;
-    --sidebar-foreground: 30 10% 20%;
-    --sidebar-primary: 152 28% 38%;
-    --sidebar-primary-foreground: 40 20% 98%;
-    --sidebar-accent: 35 25% 92%;
-    --sidebar-accent-foreground: 30 10% 20%;
-    --sidebar-border: 35 18% 88%;
-    --sidebar-ring: 152 28% 38%;
+    --sidebar-background: 40 27% 95%;
+    --sidebar-foreground: 0 0% 12%;
+    --sidebar-primary: 148 25% 25%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 138 16% 90%;
+    --sidebar-accent-foreground: 0 0% 12%;
+    --sidebar-border: 40 14% 86%;
+    --sidebar-ring: 148 25% 25%;
 
-    /* Custom tokens */
-    --sage: 152 28% 38%;
-    --sage-light: 152 22% 92%;
-    --sage-dark: 152 32% 28%;
-    --warm: 28 60% 58%;
-    --warm-light: 28 50% 94%;
-    --cream: 40 30% 96%;
-    --charcoal: 30 10% 12%;
+    /* Custom brand tokens */
+    --sage: 138 16% 62%;             /* Muted Sage */
+    --sage-light: 138 16% 90%;
+    --sage-dark: 148 25% 25%;        /* Deep Moss */
+    --warm: 33 73% 63%;              /* Soft Amber */
+    --warm-light: 33 60% 94%;
+    --cream: 40 27% 95%;             /* Soft Cream */
+    --charcoal: 0 0% 12%;
 
     /* New design tokens */
     --coral: 12 80% 62%;
