@@ -181,7 +181,7 @@ const CheckInStreak = ({ householdId, checkedInCount }: CheckInStreakProps) => {
                     animate={{ rotate: [0, -10, 10, -10, 0], scale: [1, 1.1, 1] }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                   >
-                    <currentMilestone.icon className="w-8 h-8 text-amber-500" />
+                    <currentMilestone.icon className="w-8 h-8 text-accent" />
                   </motion.div>
                   <div>
                     <motion.p
