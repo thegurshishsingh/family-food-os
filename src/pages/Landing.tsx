@@ -27,6 +27,7 @@ const Landing = () => {
     <div className="min-h-screen bg-background max-w-full overflow-x-hidden">
       <LandingHeader />
 
+      <main id="main-content">
       <HeroSection />
 
       <TheStruggle />
@@ -66,6 +67,7 @@ const Landing = () => {
       <FamilyVoices />
 
       <FinalCTA />
+      </main>
 
       {/* Footer — full-bleed illustrated */}
       <footer className="relative mt-12">
