@@ -8,8 +8,14 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import Logo from "@/components/Logo";
 import { useToast } from "@/hooks/use-toast";
+import { useDocumentHead } from "@/hooks/useDocumentHead";
 
 const Signup = () => {
+  useDocumentHead({
+    title: "Sign up — Family Food OS",
+    description: "Create a free Family Food OS account in two minutes and start planning weekly dinners that fit your real life.",
+    canonical: "/signup",
+  });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
