@@ -15,7 +15,7 @@ const TheStruggle = () => {
   const { fadeUp, viewport, initialState } = useScrollReveal();
 
   return (
-    <section className="py-14 md:py-20 px-4 relative">
+    <section className="py-16 md:py-24 px-4 relative">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-gradient-to-b from-coral/5 to-transparent blur-3xl" />
       </div>
@@ -29,14 +29,14 @@ const TheStruggle = () => {
           variants={fadeUp}
           custom={0}
         >
-          <IconTile size="xl" gradient="from-coral/15 to-accent/10" className="mb-4">
+          <IconTile size="xl" gradient="from-coral/15 to-accent/10" className="mb-5">
             <Flame className="w-6 h-6 text-coral" />
           </IconTile>
-          <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-3 tracking-tight leading-[1.15]">
-            Sound familiar?
+          <h2 className="text-3xl md:text-5xl font-serif font-semibold text-foreground mb-4 tracking-tight leading-[1.1]">
+            Dinner doesn't fall apart<br className="hidden md:block" /> because families lack recipes.
           </h2>
-          <p className="text-muted-foreground/80 text-base leading-relaxed">
-            Every family's 5pm looks something like this.
+          <p className="text-muted-foreground/80 text-base md:text-lg leading-relaxed max-w-xl mx-auto">
+            It falls apart because life changes — and most weeks, every 5pm looks something like this.
           </p>
         </motion.div>
 
