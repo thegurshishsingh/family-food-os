@@ -15,7 +15,7 @@ interface WhatWeLearnedCardProps {
 
 const ICON_MAP: Record<UserInsight["icon"], { Icon: typeof Heart; className: string }> = {
   love:  { Icon: Heart,        className: "text-primary" },
-  warn:  { Icon: AlertTriangle, className: "text-amber-600" },
+  warn:  { Icon: AlertTriangle, className: "text-accent" },
   trend: { Icon: TrendingUp,   className: "text-primary" },
   info:  { Icon: Sparkles,     className: "text-muted-foreground" },
 };

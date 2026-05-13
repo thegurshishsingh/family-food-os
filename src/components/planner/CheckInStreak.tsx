@@ -26,9 +26,10 @@ const ConfettiParticle = ({ index, total }: { index: number; total: number }) =>
   const distance = 80 + Math.random() * 120;
   const x = Math.cos((angle * Math.PI) / 180) * distance;
   const y = Math.sin((angle * Math.PI) / 180) * distance;
+  // Brand-tinted confetti palette
   const colors = [
-    "bg-amber-400", "bg-orange-500", "bg-red-400", "bg-pink-400",
-    "bg-purple-400", "bg-indigo-400", "bg-blue-400", "bg-emerald-400",
+    "bg-accent", "bg-primary", "bg-sage", "bg-warm",
+    "bg-sage-dark", "bg-accent/80", "bg-primary/80", "bg-sage/80",
   ];
   const color = colors[index % colors.length];
   const size = 4 + Math.random() * 6;
@@ -140,8 +141,9 @@ const CheckInStreak = ({ householdId, checkedInCount }: CheckInStreakProps) => {
 
   if (streak === 0) return null;
 
+  // Brand heat: cool muted → warm accent → deep moss achievement glow
   const flameColor =
-    streak >= 7 ? "text-orange-500" : streak >= 3 ? "text-amber-500" : "text-muted-foreground";
+    streak >= 7 ? "text-primary" : streak >= 3 ? "text-accent" : "text-muted-foreground";
 
   const currentMilestone = milestoneHit ? MILESTONE_CONFIG[milestoneHit] : null;
 
@@ -179,7 +181,7 @@ const CheckInStreak = ({ householdId, checkedInCount }: CheckInStreakProps) => {
                     animate={{ rotate: [0, -10, 10, -10, 0], scale: [1, 1.1, 1] }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                   >
-                    <currentMilestone.icon className="w-8 h-8 text-amber-500" />
+                    <currentMilestone.icon className="w-8 h-8 text-accent" />
                   </motion.div>
                   <div>
                     <motion.p

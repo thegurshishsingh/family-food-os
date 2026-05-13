@@ -11,7 +11,7 @@ interface RealityScoreProps {
 
 function getScoreTier(score: number) {
   if (score >= 80) return { label: "Very Realistic", color: "text-primary", bg: "bg-primary", barColor: "bg-primary" };
-  if (score >= 60) return { label: "Moderate", color: "text-amber-600", bg: "bg-amber-500", barColor: "bg-amber-500" };
+  if (score >= 60) return { label: "Moderate", color: "text-accent", bg: "bg-accent", barColor: "bg-accent" };
   return { label: "Ambitious", color: "text-destructive", bg: "bg-destructive", barColor: "bg-destructive" };
 }
 
@@ -101,7 +101,7 @@ function buildReasons(days: PlanDay[]): Reason[] {
 
 const TONE_CLASSES: Record<Reason["tone"], string> = {
   good: "text-primary",
-  warn: "text-amber-600",
+  warn: "text-accent",
   bad: "text-destructive",
 };
 
