@@ -27,6 +27,7 @@ const Landing = () => {
     <div className="min-h-screen bg-background max-w-full overflow-x-hidden">
       <LandingHeader />
 
+      <main id="main-content">
       <HeroSection />
 
       <TheStruggle />
