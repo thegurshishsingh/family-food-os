@@ -67,6 +67,7 @@ const Landing = () => {
       <FamilyVoices />
 
       <FinalCTA />
+      </main>
 
       {/* Footer — full-bleed illustrated */}
       <footer className="relative mt-12">
