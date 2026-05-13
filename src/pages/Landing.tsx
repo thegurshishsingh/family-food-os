@@ -149,6 +149,8 @@ const Landing = () => {
         </div>
       </footer>
     </div>
+    </SmoothScroll>
+    </MealModeProvider>
   );
 };
 
