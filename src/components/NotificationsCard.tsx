@@ -140,7 +140,7 @@ const BUCKET_META: Record<
   },
   transient: {
     label: "Transient (429 / 5xx, retried)",
-    tone: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30",
+    tone: "bg-accent/10 text-accent border-accent/30",
     hint: "Push service was overloaded or rate-limited. We retried but they still failed.",
   },
   other: {
@@ -992,8 +992,8 @@ const NotificationsCard = () => {
                   </p>
 
                   {needsResub && (
-                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 space-y-2">
-                      <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-snug">
+                    <div className="rounded-lg border border-accent/30 bg-accent/10 p-3 space-y-2">
+                      <p className="text-[11px] text-accent leading-snug">
                         {testReason === "all_removed"
                           ? "Your previous subscription was removed by the push service (token expired or device unsubscribed)."
                           : "We don't have a live push subscription stored for this device."}{" "}
