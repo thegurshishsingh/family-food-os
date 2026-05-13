@@ -7,11 +7,10 @@ import HeroSection from "@/components/landing/HeroSection";
 import TheStruggle from "@/components/landing/TheStruggle";
 import ProductProof from "@/components/landing/ProductProof";
 import HowItWorksPlayful from "@/components/landing/HowItWorksPlayful";
-import GroceryShowcase from "@/components/landing/GroceryShowcase";
 import WhyDifferent from "@/components/landing/WhyDifferent";
 
 import InteractiveTagCloud from "@/components/landing/InteractiveTagCloud";
-import FamilyStories from "@/components/landing/FamilyStories";
+import FamilyVoices from "@/components/landing/FamilyVoices";
 import FinalCTA from "@/components/landing/FinalCTA";
 import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -30,8 +29,6 @@ const Landing = () => {
       <ProductProof />
 
       <HowItWorksPlayful />
-
-      <GroceryShowcase />
 
       <WhyDifferent />
 
@@ -59,7 +56,7 @@ const Landing = () => {
         </div>
       </section>
 
-      <FamilyStories />
+      <FamilyVoices />
 
       <FinalCTA />
 

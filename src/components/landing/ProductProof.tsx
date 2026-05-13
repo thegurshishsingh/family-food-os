@@ -4,16 +4,15 @@ import { TrendingUp, ArrowRight, Utensils, Package, Store, UtensilsCrossed } fro
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { ContentCard } from "./primitives";
-import InteractiveMockup from "./InteractiveMockup";
 
 const WEEK_PREVIEW = [
   { day: "Mon", date: "10", mode: "Cook", meal: "Lemon chicken bowls", time: "30 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
-  { day: "Tue", date: "11", mode: "Leftovers", meal: "Leftover taco bowls", time: "5 min", icon: Package, modeGradient: "from-sage to-primary" },
-  { day: "Wed", date: "12", mode: "Takeout", meal: "Family sushi takeout", time: "—", icon: Store, modeGradient: "from-accent to-accent" },
+  { day: "Tue", date: "11", mode: "Leftovers", meal: "Leftover taco bowls", time: "5 min", icon: Package, modeGradient: "from-sky to-primary" },
+  { day: "Wed", date: "12", mode: "Takeout", meal: "Family sushi takeout", time: "—", icon: Store, modeGradient: "from-accent to-coral" },
   { day: "Thu", date: "13", mode: "Cook", meal: "Sheet pan salmon", time: "25 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
-  { day: "Fri", date: "14", mode: "Dine Out", meal: "Dinner out", time: "—", icon: UtensilsCrossed, modeGradient: "from-sage-dark to-primary" },
+  { day: "Fri", date: "14", mode: "Dine Out", meal: "Dinner out", time: "—", icon: UtensilsCrossed, modeGradient: "from-violet to-primary" },
   { day: "Sat", date: "15", mode: "Cook", meal: "Slow cooker chili", time: "15 min", icon: Utensils, modeGradient: "from-primary to-sage-dark" },
-  { day: "Sun", date: "16", mode: "Leftovers", meal: "Leftover chili nachos", time: "10 min", icon: Package, modeGradient: "from-sage to-primary" },
+  { day: "Sun", date: "16", mode: "Leftovers", meal: "Leftover chili nachos", time: "10 min", icon: Package, modeGradient: "from-sky to-primary" },
 ];
 
 const ProductProof = () => {
@@ -34,12 +33,12 @@ const ProductProof = () => {
           variants={fadeUp}
           custom={0}
         >
-          <h2 className="text-3xl md:text-5xl font-serif font-medium text-foreground mb-5 tracking-[-0.02em] leading-[1.05]">
-            Plans that fit<br className="hidden md:block" /> <span className="italic text-primary">real life.</span>
+          <h2 className="text-3xl md:text-5xl font-serif font-semibold text-foreground mb-4 tracking-tight leading-[1.1]">
+            It learns from real life,<br className="hidden md:block" /> not just recipes.
           </h2>
-          <p className="text-muted-foreground/80 text-base md:text-lg max-w-xl mx-auto leading-relaxed font-light">
-            One structured week — cook nights, leftovers, takeout, dine out.
-            Built around how your family actually eats, not just a folder of recipes.
+          <p className="text-muted-foreground/80 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            Most meal apps stop at planning. Family Food OS keeps learning after
+            dinner, so each week's dinners fit your family better.
           </p>
         </motion.div>
 
@@ -50,21 +49,15 @@ const ProductProof = () => {
           variants={fadeUp}
           custom={2}
         >
-          <div className="grid lg:grid-cols-[minmax(0,1fr)_380px] gap-8 lg:gap-12 items-center max-w-5xl mx-auto">
+          <p className="text-center text-sm font-medium text-muted-foreground mb-3">
+            Here's what a real family's week looks like →
+          </p>
+          <div className="max-w-2xl mx-auto">
             <WeeklyPlanCard isMobile={isMobile} viewport={viewport} />
-            <motion.div
-              className="relative"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={viewport}
-              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <InteractiveMockup />
-            </motion.div>
           </div>
-          <div className="text-center mt-10">
-            <Button size="lg" className="text-base px-9 h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.4)] transition-all hover:-translate-y-0.5" asChild>
-              <Link to="/signup">Start your week <ArrowRight className="w-4 h-4 ml-1" /></Link>
+          <div className="text-center mt-5">
+            <Button size="lg" className="text-base px-8 h-12 rounded-xl bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.4)]" asChild>
+              <Link to="/signup">This could be your week. Start free <ArrowRight className="w-4 h-4 ml-2" /></Link>
             </Button>
           </div>
         </motion.div>

@@ -1,10 +1,22 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Clock, Flame, Brain, Sparkles, TrendingUp, CalendarDays, Utensils, Package, Store } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import DinnerCheckInPreview from "./DinnerCheckInPreview";
 import { GlassCard, IconTile } from "./primitives";
+
+const rotatingWords = [
+  "Dinner decisions",
+  "Sports nights",
+  "Picky eaters",
+  "Leftover overload",
+  "Grocery runs",
+  "Takeout traps",
+  "Busy weeknights",
+  "5 pm panic",
+];
 
 const WeeklyPlanCard = () => (
   <GlassCard size="md" halo="primary" outerClassName="w-[140px]">
@@ -102,74 +114,143 @@ const PhoneMockup = () => (
 );
 
 const HeroSection = () => {
+  const [wordIndex, setWordIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWordIndex((prev) => (prev + 1) % rotatingWords.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <section className="pt-28 pb-8 md:pt-36 md:pb-16 px-4 relative">
-      {/* Soft editorial backdrop */}
+    <section className="pt-24 pb-2 md:pt-28 md:pb-4 px-4 relative gradient-mesh">
+      {/* Ambient orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-        <div className="absolute -top-40 -right-32 w-[520px] h-[520px] rounded-full bg-sage/10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-24 w-[420px] h-[420px] rounded-full bg-accent/[0.06] blur-3xl" />
+        <div className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full bg-gradient-to-br from-primary/10 via-sky/8 to-transparent blur-3xl animate-pulse-soft" />
+        <div className="absolute -bottom-32 -left-16 w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-coral/8 via-accent/6 to-transparent blur-3xl animate-pulse-soft" style={{ animationDelay: "2s" }} />
       </div>
 
       <div className="container max-w-6xl mx-auto relative z-10">
-        <div className="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
           {/* Left — Copy */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="flex items-center gap-2 mb-6">
-              <span className="w-8 h-px bg-primary/40" />
-              <span className="inline-block text-[11px] font-medium uppercase tracking-[0.22em] text-primary/80">
-                A weekly dinner system
+            <div className="flex items-center gap-2 mb-4">
+              <IconTile size="sm" gradient="from-primary to-sage-dark" className="rounded-md">
+                <Utensils className="w-3 h-3 text-primary-foreground" />
+              </IconTile>
+              <span className="inline-block text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-primary whitespace-nowrap leading-none">
+                Never wonder what's for dinner
               </span>
             </div>
 
-            <h1 className="text-[2.5rem] sm:text-5xl md:text-[4rem] lg:text-[4.5rem] font-serif font-medium tracking-[-0.02em] text-foreground leading-[1.02] mb-6">
-              Never wonder<br />
-              what's for dinner<br />
-              <span className="italic text-primary">again.</span>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground leading-[1.15] mb-4">
+              <span className="relative inline-block h-[1.3em] overflow-hidden align-bottom" style={{ minWidth: "3ch" }}>
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={wordIndex}
+                    className="inline-block"
+                    style={{ paddingBottom: "0.25em" }}
+                    initial={{ y: "100%", opacity: 0 }}
+                    animate={{ y: "0%", opacity: 1 }}
+                    exit={{ y: "-100%", opacity: 0 }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <span className="bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent">{rotatingWords[wordIndex]}</span>
+                    <span className="text-foreground">,</span>
+                  </motion.span>
+                </AnimatePresence>
+              </span>{" "}
+              <span className="relative inline-block">
+                <span>handled</span>
+                <motion.span
+                  className="absolute -bottom-1 left-0 w-full h-[3px] bg-gradient-to-r from-primary/50 to-primary/20 rounded-full"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.8, duration: 0.4 }}
+                />
+              </span>
+              .
+              <br />
+              <span className="text-muted-foreground text-[0.55em] font-sans font-normal">
+                Every single week.
+              </span>
             </h1>
 
-            <p className="text-lg md:text-xl text-foreground/70 leading-relaxed max-w-xl mb-8 font-light">
-              Family Food OS builds a weekly dinner plan around your real life,
-              then learns what worked so next week gets easier.
+
+
+
+            <ul className="space-y-1.5 mb-4 max-w-lg">
+              {[
+                { icon: CalendarDays, text: "Automatic weekly plan: cook, leftovers, takeout, dine out." },
+                { icon: Brain, text: "Learns your family: picky eaters, sports nights, budgets." },
+                { icon: Sparkles, text: "Groceries and leftovers optimized so you waste less food." },
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <item.icon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>{item.text}</span>
+                </li>
+              ))}
+            </ul>
+
+            <p className="text-sm text-muted-foreground/70 mb-6 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-primary/60" />
+              5 minutes to set up · Smarter every week after that
             </p>
 
-            <div className="flex flex-col sm:flex-row items-start gap-4 mb-8">
-              <Button
-                size="lg"
-                className="text-base px-9 h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_8px_30px_-8px_hsl(var(--primary)/0.5)] transition-all hover:shadow-[0_10px_36px_-8px_hsl(var(--primary)/0.6)] hover:-translate-y-0.5"
-                asChild
-              >
+            <div className="flex flex-col sm:flex-row items-start gap-3">
+              <Button size="lg" className="text-base px-8 h-12 rounded-xl bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.4)]" asChild>
                 <Link to="/signup">
-                  Start your week <ArrowRight className="w-4 h-4 ml-1" />
+                  Plan this week's dinners <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
-              <p className="text-sm text-muted-foreground/70 sm:self-center">
-                Free to start · 5 min setup
+              <p className="text-xs text-muted-foreground/50 sm:self-center">
+                Free · No credit card · 2 min signup
               </p>
             </div>
 
+            {/* Social proof badge */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="flex items-center gap-3 text-sm text-muted-foreground/80"
+              className="mt-5"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1, duration: 0.4 }}
             >
-              <Clock className="w-4 h-4 text-primary/60" />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="cursor-help">
-                      Families reclaim <span className="text-foreground font-medium">2+ hours</span> of dinner stress every week.
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-[240px] text-center">
-                    <p className="text-xs">Source: BLS Consumer Expenditure Survey, 2024</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <div className="relative inline-flex">
+                <div className="absolute -inset-[1px] rounded-full bg-gradient-to-r from-primary/20 via-border/40 to-sky/15" />
+                <div className="relative inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-background/95 backdrop-blur-sm border border-border/50 shadow-md">
+                  <div className="flex -space-x-1.5">
+                    {[
+                      { icon: Clock, bg: "from-primary to-sage-dark" },
+                      { icon: Sparkles, bg: "from-sky to-primary" },
+                      { icon: Flame, bg: "from-coral to-accent" },
+                    ].map((item, i) => (
+                      <span
+                        key={i}
+                        className={`w-6 h-6 rounded-full bg-gradient-to-br ${item.bg} border-2 border-background flex items-center justify-center`}
+                      >
+                        <item.icon className="w-3 h-3 text-primary-foreground" />
+                      </span>
+                    ))}
+                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <p className="text-xs font-semibold text-foreground cursor-help">
+                          Families reclaim <span className="text-primary">2+ hours</span> of dinner stress every week.
+                        </p>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[240px] text-center">
+                        <p className="text-xs">Source: BLS Consumer Expenditure Survey, 2024</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
 

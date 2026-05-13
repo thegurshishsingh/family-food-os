@@ -31,15 +31,15 @@ export interface HeaderLocaleLabels {
 export const HEADER_LOCALES: Record<string, HeaderLocaleLabels> = {
   en: {
     login: "Log in",
-    ctaFull: "Start your week",
+    ctaFull: "Start free",
     ctaShort: "Start",
-    maxChars: { login: 8, ctaFull: 16, ctaShort: 6 },
+    maxChars: { login: 8, ctaFull: 12, ctaShort: 6 },
   },
   "en-US": {
     login: "Log in",
-    ctaFull: "Start your week",
+    ctaFull: "Start free",
     ctaShort: "Start",
-    maxChars: { login: 8, ctaFull: 16, ctaShort: 6 },
+    maxChars: { login: 8, ctaFull: 12, ctaShort: 6 },
   },
   "es": {
     login: "Entrar",

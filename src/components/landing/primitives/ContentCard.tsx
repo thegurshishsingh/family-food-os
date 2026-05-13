@@ -30,9 +30,9 @@ const haloVariants = cva("absolute -inset-[1px] rounded-[18px] blur-[0.5px]", {
   variants: {
     halo: {
       none: "hidden",
-      primary: "bg-gradient-to-br from-primary/25 via-sage/20 to-accent/15",
-      coral: "bg-gradient-to-b from-accent/15 via-sage/10 to-transparent",
-      sky: "bg-gradient-to-br from-sage/20 via-primary/15 to-transparent",
+      primary: "bg-gradient-to-br from-primary/25 via-sky/15 to-accent/20",
+      coral: "bg-gradient-to-b from-coral/20 via-accent/10 to-transparent",
+      sky: "bg-gradient-to-br from-sky/20 via-primary/10 to-transparent",
     },
   },
   defaultVariants: { halo: "none" },

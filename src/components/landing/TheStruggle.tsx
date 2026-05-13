@@ -4,11 +4,11 @@ import { Snowflake, Search, HelpCircle, ShoppingCart, Flame, Lightbulb } from "l
 import { ContentCard, IconTile } from "./primitives";
 
 const SCENES = [
-  { time: "4:45 PM", icon: Snowflake, color: "from-sage to-primary", text: "\"Ugh, I forgot to defrost the chicken.\"" },
-  { time: "5:10 PM", icon: Search, color: "from-primary to-sage-dark", text: "Scrolling through 400 saved recipes... nothing sounds good." },
-  { time: "5:25 PM", icon: HelpCircle, color: "from-accent to-accent/70", text: "\"Kids, what do you want?\" — \"NUGGETS!\" (for the 4th time)." },
-  { time: "5:40 PM", icon: ShoppingCart, color: "from-sage-dark to-primary", text: "Emergency grocery run. Again." },
-  { time: "6:15 PM", icon: Flame, color: "from-coral to-accent", text: "Cooking something nobody asked for while everyone's hangry." },
+  { time: "4:45 PM", icon: Snowflake, color: "from-sky to-primary", text: "\"Ugh, I forgot to defrost the chicken.\"" },
+  { time: "5:10 PM", icon: Search, color: "from-violet to-primary", text: "Scrolling through 400 saved recipes... nothing sounds good." },
+  { time: "5:25 PM", icon: HelpCircle, color: "from-coral to-accent", text: "\"Kids, what do you want?\" — \"NUGGETS!\" (for the 4th time)." },
+  { time: "5:40 PM", icon: ShoppingCart, color: "from-lemon to-accent", text: "Emergency grocery run. Again." },
+  { time: "6:15 PM", icon: Flame, color: "from-coral to-destructive", text: "Cooking something nobody asked for while everyone's hangry." },
 ];
 
 const TheStruggle = () => {
@@ -32,11 +32,11 @@ const TheStruggle = () => {
           <IconTile size="xl" gradient="from-coral/15 to-accent/10" className="mb-4">
             <Flame className="w-6 h-6 text-coral" />
           </IconTile>
-          <h2 className="text-3xl md:text-5xl font-serif font-medium text-foreground mb-4 tracking-[-0.02em] leading-[1.1]">
-            Dinner doesn't fall apart<br className="hidden md:block" /> because families lack recipes.
+          <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-3 tracking-tight leading-[1.15]">
+            Sound familiar?
           </h2>
-          <p className="text-muted-foreground/80 text-base md:text-lg leading-relaxed max-w-lg mx-auto">
-            It falls apart because life changes — and most weeks, every 5pm looks something like this.
+          <p className="text-muted-foreground/80 text-base leading-relaxed">
+            Every family's 5pm looks something like this.
           </p>
         </motion.div>
 
@@ -73,12 +73,12 @@ const TheStruggle = () => {
           variants={fadeUp}
           custom={6}
         >
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/[0.06] border border-primary/15">
-            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-strong">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-sky flex items-center justify-center">
               <Lightbulb className="w-3 h-3 text-primary-foreground" />
             </div>
-            <span className="text-sm font-medium text-primary">
-              Plan the week. Shop with a clean list. Check in after dinner.
+            <span className="text-sm font-semibold text-primary">
+              What if dinner was already figured out before 5pm?
             </span>
           </div>
         </motion.div>
