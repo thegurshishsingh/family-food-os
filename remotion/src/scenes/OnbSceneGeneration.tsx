@@ -82,10 +82,11 @@ export const OnbSceneGeneration: React.FC = () => {
             background: `linear-gradient(135deg, ${SAGE}, ${WARM})`,
             transform: `scale(${pulse}) rotate(${rot}deg)`,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 110,
+            fontSize: 110, color: "#FAF8F5", fontFamily: fraunces, fontWeight: 700,
           }}>
-            ✨
+            ✦
           </div>
+
         </div>
 
         {/* Progress checklist */}

@@ -23,19 +23,19 @@ const STEPS: Step[] = [
   {
     title: "Who's at your table?",
     options: [
-      { label: "2 adults", emoji: "👫" },
-      { label: "2 kids", emoji: "🧒" },
-      { label: "1 picky eater", emoji: "🙄" },
-      { label: "Just me", emoji: "🙋" },
+      { label: "2 adults", emoji: "♥" },
+      { label: "2 kids", emoji: "★" },
+      { label: "1 picky eater", emoji: "◆" },
+      { label: "Just me", emoji: "●" },
     ],
     selected: [0, 1, 2],
   },
   {
     title: "Any dietary needs?",
     options: [
-      { label: "Gluten-free", emoji: "🌾" },
-      { label: "Low spice", emoji: "🌶️" },
-      { label: "Nut allergy", emoji: "🥜" },
+      { label: "Gluten-free", emoji: "✕" },
+      { label: "Low spice", emoji: "♨" },
+      { label: "Nut allergy", emoji: "✕" },
       { label: "No restrictions", emoji: "✓" },
     ],
     selected: [0, 1],
@@ -43,14 +43,15 @@ const STEPS: Step[] = [
   {
     title: "Weekly grocery budget?",
     options: [
-      { label: "$80", emoji: "💰" },
-      { label: "$120", emoji: "💰" },
-      { label: "$160", emoji: "💰" },
-      { label: "$200+", emoji: "💰" },
+      { label: "$80", emoji: "$" },
+      { label: "$120", emoji: "$" },
+      { label: "$160", emoji: "$" },
+      { label: "$200+", emoji: "$" },
     ],
     selected: [1],
   },
 ];
+
 
 // Each step gets 60 frames. 3 steps = 180 frames.
 const STEP_DURATION = 60;

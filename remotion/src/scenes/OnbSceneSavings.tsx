@@ -13,10 +13,11 @@ const CREAM = "#FAF8F5";
 const WARM = "#CC8E52";
 
 const STATS = [
-  { value: "2+ hrs", label: "reclaimed every week", sub: "no more 6pm panic" , accent: SAGE, icon: "⏱" },
-  { value: "$60-80", label: "saved on groceries", sub: "less waste, smarter list", accent: WARM, icon: "💰" },
-  { value: "0", label: "midweek takeout fallbacks", sub: "dinner is already decided", accent: "#c56b6b", icon: "🍽" },
+  { value: "2+ hrs", label: "reclaimed every week", sub: "no more 6pm panic", accent: SAGE, icon: "◷" },
+  { value: "$60-80", label: "saved on groceries", sub: "less waste, smarter list", accent: WARM, icon: "$" },
+  { value: "0", label: "midweek takeout fallbacks", sub: "dinner is already decided", accent: "#c56b6b", icon: "✓" },
 ];
+
 
 const useCount = (frame: number, start: number, end: number, from: number, to: number) => {
   const p = interpolate(frame, [start, end], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
