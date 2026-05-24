@@ -2,6 +2,8 @@ import { Composition } from "remotion";
 import { MainVideo } from "./MainVideo";
 import { SocialCut } from "./SocialCut";
 import { OnboardingPromo } from "./OnboardingPromo";
+import { ViralX } from "./ViralX";
+
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -30,7 +32,16 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
       />
+      <Composition
+        id="viral-x"
+        component={ViralX}
+        durationInFrames={780}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
     </>
+
   );
 };
 
