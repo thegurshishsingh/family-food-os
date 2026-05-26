@@ -244,9 +244,9 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
   };
 
   const intensityOptions = [
-    { value: "relaxed" as const, label: "Relaxed week", desc: "More time for cooking" },
-    { value: "normal" as const, label: "Normal week", desc: "Balanced mix" },
-    { value: "busy" as const, label: "Busy week", desc: "Quick & easy meals" },
+    { value: "relaxed" as const, label: "Relaxed week", desc: "Room to cook — leans into longer, satisfying meals." },
+    { value: "normal" as const, label: "Normal week", desc: "Balanced mix — realistic for the actual week you're walking into." },
+    { value: "busy" as const, label: "Busy week", desc: "Survival mode — fast, low-decision dinners you'll actually finish." },
   ];
 
   const cookNights = totalPlanDays - takeoutCount - dineOutCount - leftoverCount;
@@ -276,13 +276,13 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
               <div className="flex items-center gap-2 mb-1">
                 <Sparkles className="w-4 h-4 text-primary shrink-0" />
                 <h2 className="text-base sm:text-xl font-serif font-semibold text-foreground">
-                  Plan {bannerLabel}
+                  Decide {bannerLabel} once.
                 </h2>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground">
                 {isPartialWeek
-                  ? `Quick ${totalPlanDays}-day plan for ${householdName ? `${householdName}` : "your family"}.`
-                  : `We'll create a plan based on ${householdName ? `${householdName}'s` : "your family's"} habits.`}
+                  ? `A realistic ${totalPlanDays}-day plan for ${householdName ? `${householdName}` : "your family"} — no 5pm "what's for dinner?" spiral.`
+                  : `One plan, built around ${householdName ? `${householdName}'s` : "your family's"} real week. No decision fatigue, less food waste, dinner you'll actually follow through on.`}
               </p>
             </div>
             <Button onClick={() => setOpen(true)} className="gap-2 shrink-0 w-full sm:w-auto">
@@ -670,7 +670,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 {step === "context" && (
                   <div className="space-y-4">
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      Anything special about {isPartialWeek ? "the next few days" : "this week"}? Select all that apply.
+                      What's actually happening {isPartialWeek ? "the next few days" : "this week"}? Real context = a plan that survives Tuesday, not just one that looks good on Sunday.
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       {WEEK_CONTEXT_OPTIONS.map((opt) => {
@@ -707,7 +707,7 @@ const WeeklyPlanSetup = ({ onGenerate, generating, householdName, savedMeals = [
                 {step === "intensity" && (
                   <div className="space-y-4">
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      How busy {isPartialWeek ? "are the next few days" : "is your week"}?
+                      How much can you realistically pull off? We'll match the plan to the week you have, not the week you wish you had.
                     </p>
                     <div className="space-y-2">
                       {intensityOptions.map((opt) => (
