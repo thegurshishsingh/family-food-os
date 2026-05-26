@@ -25,10 +25,10 @@ const COOKING_TOLERANCES = [
 ];
 
 const STEPS = [
-  { title: "Your household", desc: "Tell us about your family" },
-  { title: "Food preferences", desc: "What does your family like?" },
-  { title: "Logistics", desc: "Budget, time, and grocery habits" },
-  { title: "Your meals", desc: "Add meals you'd like included in your plan" },
+  { title: "Your household", desc: "So the plan fits the people actually eating it — not a generic recipe feed." },
+  { title: "Food preferences", desc: "We learn what gets eaten and what gets thrown out, so less food (and money) hits the trash." },
+  { title: "Logistics", desc: "Budget, time, and grocery rhythm — so the week is realistic, not aspirational." },
+  { title: "Your meals", desc: "Lock in the dinners your family already loves. Fewer 5pm decisions, more wins on repeat." },
 ];
 
 const Onboarding = () => {
@@ -463,7 +463,7 @@ const Onboarding = () => {
               {step === 3 && (
                 <div className="space-y-6">
                   <p className="text-sm text-muted-foreground mb-4">
-                    Add meals your family loves. These will be prioritized when generating your weekly plan. This is optional — you can always add more later.
+                    Add the meals your family already loves. We'll work them into the rotation so you stop re-deciding dinner from scratch every week. Optional — add more anytime.
                   </p>
 
                   {/* Add meal form */}
@@ -539,7 +539,7 @@ const Onboarding = () => {
             </Button>
           ) : (
             <Button onClick={handleComplete} disabled={loading}>
-              {loading ? "Setting up..." : "Generate my weekly plan"} <ArrowRight className="w-4 h-4 ml-1" />
+              {loading ? "Setting up..." : "Decide the week for me"} <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           )}
         </div>
