@@ -3,6 +3,8 @@ import { MainVideo } from "./MainVideo";
 import { SocialCut } from "./SocialCut";
 import { OnboardingPromo } from "./OnboardingPromo";
 import { ViralX } from "./ViralX";
+import { ViralX15 } from "./ViralX15";
+import { ViralX35 } from "./ViralX35";
 
 
 export const RemotionRoot: React.FC = () => {
@@ -40,8 +42,23 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
       />
+      <Composition
+        id="viral-x-15s"
+        component={ViralX15}
+        durationInFrames={450}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="viral-x-35s"
+        component={ViralX35}
+        durationInFrames={1050}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
     </>
 
   );
 };
-
