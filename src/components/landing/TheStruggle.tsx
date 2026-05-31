@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { Snowflake, Search, HelpCircle, ShoppingCart, Flame, Lightbulb, Sparkles } from "lucide-react";
-import { ContentCard, IconTile } from "./primitives";
-import { PhoneFrame, DailyDinnerScreen } from "./screens";
+import { Snowflake, Search, HelpCircle, ShoppingCart, Flame, Lightbulb, Clock } from "lucide-react";
+import { ContentCard, IconTile, ShowcaseStage, FloatingStatCard } from "./primitives";
+import { DailyDinnerScreen } from "./screens";
 
 const SCENES = [
   { time: "4:45 PM", icon: Snowflake, color: "from-sky to-primary", text: "\"Ugh, I forgot to defrost the chicken.\"" },
