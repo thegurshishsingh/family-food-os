@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { PhoneFrame, WeeklyPlanScreen } from "./screens";
+import { GlassCard, IconTile } from "./primitives";
 
 const FinalCTA = () => {
   const { fadeUp, viewport, initialState } = useScrollReveal();
@@ -13,41 +15,79 @@ const FinalCTA = () => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-gradient-to-r from-primary/8 via-sky/5 to-violet/6 blur-3xl" />
       </div>
 
-      <div className="container max-w-2xl text-center relative z-10">
-        <motion.div
-          initial={initialState}
-          whileInView="visible"
-          viewport={viewport}
-          variants={fadeUp}
-          custom={0}
-        >
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-3xl bg-gradient-to-br from-primary via-sky to-primary mb-6 shadow-xl">
-            <Sparkles className="w-7 h-7 text-primary-foreground" />
-          </div>
-          <h2 className="text-4xl md:text-6xl font-serif font-semibold text-foreground mb-4 leading-[1.05] tracking-tight">
-            Tonight's dinner?
-            <br />
-            <span className="bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent">Already handled.</span>
-          </h2>
-          <p className="text-muted-foreground/80 text-base md:text-lg max-w-md mx-auto mb-8 leading-relaxed">
-            Join our founding families
-          </p>
-          <Button size="lg" className="text-base px-10 h-14 rounded-xl text-lg bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.5)]" asChild>
-            <Link to="/signup">
-              Start your first week — free <ArrowRight className="w-5 h-5 ml-2" />
-            </Link>
-          </Button>
-          <p className="text-xs text-muted-foreground/60 mt-4">
-            No credit card needed · Set up in 5 minutes · Cancel anytime
-          </p>
-          <p className="text-xs text-muted-foreground/40 mt-4">
-            Questions? Reach us at{" "}
-            <a href="mailto:hello@familyfoodOS.com" className="text-primary/70 hover:text-primary underline underline-offset-2 transition-colors">
-              hello@familyfoodOS.com
-            </a>
-            {" "}— we're parents too, we get it.
-          </p>
-        </motion.div>
+      <div className="container max-w-6xl relative z-10">
+        <div className="grid md:grid-cols-2 gap-12 md:gap-8 items-center">
+          {/* Copy */}
+          <motion.div
+            className="text-center md:text-left"
+            initial={initialState}
+            whileInView="visible"
+            viewport={viewport}
+            variants={fadeUp}
+            custom={0}
+          >
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-3xl bg-gradient-to-br from-primary via-sky to-primary mb-6 shadow-xl">
+              <Sparkles className="w-7 h-7 text-primary-foreground" />
+            </div>
+            <h2 className="text-4xl md:text-6xl font-serif font-semibold text-foreground mb-4 leading-[1.05] tracking-tight">
+              Tonight's dinner?
+              <br />
+              <span className="bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent">Already handled.</span>
+            </h2>
+            <p className="text-muted-foreground/80 text-base md:text-lg max-w-md mx-auto md:mx-0 mb-8 leading-relaxed">
+              Join our founding families and let the system plan your whole week.
+            </p>
+            <Button size="lg" className="text-base px-10 h-14 rounded-xl text-lg bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.5)]" asChild>
+              <Link to="/signup">
+                Start your first week — free <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
+            </Button>
+            <p className="text-xs text-muted-foreground/60 mt-4">
+              No credit card needed · Set up in 5 minutes · Cancel anytime
+            </p>
+            <p className="text-xs text-muted-foreground/40 mt-4">
+              Questions? Reach us at{" "}
+              <a href="mailto:hello@familyfoodOS.com" className="text-primary/70 hover:text-primary underline underline-offset-2 transition-colors">
+                hello@familyfoodOS.com
+              </a>
+              {" "}— we're parents too, we get it.
+            </p>
+          </motion.div>
+
+          {/* Phone */}
+          <motion.div
+            className="relative flex items-center justify-center"
+            initial={initialState}
+            whileInView="visible"
+            viewport={viewport}
+            variants={fadeUp}
+            custom={1}
+          >
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <PhoneFrame widthClassName="w-[244px] sm:w-[262px]">
+                <WeeklyPlanScreen />
+              </PhoneFrame>
+            </motion.div>
+
+            <motion.div
+              className="absolute bottom-10 -right-1 sm:-right-3 hidden xs:block"
+              animate={{ y: [0, -7, 0] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+            >
+              <GlassCard size="sm" halo="sky" padding="xs" outerClassName="inline-block">
+                <div className="flex items-center gap-1.5">
+                  <IconTile size="xs" gradient="from-sky to-primary">
+                    <Sparkles className="w-3 h-3 text-primary-foreground" />
+                  </IconTile>
+                  <span className="text-[11px] font-bold text-foreground">Your week, ready</span>
+                </div>
+              </GlassCard>
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
