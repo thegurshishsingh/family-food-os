@@ -1,46 +1,13 @@
 import { motion } from "framer-motion";
-import { Check, Leaf, Carrot, Beef, Package } from "lucide-react";
+import { Check, Leaf } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { PhoneFrame, GroceryScreen } from "./screens";
 
 const BULLETS = [
   "Organized by aisle, not by recipe",
   "Auto-adjusts when you swap meals",
   "Knows what's already in your pantry",
   "One list. One trip. No do-overs.",
-];
-
-const GroceryCategories = [
-  {
-    icon: Carrot,
-    title: "Produce",
-    count: "3 items",
-    items: [
-      { name: "Lemons", checked: true },
-      { name: "Garlic", checked: true },
-      { name: "Baby spinach", checked: false },
-    ],
-    gradient: "from-primary to-sage-dark",
-  },
-  {
-    icon: Beef,
-    title: "Proteins",
-    count: "2 items",
-    items: [
-      { name: "Chicken thighs", checked: true },
-      { name: "Salmon", checked: false },
-    ],
-    gradient: "from-coral to-accent",
-  },
-  {
-    icon: Package,
-    title: "Pantry",
-    count: "2 items",
-    items: [
-      { name: "Jasmine rice", checked: false },
-      { name: "Black beans", checked: false },
-    ],
-    gradient: "from-sky to-primary",
-  },
 ];
 
 const GroceryListSection = () => {
