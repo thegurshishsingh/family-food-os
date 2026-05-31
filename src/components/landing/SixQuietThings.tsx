@@ -1,24 +1,61 @@
 import { motion } from "framer-motion";
-import { CalendarDays, ShoppingBasket, MessageSquare, BookOpen, Leaf, Clock } from "lucide-react";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { IconTile } from "./primitives";
 import {
-  PhoneFrame,
-  WeeklyPlanScreen,
-  GroceryScreen,
-  InsightsScreen,
-} from "./screens";
+  CalendarDays,
+  ShoppingBasket,
+  MessageSquare,
+  BookOpen,
+  Leaf,
+  Clock,
+  Gauge,
+  Utensils,
+  Trash2,
+  Heart,
+  Repeat,
+} from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { IconTile, ShowcaseStage, FloatingStatCard, type StageCard } from "./primitives";
+import { WeeklyPlanScreen, GroceryScreen, InsightsScreen } from "./screens";
 
 type Feature = { icon: typeof CalendarDays; title: string; desc: string };
+type Tone = "sky" | "sage" | "amber" | "coral";
 
 const ROWS: {
   Screen: () => JSX.Element;
   reverse: boolean;
+  tone: Tone;
+  cards: StageCard[];
   features: Feature[];
 }[] = [
   {
     Screen: WeeklyPlanScreen,
     reverse: false,
+    tone: "sage",
+    cards: [
+      {
+        pos: "top-10 -left-5 sm:-left-9 w-[148px]",
+        delay: 0.6,
+        node: (
+          <FloatingStatCard
+            icon={Gauge}
+            label="Reality score"
+            value="84"
+            unit="/100"
+            tone="primary"
+            trend="up"
+            trendTone="primary"
+            showArrow
+          />
+        ),
+      },
+      {
+        pos: "bottom-16 -right-4 sm:-right-9 w-[140px]",
+        delay: 1.3,
+        hideOnMobile: true,
+        node: (
+          <FloatingStatCard icon={Utensils} label="Cook nights" value="3" unit="/ 7" tone="sky" showArrow />
+        ),
+      },
+    ],
     features: [
       {
         icon: CalendarDays,
@@ -35,6 +72,32 @@ const ROWS: {
   {
     Screen: GroceryScreen,
     reverse: true,
+    tone: "sky",
+    cards: [
+      {
+        pos: "top-12 -right-5 sm:-right-9 w-[146px]",
+        delay: 0.7,
+        node: (
+          <FloatingStatCard icon={ShoppingBasket} label="One list" value="24" unit="items" tone="sky" showArrow />
+        ),
+      },
+      {
+        pos: "bottom-16 -left-4 sm:-left-9 w-[150px]",
+        delay: 1.4,
+        hideOnMobile: true,
+        node: (
+          <FloatingStatCard
+            icon={Trash2}
+            label="Less waste"
+            value="38"
+            unit="%"
+            tone="coral"
+            trend="down"
+            trendTone="coral"
+          />
+        ),
+      },
+    ],
     features: [
       {
         icon: ShoppingBasket,
@@ -51,6 +114,39 @@ const ROWS: {
   {
     Screen: InsightsScreen,
     reverse: false,
+    tone: "amber",
+    cards: [
+      {
+        pos: "top-10 -left-5 sm:-left-9 w-[150px]",
+        delay: 0.6,
+        node: (
+          <FloatingStatCard
+            icon={Heart}
+            label="Loved meals"
+            value="12"
+            tone="primary"
+            trend="up"
+            trendTone="primary"
+            showArrow
+          />
+        ),
+      },
+      {
+        pos: "bottom-16 -right-4 sm:-right-9 w-[150px]",
+        delay: 1.3,
+        hideOnMobile: true,
+        node: (
+          <FloatingStatCard
+            icon={Repeat}
+            label="Repeat hits"
+            value="5"
+            tone="sky"
+            sparkline={[2, 3, 3, 5, 4, 6, 7]}
+            showArrow
+          />
+        ),
+      },
+    ],
     features: [
       {
         icon: MessageSquare,
@@ -93,59 +189,48 @@ const SixQuietThings = () => {
           </p>
         </motion.div>
 
-        <div className="space-y-16 md:space-y-24">
+        <div className="space-y-8 md:space-y-12">
           {ROWS.map((row, i) => {
             const { Screen } = row;
             return (
-              <div
+              <motion.div
                 key={i}
-                className="grid md:grid-cols-2 gap-10 md:gap-14 items-center"
+                className="grid md:grid-cols-2 gap-8 md:gap-12 items-center rounded-3xl border border-border/60 bg-card/40 backdrop-blur-sm p-5 sm:p-8 md:p-10 shadow-[0_24px_60px_-32px_hsl(var(--foreground)/0.25)]"
+                initial={initialState}
+                whileInView="visible"
+                viewport={viewport}
+                variants={fadeUp}
+                custom={1}
               >
-                {/* Phone */}
-                <motion.div
-                  className={`flex justify-center ${row.reverse ? "md:order-2" : ""}`}
-                  initial={initialState}
-                  whileInView="visible"
-                  viewport={viewport}
-                  variants={fadeUp}
-                  custom={1}
-                >
-                  <motion.div
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
-                  >
-                    <PhoneFrame widthClassName="w-[238px] sm:w-[256px]">
-                      <Screen />
-                    </PhoneFrame>
-                  </motion.div>
-                </motion.div>
+                {/* Showcase stage */}
+                <div className={`${row.reverse ? "md:order-2" : ""}`}>
+                  <ShowcaseStage
+                    tone={row.tone}
+                    screen={Screen}
+                    cards={row.cards}
+                    floatDelay={i * 0.4}
+                  />
+                </div>
 
                 {/* Copy */}
-                <motion.div
-                  className={`space-y-7 ${row.reverse ? "md:order-1" : ""}`}
-                  initial={initialState}
-                  whileInView="visible"
-                  viewport={viewport}
-                  variants={fadeUp}
-                  custom={2}
-                >
+                <div className={`space-y-7 ${row.reverse ? "md:order-1" : ""}`}>
                   {row.features.map((f) => (
                     <div key={f.title} className="flex gap-4">
                       <IconTile size="lg" gradient="from-primary/15 to-sage/10">
                         <f.icon className="w-5 h-5 text-primary" strokeWidth={1.6} />
                       </IconTile>
                       <div>
-                        <h3 className="text-xl md:text-[22px] font-serif font-semibold text-foreground mb-2 tracking-tight leading-snug">
+                        <h3 className="text-xl md:text-[26px] font-serif font-semibold text-foreground mb-2 tracking-tight leading-snug">
                           {f.title}
                         </h3>
-                        <p className="text-sm md:text-[15px] text-muted-foreground leading-relaxed">
+                        <p className="text-sm md:text-[16px] text-muted-foreground leading-relaxed">
                           {f.desc}
                         </p>
                       </div>
                     </div>
                   ))}
-                </motion.div>
-              </div>
+                </div>
+              </motion.div>
             );
           })}
         </div>

@@ -2,9 +2,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Star, CalendarDays, Brain, Sparkles, Flame, Clock } from "lucide-react";
+import { ArrowRight, Star, Clock, Gauge, Timer } from "lucide-react";
 import { PhoneFrame, WeeklyPlanScreen } from "./screens";
-import { GlassCard, IconTile } from "./primitives";
+import { FloatingStatCard } from "./primitives";
 
 const rotatingWords = [
   "decided.",
@@ -12,38 +12,6 @@ const rotatingWords = [
   "off your plate.",
   "on autopilot.",
 ];
-
-const StreakBadge = () => (
-  <GlassCard size="sm" halo="coral" padding="xs" outerClassName="inline-block">
-    <div className="flex items-center gap-1.5">
-      <Flame className="w-4 h-4 text-coral" />
-      <span className="text-[11px] font-bold text-foreground">5-day streak 🔥</span>
-    </div>
-  </GlassCard>
-);
-
-const SystemLearningCard = () => (
-  <GlassCard size="md" halo="sky" outerClassName="w-[156px]">
-    <div className="flex items-center gap-1.5 mb-2">
-      <IconTile size="xs" gradient="from-sky to-primary">
-        <Sparkles className="w-3 h-3 text-primary-foreground" />
-      </IconTile>
-      <span className="text-[10px] font-bold text-foreground">Learns your family</span>
-    </div>
-    <div className="space-y-1.5">
-      {[
-        { c: "bg-sky", t: "Kids prefer low-spice" },
-        { c: "bg-primary", t: "Wed → takeout works" },
-        { c: "bg-accent", t: "Thu under 25 min" },
-      ].map((x) => (
-        <p key={x.t} className="text-[9px] text-muted-foreground leading-snug flex items-center gap-1.5">
-          <span className={`w-1.5 h-1.5 rounded-full ${x.c} shrink-0`} />
-          {x.t}
-        </p>
-      ))}
-    </div>
-  </GlassCard>
-);
 
 const RatingStrip = () => (
   <div className="flex items-center gap-2.5">
@@ -159,22 +127,39 @@ const HeroSection = () => {
               </PhoneFrame>
             </motion.div>
 
-            {/* Floating: streak (top-left) */}
+            {/* Floating zoom card: reality score (top-left) */}
             <motion.div
-              className="absolute top-6 -left-2 sm:left-0 hidden xs:block"
+              className="absolute top-8 -left-3 sm:-left-8 w-[150px]"
               animate={{ y: [0, -6, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
             >
-              <StreakBadge />
+              <FloatingStatCard
+                icon={Gauge}
+                label="Reality score"
+                value="84"
+                unit="/100"
+                tone="primary"
+                trend="up"
+                trendTone="primary"
+                showArrow
+              />
             </motion.div>
 
-            {/* Floating: learning (bottom-right) */}
+            {/* Floating zoom card: time saved (bottom-right) */}
             <motion.div
-              className="absolute bottom-8 -right-2 sm:-right-4 hidden xs:block"
+              className="absolute bottom-10 -right-3 sm:-right-8 w-[164px]"
               animate={{ y: [0, -7, 0] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
             >
-              <SystemLearningCard />
+              <FloatingStatCard
+                icon={Timer}
+                label="Time saved"
+                value="2.5"
+                unit="hrs"
+                tone="sky"
+                sparkline={[3, 5, 4, 7, 6, 9, 8, 11]}
+                showArrow
+              />
             </motion.div>
           </motion.div>
         </div>

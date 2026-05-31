@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { Snowflake, Search, HelpCircle, ShoppingCart, Flame, Lightbulb, Sparkles } from "lucide-react";
-import { ContentCard, IconTile } from "./primitives";
-import { PhoneFrame, DailyDinnerScreen } from "./screens";
+import { Snowflake, Search, HelpCircle, ShoppingCart, Flame, Lightbulb, Clock } from "lucide-react";
+import { ContentCard, IconTile, ShowcaseStage, FloatingStatCard } from "./primitives";
+import { DailyDinnerScreen } from "./screens";
 
 const SCENES = [
   { time: "4:45 PM", icon: Snowflake, color: "from-sky to-primary", text: "\"Ugh, I forgot to defrost the chicken.\"" },
@@ -85,14 +85,30 @@ const TheStruggle = () => {
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary mb-4 flex items-center gap-2 self-center md:self-start">
               <span className="h-px w-6 bg-primary/40" /> With Family Food OS
             </p>
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <PhoneFrame widthClassName="w-[244px] sm:w-[260px]">
-                <DailyDinnerScreen />
-              </PhoneFrame>
-            </motion.div>
+            <div className="w-full max-w-[360px]">
+              <ShowcaseStage
+                tone="coral"
+                screen={DailyDinnerScreen}
+                phoneWidth="w-[230px] sm:w-[248px]"
+                cards={[
+                  {
+                    pos: "top-10 -right-4 sm:-right-8 w-[138px]",
+                    delay: 0.7,
+                    node: (
+                      <FloatingStatCard icon={Flame} label="Streak" value="5" unit="days" tone="coral" showArrow />
+                    ),
+                  },
+                  {
+                    pos: "bottom-16 -left-4 sm:-left-8 w-[140px]",
+                    delay: 1.3,
+                    hideOnMobile: true,
+                    node: (
+                      <FloatingStatCard icon={Clock} label="Tonight" value="10" unit="min" tone="sky" showArrow />
+                    ),
+                  },
+                ]}
+              />
+            </div>
             <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full glass-strong">
               <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-sky flex items-center justify-center">
                 <Lightbulb className="w-2.5 h-2.5 text-primary-foreground" />
