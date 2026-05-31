@@ -63,71 +63,14 @@ const GroceryListSection = () => {
             variants={fadeUp}
             custom={1}
           >
-            <div className="relative w-[280px]">
-              <div className="absolute -inset-8 -z-10 bg-gradient-to-br from-primary/10 via-sage-light/20 to-accent/8 blur-3xl rounded-full" />
-              <motion.div
-                className="rounded-[36px] p-[3px] shadow-[0_30px_80px_-20px_hsl(var(--foreground)/0.35)]"
-                style={{
-                  background:
-                    "linear-gradient(145deg, hsl(var(--foreground)/0.85), hsl(var(--foreground)/0.55), hsl(var(--foreground)/0.75))",
-                  transform: "rotate(-3deg)",
-                }}
-                whileHover={{ rotate: -1, transition: { duration: 0.4 } }}
-              >
-                <div className="rounded-[33px] bg-background overflow-hidden">
-                  <div className="flex items-center justify-between px-5 pt-2 pb-1">
-                    <span className="text-[10px] font-semibold text-foreground/70">9:41</span>
-                    <div className="w-20 h-5 bg-foreground/85 rounded-full" />
-                    <div className="w-4 h-2.5 border border-foreground/40 rounded-[3px]">
-                      <div className="w-2.5 h-full bg-primary/60 rounded-[1px]" />
-                    </div>
-                  </div>
-                  <div className="px-4 pt-3 pb-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] font-semibold text-muted-foreground px-2 py-1 rounded-full bg-muted/60">
-                        1 list · 6 meals
-                      </span>
-                      <span className="text-foreground/40">···</span>
-                    </div>
-                    <h4 className="text-[22px] font-serif font-semibold text-foreground mb-4 leading-tight">
-                      Your week's<br /> groceries
-                      <Leaf className="inline-block w-5 h-5 text-primary/70 ml-1 -translate-y-1" />
-                    </h4>
-                    <div className="space-y-3">
-                      {GroceryCategories.map((cat) => (
-                        <div key={cat.title} className="rounded-xl bg-muted/40 p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className={`w-5 h-5 rounded-md bg-gradient-to-br ${cat.gradient} flex items-center justify-center`}>
-                                <cat.icon className="w-3 h-3 text-primary-foreground" />
-                              </span>
-                              <span className="text-[12px] font-semibold text-foreground">{cat.title}</span>
-                            </div>
-                            <span className="text-[10px] text-muted-foreground">{cat.count} ⌄</span>
-                          </div>
-                          <ul className="space-y-1.5 pl-1">
-                            {cat.items.map((it) => (
-                              <li key={it.name} className="flex items-center gap-2 text-[12px] text-foreground/85">
-                                <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${it.checked ? "bg-primary border-primary" : "border-foreground/30"}`}>
-                                  {it.checked && <Check className="w-2.5 h-2.5 text-primary-foreground" strokeWidth={3} />}
-                                </span>
-                                <span className={it.checked ? "line-through text-muted-foreground/70" : ""}>{it.name}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                    <button className="w-full mt-3 py-2.5 rounded-xl bg-muted/60 text-[12px] font-semibold text-foreground/80 hover:bg-muted transition-colors">
-                      ⊕ Add item
-                    </button>
-                  </div>
-                  <div className="flex justify-center pb-2">
-                    <div className="w-20 h-[3px] bg-foreground/20 rounded-full" />
-                  </div>
-                </div>
-              </motion.div>
-            </div>
+            <motion.div
+              initial={{ rotate: -3 }}
+              whileHover={{ rotate: -1, transition: { duration: 0.4 } }}
+            >
+              <PhoneFrame widthClassName="w-[268px]">
+                <GroceryScreen />
+              </PhoneFrame>
+            </motion.div>
           </motion.div>
 
           {/* Copy */}
