@@ -1,37 +1,68 @@
 import { motion } from "framer-motion";
 import { CalendarDays, ShoppingBasket, MessageSquare, BookOpen, Leaf, Clock } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { IconTile } from "./primitives";
+import {
+  PhoneFrame,
+  WeeklyPlanScreen,
+  GroceryScreen,
+  InsightsScreen,
+} from "./screens";
 
-const ITEMS = [
+type Feature = { icon: typeof CalendarDays; title: string; desc: string };
+
+const ROWS: {
+  Screen: () => JSX.Element;
+  reverse: boolean;
+  features: Feature[];
+}[] = [
   {
-    icon: CalendarDays,
-    title: "Plans that fit real life.",
-    desc: "A realistic mix of cook nights, leftovers, takeout, and dine-out evenings — never seven random recipes.",
+    Screen: WeeklyPlanScreen,
+    reverse: false,
+    features: [
+      {
+        icon: CalendarDays,
+        title: "Plans that fit real life.",
+        desc: "A realistic mix of cook nights, leftovers, takeout, and dine-out evenings — never seven random recipes.",
+      },
+      {
+        icon: Clock,
+        title: "Time back you can actually feel.",
+        desc: "No 5pm scramble. No grocery do-overs. Just dinner, handled — every week.",
+      },
+    ],
   },
   {
-    icon: ShoppingBasket,
-    title: "Groceries built from the week.",
-    desc: "One clean list, organized by aisle, that maps to the meals you'll actually make.",
+    Screen: GroceryScreen,
+    reverse: true,
+    features: [
+      {
+        icon: ShoppingBasket,
+        title: "Groceries built from the week.",
+        desc: "One clean list, organized by aisle, that maps to the meals you'll actually make.",
+      },
+      {
+        icon: Leaf,
+        title: "Seasonal requests, on demand.",
+        desc: "Ask for cozy soups, summer grills, or back-to-school easy nights. The plan responds.",
+      },
+    ],
   },
   {
-    icon: MessageSquare,
-    title: "Check-ins that make next week smarter.",
-    desc: "A 5-second tap after dinner. The system learns what worked, what flopped, what to repeat.",
-  },
-  {
-    icon: BookOpen,
-    title: "Meal memory your family can build on.",
-    desc: "Loved meals get saved automatically. Your library grows with every dinner you actually enjoy.",
-  },
-  {
-    icon: Leaf,
-    title: "Seasonal requests when you want something fresh.",
-    desc: "Ask for cozy soups, summer grills, or back-to-school easy nights. The plan responds.",
-  },
-  {
-    icon: Clock,
-    title: "Time back you can actually feel.",
-    desc: "No 5pm scramble. No grocery do-overs. Just dinner, handled — every week.",
+    Screen: InsightsScreen,
+    reverse: false,
+    features: [
+      {
+        icon: MessageSquare,
+        title: "Check-ins that make next week smarter.",
+        desc: "A 5-second tap after dinner. The system learns what worked, what flopped, what to repeat.",
+      },
+      {
+        icon: BookOpen,
+        title: "Meal memory your family builds on.",
+        desc: "Loved meals get saved automatically. Your library grows with every dinner you actually enjoy.",
+      },
+    ],
   },
 ];
 
@@ -42,7 +73,7 @@ const SixQuietThings = () => {
     <section className="py-16 md:py-24 px-4 relative">
       <div className="container max-w-6xl relative z-10">
         <motion.div
-          className="text-center mb-10 md:mb-14"
+          className="text-center mb-12 md:mb-16"
           initial={initialState}
           whileInView="visible"
           viewport={viewport}
@@ -62,38 +93,62 @@ const SixQuietThings = () => {
           </p>
         </motion.div>
 
-        <motion.div
-          className="rounded-3xl bg-background/95 backdrop-blur-sm border border-border/40 shadow-xl overflow-hidden"
-          initial={initialState}
-          whileInView="visible"
-          viewport={viewport}
-          variants={fadeUp}
-          custom={1}
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {ITEMS.map((item, i) => (
-              <motion.div
-                key={item.title}
-                className="p-7 md:p-9 border-border/40 border-b last:border-b-0 sm:[&:nth-child(2n)]:border-r-0 sm:border-r sm:[&:nth-last-child(-n+2)]:border-b-0 lg:[&:nth-child(3n)]:border-r-0 lg:[&:nth-last-child(-n+3)]:border-b-0 lg:[&:nth-child(2n)]:border-r group hover:bg-primary/[0.02] transition-colors"
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={viewport}
-                transition={{ delay: 0.05 * i, duration: 0.45, ease: "easeOut" }}
-                whileHover={{ y: -2 }}
+        <div className="space-y-16 md:space-y-24">
+          {ROWS.map((row, i) => {
+            const { Screen } = row;
+            return (
+              <div
+                key={i}
+                className="grid md:grid-cols-2 gap-10 md:gap-14 items-center"
               >
-                <div className="mb-5">
-                  <item.icon className="w-5 h-5 text-foreground/80 group-hover:text-primary transition-colors" strokeWidth={1.5} />
-                </div>
-                <h3 className="text-xl md:text-[22px] font-serif font-semibold text-foreground mb-3 tracking-tight leading-snug">
-                  {item.title}
-                </h3>
-                <p className="text-sm md:text-[15px] text-muted-foreground leading-relaxed">
-                  {item.desc}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+                {/* Phone */}
+                <motion.div
+                  className={`flex justify-center ${row.reverse ? "md:order-2" : ""}`}
+                  initial={initialState}
+                  whileInView="visible"
+                  viewport={viewport}
+                  variants={fadeUp}
+                  custom={1}
+                >
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
+                  >
+                    <PhoneFrame widthClassName="w-[238px] sm:w-[256px]">
+                      <Screen />
+                    </PhoneFrame>
+                  </motion.div>
+                </motion.div>
+
+                {/* Copy */}
+                <motion.div
+                  className={`space-y-7 ${row.reverse ? "md:order-1" : ""}`}
+                  initial={initialState}
+                  whileInView="visible"
+                  viewport={viewport}
+                  variants={fadeUp}
+                  custom={2}
+                >
+                  {row.features.map((f) => (
+                    <div key={f.title} className="flex gap-4">
+                      <IconTile size="lg" gradient="from-primary/15 to-sage/10">
+                        <f.icon className="w-5 h-5 text-primary" strokeWidth={1.6} />
+                      </IconTile>
+                      <div>
+                        <h3 className="text-xl md:text-[22px] font-serif font-semibold text-foreground mb-2 tracking-tight leading-snug">
+                          {f.title}
+                        </h3>
+                        <p className="text-sm md:text-[15px] text-muted-foreground leading-relaxed">
+                          {f.desc}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
