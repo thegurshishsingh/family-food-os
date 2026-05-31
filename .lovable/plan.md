@@ -1,119 +1,57 @@
+## Goal
 
+Rebuild the Family Food OS landing page using Bevel Health's design ideology: **every section shows the actual product UI inside a clean iPhone frame**, surrounded by soft pastel rounded cards, big bold headlines, and generous whitespace. This is what makes Bevel feel trustworthy and authentic — you always see the real app.
 
-# Family Food OS — Product Video (Remotion)
+## Screenshot strategy (important)
 
-A 26-second, 1080x1920 portrait video built with Remotion, rendered to MP4.
+Bevel uses polished product renders, not literal phone photos. The live app is gated behind login (real family data), so literal screen captures aren't available without exposing private data. Instead I'll build **pixel-faithful in-app screen components rendered inside reusable iPhone frames** — the same technique Bevel uses, and what this codebase already does with `DinnerCheckInPreview`. The result reads as authentic real screens, on-brand, with no private data.
 
-## Creative Direction
+If you'd rather use literal captures, you can log into the preview and I'll swap them in — but the mockups will look indistinguishable and stay perfectly on-brand.
 
-- **Aesthetic**: Luxury/Editorial — warm cream backgrounds, sage accents, serif typography, smooth springs
-- **Fonts**: Fraunces (display serif) + DM Sans (body) via `@remotion/google-fonts`
-- **Palette**: Sage `#4A7C6B`, Cream `#FAF8F5`, Warm `#CC8E52`, Charcoal `#221F1C`, Red `#E03B3B`, Sage-light `#E2EDE8`, Warm-light `#f5e6d3`
-- **Motion**: Spring-based entrances (damping 14, stiffness 160), 18-frame staggers, wipe/fade transitions
-- **Motifs**: Rounded cards matching app UI, floating sage blobs, badge pills, check chips
-- **Arc**: Frustration (silence, generic recipes) → Clarity (learns your family) → Delight (smart weekly plan) → Trust (gets smarter) → Resolution (brand close)
+## Design ideology to adopt (from Bevel + your screenshots)
 
-## File Structure
+- A reusable `<PhoneFrame>` (titanium edge, notch, status bar, rounded 22px screen) used everywhere.
+- Soft pastel rounded feature cards (sage/cream/sky tints) with a screen tucked inside or beside the copy.
+- Big bold headlines, tight tracking, lots of breathing room; keep Fraunces headings + DM Sans body (locked brand).
+- Family Food brand colors kept: Deep Moss, Soft Cream, Soft Amber, Muted Sage (NOT Bevel's blue/sky).
+- "And that's not all" style feature list + a 3-up feature card row + an awards/trust strip.
+
+## New / faithful app-screen mockups (each in a PhoneFrame)
+
+1. Onboarding step (household, diet, budget) — "5 minutes to set up"
+2. Weekly Plan grid (Mon–Sun with Cook / Leftovers / Takeout / Dine-out badges + Reality Score)
+3. Daily Dinner Card (today's meal + check-in)
+4. Grocery List (auto-generated, swapped badges)
+5. Time-Saved / Savings recap (2+ hrs, $60–80)
+6. What-we-learned / weekly insights card
+
+## Section-by-section rebuild
 
 ```text
-remotion/
-  package.json
-  tsconfig.json
-  src/
-    index.ts              # registerRoot
-    Root.tsx               # Composition: 1080x1920, 30fps, 780 frames
-    MainVideo.tsx          # TransitionSeries wiring all 6 scenes
-    scenes/
-      Scene0Hook.tsx       # 30 frames — dark phone, "what's for dinner?" text
-      Scene1Problem.tsx     # 120 frames — generic recipe grid + red X stamp
-      Scene2Shift.tsx       # 120 frames — "learns your family" + avatars + tags
-      Scene3WeeklyPlan.tsx  # 210 frames — full 7-day card build, hero scene
-      Scene4Learning.tsx    # 150 frames — check-in chips + insights
-      Scene5Close.tsx       # 150 frames — logo, headline, CTA, social proof
-    components/
-      Background.tsx        # Reusable floating blob + gradient backgrounds
-  scripts/
-    render-remotion.mjs     # Programmatic render → /mnt/documents/
-  public/                   # (empty, no external assets needed)
+Hero            Bold headline + primary phone (Weekly Plan) on sky-cream wash, trust badge, ratings strip
+Trust strip     "Built for real weeknights" + small proof stats / awards-style row
+The Problem     Decision fatigue · food waste · follow-through — pastel cards w/ small screen insets
+3-up Features   "Plan the week with confidence" — Plan / Groceries / Check-in cards, each w/ a phone screen
+Deep feature A  Weekly Plan — copy left, large phone right (zigzag)
+Deep feature B  Grocery + leftovers — copy right, large phone left
+How it works    3 steps, each paired with an onboarding/plan screen
+And that's not all  Feature list (Saved meals, Trends, Notifications, Insights...) + tall phone
+Savings payoff  Time + money recap screen in frame
+Testimonials    FamilyVoices, restyled to match
+Final CTA       Restyled, device peek
+Footer          Keep existing illustrated footer
 ```
 
-## Scene Breakdown
+## Technical approach
 
-### Scene 0 — The Hook (0–1s, 30 frames)
-- Dark background simulating phone screen
-- iMessage-style bubble: "what's for dinner tonight? 🍽️"
-- Typing indicator dots, then silence — no reply
-- Fade transition to Scene 1
+- Add `src/components/landing/PhoneFrame.tsx` (shared device frame) and a `src/components/landing/screens/` folder with the faithful screen components above (Tailwind + semantic tokens only, no hardcoded colors).
+- Refactor each landing section component (`HeroSection`, `TheStruggle`, `PlansThatFitRealLife`, `SixQuietThings`, `GroceryListSection`, `HowItWorksPlayful`, `FamilyVoices`, `FinalCTA`) to the new screenshot-forward layout; keep existing copy/messaging (decision fatigue, coordination, food waste, follow-through).
+- Reuse existing tokens in `index.css` / `tailwind.config.ts`; add tints only if needed.
+- Keep all routing, links, and `MealModeProvider` / `SmoothScroll` wiring intact.
+- QA in the browser at mobile (390px) and desktop widths; verify build.
 
-### Scene 1 — The Problem (1–5s, 120 frames)
-- Off-white `#f5f3f0` background
-- "THE PROBLEM" small caps label
-- Serif headline: "Most meal planners give you recipes."
-- 3×2 grid of generic recipe cards (emoji + name + border)
-- Large red `#E03B3B` circle-X stamps over grid via spring scale
-- Caption: "Same 6 recipes. Different week. Every time."
-- Wipe-left transition to Scene 2
+## Out of scope
 
-### Scene 2 — The Shift (5–9s, 120 frames)
-- Cream `#FAF8F5` with floating sage blobs (Math.sin drift)
-- "INTRODUCING" eyebrow → "Family Food OS learns your family." (learns = sage italic)
-- Three avatar circles spring in from different directions
-- Five floating tags stagger in with sage-light background
-
-### Scene 3 — Weekly Plan (9–16s, 210 frames) — Hero
-- Cream background
-- Weekly plan card matching landing page design exactly:
-  - Sage header with "YOUR WEEK" + "March 10 – 16" + Reality Score 84 badge
-  - Column headers: DAY / MEAL / PREP
-  - 7 rows slide in left with 18-frame stagger, each with mode badge
-  - Footer: "4 cook · 2 leftovers · 1 out" / "~2,400 cal avg"
-- "This could be your week." italic serif CTA fades in below
-
-### Scene 4 — Learning (16–21s, 150 frames)
-- "It gets smarter every week." headline (every week = sage italic)
-- Dinner Check-In card springs up with chips (2 selected, 2 not)
-- Insight card: "Got it. Thursdays should stay low-effort."
-- Learnings list: 3 items animate in with sage dot indicators
-
-### Scene 5 — Close (21–26s, 150 frames)
-- Cream + two radial gradient orbs (sage-light, warm-light) with slow pulse
-- Logo mark (sage rounded square + chef hat) springs in with subtle continuous pulse
-- "Plan your real week of food." large serif headline
-- Tagline + CTA pill button (sage bg, white text) with repeating pulse
-- Social proof line fades in last
-- Final 1s: gentle fade to cream
-
-## Transitions (via TransitionSeries)
-- Scene 0→1: fade (20 frames)
-- Scene 1→2: wipe from-left (30 frames)
-- Scene 2→3: fade (25 frames)
-- Scene 3→4: wipe from-left (30 frames)
-- Scene 4→5: fade (25 frames)
-
-Total with overlaps: 780 frames accounting for ~130 frames of transition overlap from the raw 780 scene frames.
-
-## Motion System
-- **Default entrance**: `spring({ frame, fps, config: { damping: 14, stiffness: 160 } })` mapped to opacity + translateY(20→0)
-- **Card entrance**: same spring mapped to opacity + scale(0.94→1.0)
-- **Accent motion**: larger spring overshoot for hero elements (damping: 10)
-- **Stagger**: 18 frames between list items
-- **Background drift**: `Math.sin(frame / 90) * amplitude` for organic blob movement
-- **Exits**: handled by transitions (no explicit exit animations needed)
-
-## Rendering
-- **render-remotion.mjs**: Programmatic script using `@remotion/bundler` + `@remotion/renderer`
-  - Output: `/mnt/documents/familyfoodOS-product-video.mp4`
-  - Codec: H.264, CRF 18, muted, concurrency 1
-  - chromeMode: "chrome-for-testing", no-sandbox flags
-- **Spot-check**: `bunx remotion still` at frames 15, 60, 120, 240, 420, 600, 720
-
-## Implementation Order
-1. Scaffold project, install deps, fix compositor binary, symlink ffmpeg
-2. Create tsconfig.json, index.ts, Root.tsx with composition settings
-3. Build Background.tsx (floating blobs + gradient utilities)
-4. Build scenes 0–5 sequentially, each in its own file
-5. Wire MainVideo.tsx with TransitionSeries + transitions
-6. Spot-check key frames
-7. Full render to MP4
-8. Deliver artifact
-
+- No backend, auth, or data changes.
+- No new brand colors or fonts (brand stays locked).
+- Remotion videos untouched.
