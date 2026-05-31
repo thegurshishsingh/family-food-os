@@ -2,9 +2,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Star, CalendarDays, Brain, Sparkles, Flame, Clock } from "lucide-react";
+import { ArrowRight, Star, Clock, Gauge, Timer } from "lucide-react";
 import { PhoneFrame, WeeklyPlanScreen } from "./screens";
-import { GlassCard, IconTile } from "./primitives";
+import { FloatingStatCard } from "./primitives";
 
 const rotatingWords = [
   "decided.",
@@ -12,38 +12,6 @@ const rotatingWords = [
   "off your plate.",
   "on autopilot.",
 ];
-
-const StreakBadge = () => (
-  <GlassCard size="sm" halo="coral" padding="xs" outerClassName="inline-block">
-    <div className="flex items-center gap-1.5">
-      <Flame className="w-4 h-4 text-coral" />
-      <span className="text-[11px] font-bold text-foreground">5-day streak 🔥</span>
-    </div>
-  </GlassCard>
-);
-
-const SystemLearningCard = () => (
-  <GlassCard size="md" halo="sky" outerClassName="w-[156px]">
-    <div className="flex items-center gap-1.5 mb-2">
-      <IconTile size="xs" gradient="from-sky to-primary">
-        <Sparkles className="w-3 h-3 text-primary-foreground" />
-      </IconTile>
-      <span className="text-[10px] font-bold text-foreground">Learns your family</span>
-    </div>
-    <div className="space-y-1.5">
-      {[
-        { c: "bg-sky", t: "Kids prefer low-spice" },
-        { c: "bg-primary", t: "Wed → takeout works" },
-        { c: "bg-accent", t: "Thu under 25 min" },
-      ].map((x) => (
-        <p key={x.t} className="text-[9px] text-muted-foreground leading-snug flex items-center gap-1.5">
-          <span className={`w-1.5 h-1.5 rounded-full ${x.c} shrink-0`} />
-          {x.t}
-        </p>
-      ))}
-    </div>
-  </GlassCard>
-);
 
 const RatingStrip = () => (
   <div className="flex items-center gap-2.5">
