@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { ContentCard } from "./primitives";
+import { PhoneFrame } from "./screens";
 import { useMealMode, MealMode } from "./MealModeContext";
 
 const MODES: {
@@ -206,73 +207,50 @@ const PlansThatFitRealLife = () => {
             variants={fadeUp}
             custom={3}
           >
-            <div className="relative w-[260px]">
-              <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none">
-                <div className={`w-[260px] h-[480px] rounded-[40px] bg-gradient-to-b ${active.gradient} opacity-15 blur-[60px]`} />
-              </div>
-              <div
-                className="rounded-[36px] p-[3px] shadow-[0_30px_80px_-20px_hsl(var(--foreground)/0.35)]"
-                style={{
-                  background:
-                    "linear-gradient(145deg, hsl(var(--foreground)/0.85), hsl(var(--foreground)/0.55), hsl(var(--foreground)/0.75))",
-                }}
-              >
-                <div className="rounded-[33px] bg-background overflow-hidden">
-                  <div className="flex items-center justify-between px-5 pt-2 pb-1">
-                    <span className="text-[10px] font-semibold text-foreground/70">9:41</span>
-                    <div className="w-20 h-5 bg-foreground/85 rounded-full" />
-                    <div className="w-4 h-2.5 border border-foreground/40 rounded-[3px]">
-                      <div className="w-2.5 h-full bg-primary/60 rounded-[1px]" />
-                    </div>
-                  </div>
-                  <div className="px-4 pt-3 pb-5 min-h-[420px]">
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="text-[9px] font-bold text-muted-foreground/70 uppercase tracking-[0.15em]">Tonight · Thu</p>
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-primary-foreground bg-gradient-to-r ${active.gradient}`}>
-                        <active.icon className="w-2.5 h-2.5" />
-                        {content.badge}
-                      </span>
-                    </div>
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={mode}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <h4 className="text-[20px] font-serif font-semibold text-foreground mb-3 leading-tight">
-                          {content.title}
-                        </h4>
-                        <div className="relative rounded-2xl bg-muted/50 aspect-[16/10] mb-3 overflow-hidden">
-                          <div className={`absolute inset-0 bg-gradient-to-br ${active.gradient} opacity-20`} />
-                          <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-background/85 backdrop-blur-sm text-[9px] font-bold text-foreground">
-                            <Clock className="w-2.5 h-2.5" />
-                            {content.meta}
-                          </div>
-                          <div className="absolute bottom-2 left-2">
-                            <p className="text-[9px] font-bold text-foreground/70 uppercase tracking-wider">Tonight</p>
-                            <p className="text-[12px] font-serif font-semibold text-foreground leading-tight">{content.title}</p>
-                          </div>
-                        </div>
-                        <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.15em] mb-2">{content.body.heading}</p>
-                        <ul className="space-y-1.5">
-                          {content.body.items.map((it) => (
-                            <li key={it} className="flex items-center gap-2 text-[12px] text-foreground/85">
-                              <span className="w-1 h-1 rounded-full bg-primary" />
-                              {it}
-                            </li>
-                          ))}
-                        </ul>
-                      </motion.div>
-                    </AnimatePresence>
-                  </div>
-                  <div className="flex justify-center pb-2">
-                    <div className="w-20 h-[3px] bg-foreground/20 rounded-full" />
-                  </div>
+            <PhoneFrame widthClassName="w-[252px]">
+              <div className="px-4 pt-3 pb-5 min-h-[420px]">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[9px] font-bold text-muted-foreground/70 uppercase tracking-[0.15em]">Tonight · Thu</p>
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-primary-foreground bg-gradient-to-r ${active.gradient}`}>
+                    <active.icon className="w-2.5 h-2.5" />
+                    {content.badge}
+                  </span>
                 </div>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={mode}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h4 className="text-[20px] font-serif font-semibold text-foreground mb-3 leading-tight">
+                      {content.title}
+                    </h4>
+                    <div className="relative rounded-2xl bg-muted/50 aspect-[16/10] mb-3 overflow-hidden">
+                      <div className={`absolute inset-0 bg-gradient-to-br ${active.gradient} opacity-20`} />
+                      <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-background/85 backdrop-blur-sm text-[9px] font-bold text-foreground">
+                        <Clock className="w-2.5 h-2.5" />
+                        {content.meta}
+                      </div>
+                      <div className="absolute bottom-2 left-2">
+                        <p className="text-[9px] font-bold text-foreground/70 uppercase tracking-wider">Tonight</p>
+                        <p className="text-[12px] font-serif font-semibold text-foreground leading-tight">{content.title}</p>
+                      </div>
+                    </div>
+                    <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.15em] mb-2">{content.body.heading}</p>
+                    <ul className="space-y-1.5">
+                      {content.body.items.map((it) => (
+                        <li key={it} className="flex items-center gap-2 text-[12px] text-foreground/85">
+                          <span className="w-1 h-1 rounded-full bg-primary" />
+                          {it}
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                </AnimatePresence>
               </div>
-            </div>
+            </PhoneFrame>
           </motion.div>
         </div>
 

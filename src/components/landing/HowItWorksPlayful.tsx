@@ -2,6 +2,12 @@ import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Users, Brain, RefreshCw } from "lucide-react";
 import { IconTile } from "./primitives";
+import {
+  PhoneFrame,
+  OnboardingScreen,
+  WeeklyPlanScreen,
+  InsightsScreen,
+} from "./screens";
 
 const STEPS = [
   {
@@ -11,6 +17,7 @@ const STEPS = [
     glow: "from-primary/10 to-sky/10",
     title: "Tell us about your crew",
     desc: "Kids' ages, who's picky, allergies, budget, how much cooking energy you actually have.",
+    Screen: OnboardingScreen,
   },
   {
     num: "2",
@@ -19,6 +26,7 @@ const STEPS = [
     glow: "from-accent/10 to-coral/10",
     title: "We plan your real week",
     desc: "A realistic mix of cook nights, leftover nights, takeout slots, and dine-out evenings.",
+    Screen: WeeklyPlanScreen,
   },
   {
     num: "3",
@@ -27,6 +35,7 @@ const STEPS = [
     glow: "from-violet/10 to-primary/10",
     title: "It gets smarter every week",
     desc: "After dinner, tap how it went. The system learns your patterns and keeps improving.",
+    Screen: InsightsScreen,
   },
 ];
 
@@ -34,56 +43,73 @@ const HowItWorksPlayful = () => {
   const { fadeUp, viewport, initialState } = useScrollReveal();
 
   return (
-    <section className="py-14 md:py-20 px-4 relative overflow-hidden">
+    <section id="how-it-works" className="py-16 md:py-24 px-4 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-gradient-to-r from-primary/4 via-violet/3 to-sky/4 blur-3xl" />
       </div>
 
-      <div className="container max-w-4xl relative z-10">
+      <div className="container max-w-6xl relative z-10">
         <motion.div
-          className="text-center mb-10"
+          className="text-center mb-12 md:mb-16"
           initial={initialState}
           whileInView="visible"
           viewport={viewport}
           variants={fadeUp}
           custom={0}
         >
-          <h2 className="text-2xl md:text-4xl font-serif font-semibold text-foreground mb-3 tracking-tight leading-[1.15]">
+          <h2 className="text-3xl md:text-5xl font-serif font-semibold text-foreground mb-3 tracking-tight leading-[1.1]">
             Here's how it actually works
           </h2>
-          <p className="text-muted-foreground/80 text-base max-w-md mx-auto leading-relaxed">
+          <p className="text-muted-foreground/80 text-base md:text-lg max-w-md mx-auto leading-relaxed">
             Three steps. Five minutes. Your whole week, handled.
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-5">
-          {STEPS.map((step, i) => (
-            <motion.div
-              key={step.num}
-              className="relative p-6 rounded-2xl glass-card text-center group hover:shadow-lg transition-all"
-              initial={initialState}
-              whileInView="visible"
-              viewport={viewport}
-              variants={fadeUp}
-              custom={i + 1}
-            >
-              <div className={`absolute inset-0 rounded-2xl bg-gradient-to-b ${step.glow} opacity-0 group-hover:opacity-100 transition-opacity`} />
-              <div className="relative z-10">
-                <IconTile size="xl" gradient={step.gradient} shadow="lg" className="mb-4">
-                  <step.icon className="w-5 h-5 text-primary-foreground" />
-                </IconTile>
-                <div className="inline-flex items-center justify-center w-6 h-6 rounded-full glass-strong text-[10px] font-bold mb-3 text-foreground ml-2">
-                  {step.num}
+        <div className="grid md:grid-cols-3 gap-8 md:gap-6">
+          {STEPS.map((step, i) => {
+            const { Screen } = step;
+            return (
+              <motion.div
+                key={step.num}
+                className="relative p-6 rounded-3xl glass-card text-center group hover:shadow-lg transition-all"
+                initial={initialState}
+                whileInView="visible"
+                viewport={viewport}
+                variants={fadeUp}
+                custom={i + 1}
+              >
+                <div className={`absolute inset-0 rounded-3xl bg-gradient-to-b ${step.glow} opacity-0 group-hover:opacity-100 transition-opacity`} />
+                <div className="relative z-10">
+                  {/* Phone preview */}
+                  <div className="flex justify-center mb-6">
+                    <motion.div
+                      animate={{ y: [0, -8, 0] }}
+                      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
+                    >
+                      <PhoneFrame widthClassName="w-[196px]" glow={false}>
+                        <Screen />
+                      </PhoneFrame>
+                    </motion.div>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <IconTile size="lg" gradient={step.gradient} shadow="md">
+                      <step.icon className="w-5 h-5 text-primary-foreground" />
+                    </IconTile>
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full glass-strong text-[10px] font-bold text-foreground">
+                      {step.num}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-serif font-semibold text-foreground mb-2 tracking-tight">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground/85 leading-relaxed">
+                    {step.desc}
+                  </p>
                 </div>
-                <h3 className="text-lg font-serif font-semibold text-foreground mb-2 tracking-tight">
-                  {step.title}
-                </h3>
-                <p className="text-sm text-muted-foreground/85 leading-relaxed">
-                  {step.desc}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { Snowflake, Search, HelpCircle, ShoppingCart, Flame, Lightbulb } from "lucide-react";
+import { Snowflake, Search, HelpCircle, ShoppingCart, Flame, Lightbulb, Sparkles } from "lucide-react";
 import { ContentCard, IconTile } from "./primitives";
+import { PhoneFrame, DailyDinnerScreen } from "./screens";
 
 const SCENES = [
   { time: "4:45 PM", icon: Snowflake, color: "from-sky to-primary", text: "\"Ugh, I forgot to defrost the chicken.\"" },
@@ -20,9 +21,9 @@ const TheStruggle = () => {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-gradient-to-b from-coral/5 to-transparent blur-3xl" />
       </div>
 
-      <div className="container max-w-3xl relative z-10">
+      <div className="container max-w-6xl relative z-10">
         <motion.div
-          className="text-center mb-8"
+          className="text-center mb-10 md:mb-14"
           initial={initialState}
           whileInView="visible"
           viewport={viewport}
@@ -40,48 +41,68 @@ const TheStruggle = () => {
           </p>
         </motion.div>
 
-        {/* Liquid glass bordered container */}
-        <ContentCard halo="coral">
-          {SCENES.map((scene, i) => (
-            <motion.div
-              key={i}
-              className="flex items-start gap-4 px-5 py-3.5 border-b border-border/20 last:border-b-0 group transition-colors hover:bg-primary/[0.02]"
-              initial={initialState}
-              whileInView="visible"
-              viewport={viewport}
-              variants={fadeUp}
-              custom={i + 1}
-            >
-              <span className="text-xs font-mono text-muted-foreground/50 mt-1 shrink-0 w-14">
-                {scene.time}
-              </span>
-              <IconTile size="md" gradient={scene.color}>
-                <scene.icon className="w-4 h-4 text-primary-foreground" />
-              </IconTile>
-              <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                {scene.text}
-              </p>
-            </motion.div>
-          ))}
-        </ContentCard>
+        <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center">
+          {/* Left — the 5pm chaos timeline */}
+          <motion.div
+            initial={initialState}
+            whileInView="visible"
+            viewport={viewport}
+            variants={fadeUp}
+            custom={1}
+          >
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-coral mb-4 flex items-center gap-2">
+              <span className="h-px w-6 bg-coral/40" /> Without a system
+            </p>
+            <ContentCard halo="coral">
+              {SCENES.map((scene, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-4 px-5 py-3.5 border-b border-border/20 last:border-b-0"
+                >
+                  <span className="text-xs font-mono text-muted-foreground/50 mt-1 shrink-0 w-14">
+                    {scene.time}
+                  </span>
+                  <IconTile size="md" gradient={scene.color}>
+                    <scene.icon className="w-4 h-4 text-primary-foreground" />
+                  </IconTile>
+                  <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                    {scene.text}
+                  </p>
+                </div>
+              ))}
+            </ContentCard>
+          </motion.div>
 
-        <motion.div
-          className="mt-5 text-center"
-          initial={initialState}
-          whileInView="visible"
-          viewport={viewport}
-          variants={fadeUp}
-          custom={6}
-        >
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-strong">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-sky flex items-center justify-center">
-              <Lightbulb className="w-3 h-3 text-primary-foreground" />
+          {/* Right — the calm alternative, shown in the real app */}
+          <motion.div
+            className="flex flex-col items-center"
+            initial={initialState}
+            whileInView="visible"
+            viewport={viewport}
+            variants={fadeUp}
+            custom={2}
+          >
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary mb-4 flex items-center gap-2 self-center md:self-start">
+              <span className="h-px w-6 bg-primary/40" /> With Family Food OS
+            </p>
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <PhoneFrame widthClassName="w-[244px] sm:w-[260px]">
+                <DailyDinnerScreen />
+              </PhoneFrame>
+            </motion.div>
+            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full glass-strong">
+              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary to-sky flex items-center justify-center">
+                <Lightbulb className="w-2.5 h-2.5 text-primary-foreground" />
+              </div>
+              <span className="text-xs font-semibold text-primary">
+                Dinner figured out before 5pm.
+              </span>
             </div>
-            <span className="text-sm font-semibold text-primary">
-              What if dinner was already figured out before 5pm?
-            </span>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
