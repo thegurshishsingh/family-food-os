@@ -127,22 +127,39 @@ const HeroSection = () => {
               </PhoneFrame>
             </motion.div>
 
-            {/* Floating: streak (top-left) */}
+            {/* Floating zoom card: reality score (top-left) */}
             <motion.div
-              className="absolute top-6 -left-2 sm:left-0 hidden xs:block"
+              className="absolute top-8 -left-3 sm:-left-8 w-[150px]"
               animate={{ y: [0, -6, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
             >
-              <StreakBadge />
+              <FloatingStatCard
+                icon={Gauge}
+                label="Reality score"
+                value="84"
+                unit="/100"
+                tone="primary"
+                trend="up"
+                trendTone="primary"
+                showArrow
+              />
             </motion.div>
 
-            {/* Floating: learning (bottom-right) */}
+            {/* Floating zoom card: time saved (bottom-right) */}
             <motion.div
-              className="absolute bottom-8 -right-2 sm:-right-4 hidden xs:block"
+              className="absolute bottom-10 -right-3 sm:-right-8 w-[164px]"
               animate={{ y: [0, -7, 0] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
             >
-              <SystemLearningCard />
+              <FloatingStatCard
+                icon={Timer}
+                label="Time saved"
+                value="2.5"
+                unit="hrs"
+                tone="sky"
+                sparkline={[3, 5, 4, 7, 6, 9, 8, 11]}
+                showArrow
+              />
             </motion.div>
           </motion.div>
         </div>
