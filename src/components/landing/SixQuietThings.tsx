@@ -25,11 +25,15 @@ const ROWS: {
   tone: Tone;
   cards: StageCard[];
   features: Feature[];
+  crop?: boolean;
+  cropHeightClassName?: string;
 }[] = [
   {
     Screen: WeeklyPlanScreen,
     reverse: false,
     tone: "sage",
+    crop: true,
+    cropHeightClassName: "h-[348px]",
     cards: [
       {
         pos: "top-10 -left-5 sm:-left-9 w-[148px]",
@@ -73,6 +77,8 @@ const ROWS: {
     Screen: GroceryScreen,
     reverse: true,
     tone: "sky",
+    crop: true,
+    cropHeightClassName: "h-[340px]",
     cards: [
       {
         pos: "top-12 -right-5 sm:-right-9 w-[146px]",
@@ -209,6 +215,8 @@ const SixQuietThings = () => {
                     screen={Screen}
                     cards={row.cards}
                     floatDelay={i * 0.4}
+                    crop={row.crop}
+                    cropHeightClassName={row.cropHeightClassName}
                   />
                 </div>
 

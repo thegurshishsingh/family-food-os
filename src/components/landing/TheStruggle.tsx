@@ -90,6 +90,8 @@ const TheStruggle = () => {
                 tone="coral"
                 screen={DailyDinnerScreen}
                 phoneWidth="w-[230px] sm:w-[248px]"
+                crop
+                cropHeightClassName="h-[330px]"
                 cards={[
                   {
                     pos: "top-10 -right-4 sm:-right-8 w-[138px]",
