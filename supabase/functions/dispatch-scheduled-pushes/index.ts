@@ -11,6 +11,20 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+function parseJwtClaims(token: string): Record<string, unknown> | null {
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+  try {
+    const payload = parts[1]
+      .replaceAll("-", "+")
+      .replaceAll("_", "/")
+      .padEnd(Math.ceil(parts[1].length / 4) * 4, "=");
+    return JSON.parse(atob(payload)) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
 type Slot = "dinner_reveal" | "evening_checkin" | "weekly_plan_ready";
 
 interface SlotConfig {
@@ -99,6 +113,16 @@ function slotJustPassed(
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // Only the cron scheduler (service-role token) may trigger a mass dispatch.
+  // Reject anon/authenticated callers so nobody can fire scheduled pushes
+  // to all subscribed users ahead of time.
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+  const claims = parseJwtClaims(token);
+  if (claims?.role !== "service_role") {
+    return json({ error: "Forbidden" }, 403);
+  }
 
   const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
   const now = new Date();

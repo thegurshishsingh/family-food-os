@@ -39,6 +39,26 @@ serve(async (req) => {
 
     const { identity, lovedMeals, kidsInsights, rhythm, planCount, preferences, household } = await req.json();
 
+    // Sanitize all client-supplied strings before interpolating them into the
+    // AI prompt. Strip newlines/control chars (used to inject fake
+    // instructions) and cap length to prevent prompt-injection / prompt-stuffing.
+    const clean = (v: unknown, max = 80): string => {
+      if (v == null) return "";
+      return String(v)
+        .replace(/[\r\n\t]+/g, " ")
+        .replace(/[^\p{L}\p{N}\s.,'&()/+-]/gu, "")
+        .trim()
+        .slice(0, max);
+    };
+    const cleanList = (v: unknown, maxItems = 20, maxLen = 60): string =>
+      Array.isArray(v)
+        ? v.slice(0, maxItems).map((x) => clean(x, maxLen)).filter(Boolean).join(", ")
+        : "";
+    const cleanNum = (v: unknown): string => {
+      const n = Number(v);
+      return Number.isFinite(n) ? String(n) : "unknown";
+    };
+
     const month = new Date().toLocaleString("en-US", { month: "long" });
     const isNewUser = !planCount || planCount === 0;
 
@@ -49,16 +69,16 @@ serve(async (req) => {
       prompt = `You are a warm, knowledgeable family meal planning assistant. A new family just joined and hasn't created any meal plans yet. Based on their preferences, generate 3-5 personalized, encouraging meal suggestions to get them started.
 
 **Family Info:**
-- Adults: ${household?.numAdults ?? "unknown"}
-- Children: ${household?.numChildren ?? 0}
-- Child age bands: ${household?.childAgeBands?.join(", ") || "none"}
-- Cuisines they like: ${preferences.cuisinesLiked?.join(", ") || "not specified"}
-- Cuisines they dislike: ${preferences.cuisinesDisliked?.join(", ") || "none"}
-- Dietary preferences: ${preferences.dietaryPreferences?.join(", ") || "none"}
-- Allergies: ${preferences.allergies?.join(", ") || "none"}
-- Cooking time tolerance: ${preferences.cookingTimeTolerance || "not specified"}
-- Health goal: ${preferences.healthGoal || "none"}
-- Foods to avoid: ${preferences.foodsToAvoid?.join(", ") || "none"}
+- Adults: ${cleanNum(household?.numAdults)}
+- Children: ${cleanNum(household?.numChildren)}
+- Child age bands: ${cleanList(household?.childAgeBands) || "none"}
+- Cuisines they like: ${cleanList(preferences.cuisinesLiked) || "not specified"}
+- Cuisines they dislike: ${cleanList(preferences.cuisinesDisliked) || "none"}
+- Dietary preferences: ${cleanList(preferences.dietaryPreferences) || "none"}
+- Allergies: ${cleanList(preferences.allergies) || "none"}
+- Cooking time tolerance: ${clean(preferences.cookingTimeTolerance) || "not specified"}
+- Health goal: ${clean(preferences.healthGoal) || "none"}
+- Foods to avoid: ${cleanList(preferences.foodsToAvoid) || "none"}
 - Current month: ${month}
 
 **Guidelines:**
@@ -75,15 +95,15 @@ serve(async (req) => {
       prompt = `You are a warm, knowledgeable family meal planning assistant. Based on the following household food data, generate 3-5 personalized, actionable meal recommendations. Each recommendation should feel like a helpful friend's suggestion — not algorithmic output.
 
 **Household Data:**
-- Plans generated: ${planCount || 0}
-- Cook nights per week: ${identity?.avgCookPerWeek ?? "unknown"}
-- Favorite cuisine: ${identity?.favCuisine ?? "unknown"}
-- Average prep time: ${identity?.avgPrep ? identity.avgPrep + " minutes" : "unknown"}
-- Most common cook day: ${identity?.mostCookedDay ?? "unknown"}
-- Most loved meals: ${lovedMeals?.map((m: any) => `${m.name} (loved ${m.count}×)`).join(", ") || "none yet"}
-- Kids insights: ${kidsInsights?.join("; ") || "none yet"}
-- Takeout day: ${rhythm?.takeoutDay ?? "no pattern"}
-- Average cook nights: ${rhythm?.avgCook ?? "unknown"}
+- Plans generated: ${cleanNum(planCount)}
+- Cook nights per week: ${cleanNum(identity?.avgCookPerWeek)}
+- Favorite cuisine: ${clean(identity?.favCuisine) || "unknown"}
+- Average prep time: ${identity?.avgPrep ? cleanNum(identity.avgPrep) + " minutes" : "unknown"}
+- Most common cook day: ${clean(identity?.mostCookedDay) || "unknown"}
+- Most loved meals: ${Array.isArray(lovedMeals) ? lovedMeals.slice(0, 20).map((m: any) => `${clean(m?.name, 60)} (loved ${cleanNum(m?.count)} times)`).filter((s) => s.trim().length > 0).join(", ") || "none yet" : "none yet"}
+- Kids insights: ${cleanList(kidsInsights, 20, 120) || "none yet"}
+- Takeout day: ${clean(rhythm?.takeoutDay) || "no pattern"}
+- Average cook nights: ${cleanNum(rhythm?.avgCook)}
 - Current month: ${month}
 
 **Guidelines:**

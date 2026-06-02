@@ -266,6 +266,20 @@ async function sendWebPush(
   return { statusCode: response.status };
 }
 
+function parseJwtClaims(token: string): Record<string, unknown> | null {
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+  try {
+    const payload = parts[1]
+      .replaceAll("-", "+")
+      .replaceAll("_", "/")
+      .padEnd(Math.ceil(parts[1].length / 4) * 4, "=");
+    return JSON.parse(atob(payload)) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
 const categoryColumn: Record<Category, string | null> = {
   test: null,
   dinner_reveal: "enabled_dinner_reveal",
@@ -290,6 +304,29 @@ Deno.serve(async (req) => {
     if (!body.category || !body.title || !body.body) {
       return json({ error: "category, title, and body are required" }, 400);
     }
+
+    // Authorization. Service-role callers (the cron dispatcher) may fan out to
+    // any user(s). A regular authenticated user may only send a `test` push to
+    // themselves — they cannot target other users, batch-send, or trigger
+    // system notification categories on anyone's behalf.
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    const claims = parseJwtClaims(token);
+    const isServiceRole = claims?.role === "service_role";
+
+    if (!isServiceRole) {
+      const callerId = typeof claims?.sub === "string" ? claims.sub : null;
+      if (!callerId) return json({ error: "Unauthorized" }, 401);
+      if (body.user_ids?.length || (body.user_id && body.user_id !== callerId)) {
+        return json({ error: "Forbidden" }, 403);
+      }
+      if (body.category !== "test") {
+        return json({ error: "Forbidden" }, 403);
+      }
+      body.user_id = callerId;
+      body.user_ids = undefined;
+    }
+
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
