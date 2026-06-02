@@ -432,6 +432,16 @@ const InteractiveWeeklyPlanner = () => {
     setOpenDay(null);
   };
 
+  const cycle = (d: number, dir: 1 | -1) => {
+    setSelected((prev) => {
+      const next = [...prev];
+      const len = DAYS[d].options.length;
+      next[d] = (prev[d] + dir + len) % len;
+      return next;
+    });
+  };
+
+
   return (
     <section className="py-16 md:py-24 px-4 relative">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
