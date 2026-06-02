@@ -100,12 +100,15 @@ export const PhoneFrame = ({
 
       {crop ? (
         <div
-          className={cn("relative overflow-hidden", cropHeightClassName)}
+          className={cn("relative overflow-hidden transform-gpu", cropHeightClassName)}
           style={{
             maskImage:
               "linear-gradient(to bottom, #000 0%, #000 66%, rgba(0,0,0,0.55) 86%, transparent 100%)",
             WebkitMaskImage:
               "linear-gradient(to bottom, #000 0%, #000 66%, rgba(0,0,0,0.55) 86%, transparent 100%)",
+            WebkitBackfaceVisibility: "hidden",
+            backfaceVisibility: "hidden",
+            transform: "translateZ(0)",
           }}
         >
           {device}
