@@ -121,6 +121,8 @@ const ROWS: {
     Screen: InsightsScreen,
     reverse: false,
     tone: "amber",
+    crop: true,
+    cropHeightClassName: "h-[272px] sm:h-[296px]",
     cards: [
       {
         pos: "top-10 -left-5 sm:-left-9 w-[150px]",
