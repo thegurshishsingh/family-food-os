@@ -5,3 +5,4 @@ export { GroceryScreen } from "./GroceryScreen";
 export { SavingsScreen } from "./SavingsScreen";
 export { InsightsScreen } from "./InsightsScreen";
 export { DailyDinnerScreen } from "./DailyDinnerScreen";
+export { RealityScoreScreen } from "./RealityScoreScreen";
