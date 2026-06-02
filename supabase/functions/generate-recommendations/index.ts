@@ -95,15 +95,15 @@ serve(async (req) => {
       prompt = `You are a warm, knowledgeable family meal planning assistant. Based on the following household food data, generate 3-5 personalized, actionable meal recommendations. Each recommendation should feel like a helpful friend's suggestion — not algorithmic output.
 
 **Household Data:**
-- Plans generated: ${planCount || 0}
-- Cook nights per week: ${identity?.avgCookPerWeek ?? "unknown"}
-- Favorite cuisine: ${identity?.favCuisine ?? "unknown"}
-- Average prep time: ${identity?.avgPrep ? identity.avgPrep + " minutes" : "unknown"}
-- Most common cook day: ${identity?.mostCookedDay ?? "unknown"}
-- Most loved meals: ${lovedMeals?.map((m: any) => `${m.name} (loved ${m.count}×)`).join(", ") || "none yet"}
-- Kids insights: ${kidsInsights?.join("; ") || "none yet"}
-- Takeout day: ${rhythm?.takeoutDay ?? "no pattern"}
-- Average cook nights: ${rhythm?.avgCook ?? "unknown"}
+- Plans generated: ${cleanNum(planCount)}
+- Cook nights per week: ${cleanNum(identity?.avgCookPerWeek)}
+- Favorite cuisine: ${clean(identity?.favCuisine) || "unknown"}
+- Average prep time: ${identity?.avgPrep ? cleanNum(identity.avgPrep) + " minutes" : "unknown"}
+- Most common cook day: ${clean(identity?.mostCookedDay) || "unknown"}
+- Most loved meals: ${Array.isArray(lovedMeals) ? lovedMeals.slice(0, 20).map((m: any) => `${clean(m?.name, 60)} (loved ${cleanNum(m?.count)} times)`).filter((s) => s.trim().length > 0).join(", ") || "none yet" : "none yet"}
+- Kids insights: ${cleanList(kidsInsights, 20, 120) || "none yet"}
+- Takeout day: ${clean(rhythm?.takeoutDay) || "no pattern"}
+- Average cook nights: ${cleanNum(rhythm?.avgCook)}
 - Current month: ${month}
 
 **Guidelines:**
