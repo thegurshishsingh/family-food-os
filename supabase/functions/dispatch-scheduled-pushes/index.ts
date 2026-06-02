@@ -100,6 +100,16 @@ function slotJustPassed(
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // Only the cron scheduler (service-role token) may trigger a mass dispatch.
+  // Reject anon/authenticated callers so nobody can fire scheduled pushes
+  // to all subscribed users ahead of time.
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+  const claims = parseJwtClaims(token);
+  if (claims?.role !== "service_role") {
+    return json({ error: "Forbidden" }, 403);
+  }
+
   const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
   const now = new Date();
   // Window must match cron interval. Cron runs every 15 min → use 15.
