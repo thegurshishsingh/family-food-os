@@ -60,12 +60,12 @@ interface ShowcaseStageProps {
 export const ShowcaseStage = ({
   tone = "sage",
   screen: Screen,
-  phoneWidth = "w-[224px] sm:w-[244px]",
+  phoneWidth = "w-[238px] sm:w-[264px]",
   cards = [],
   floatDelay = 0,
   className,
   crop = false,
-  cropHeightClassName = "h-[330px]",
+  cropHeightClassName = "h-[300px] sm:h-[330px]",
 }: ShowcaseStageProps) => {
   return (
     <div className={cn("relative mx-auto w-fit", className)}>
