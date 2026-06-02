@@ -129,6 +129,8 @@ export const FloatingStatCard = forwardRef<HTMLDivElement, FloatingStatCardProps
         <div
           className={cn(
             "rounded-2xl bg-card border border-border/50 px-3.5 py-3 shadow-[0_18px_40px_-16px_hsl(var(--foreground)/0.35)]",
+            "will-change-transform transition-all duration-300 ease-out cursor-default",
+            "hover:-translate-y-1 hover:scale-[1.035] hover:border-border hover:shadow-[0_26px_55px_-18px_hsl(var(--foreground)/0.45)]",
             className,
           )}
         >
