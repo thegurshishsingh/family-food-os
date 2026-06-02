@@ -185,8 +185,13 @@ const PlanScreen = ({
   onPick: (d: number, optIdx: number) => void;
   score: number;
   message: string;
-}) => (
+}) => {
+  const reduce = useReducedMotion();
+  const swapTextTransition = reduce ? { duration: 0 } : { duration: 0.18 };
+  const revealTransition = reduce ? { duration: 0 } : { duration: 0.2, ease: "easeOut" as const };
+  return (
   <div className="px-3 pt-1 pb-3">
+
     {/* Header */}
     <div className="flex items-center justify-between mb-2.5">
       <div>
