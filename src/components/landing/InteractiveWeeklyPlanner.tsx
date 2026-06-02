@@ -229,12 +229,14 @@ const PlanScreen = ({
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
-                    transition={{ duration: 0.18 }}
-                    className="text-[11px] font-semibold text-foreground truncate leading-tight"
+                    transition={swapTextTransition}
+                    style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
+                    className="text-[11px] font-semibold text-foreground truncate leading-tight transform-gpu"
                   >
                     {opt.meal}
                   </motion.p>
                 </AnimatePresence>
+
                 <span
                   className={cn(
                     "mt-0.5 inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded-full text-[7px] font-bold uppercase",
