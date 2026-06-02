@@ -9,9 +9,11 @@ import { FloatingStatCard } from "./primitives";
 const rotatingWords = [
   "decided.",
   "handled.",
-  "off your plate.",
-  "on autopilot.",
+  "sorted.",
+  "planned.",
+  "covered.",
 ];
+
 
 const RatingStrip = () => (
   <div className="flex items-center gap-2.5">
@@ -70,11 +72,11 @@ const HeroSection = () => {
               A whole week of
               <br />
               dinners,{" "}
-              <span className="relative inline-block h-[1.15em] overflow-hidden align-bottom">
+              <span className="relative inline-block h-[1.25em] leading-[1.25em] overflow-hidden align-bottom">
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={wordIndex}
-                    className="inline-block bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent"
+                    className="inline-block leading-[1.25em] bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent"
                     initial={{ y: "100%", opacity: 0 }}
                     animate={{ y: "0%", opacity: 1 }}
                     exit={{ y: "-100%", opacity: 0 }}
