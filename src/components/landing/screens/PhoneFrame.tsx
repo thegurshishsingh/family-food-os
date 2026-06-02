@@ -10,6 +10,13 @@ interface PhoneFrameProps {
   statusTone?: "dark" | "light";
   /** Soft ambient glow behind the device */
   glow?: boolean;
+  /**
+   * Show only the top portion of the phone (Bevel-style) when the screen
+   * doesn't need the full device height. The bottom softly fades out.
+   */
+  crop?: boolean;
+  /** Tailwind height class for the visible crop window, e.g. "h-[320px]" */
+  cropHeightClassName?: string;
 }
 
 /**
