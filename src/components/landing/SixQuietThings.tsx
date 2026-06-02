@@ -32,6 +32,8 @@ const ROWS: {
     Screen: WeeklyPlanScreen,
     reverse: false,
     tone: "sage",
+    crop: true,
+    cropHeightClassName: "h-[348px]",
     cards: [
       {
         pos: "top-10 -left-5 sm:-left-9 w-[148px]",
