@@ -38,7 +38,10 @@ const Landing = () => {
 
       <RealityScoreSection />
 
+      <InteractiveWeeklyPlanner />
+
       <SixQuietThings />
+
 
       <GroceryListSection />
 
