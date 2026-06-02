@@ -69,16 +69,16 @@ serve(async (req) => {
       prompt = `You are a warm, knowledgeable family meal planning assistant. A new family just joined and hasn't created any meal plans yet. Based on their preferences, generate 3-5 personalized, encouraging meal suggestions to get them started.
 
 **Family Info:**
-- Adults: ${household?.numAdults ?? "unknown"}
-- Children: ${household?.numChildren ?? 0}
-- Child age bands: ${household?.childAgeBands?.join(", ") || "none"}
-- Cuisines they like: ${preferences.cuisinesLiked?.join(", ") || "not specified"}
-- Cuisines they dislike: ${preferences.cuisinesDisliked?.join(", ") || "none"}
-- Dietary preferences: ${preferences.dietaryPreferences?.join(", ") || "none"}
-- Allergies: ${preferences.allergies?.join(", ") || "none"}
-- Cooking time tolerance: ${preferences.cookingTimeTolerance || "not specified"}
-- Health goal: ${preferences.healthGoal || "none"}
-- Foods to avoid: ${preferences.foodsToAvoid?.join(", ") || "none"}
+- Adults: ${cleanNum(household?.numAdults)}
+- Children: ${cleanNum(household?.numChildren)}
+- Child age bands: ${cleanList(household?.childAgeBands) || "none"}
+- Cuisines they like: ${cleanList(preferences.cuisinesLiked) || "not specified"}
+- Cuisines they dislike: ${cleanList(preferences.cuisinesDisliked) || "none"}
+- Dietary preferences: ${cleanList(preferences.dietaryPreferences) || "none"}
+- Allergies: ${cleanList(preferences.allergies) || "none"}
+- Cooking time tolerance: ${clean(preferences.cookingTimeTolerance) || "not specified"}
+- Health goal: ${clean(preferences.healthGoal) || "none"}
+- Foods to avoid: ${cleanList(preferences.foodsToAvoid) || "none"}
 - Current month: ${month}
 
 **Guidelines:**
