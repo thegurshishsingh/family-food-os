@@ -68,23 +68,24 @@ const HeroSection = () => {
               </span>
             </div>
 
-            <h1 className="text-[2.6rem] leading-[1.02] sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground mb-5">
-              A whole week of
-              <br />
-              dinners,{" "}
-              <span className="relative inline-block h-[1.25em] leading-[1.25em] overflow-hidden align-bottom">
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={wordIndex}
-                    className="inline-block leading-[1.25em] bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent"
-                    initial={{ y: "100%", opacity: 0 }}
-                    animate={{ y: "0%", opacity: 1 }}
-                    exit={{ y: "-100%", opacity: 0 }}
-                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    {rotatingWords[wordIndex]}
-                  </motion.span>
-                </AnimatePresence>
+            <h1 className="text-[2.6rem] leading-[1.1] sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground mb-5">
+              <span className="block">A whole week of</span>
+              <span className="block whitespace-nowrap">
+                dinners,{" "}
+                <span className="relative inline-block h-[1.1em] leading-[1.1em] overflow-hidden align-bottom">
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={wordIndex}
+                      className="inline-block leading-[1.1em] bg-gradient-to-r from-primary via-sage-dark to-primary bg-clip-text text-transparent"
+                      initial={{ y: "100%", opacity: 0 }}
+                      animate={{ y: "0%", opacity: 1 }}
+                      exit={{ y: "-100%", opacity: 0 }}
+                      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {rotatingWords[wordIndex]}
+                    </motion.span>
+                  </AnimatePresence>
+                </span>
               </span>
             </h1>
 
