@@ -90,6 +90,9 @@ const RealityScoreSection = () => {
             <ShowcaseStage
               tone="amber"
               screen={RealityScoreScreen}
+              phoneWidth="w-[244px] sm:w-[268px]"
+              crop
+              cropHeightClassName="h-[320px] sm:h-[348px]"
               cards={[
                 {
                   pos: "top-10 -left-4 sm:-left-9 w-[150px]",

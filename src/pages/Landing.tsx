@@ -9,6 +9,7 @@ import PlansThatFitRealLife from "@/components/landing/PlansThatFitRealLife";
 import SixQuietThings from "@/components/landing/SixQuietThings";
 import GroceryListSection from "@/components/landing/GroceryListSection";
 import RealityScoreSection from "@/components/landing/RealityScoreSection";
+import InteractiveWeeklyPlanner from "@/components/landing/InteractiveWeeklyPlanner";
 import HowItWorksPlayful from "@/components/landing/HowItWorksPlayful";
 import SmoothScroll from "@/components/landing/SmoothScroll";
 import { MealModeProvider } from "@/components/landing/MealModeContext";
@@ -37,7 +38,10 @@ const Landing = () => {
 
       <RealityScoreSection />
 
+      <InteractiveWeeklyPlanner />
+
       <SixQuietThings />
+
 
       <GroceryListSection />
 
