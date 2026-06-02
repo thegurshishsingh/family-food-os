@@ -39,6 +39,26 @@ serve(async (req) => {
 
     const { identity, lovedMeals, kidsInsights, rhythm, planCount, preferences, household } = await req.json();
 
+    // Sanitize all client-supplied strings before interpolating them into the
+    // AI prompt. Strip newlines/control chars (used to inject fake
+    // instructions) and cap length to prevent prompt-injection / prompt-stuffing.
+    const clean = (v: unknown, max = 80): string => {
+      if (v == null) return "";
+      return String(v)
+        .replace(/[\r\n\t]+/g, " ")
+        .replace(/[^\p{L}\p{N}\s.,'&()/+-]/gu, "")
+        .trim()
+        .slice(0, max);
+    };
+    const cleanList = (v: unknown, maxItems = 20, maxLen = 60): string =>
+      Array.isArray(v)
+        ? v.slice(0, maxItems).map((x) => clean(x, maxLen)).filter(Boolean).join(", ")
+        : "";
+    const cleanNum = (v: unknown): string => {
+      const n = Number(v);
+      return Number.isFinite(n) ? String(n) : "unknown";
+    };
+
     const month = new Date().toLocaleString("en-US", { month: "long" });
     const isNewUser = !planCount || planCount === 0;
 
