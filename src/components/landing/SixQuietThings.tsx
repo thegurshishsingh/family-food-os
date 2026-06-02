@@ -78,7 +78,7 @@ const ROWS: {
     reverse: true,
     tone: "sky",
     crop: true,
-    cropHeightClassName: "h-[340px]",
+    cropHeightClassName: "h-[300px] sm:h-[330px]",
     cards: [
       {
         pos: "top-12 -right-5 sm:-right-9 w-[146px]",
