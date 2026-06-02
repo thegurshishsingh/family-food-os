@@ -98,6 +98,7 @@ function scorePlan(selected: number[]) {
 /* ── Animated reality ring ─────────────────────────────────────────────── */
 
 const RealityRing = ({ score }: { score: number }) => {
+  const reduce = useReducedMotion();
   const r = 22;
   const c = 2 * Math.PI * r;
   const offset = c - (score / 100) * c;
@@ -116,7 +117,7 @@ const RealityRing = ({ score }: { score: number }) => {
           strokeDasharray={c}
           initial={false}
           animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={reduce ? { duration: 0 } : { duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -129,28 +130,44 @@ const RealityRing = ({ score }: { score: number }) => {
 
 /* ── Count-up number ───────────────────────────────────────────────────── */
 
+/**
+ * Writes the animated value straight to the DOM node via a motion ref so the
+ * tween never triggers a React re-render — critical on low-end Android where
+ * several count-ups animate at once.
+ */
 const CountUp = ({ value, className }: { value: number; className?: string }) => {
-  const [display, setDisplay] = useState(value);
+  const ref = useRef<HTMLSpanElement>(null);
   const prev = useRef(value);
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    if (reduce) {
-      setDisplay(value);
+    const node = ref.current;
+    if (!node) return;
+
+    if (reduce || prev.current === value) {
+      node.textContent = String(value);
       prev.current = value;
       return;
     }
+
     const controls = animate(prev.current, value, {
-      duration: 0.55,
+      duration: 0.5,
       ease: "easeOut",
-      onUpdate: (v) => setDisplay(Math.round(v)),
+      onUpdate: (v) => {
+        node.textContent = String(Math.round(v));
+      },
     });
     prev.current = value;
     return () => controls.stop();
   }, [value, reduce]);
 
-  return <span className={className}>{display}</span>;
+  return (
+    <span ref={ref} className={className}>
+      {value}
+    </span>
+  );
 };
+
 
 /* ── Interactive in-phone plan ─────────────────────────────────────────── */
 
@@ -168,8 +185,13 @@ const PlanScreen = ({
   onPick: (d: number, optIdx: number) => void;
   score: number;
   message: string;
-}) => (
+}) => {
+  const reduce = useReducedMotion();
+  const swapTextTransition = reduce ? { duration: 0 } : { duration: 0.18 };
+  const revealTransition = reduce ? { duration: 0 } : { duration: 0.2, ease: "easeOut" as const };
+  return (
   <div className="px-3 pt-1 pb-3">
+
     {/* Header */}
     <div className="flex items-center justify-between mb-2.5">
       <div>
@@ -207,12 +229,14 @@ const PlanScreen = ({
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
-                    transition={{ duration: 0.18 }}
-                    className="text-[11px] font-semibold text-foreground truncate leading-tight"
+                    transition={swapTextTransition}
+                    style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
+                    className="text-[11px] font-semibold text-foreground truncate leading-tight transform-gpu"
                   >
                     {opt.meal}
                   </motion.p>
                 </AnimatePresence>
+
                 <span
                   className={cn(
                     "mt-0.5 inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded-full text-[7px] font-bold uppercase",
@@ -233,9 +257,11 @@ const PlanScreen = ({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.22, ease: "easeOut" }}
+                  transition={revealTransition}
+                  style={{ willChange: "height, opacity" }}
                   className="overflow-hidden"
                 >
+
                   <div className="flex flex-col gap-1 pt-1.5 pb-0.5 pl-9 pr-1">
                     {d.options.map((o, oi) => {
                       const om = MODE_META[o.mode];
@@ -285,7 +311,9 @@ const PlanScreen = ({
       Tap a night to swap the meal
     </div>
   </div>
-);
+  );
+};
+
 
 /* ── Section ───────────────────────────────────────────────────────────── */
 
