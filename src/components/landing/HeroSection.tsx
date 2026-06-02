@@ -9,9 +9,11 @@ import { FloatingStatCard } from "./primitives";
 const rotatingWords = [
   "decided.",
   "handled.",
-  "off your plate.",
-  "on autopilot.",
+  "sorted.",
+  "planned.",
+  "covered.",
 ];
+
 
 const RatingStrip = () => (
   <div className="flex items-center gap-2.5">
