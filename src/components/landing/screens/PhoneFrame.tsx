@@ -79,6 +79,11 @@ export const PhoneFrame = ({
 
           {children}
 
+          {/* In crop mode, extend the screen below the visible window so the
+              device's bottom bezel / rounded corners are NEVER revealed inside
+              the crop — you only ever see the top portion fading out. */}
+          {crop && <div aria-hidden="true" className="h-[280px] bg-card" />}
+
           {/* Home indicator — only when showing the full device */}
           {!crop && (
             <div className="flex justify-center pb-1.5 pt-1">
