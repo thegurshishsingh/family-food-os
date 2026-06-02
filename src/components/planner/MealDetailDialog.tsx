@@ -112,11 +112,19 @@ const MealDetailDialog = ({ day, open, onOpenChange, defaultServings = 4 }: Meal
     return lines.join("\n");
   };
 
+  const escapeHtml = (s: string) =>
+    s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
   const handlePrint = () => {
     const text = buildRecipeText();
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
-    printWindow.document.write(`<html><head><title>${day.meal_name}</title><style>body{font-family:system-ui,sans-serif;max-width:600px;margin:40px auto;padding:0 20px;line-height:1.6}pre{white-space:pre-wrap;font-family:inherit;font-size:14px}</style></head><body><pre>${text}</pre></body></html>`);
+    printWindow.document.write(`<html><head><title>${escapeHtml(day.meal_name ?? "Recipe")}</title><style>body{font-family:system-ui,sans-serif;max-width:600px;margin:40px auto;padding:0 20px;line-height:1.6}pre{white-space:pre-wrap;font-family:inherit;font-size:14px}</style></head><body><pre>${escapeHtml(text)}</pre></body></html>`);
     printWindow.document.close();
     printWindow.print();
   };
