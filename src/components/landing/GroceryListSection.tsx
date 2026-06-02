@@ -34,8 +34,9 @@ const GroceryListSection = () => {
             <ShowcaseStage
               tone="sage"
               screen={GroceryScreen}
+              phoneWidth="w-[244px] sm:w-[268px]"
               crop
-              cropHeightClassName="h-[300px] sm:h-[332px]"
+              cropHeightClassName="h-[320px] sm:h-[348px]"
               cards={[
                 {
                   pos: "top-10 -left-4 sm:-left-9 w-[146px]",
