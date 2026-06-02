@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence, animate, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  animate,
+  useReducedMotion,
+  useMotionValue,
+  type PanInfo,
+} from "framer-motion";
 import {
   Utensils,
   Package,
@@ -7,7 +14,7 @@ import {
   UtensilsCrossed,
   TrendingUp,
   Sparkles,
-  Hand,
+  ChevronsLeftRight,
   Check,
   Clock,
 } from "lucide-react";
