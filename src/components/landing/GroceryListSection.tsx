@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Check, Leaf } from "lucide-react";
+import { Check, Leaf, ShoppingBasket, Trash2 } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { PhoneFrame, GroceryScreen } from "./screens";
+import { ShowcaseStage, FloatingStatCard } from "./primitives";
+import { GroceryScreen } from "./screens";
 
 const BULLETS = [
   "Organized by aisle, not by recipe",
@@ -21,23 +22,46 @@ const GroceryListSection = () => {
 
       <div className="container max-w-6xl relative z-10">
         <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
-          {/* Phone-style grocery list */}
+          {/* Phone showcase — consistent with the rest of the page */}
           <motion.div
-            className="flex justify-center lg:justify-start order-2 lg:order-1"
+            className="order-2 lg:order-1"
             initial={initialState}
             whileInView="visible"
             viewport={viewport}
             variants={fadeUp}
             custom={1}
           >
-            <motion.div
-              initial={{ rotate: -3 }}
-              whileHover={{ rotate: -1, transition: { duration: 0.4 } }}
-            >
-              <PhoneFrame widthClassName="w-[268px]">
-                <GroceryScreen />
-              </PhoneFrame>
-            </motion.div>
+            <ShowcaseStage
+              tone="sage"
+              screen={GroceryScreen}
+              crop
+              cropHeightClassName="h-[300px] sm:h-[332px]"
+              cards={[
+                {
+                  pos: "top-10 -left-4 sm:-left-9 w-[146px]",
+                  delay: 0.6,
+                  node: (
+                    <FloatingStatCard icon={ShoppingBasket} label="One list" value="24" unit="items" tone="sky" showArrow />
+                  ),
+                },
+                {
+                  pos: "bottom-16 -right-4 sm:-right-9 w-[150px]",
+                  delay: 1.3,
+                  hideOnMobile: true,
+                  node: (
+                    <FloatingStatCard
+                      icon={Trash2}
+                      label="Less waste"
+                      value="38"
+                      unit="%"
+                      tone="coral"
+                      trend="down"
+                      trendTone="coral"
+                    />
+                  ),
+                },
+              ]}
+            />
           </motion.div>
 
           {/* Copy */}
