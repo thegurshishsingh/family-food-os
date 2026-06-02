@@ -33,7 +33,7 @@ const ROWS: {
     reverse: false,
     tone: "sage",
     crop: true,
-    cropHeightClassName: "h-[348px]",
+    cropHeightClassName: "h-[320px] sm:h-[352px]",
     cards: [
       {
         pos: "top-10 -left-5 sm:-left-9 w-[148px]",
