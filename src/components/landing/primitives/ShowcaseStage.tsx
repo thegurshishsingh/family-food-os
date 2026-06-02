@@ -68,6 +68,15 @@ export const ShowcaseStage = ({
   crop = false,
   cropHeightClassName = "h-[300px] sm:h-[330px]",
 }: ShowcaseStageProps) => {
+  const reduceMotion = useReducedMotion();
+  const isMobile = useIsMobile();
+
+  // Gentler, lower-frequency motion on phones; none if the user prefers reduced motion.
+  const phoneFloat = reduceMotion ? 0 : isMobile ? -5 : -10;
+  const cardFloat = reduceMotion ? 0 : isMobile ? -4 : -7;
+  const phoneDur = isMobile ? 7.5 : 6;
+  const revealMargin = isMobile ? "-20px" : "-60px";
+
   return (
     <div className={cn("relative mx-auto w-fit", className)}>
       {/* Panel — tint + glow + phone (clipped) */}
@@ -84,8 +93,10 @@ export const ShowcaseStage = ({
 
         <div className="relative flex justify-center">
           <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: floatDelay }}
+            className="transform-gpu"
+            style={{ willChange: "transform" }}
+            animate={{ y: [0, phoneFloat, 0] }}
+            transition={{ duration: phoneDur, repeat: Infinity, ease: "easeInOut", delay: floatDelay }}
           >
             <PhoneFrame
               widthClassName={phoneWidth}
@@ -104,14 +115,17 @@ export const ShowcaseStage = ({
       {cards.map((c, i) => (
         <motion.div
           key={i}
-          className={cn("absolute z-20", c.pos, c.hideOnMobile && "hidden sm:block")}
-          initial={{ opacity: 0, scale: 0.82, y: 16 }}
+          className={cn("absolute z-20 transform-gpu", c.pos, c.hideOnMobile && "hidden sm:block")}
+          style={{ willChange: "transform, opacity" }}
+          initial={{ opacity: 0, scale: 0.85, y: 14 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
+          viewport={{ once: true, margin: revealMargin }}
           transition={{ duration: 0.55, delay: 0.15 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
         >
           <motion.div
-            animate={{ y: [0, -7, 0] }}
+            className="transform-gpu"
+            style={{ willChange: "transform" }}
+            animate={{ y: [0, cardFloat, 0] }}
             transition={{
               duration: 4.5,
               repeat: Infinity,
