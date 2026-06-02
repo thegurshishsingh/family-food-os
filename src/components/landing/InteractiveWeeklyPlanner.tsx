@@ -176,12 +176,186 @@ const CountUp = ({ value, className }: { value: number; className?: string }) =>
 };
 
 
+/* ── Swipeable day row ─────────────────────────────────────────────────── */
+
+const SWIPE_THRESHOLD = 44;
+
+const DayRow = ({
+  day,
+  di,
+  selectedIdx,
+  isOpen,
+  onToggle,
+  onCycle,
+  onPick,
+}: {
+  day: DayPlan;
+  di: number;
+  selectedIdx: number;
+  isOpen: boolean;
+  onToggle: (d: number) => void;
+  onCycle: (d: number, dir: 1 | -1) => void;
+  onPick: (d: number, optIdx: number) => void;
+}) => {
+  const reduce = useReducedMotion();
+  const x = useMotionValue(0);
+  const [dir, setDir] = useState<1 | -1>(1);
+  const draggingRef = useRef(false);
+
+  const opt = day.options[selectedIdx];
+  const meta = MODE_META[opt.mode];
+  const Icon = meta.icon;
+
+  const swapTextTransition = reduce ? { duration: 0 } : { duration: 0.2, ease: [0.22, 1, 0.36, 1] as const };
+  const revealTransition = reduce ? { duration: 0 } : { duration: 0.2, ease: "easeOut" as const };
+  const snap = reduce
+    ? { duration: 0 }
+    : { type: "spring" as const, stiffness: 500, damping: 38, mass: 0.6 };
+
+  const handleDragEnd = (_: unknown, info: PanInfo) => {
+    draggingRef.current = false;
+    const dx = info.offset.x;
+    const vx = info.velocity.x;
+    if (dx <= -SWIPE_THRESHOLD || vx < -380) {
+      setDir(1);
+      onCycle(di, 1);
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(12);
+    } else if (dx >= SWIPE_THRESHOLD || vx > 380) {
+      setDir(-1);
+      onCycle(di, -1);
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(12);
+    }
+    animate(x, 0, snap);
+  };
+
+  return (
+    <div>
+      <motion.div
+        drag="x"
+        dragDirectionLock
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.35}
+        dragMomentum={false}
+        style={{ x, touchAction: "pan-y", willChange: "transform", backfaceVisibility: "hidden" }}
+        onDragStart={() => {
+          draggingRef.current = true;
+        }}
+        onDragEnd={handleDragEnd}
+        onTap={() => {
+          if (!draggingRef.current) onToggle(di);
+        }}
+        whileTap={reduce ? undefined : { scale: 0.99 }}
+        className={cn(
+          "w-full flex items-center gap-2 rounded-xl px-2.5 py-2 border text-left transform-gpu cursor-grab active:cursor-grabbing select-none transition-colors",
+          isOpen
+            ? "border-primary/40 bg-primary/[0.07]"
+            : "border-border/50 bg-background/60",
+        )}
+      >
+        <span className="w-7 text-[10px] font-bold text-muted-foreground shrink-0">{day.day}</span>
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <AnimatePresence mode="wait" initial={false} custom={dir}>
+            <motion.p
+              key={opt.meal}
+              custom={dir}
+              initial={(d: 1 | -1) => ({ opacity: 0, x: d * 16 })}
+              animate={{ opacity: 1, x: 0 }}
+              exit={(d: 1 | -1) => ({ opacity: 0, x: d * -16 })}
+              transition={swapTextTransition}
+              style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
+              className="text-[11px] font-semibold text-foreground truncate leading-tight transform-gpu"
+            >
+              {opt.meal}
+            </motion.p>
+          </AnimatePresence>
+
+          <div className="mt-0.5 flex items-center gap-1.5">
+            <span
+              className={cn(
+                "inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded-full text-[7px] font-bold uppercase",
+                meta.cls,
+              )}
+            >
+              <Icon className="w-2 h-2" />
+              {meta.label}
+            </span>
+            {/* Option dots */}
+            <span className="flex items-center gap-[3px]">
+              {day.options.map((_, oi) => (
+                <span
+                  key={oi}
+                  className={cn(
+                    "h-[3px] rounded-full transition-all",
+                    oi === selectedIdx ? "w-2.5 bg-primary" : "w-[3px] bg-muted-foreground/30",
+                  )}
+                />
+              ))}
+            </span>
+          </div>
+        </div>
+        <span className="text-[8px] font-semibold text-muted-foreground/70 shrink-0">{opt.time}</span>
+      </motion.div>
+
+      {/* Swap options */}
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={revealTransition}
+            style={{ willChange: "height, opacity" }}
+            className="overflow-hidden"
+          >
+            <div className="flex flex-col gap-1 pt-1.5 pb-0.5 pl-9 pr-1">
+              {day.options.map((o, oi) => {
+                const om = MODE_META[o.mode];
+                const OIcon = om.icon;
+                const active = selectedIdx === oi;
+                return (
+                  <button
+                    key={o.meal}
+                    type="button"
+                    onClick={() => onPick(di, oi)}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-lg px-2 py-1.5 border text-left transition-colors",
+                      active
+                        ? "border-primary/40 bg-primary/[0.08]"
+                        : "border-border/40 bg-card hover:bg-muted/40",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "w-4 h-4 rounded-md flex items-center justify-center shrink-0",
+                        om.cls,
+                      )}
+                    >
+                      <OIcon className="w-2.5 h-2.5" />
+                    </span>
+                    <span className="text-[10px] font-medium text-foreground flex-1 truncate">{o.meal}</span>
+                    {active ? (
+                      <Check className="w-3 h-3 text-primary shrink-0" strokeWidth={3} />
+                    ) : (
+                      <span className="text-[7.5px] font-semibold text-muted-foreground/60 shrink-0">{o.time}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 /* ── Interactive in-phone plan ─────────────────────────────────────────── */
 
 const PlanScreen = ({
   selected,
   openDay,
   onToggleDay,
+  onCycle,
   onPick,
   score,
   message,
@@ -189,13 +363,11 @@ const PlanScreen = ({
   selected: number[];
   openDay: number | null;
   onToggleDay: (d: number) => void;
+  onCycle: (d: number, dir: 1 | -1) => void;
   onPick: (d: number, optIdx: number) => void;
   score: number;
   message: string;
 }) => {
-  const reduce = useReducedMotion();
-  const swapTextTransition = reduce ? { duration: 0 } : { duration: 0.18 };
-  const revealTransition = reduce ? { duration: 0 } : { duration: 0.2, ease: "easeOut" as const };
   return (
   <div className="px-3 pt-1 pb-3">
 
@@ -211,115 +383,29 @@ const PlanScreen = ({
 
     {/* Days */}
     <div className="space-y-1.5">
-      {DAYS.map((d, di) => {
-        const opt = d.options[selected[di]];
-        const meta = MODE_META[opt.mode];
-        const Icon = meta.icon;
-        const isOpen = openDay === di;
-        return (
-          <div key={d.day}>
-            <button
-              type="button"
-              onClick={() => onToggleDay(di)}
-              className={cn(
-                "w-full flex items-center gap-2 rounded-xl px-2.5 py-2 border text-left transition-colors",
-                isOpen
-                  ? "border-primary/40 bg-primary/[0.07]"
-                  : "border-border/50 bg-background/60 hover:border-primary/25",
-              )}
-            >
-              <span className="w-7 text-[10px] font-bold text-muted-foreground shrink-0">{d.day}</span>
-              <div className="flex-1 min-w-0">
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.p
-                    key={opt.meal}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    transition={swapTextTransition}
-                    style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
-                    className="text-[11px] font-semibold text-foreground truncate leading-tight transform-gpu"
-                  >
-                    {opt.meal}
-                  </motion.p>
-                </AnimatePresence>
-
-                <span
-                  className={cn(
-                    "mt-0.5 inline-flex items-center gap-0.5 px-1.5 py-[1px] rounded-full text-[7px] font-bold uppercase",
-                    meta.cls,
-                  )}
-                >
-                  <Icon className="w-2 h-2" />
-                  {meta.label}
-                </span>
-              </div>
-              <span className="text-[8px] font-semibold text-muted-foreground/70 shrink-0">{opt.time}</span>
-            </button>
-
-            {/* Swap options */}
-            <AnimatePresence initial={false}>
-              {isOpen && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={revealTransition}
-                  style={{ willChange: "height, opacity" }}
-                  className="overflow-hidden"
-                >
-
-                  <div className="flex flex-col gap-1 pt-1.5 pb-0.5 pl-9 pr-1">
-                    {d.options.map((o, oi) => {
-                      const om = MODE_META[o.mode];
-                      const OIcon = om.icon;
-                      const active = selected[di] === oi;
-                      return (
-                        <button
-                          key={o.meal}
-                          type="button"
-                          onClick={() => onPick(di, oi)}
-                          className={cn(
-                            "flex items-center gap-1.5 rounded-lg px-2 py-1.5 border text-left transition-colors",
-                            active
-                              ? "border-primary/40 bg-primary/[0.08]"
-                              : "border-border/40 bg-card hover:bg-muted/40",
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              "w-4 h-4 rounded-md flex items-center justify-center shrink-0",
-                              om.cls,
-                            )}
-                          >
-                            <OIcon className="w-2.5 h-2.5" />
-                          </span>
-                          <span className="text-[10px] font-medium text-foreground flex-1 truncate">{o.meal}</span>
-                          {active ? (
-                            <Check className="w-3 h-3 text-primary shrink-0" strokeWidth={3} />
-                          ) : (
-                            <span className="text-[7.5px] font-semibold text-muted-foreground/60 shrink-0">{o.time}</span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        );
-      })}
+      {DAYS.map((d, di) => (
+        <DayRow
+          key={d.day}
+          day={d}
+          di={di}
+          selectedIdx={selected[di]}
+          isOpen={openDay === di}
+          onToggle={onToggleDay}
+          onCycle={onCycle}
+          onPick={onPick}
+        />
+      ))}
     </div>
 
     {/* Hint */}
     <div className="mt-2.5 flex items-center justify-center gap-1 text-[8px] font-semibold text-muted-foreground/70">
-      <Hand className="w-2.5 h-2.5" />
-      Tap a night to swap the meal
+      <ChevronsLeftRight className="w-2.5 h-2.5" />
+      Swipe a night to swap • tap for options
     </div>
   </div>
   );
 };
+
 
 
 /* ── Section ───────────────────────────────────────────────────────────── */
