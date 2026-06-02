@@ -85,13 +85,12 @@ const TheStruggle = () => {
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary mb-4 flex items-center gap-2 self-center md:self-start">
               <span className="h-px w-6 bg-primary/40" /> With Family Food OS
             </p>
-            <div className="w-full max-w-[360px]">
+            <div className="w-full max-w-[420px]">
               <ShowcaseStage
                 tone="coral"
                 screen={DailyDinnerScreen}
-                phoneWidth="w-[230px] sm:w-[248px]"
                 crop
-                cropHeightClassName="h-[330px]"
+                cropHeightClassName="h-[300px] sm:h-[332px]"
                 cards={[
                   {
                     pos: "top-10 -right-4 sm:-right-8 w-[138px]",

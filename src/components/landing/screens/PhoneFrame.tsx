@@ -103,9 +103,9 @@ export const PhoneFrame = ({
           className={cn("relative overflow-hidden", cropHeightClassName)}
           style={{
             maskImage:
-              "linear-gradient(to bottom, #000 0%, #000 80%, transparent 100%)",
+              "linear-gradient(to bottom, #000 0%, #000 66%, rgba(0,0,0,0.55) 86%, transparent 100%)",
             WebkitMaskImage:
-              "linear-gradient(to bottom, #000 0%, #000 80%, transparent 100%)",
+              "linear-gradient(to bottom, #000 0%, #000 66%, rgba(0,0,0,0.55) 86%, transparent 100%)",
           }}
         >
           {device}

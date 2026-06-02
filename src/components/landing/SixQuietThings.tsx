@@ -33,7 +33,7 @@ const ROWS: {
     reverse: false,
     tone: "sage",
     crop: true,
-    cropHeightClassName: "h-[348px]",
+    cropHeightClassName: "h-[320px] sm:h-[352px]",
     cards: [
       {
         pos: "top-10 -left-5 sm:-left-9 w-[148px]",
@@ -78,7 +78,7 @@ const ROWS: {
     reverse: true,
     tone: "sky",
     crop: true,
-    cropHeightClassName: "h-[340px]",
+    cropHeightClassName: "h-[300px] sm:h-[330px]",
     cards: [
       {
         pos: "top-12 -right-5 sm:-right-9 w-[146px]",
@@ -121,6 +121,8 @@ const ROWS: {
     Screen: InsightsScreen,
     reverse: false,
     tone: "amber",
+    crop: true,
+    cropHeightClassName: "h-[272px] sm:h-[296px]",
     cards: [
       {
         pos: "top-10 -left-5 sm:-left-9 w-[150px]",
