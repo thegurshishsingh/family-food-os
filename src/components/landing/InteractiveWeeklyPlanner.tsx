@@ -258,9 +258,14 @@ const DayRow = ({
             <motion.p
               key={opt.meal}
               custom={dir}
-              initial={(d: 1 | -1) => ({ opacity: 0, x: d * 16 })}
-              animate={{ opacity: 1, x: 0 }}
-              exit={(d: 1 | -1) => ({ opacity: 0, x: d * -16 })}
+              variants={{
+                enter: (d: 1 | -1) => ({ opacity: 0, x: d * 16 }),
+                center: { opacity: 1, x: 0 },
+                exit: (d: 1 | -1) => ({ opacity: 0, x: d * -16 }),
+              }}
+              initial="enter"
+              animate="center"
+              exit="exit"
               transition={swapTextTransition}
               style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
               className="text-[11px] font-semibold text-foreground truncate leading-tight transform-gpu"
@@ -268,6 +273,7 @@ const DayRow = ({
               {opt.meal}
             </motion.p>
           </AnimatePresence>
+
 
           <div className="mt-0.5 flex items-center gap-1.5">
             <span
