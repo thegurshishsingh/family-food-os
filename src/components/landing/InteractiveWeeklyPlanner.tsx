@@ -98,6 +98,7 @@ function scorePlan(selected: number[]) {
 /* ── Animated reality ring ─────────────────────────────────────────────── */
 
 const RealityRing = ({ score }: { score: number }) => {
+  const reduce = useReducedMotion();
   const r = 22;
   const c = 2 * Math.PI * r;
   const offset = c - (score / 100) * c;
@@ -116,7 +117,7 @@ const RealityRing = ({ score }: { score: number }) => {
           strokeDasharray={c}
           initial={false}
           animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={reduce ? { duration: 0 } : { duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -129,28 +130,44 @@ const RealityRing = ({ score }: { score: number }) => {
 
 /* ── Count-up number ───────────────────────────────────────────────────── */
 
+/**
+ * Writes the animated value straight to the DOM node via a motion ref so the
+ * tween never triggers a React re-render — critical on low-end Android where
+ * several count-ups animate at once.
+ */
 const CountUp = ({ value, className }: { value: number; className?: string }) => {
-  const [display, setDisplay] = useState(value);
+  const ref = useRef<HTMLSpanElement>(null);
   const prev = useRef(value);
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    if (reduce) {
-      setDisplay(value);
+    const node = ref.current;
+    if (!node) return;
+
+    if (reduce || prev.current === value) {
+      node.textContent = String(value);
       prev.current = value;
       return;
     }
+
     const controls = animate(prev.current, value, {
-      duration: 0.55,
+      duration: 0.5,
       ease: "easeOut",
-      onUpdate: (v) => setDisplay(Math.round(v)),
+      onUpdate: (v) => {
+        node.textContent = String(Math.round(v));
+      },
     });
     prev.current = value;
     return () => controls.stop();
   }, [value, reduce]);
 
-  return <span className={className}>{display}</span>;
+  return (
+    <span ref={ref} className={className}>
+      {value}
+    </span>
+  );
 };
+
 
 /* ── Interactive in-phone plan ─────────────────────────────────────────── */
 
