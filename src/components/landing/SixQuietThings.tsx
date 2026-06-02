@@ -77,6 +77,8 @@ const ROWS: {
     Screen: GroceryScreen,
     reverse: true,
     tone: "sky",
+    crop: true,
+    cropHeightClassName: "h-[340px]",
     cards: [
       {
         pos: "top-12 -right-5 sm:-right-9 w-[146px]",
