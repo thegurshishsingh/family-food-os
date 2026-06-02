@@ -215,6 +215,8 @@ const SixQuietThings = () => {
                     screen={Screen}
                     cards={row.cards}
                     floatDelay={i * 0.4}
+                    crop={row.crop}
+                    cropHeightClassName={row.cropHeightClassName}
                   />
                 </div>
 
