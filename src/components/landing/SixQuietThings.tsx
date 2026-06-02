@@ -25,6 +25,8 @@ const ROWS: {
   tone: Tone;
   cards: StageCard[];
   features: Feature[];
+  crop?: boolean;
+  cropHeightClassName?: string;
 }[] = [
   {
     Screen: WeeklyPlanScreen,
