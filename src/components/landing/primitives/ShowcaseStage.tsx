@@ -51,6 +51,10 @@ interface ShowcaseStageProps {
   cards?: StageCard[];
   floatDelay?: number;
   className?: string;
+  /** Show only the top portion of the phone (Bevel-style peek) */
+  crop?: boolean;
+  /** Tailwind height class for the crop window, e.g. "h-[330px]" */
+  cropHeightClassName?: string;
 }
 
 export const ShowcaseStage = ({
@@ -60,13 +64,16 @@ export const ShowcaseStage = ({
   cards = [],
   floatDelay = 0,
   className,
+  crop = false,
+  cropHeightClassName = "h-[330px]",
 }: ShowcaseStageProps) => {
   return (
     <div className={cn("relative mx-auto w-fit", className)}>
       {/* Panel — tint + glow + phone (clipped) */}
       <div
         className={cn(
-          "relative rounded-3xl border border-border/60 overflow-hidden bg-gradient-to-b px-6 py-10 sm:px-8 sm:py-12",
+          "relative rounded-3xl border border-border/60 overflow-hidden bg-gradient-to-b px-6 sm:px-8",
+          crop ? "pt-10 pb-0 sm:pt-12" : "py-10 sm:py-12",
           toneBg[tone],
         )}
       >
@@ -79,27 +86,40 @@ export const ShowcaseStage = ({
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: floatDelay }}
           >
-            <PhoneFrame widthClassName={phoneWidth} glow={false}>
+            <PhoneFrame
+              widthClassName={phoneWidth}
+              glow={false}
+              crop={crop}
+              cropHeightClassName={cropHeightClassName}
+            >
               <Screen />
             </PhoneFrame>
           </motion.div>
         </div>
       </div>
 
-      {/* Floating zoom cards — spill past the panel edge */}
+      {/* Floating zoom cards — spill past the panel edge.
+          Outer layer = scroll reveal + hover (via card CSS); inner = gentle float. */}
       {cards.map((c, i) => (
         <motion.div
           key={i}
           className={cn("absolute z-20", c.pos, c.hideOnMobile && "hidden sm:block")}
-          animate={{ y: [0, -7, 0] }}
-          transition={{
-            duration: 4.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: c.delay ?? 0.6 + i * 0.5,
-          }}
+          initial={{ opacity: 0, scale: 0.82, y: 16 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.55, delay: 0.15 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
         >
-          {c.node}
+          <motion.div
+            animate={{ y: [0, -7, 0] }}
+            transition={{
+              duration: 4.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: c.delay ?? 0.6 + i * 0.5,
+            }}
+          >
+            {c.node}
+          </motion.div>
         </motion.div>
       ))}
     </div>
