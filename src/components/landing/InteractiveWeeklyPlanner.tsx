@@ -517,10 +517,12 @@ const InteractiveWeeklyPlanner = () => {
                       selected={selected}
                       openDay={openDay}
                       onToggleDay={(d) => setOpenDay((cur) => (cur === d ? null : d))}
+                      onCycle={cycle}
                       onPick={pick}
                       score={score}
                       message={message}
                     />
+
                   </PhoneFrame>
                 </div>
               </div>
