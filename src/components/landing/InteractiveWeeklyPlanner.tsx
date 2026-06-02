@@ -257,9 +257,11 @@ const PlanScreen = ({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.22, ease: "easeOut" }}
+                  transition={revealTransition}
+                  style={{ willChange: "height, opacity" }}
                   className="overflow-hidden"
                 >
+
                   <div className="flex flex-col gap-1 pt-1.5 pb-0.5 pl-9 pr-1">
                     {d.options.map((o, oi) => {
                       const om = MODE_META[o.mode];
