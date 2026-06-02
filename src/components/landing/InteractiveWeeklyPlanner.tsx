@@ -467,10 +467,11 @@ const InteractiveWeeklyPlanner = () => {
               <span className="italic text-sage-dark">in seconds.</span>
             </h2>
             <p className="text-muted-foreground/80 text-base md:text-lg leading-relaxed mb-8 max-w-md">
-              Tap any night to swap a cook for leftovers, takeout, or a night out.
-              Watch the meal change and your Reality Score recalculate — instantly,
-              just like the real app.
+              Swipe any night to swap a cook for leftovers, takeout, or a night out —
+              or tap for all the options. Watch the meal change and your Reality Score
+              recalculate instantly, just like the real app.
             </p>
+
 
             <div className="grid grid-cols-3 gap-3 max-w-md">
               <div className="rounded-2xl border border-border/60 bg-card/60 px-3 py-3">
