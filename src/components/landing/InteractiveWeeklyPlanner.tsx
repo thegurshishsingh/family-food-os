@@ -311,7 +311,9 @@ const PlanScreen = ({
       Tap a night to swap the meal
     </div>
   </div>
-);
+  );
+};
+
 
 /* ── Section ───────────────────────────────────────────────────────────── */
 
