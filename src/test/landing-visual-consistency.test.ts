@@ -153,6 +153,13 @@ describe("Landing visual consistency", () => {
     // For files that ship explicit desktop and mobile layouts (md:hidden +
     // hidden md:flex), make sure the rounded-* scale used in each branch
     // is identical — otherwise cards visibly differ across breakpoints.
+
+    // Guard so the suite always contains at least one test even when no
+    // landing file currently ships separate desktop/mobile branches.
+    it("scans landing files for desktop/mobile branch drift", () => {
+      expect(files.length).toBeGreaterThan(0);
+    });
+
     for (const { file, content } of files) {
       const name = file.split("/").pop()!;
       const hasMobileBranch = /\bmd:hidden\b/.test(content);
