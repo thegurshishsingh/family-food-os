@@ -64,7 +64,7 @@ const HeroSection = () => {
             <div className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-full bg-primary/8 border border-primary/15">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-soft" />
               <span className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-primary leading-none">
-                The weekly dinner system
+                Never Wonder What's For Dinner
               </span>
             </div>
 
