@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Star, Clock, Gauge, Timer } from "lucide-react";
+import { ArrowRight, Star, Clock, Gauge, Timer, ChefHat, PackageOpen, Truck } from "lucide-react";
 import { PhoneFrame, WeeklyPlanScreen } from "./screens";
 import { FloatingStatCard } from "./primitives";
 
@@ -166,6 +166,46 @@ const HeroSection = () => {
             </motion.div>
           </motion.div>
         </div>
+        {/* Three feature callouts */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 md:mt-16"
+        >
+          {[
+            {
+              icon: ChefHat,
+              title: "Cook",
+              sentence: "Fresh recipes matched to your time, skill, and what's in season.",
+              tone: "from-primary/10 to-sage/5",
+              iconColor: "text-primary",
+            },
+            {
+              icon: PackageOpen,
+              title: "Leftovers",
+              sentence: "Smartly reused so nothing rots in the back of the fridge.",
+              tone: "from-accent/10 to-warm/5",
+              iconColor: "text-accent",
+            },
+            {
+              icon: Truck,
+              title: "Takeout",
+              sentence: "Planned into the week so you don't guilt-order at 6 pm.",
+              tone: "from-sky/10 to-primary/5",
+              iconColor: "text-sky",
+            },
+          ].map((card) => (
+            <div
+              key={card.title}
+              className={`relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br ${card.tone} backdrop-blur-sm p-5`}
+            >
+              <card.icon className={`w-5 h-5 ${card.iconColor} mb-2.5`} strokeWidth={2} />
+              <h3 className="text-sm font-semibold text-foreground mb-1">{card.title}</h3>
+              <p className="text-[13px] text-muted-foreground leading-relaxed">{card.sentence}</p>
+            </div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
