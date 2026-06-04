@@ -192,6 +192,7 @@ const HeroSection = () => {
               sentence: "Fresh recipes matched to your time, skill, and what's in season.",
               tone: "from-primary/10 to-sage/5",
               iconColor: "text-primary",
+              mode: "cook" as const,
             },
             {
               icon: PackageOpen,
@@ -199,6 +200,7 @@ const HeroSection = () => {
               sentence: "Smartly reused so nothing rots in the back of the fridge.",
               tone: "from-accent/10 to-warm/5",
               iconColor: "text-accent",
+              mode: "leftovers" as const,
             },
             {
               icon: Truck,
@@ -206,16 +208,18 @@ const HeroSection = () => {
               sentence: "Planned into the week so you don't guilt-order at 6 pm.",
               tone: "from-sky/10 to-primary/5",
               iconColor: "text-sky",
+              mode: "takeout" as const,
             },
           ].map((card) => (
-            <div
+            <button
               key={card.title}
-              className={`relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br ${card.tone} backdrop-blur-sm p-5`}
+              onClick={() => handleCardClick(card.mode)}
+              className={`relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br ${card.tone} backdrop-blur-sm p-5 text-left cursor-pointer transition-transform duration-200 hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/30`}
             >
               <card.icon className={`w-5 h-5 ${card.iconColor} mb-2.5`} strokeWidth={2} />
               <h3 className="text-sm font-semibold text-foreground mb-1">{card.title}</h3>
               <p className="text-[13px] text-muted-foreground leading-relaxed">{card.sentence}</p>
-            </div>
+            </button>
           ))}
         </motion.div>
       </div>
