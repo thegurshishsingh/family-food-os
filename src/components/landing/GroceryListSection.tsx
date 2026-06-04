@@ -15,7 +15,7 @@ const GroceryListSection = () => {
   const { fadeUp, viewport, initialState } = useScrollReveal();
 
   return (
-    <section className="py-16 md:py-24 px-4 relative">
+    <section id="groceries" className="py-16 md:py-24 px-4 relative">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-1/2 right-0 w-[400px] h-[500px] rounded-full bg-gradient-to-l from-sage-light/30 to-transparent blur-3xl" />
       </div>

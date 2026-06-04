@@ -67,7 +67,7 @@ const PlansThatFitRealLife = () => {
   const content = MOCK_CONTENT[mode];
 
   return (
-    <section className="py-16 md:py-24 px-4 relative">
+    <section id="plans-that-fit" className="py-16 md:py-24 px-4 relative">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-1/3 left-0 w-[500px] h-[500px] rounded-full bg-gradient-to-r from-primary/5 to-transparent blur-3xl" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full bg-gradient-to-tl from-accent/4 to-transparent blur-3xl" />
