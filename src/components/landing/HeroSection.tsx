@@ -38,6 +38,17 @@ const RatingStrip = () => (
 
 const HeroSection = () => {
   const [wordIndex, setWordIndex] = useState(0);
+  const { setMode } = useMealMode();
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleCardClick = (mode: "cook" | "leftovers" | "takeout") => {
+    setMode(mode);
+    scrollTo("plans-that-fit");
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
