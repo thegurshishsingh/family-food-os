@@ -89,11 +89,11 @@ const HeroSection = () => {
               </span>
             </h1>
 
-            <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg mb-6">
-              Dinner isn't a recipe problem — it's a coordination problem. Family Food OS
-              plans cook, leftovers, takeout and dine-out nights around your real week,
-              then learns what your family actually eats.
-            </p>
+            <div className="space-y-1.5 text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg mb-6">
+              <p>Automatic weekly plan: cook, leftovers, takeout, dine out.</p>
+              <p>Learns your family: picky eaters, sports nights, budgets.</p>
+              <p>Groceries and leftovers optimized so you waste less food.</p>
+            </div>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-6">
               <Button
