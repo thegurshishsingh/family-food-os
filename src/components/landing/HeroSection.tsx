@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, Clock, Gauge, Timer, ChefHat, PackageOpen, Truck } from "lucide-react";
 import { PhoneFrame, WeeklyPlanScreen } from "./screens";
 import { FloatingStatCard } from "./primitives";
+import { useMealMode } from "./MealModeContext";
 
 const rotatingWords = [
   "decided.",
