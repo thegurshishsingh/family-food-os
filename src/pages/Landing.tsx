@@ -74,6 +74,8 @@ const Landing = () => {
 
       <FamilyVoices />
 
+      <FAQSection />
+
       <FinalCTA />
       </main>
 
