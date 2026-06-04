@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Star, Clock, Gauge, Timer } from "lucide-react";
+import { ArrowRight, Star, Clock, Gauge, Timer, ChefHat, PackageOpen, Truck } from "lucide-react";
 import { PhoneFrame, WeeklyPlanScreen } from "./screens";
 import { FloatingStatCard } from "./primitives";
 
