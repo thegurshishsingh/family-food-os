@@ -57,6 +57,15 @@ const Signup = () => {
     }
   };
 
+  const handleAppleSignup = async () => {
+    const result = await lovable.auth.signInWithOAuth("apple", {
+      redirect_uri: window.location.origin + "/onboarding",
+    });
+    if (result?.error) {
+      toast({ variant: "destructive", title: "Apple signup failed", description: String(result.error) });
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
