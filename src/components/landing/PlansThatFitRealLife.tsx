@@ -3,6 +3,7 @@ import { Utensils, Package, Store, UtensilsCrossed, TrendingUp, Clock, ArrowRigh
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { ContentCard } from "./primitives";
 import { PhoneFrame } from "./screens";
 import { useMealMode, MealMode } from "./MealModeContext";
