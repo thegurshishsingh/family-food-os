@@ -3,6 +3,7 @@ import { Utensils, Package, Store, UtensilsCrossed, TrendingUp, Clock, ArrowRigh
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { ContentCard } from "./primitives";
 import { PhoneFrame } from "./screens";
 import { useMealMode, MealMode } from "./MealModeContext";
@@ -65,6 +66,13 @@ const PlansThatFitRealLife = () => {
   const { mode, setMode } = useMealMode();
   const active = MODES.find((m) => m.id === mode)!;
   const content = MOCK_CONTENT[mode];
+
+  // Sync the active tab to whichever day row sits nearest the viewport center
+  // as the user scrolls. Robust under fast scrolling (see useScrollSpy).
+  const registerRow = useScrollSpy((id) => {
+    const rowMode = WEEK_PREVIEW[Number(id)]?.mode as MealMode | undefined;
+    if (rowMode) setMode(rowMode);
+  });
 
   return (
     <section id="plans-that-fit" className="py-16 md:py-24 px-4 relative">
@@ -164,6 +172,7 @@ const PlansThatFitRealLife = () => {
                   return (
                     <motion.button
                       key={day.day}
+                      ref={registerRow(String(i))}
                       type="button"
                       onClick={() => setMode(day.mode as MealMode)}
                       className="w-full flex items-center gap-4 px-6 py-2.5 border-b border-border/20 last:border-b-0 group transition-colors hover:bg-primary/[0.04] text-left"
