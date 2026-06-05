@@ -67,6 +67,13 @@ const PlansThatFitRealLife = () => {
   const active = MODES.find((m) => m.id === mode)!;
   const content = MOCK_CONTENT[mode];
 
+  // Sync the active tab to whichever day row sits nearest the viewport center
+  // as the user scrolls. Robust under fast scrolling (see useScrollSpy).
+  const registerRow = useScrollSpy((id) => {
+    const rowMode = WEEK_PREVIEW[Number(id)]?.mode as MealMode | undefined;
+    if (rowMode) setMode(rowMode);
+  });
+
   return (
     <section id="plans-that-fit" className="py-16 md:py-24 px-4 relative">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
