@@ -38,7 +38,7 @@ const RatingStrip = () => (
 
 const HeroSection = () => {
   const [wordIndex, setWordIndex] = useState(0);
-  const { setMode } = useMealMode();
+  const { mode, setMode } = useMealMode();
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -210,17 +210,32 @@ const HeroSection = () => {
               iconColor: "text-sky",
               mode: "takeout" as const,
             },
-          ].map((card) => (
-            <button
-              key={card.title}
-              onClick={() => handleCardClick(card.mode)}
-              className={`relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br ${card.tone} backdrop-blur-sm p-5 text-left cursor-pointer transition-transform duration-200 hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/30`}
-            >
-              <card.icon className={`w-5 h-5 ${card.iconColor} mb-2.5`} strokeWidth={2} />
-              <h3 className="text-sm font-semibold text-foreground mb-1">{card.title}</h3>
-              <p className="text-[13px] text-muted-foreground leading-relaxed">{card.sentence}</p>
-            </button>
-          ))}
+          ].map((card) => {
+            const isActive = card.mode === mode;
+            return (
+              <button
+                key={card.title}
+                onClick={() => handleCardClick(card.mode)}
+                aria-pressed={isActive}
+                className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${card.tone} backdrop-blur-sm p-5 text-left cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+                  isActive
+                    ? "border-primary/50 ring-2 ring-primary/40 shadow-[0_8px_28px_-8px_hsl(var(--primary)/0.4)] scale-[1.02]"
+                    : "border-border/60"
+                }`}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="hero-active-card"
+                    className="absolute top-3 right-3 w-2 h-2 rounded-full bg-primary"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <card.icon className={`w-5 h-5 ${card.iconColor} mb-2.5`} strokeWidth={2} />
+                <h3 className="text-sm font-semibold text-foreground mb-1">{card.title}</h3>
+                <p className="text-[13px] text-muted-foreground leading-relaxed">{card.sentence}</p>
+              </button>
+            );
+          })}
         </motion.div>
       </div>
     </section>
