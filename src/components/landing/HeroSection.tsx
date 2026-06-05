@@ -38,7 +38,7 @@ const RatingStrip = () => (
 
 const HeroSection = () => {
   const [wordIndex, setWordIndex] = useState(0);
-  const { setMode } = useMealMode();
+  const { mode, setMode } = useMealMode();
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
