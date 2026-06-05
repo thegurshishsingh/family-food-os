@@ -172,6 +172,7 @@ const PlansThatFitRealLife = () => {
                   return (
                     <motion.button
                       key={day.day}
+                      ref={registerRow(String(i))}
                       type="button"
                       onClick={() => setMode(day.mode as MealMode)}
                       className="w-full flex items-center gap-4 px-6 py-2.5 border-b border-border/20 last:border-b-0 group transition-colors hover:bg-primary/[0.04] text-left"
