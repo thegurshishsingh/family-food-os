@@ -100,4 +100,5 @@ const FAQSection = () => {
   );
 };
 
+export { FAQS };
 export default FAQSection;

@@ -14,7 +14,7 @@ import HowItWorksPlayful from "@/components/landing/HowItWorksPlayful";
 import SmoothScroll from "@/components/landing/SmoothScroll";
 import { MealModeProvider } from "@/components/landing/MealModeContext";
 
-import FAQSection from "@/components/landing/FAQSection";
+import FAQSection, { FAQS } from "@/components/landing/FAQSection";
 import InteractiveTagCloud from "@/components/landing/InteractiveTagCloud";
 import FamilyVoices from "@/components/landing/FamilyVoices";
 import FinalCTA from "@/components/landing/FinalCTA";
