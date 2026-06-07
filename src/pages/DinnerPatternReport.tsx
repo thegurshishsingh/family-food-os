@@ -64,11 +64,17 @@ const DinnerPatternReport = () => {
     headline: "The Dinner Pattern Report",
     description:
       "The Dinner Pattern Report shows where your plans break, what meals repeat, which nights become takeout, and what groceries go unused — and how to make next week easier.",
+    image: [OG_IMAGE],
     datePublished: "2026-06-07",
     dateModified: "2026-06-07",
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
     author: { "@type": "Organization", name: "Family Food OS", url: `${SITE_URL}/` },
-    publisher: { "@type": "Organization", name: "Family Food OS", url: `${SITE_URL}/` },
+    publisher: {
+      "@type": "Organization",
+      name: "Family Food OS",
+      url: `${SITE_URL}/`,
+      logo: { "@type": "ImageObject", url: OG_IMAGE },
+    },
   };
 
   const breadcrumbSchema = {
