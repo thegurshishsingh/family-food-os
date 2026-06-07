@@ -83,20 +83,23 @@ const GuideCard = ({ guide, variant = "default", index = 0 }: GuideCardProps) =>
       transition={{ duration: 0.45, delay: Math.min(index * 0.05, 0.25) }}
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/60 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_12px_32px_-12px_hsl(var(--primary)/0.25)]"
     >
-      <div className="relative h-[150px] overflow-hidden border-b border-border/50">
+      <div className="relative h-[160px] overflow-hidden border-b border-border/50">
         <div
           className={cn(
             "absolute inset-0 bg-gradient-to-br",
-            guide.tone === "sky" && "from-sky/[0.14] to-background",
-            guide.tone === "sage" && "from-primary/[0.12] to-background",
-            guide.tone === "amber" && "from-warm/[0.16] to-background",
-            guide.tone === "coral" && "from-coral/[0.13] to-background",
+            guide.tone === "sky" && "from-sky/[0.16] via-sky/[0.05] to-background",
+            guide.tone === "sage" && "from-primary/[0.14] via-primary/[0.05] to-background",
+            guide.tone === "amber" && "from-warm/[0.18] via-warm/[0.05] to-background",
+            guide.tone === "coral" && "from-coral/[0.15] via-coral/[0.05] to-background",
           )}
         />
-        <div className="absolute left-1/2 top-6 w-[170px] -translate-x-1/2 scale-[0.92] origin-top">
-          <ShowcaseStage screen={Screen} tone={guide.tone} crop cropHeightClassName="h-[150px]" phoneWidth="w-[170px]" />
+        <div className="absolute left-1/2 top-7 -translate-x-1/2">
+          <PhoneFrame widthClassName="w-[176px]" glow={false} crop cropHeightClassName="h-[160px]">
+            <Screen />
+          </PhoneFrame>
         </div>
       </div>
+
       <div className="flex flex-1 flex-col p-5">
         <span className="text-[11px] font-semibold uppercase tracking-wider text-primary/80">
           {category.label}
