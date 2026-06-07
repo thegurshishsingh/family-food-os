@@ -688,3 +688,6 @@ export const guidesByCategory = (id: CategoryId) =>
   GUIDES.filter((g) => g.category === id);
 
 export const SITE_URL = "https://www.familyfoodos.com";
+
+export const OG_IMAGE =
+  "https://storage.googleapis.com/gpt-engineer-file-uploads/ZRyBBkDPvbQJ28NqHJdO8c0jC3x1/social-images/social-1777652278199-Family_Food_OS_Logo_(2).webp";
