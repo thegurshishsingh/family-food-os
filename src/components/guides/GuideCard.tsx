@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Clock } from "lucide-react";
+import { ShowcaseStage } from "@/components/landing/primitives";
 import {
   WeeklyPlanScreen,
   GroceryScreen,
