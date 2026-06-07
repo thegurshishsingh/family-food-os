@@ -16,7 +16,7 @@ import LandingHeader from "@/components/landing/LandingHeader";
 import GuidesFooter from "@/components/guides/GuidesFooter";
 import { IconTile, ShowcaseStage } from "@/components/landing/primitives";
 import { InsightsScreen, SavingsScreen } from "@/components/landing/screens";
-import { GUIDES, SITE_URL, getGuide } from "@/content/guides";
+import { GUIDES, OG_IMAGE, SITE_URL, getGuide } from "@/content/guides";
 import GuideCard from "@/components/guides/GuideCard";
 
 const FINDINGS = [
@@ -91,12 +91,21 @@ const DinnerPatternReport = () => {
         />
         <link rel="canonical" href={canonical} />
         <meta property="og:type" content="article" />
+        <meta property="og:site_name" content="Family Food OS" />
         <meta property="og:title" content="The Dinner Pattern Report | Family Food OS" />
         <meta
           property="og:description"
           content="The study of your real dinner week: where plans break, what repeats, what becomes takeout, and what gets wasted."
         />
         <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={OG_IMAGE} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="The Dinner Pattern Report | Family Food OS" />
+        <meta
+          name="twitter:description"
+          content="The study of your real dinner week: where plans break, what repeats, what becomes takeout, and what gets wasted."
+        />
+        <meta name="twitter:image" content={OG_IMAGE} />
         <script type="application/ld+json">{JSON.stringify(reportSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>

@@ -1,5 +1,7 @@
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Target } from "lucide-react";
+import { SITE_URL } from "@/content/guides";
 import Logo from "@/components/Logo";
 import LandingHeader from "@/components/landing/LandingHeader";
 import footerScene from "@/assets/footer-dinner-scene.jpg";
@@ -43,11 +45,14 @@ const Landing = () => {
     <div className="min-h-screen bg-background max-w-full overflow-x-hidden">
       <LandingHeader />
 
-      <script type="application/ld+json">
-        {JSON.stringify(faqSchema)}
-      </script>
+      <Helmet>
+        <link rel="canonical" href={`${SITE_URL}/`} />
+        <meta property="og:url" content={`${SITE_URL}/`} />
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+      </Helmet>
 
       <main id="main-content">
+
       <HeroSection />
 
       <TheStruggle />

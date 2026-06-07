@@ -19,6 +19,7 @@ import {
 } from "@/components/landing/screens";
 import {
   GUIDES,
+  OG_IMAGE,
   SITE_URL,
   getCategory,
   getGuide,
@@ -89,9 +90,15 @@ const GuideArticle = () => {
         <meta name="keywords" content={guide.keywords.join(", ")} />
         <link rel="canonical" href={canonical} />
         <meta property="og:type" content="article" />
+        <meta property="og:site_name" content="Family Food OS" />
         <meta property="og:title" content={guide.seoTitle} />
         <meta property="og:description" content={guide.description} />
         <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={OG_IMAGE} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={guide.seoTitle} />
+        <meta name="twitter:description" content={guide.description} />
+        <meta name="twitter:image" content={OG_IMAGE} />
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
