@@ -1,5 +1,7 @@
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Target } from "lucide-react";
+import { SITE_URL } from "@/content/guides";
 import Logo from "@/components/Logo";
 import LandingHeader from "@/components/landing/LandingHeader";
 import footerScene from "@/assets/footer-dinner-scene.jpg";
