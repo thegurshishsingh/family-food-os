@@ -51,6 +51,38 @@ const calloutIcon: Record<Tone, string> = {
   coral: "text-coral",
 };
 
+/** Tone-aware styling for the per-section illustration medallion. */
+const sectionMedallionTone: Record<Tone, string> = {
+  sky: "border-sky/20 bg-sky/[0.08] text-sky",
+  sage: "border-primary/20 bg-primary/[0.07] text-primary",
+  amber: "border-warm/30 bg-warm/[0.10] text-accent-foreground",
+  coral: "border-coral/20 bg-coral/[0.08] text-coral",
+};
+
+/**
+ * Lightweight, supportive illustrations cycled across major (h2) sections so
+ * each section gets its own visual anchor without heavy artwork.
+ */
+const SECTION_ICONS = [Leaf, Sun, Heart, Compass, Lightbulb, Soup, Clock, Star];
+
+/** A soft visual divider + tone-colored illustration that opens each section. */
+const SectionDivider = ({ tone, ordinal }: { tone: Tone; ordinal: number }) => {
+  const Icon = SECTION_ICONS[ordinal % SECTION_ICONS.length];
+  return (
+    <div className="flex items-center gap-3 pt-8" aria-hidden="true">
+      <span
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border",
+          sectionMedallionTone[tone],
+        )}
+      >
+        <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+      </span>
+      <span className="h-px flex-1 bg-gradient-to-r from-border/70 via-border/40 to-transparent" />
+    </div>
+  );
+};
+
 /** Parse a minimal inline syntax: [label](/path) and **bold**. */
 function renderInline(text: string): ReactNode[] {
   const nodes: ReactNode[] = [];
