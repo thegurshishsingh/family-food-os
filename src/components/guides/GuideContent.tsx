@@ -149,7 +149,15 @@ const slugifyHeading = (text: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-const GuideContent = ({ blocks }: { blocks: Block[] }) => {
+const GuideContent = ({ blocks, tone = "sage" }: { blocks: Block[]; tone?: Tone }) => {
+  // Map each h2 block index to its sequential ordinal so every major section
+  // gets a distinct, repeating illustration.
+  const h2Ordinals = new Map<number, number>();
+  let h2Counter = 0;
+  blocks.forEach((b, idx) => {
+    if (b.type === "h2") h2Ordinals.set(idx, h2Counter++);
+  });
+
   return (
     <div className="space-y-6">
       {blocks.map((block, i) => {
@@ -162,13 +170,15 @@ const GuideContent = ({ blocks }: { blocks: Block[] }) => {
             );
           case "h2":
             return (
-              <h2
-                key={i}
-                id={block.id ?? slugifyHeading(block.text)}
-                className="scroll-mt-28 pt-4 text-2xl md:text-3xl font-serif font-semibold text-foreground tracking-tight leading-tight"
-              >
-                {block.text}
-              </h2>
+              <div key={i}>
+                <SectionDivider tone={tone} ordinal={h2Ordinals.get(i) ?? 0} />
+                <h2
+                  id={block.id ?? slugifyHeading(block.text)}
+                  className="scroll-mt-28 pt-4 text-2xl md:text-3xl font-serif font-semibold text-foreground tracking-tight leading-tight"
+                >
+                  {block.text}
+                </h2>
+              </div>
             );
           case "h3":
             return (
