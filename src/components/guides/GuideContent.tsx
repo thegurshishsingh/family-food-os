@@ -1,6 +1,18 @@
 import { Fragment, ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Quote, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Quote,
+  Sparkles,
+  Leaf,
+  Sun,
+  Heart,
+  Compass,
+  Lightbulb,
+  Soup,
+  Clock,
+  Star,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ShowcaseStage } from "@/components/landing/primitives";
 import {
