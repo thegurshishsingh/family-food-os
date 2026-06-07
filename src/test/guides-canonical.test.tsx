@@ -67,6 +67,22 @@ function canonicalLinks(): HTMLLinkElement[] {
   );
 }
 
+// Minimal poll-until-true helper (react-helmet-async flushes head async).
+async function waitFor(assertion: () => void, timeout = 2000) {
+  const start = Date.now();
+  let lastErr: unknown;
+  while (Date.now() - start < timeout) {
+    try {
+      assertion();
+      return;
+    } catch (err) {
+      lastErr = err;
+      await new Promise((r) => setTimeout(r, 20));
+    }
+  }
+  throw lastErr;
+}
+
 async function waitForCanonical(expectedHref: string) {
   await waitFor(() => {
     const links = canonicalLinks();
