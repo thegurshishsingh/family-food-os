@@ -10,6 +10,7 @@ import { IconTile } from "@/components/landing/primitives";
 import {
   CATEGORIES,
   GUIDES,
+  OG_IMAGE,
   SITE_URL,
   guidesByCategory,
 } from "@/content/guides";
