@@ -14,7 +14,7 @@ import HowItWorksPlayful from "@/components/landing/HowItWorksPlayful";
 import SmoothScroll from "@/components/landing/SmoothScroll";
 import { MealModeProvider } from "@/components/landing/MealModeContext";
 
-import FAQSection from "@/components/landing/FAQSection";
+import FAQSection, { FAQS } from "@/components/landing/FAQSection";
 import InteractiveTagCloud from "@/components/landing/InteractiveTagCloud";
 import FamilyVoices from "@/components/landing/FamilyVoices";
 import FinalCTA from "@/components/landing/FinalCTA";
@@ -24,11 +24,28 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 const Landing = () => {
   const { fadeUp, viewport, initialState } = useScrollReveal();
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
     <MealModeProvider>
     <SmoothScroll>
     <div className="min-h-screen bg-background max-w-full overflow-x-hidden">
       <LandingHeader />
+
+      <script type="application/ld+json">
+        {JSON.stringify(faqSchema)}
+      </script>
 
       <main id="main-content">
       <HeroSection />
