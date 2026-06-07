@@ -152,7 +152,7 @@ const GuideArticle = () => {
         {/* Article body */}
         <article className="px-4 pt-10 md:pt-14">
           <div className="container mx-auto max-w-2xl">
-            <GuideContent blocks={guide.blocks} />
+            <GuideContent blocks={guide.blocks} tone={guide.tone} />
           </div>
         </article>
 

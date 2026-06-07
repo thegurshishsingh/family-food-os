@@ -1,6 +1,18 @@
 import { Fragment, ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Quote, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Quote,
+  Sparkles,
+  Leaf,
+  Sun,
+  Heart,
+  Compass,
+  Lightbulb,
+  Soup,
+  Clock,
+  Star,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ShowcaseStage } from "@/components/landing/primitives";
 import {
@@ -37,6 +49,38 @@ const calloutIcon: Record<Tone, string> = {
   sage: "text-primary",
   amber: "text-accent-foreground",
   coral: "text-coral",
+};
+
+/** Tone-aware styling for the per-section illustration medallion. */
+const sectionMedallionTone: Record<Tone, string> = {
+  sky: "border-sky/20 bg-sky/[0.08] text-sky",
+  sage: "border-primary/20 bg-primary/[0.07] text-primary",
+  amber: "border-warm/30 bg-warm/[0.10] text-accent-foreground",
+  coral: "border-coral/20 bg-coral/[0.08] text-coral",
+};
+
+/**
+ * Lightweight, supportive illustrations cycled across major (h2) sections so
+ * each section gets its own visual anchor without heavy artwork.
+ */
+const SECTION_ICONS = [Leaf, Sun, Heart, Compass, Lightbulb, Soup, Clock, Star];
+
+/** A soft visual divider + tone-colored illustration that opens each section. */
+const SectionDivider = ({ tone, ordinal }: { tone: Tone; ordinal: number }) => {
+  const Icon = SECTION_ICONS[ordinal % SECTION_ICONS.length];
+  return (
+    <div className="flex items-center gap-3 pt-8" aria-hidden="true">
+      <span
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border",
+          sectionMedallionTone[tone],
+        )}
+      >
+        <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+      </span>
+      <span className="h-px flex-1 bg-gradient-to-r from-border/70 via-border/40 to-transparent" />
+    </div>
+  );
 };
 
 /** Parse a minimal inline syntax: [label](/path) and **bold**. */
@@ -105,7 +149,15 @@ const slugifyHeading = (text: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-const GuideContent = ({ blocks }: { blocks: Block[] }) => {
+const GuideContent = ({ blocks, tone = "sage" }: { blocks: Block[]; tone?: Tone }) => {
+  // Map each h2 block index to its sequential ordinal so every major section
+  // gets a distinct, repeating illustration.
+  const h2Ordinals = new Map<number, number>();
+  let h2Counter = 0;
+  blocks.forEach((b, idx) => {
+    if (b.type === "h2") h2Ordinals.set(idx, h2Counter++);
+  });
+
   return (
     <div className="space-y-6">
       {blocks.map((block, i) => {
@@ -118,13 +170,15 @@ const GuideContent = ({ blocks }: { blocks: Block[] }) => {
             );
           case "h2":
             return (
-              <h2
-                key={i}
-                id={block.id ?? slugifyHeading(block.text)}
-                className="scroll-mt-28 pt-4 text-2xl md:text-3xl font-serif font-semibold text-foreground tracking-tight leading-tight"
-              >
-                {block.text}
-              </h2>
+              <div key={i}>
+                <SectionDivider tone={tone} ordinal={h2Ordinals.get(i) ?? 0} />
+                <h2
+                  id={block.id ?? slugifyHeading(block.text)}
+                  className="scroll-mt-28 pt-4 text-2xl md:text-3xl font-serif font-semibold text-foreground tracking-tight leading-tight"
+                >
+                  {block.text}
+                </h2>
+              </div>
             );
           case "h3":
             return (
