@@ -19,6 +19,7 @@ import {
 } from "@/components/landing/screens";
 import {
   GUIDES,
+  OG_IMAGE,
   SITE_URL,
   getCategory,
   getGuide,
