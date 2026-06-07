@@ -676,6 +676,251 @@ export const GUIDES: Guide[] = [
       "the-dinner-pattern-report",
     ],
   },
+
+  // 6 — Family Dinner Systems (positioning)
+  {
+    slug: "family-food-os-vs-meal-planning-apps",
+    category: "family-dinner-systems",
+    title: "Family Food OS vs Meal Planning Apps",
+    seoTitle: "Family Food OS vs Meal Planning Apps",
+    description:
+      "Meal planning apps help you choose meals. Family Food OS helps your household learn what actually works — the next evolution of family dinner planning.",
+    excerpt:
+      "Meal planning apps help you make a plan. Family Food OS helps you make a plan that survives real life — and learns from the gap between the two.",
+    readMinutes: 9,
+    tone: "amber",
+    heroScreen: "weeklyPlan",
+    keywords: [
+      "family food os vs meal planning apps",
+      "best meal planning app for families",
+      "meal planning app alternative",
+      "why meal planning apps fail",
+      "family meal planning system",
+    ],
+    updated: "2026-06-07",
+    blocks: [
+      {
+        type: "p",
+        text: "Most families have tried some version of meal planning. You pick recipes, make a grocery list, and start the week feeling organized. Then real life shows up. One night runs late. One meal takes more effort than expected. The kids reject something you thought would work. Leftovers sit in the fridge. Groceries go unused. By Wednesday, the plan that looked good on Sunday already feels out of sync with your actual life.",
+      },
+      {
+        type: "p",
+        text: "That is why Family Food OS exists. We're not building another place to collect recipes — families already have recipes. What they need is a dinner system that learns what actually works in their home.",
+      },
+      {
+        type: "callout",
+        tone: "sage",
+        title: "You're not failing at meal planning",
+        text: "Most meal planning tools are built for a perfect week. Real families live in the actual week. The gap between the two isn't your fault — it's the thing nobody designed for.",
+      },
+      {
+        type: "h2",
+        text: "The problem with traditional meal planning",
+        id: "the-problem",
+      },
+      {
+        type: "p",
+        text: "You sit down on Sunday, pick a few meals, make a grocery list, and feel organized. Then the week starts. Monday runs late. Tuesday becomes takeout. Wednesday's meal takes too much effort. By Thursday, the plan is mostly a suggestion.",
+      },
+      {
+        type: "p",
+        text: "That is not a personal failure. That is the gap traditional meal planning apps do not solve. Most tools are built for the ideal version of the week: pick recipes, make a grocery list, cook the plan. But real families live in the actual version of the week — kids complain, parents are tired, one night needs to be leftovers, another turns into takeout, and the groceries bought on Sunday don't always match what happens by Thursday.",
+      },
+      {
+        type: "quote",
+        text: "A meal plan is only useful if it still makes sense on Wednesday.",
+      },
+      {
+        type: "h2",
+        text: "What meal planning apps get right",
+        id: "what-they-get-right",
+      },
+      {
+        type: "p",
+        text: "Let's be fair, because this matters. Meal planning apps can be genuinely useful. They help with recipes, grocery lists, calendars, and nutrition goals. For people who already know what they want to cook and have a predictable schedule, they can work well.",
+      },
+      {
+        type: "p",
+        text: "But most families don't need more meals to choose from. They need help deciding what fits **this** week. You don't need 500 new recipes. You need to remember the 12 meals your family actually eats.",
+      },
+      {
+        type: "h2",
+        text: "Where meal planning apps break down",
+        id: "where-they-break",
+      },
+      {
+        type: "ul",
+        items: [
+          "They assume the week goes according to plan.",
+          "They don't learn enough from what actually happened.",
+          "They treat takeout and leftovers like exceptions instead of normal family behavior.",
+          "They require too much manual input.",
+          "They focus on recipes instead of household patterns.",
+          "They don't reduce the mental load of deciding dinner every night.",
+        ],
+      },
+      {
+        type: "p",
+        text: "You bought groceries with good intentions, then ordered takeout because the planned meal felt like too much. You keep asking everyone what they want for dinner, and somehow no one gives a useful answer. None of that means you're disorganized. It means the tool stopped at the plan.",
+      },
+      {
+        type: "screen",
+        screen: "weeklyPlan",
+        tone: "amber",
+        caption:
+          "A real week, planned around the nights you actually have — cook, leftovers, and takeout in one place.",
+      },
+      {
+        type: "h2",
+        text: "What Family Food OS does differently",
+        id: "what-we-do",
+      },
+      {
+        type: "p",
+        text: "Family Food OS helps you plan the week, then **learns from the week**. After each meal it asks a few simple questions:",
+      },
+      {
+        type: "ul",
+        items: [
+          "Was this meal cooked?",
+          "Did the family like it?",
+          "Was it too much work?",
+          "Did leftovers help?",
+          "Did takeout happen instead?",
+          "What should we remember for next week?",
+        ],
+      },
+      {
+        type: "p",
+        text: "Then it uses that history to make the next plan better. That's the difference: meal planning apps create a plan. Family Food OS creates a system that improves.",
+      },
+      {
+        type: "screen",
+        screen: "insights",
+        tone: "sage",
+        caption:
+          "The feedback loop in action — what worked, what got skipped, and what should repeat next week.",
+      },
+      {
+        type: "h2",
+        text: "The real distinction: a feedback loop",
+        id: "the-distinction",
+      },
+      {
+        type: "h3",
+        text: "Meal planning apps help you choose meals",
+      },
+      {
+        type: "p",
+        text: "They usually focus on recipes, calendars, grocery lists, nutrition, meal prep, and manual organization. That can be helpful — but it often stops at the plan.",
+      },
+      {
+        type: "h3",
+        text: "Family Food OS helps your household learn what works",
+      },
+      {
+        type: "ul",
+        items: [
+          "what your family actually cooked",
+          "what got skipped",
+          "what became takeout",
+          "what the kids liked",
+          "what created leftovers",
+          "what groceries went unused",
+          "what nights need easier meals",
+          "what should repeat next week",
+        ],
+      },
+      {
+        type: "quote",
+        text: "Meal planning apps help you organize dinner. Family Food OS helps you understand dinner.",
+      },
+      {
+        type: "h2",
+        text: "Why \u201coperating system\u201d matters",
+        id: "operating-system",
+      },
+      {
+        type: "p",
+        text: "We call it a family food operating system because dinner is connected to more than recipes. It touches schedules, groceries, budget, preferences, leftovers, stress, and routines. Family Food OS brings those pieces into one simple weekly rhythm.",
+      },
+      {
+        type: "p",
+        text: "Dinner is not just a recipe decision. It's a weekly operating problem inside the household — and it deserves a system, not another to-do list.",
+      },
+      {
+        type: "callout",
+        tone: "sky",
+        title: "Built around reality, not fantasy meal prep",
+        text: "A good dinner system should know when your family needs low-effort meals. It should treat leftovers as part of the plan, recognize when takeout is likely, remember what actually worked, and get better every week — not ask you to start over every Sunday.",
+      },
+      {
+        type: "screen",
+        screen: "realityScore",
+        tone: "amber",
+        caption:
+          "A Reality Score on every plan — so you commit to the week you can actually follow, not the most impressive one.",
+      },
+      {
+        type: "h2",
+        text: "Why we started Family Food OS",
+        id: "why-we-started",
+      },
+      {
+        type: "p",
+        text: "Family Food OS was created because the current dinner-planning experience doesn't match how families actually live. Most tools are built for the ideal version of the week. We started Family Food OS to close the gap between the plan and reality.",
+      },
+      {
+        type: "p",
+        text: "Not to give families more food content. Not to make dinner feel like another productivity project. Not to shame takeout, leftovers, or repeat meals. We built it to help families create a dinner rhythm that learns from what actually happened.",
+      },
+      {
+        type: "quote",
+        text: "We believe the best dinner plan is not the most impressive one. It's the one your family can actually follow.",
+      },
+      {
+        type: "h2",
+        text: "Who Family Food OS is for",
+        id: "who-its-for",
+      },
+      {
+        type: "p",
+        text: "Family Food OS is built for families who:",
+      },
+      {
+        type: "ul",
+        items: [
+          "cook at home but still rely on takeout sometimes",
+          "want to waste less food",
+          "repeat the same meals but want better structure",
+          "have busy weeknights",
+          "manage kids, schedules, activities, and groceries",
+          "feel tired of deciding dinner every day",
+          "want a realistic plan, not a perfect one",
+        ],
+      },
+      {
+        type: "callout",
+        tone: "coral",
+        title: "Leftovers and takeout aren't failures",
+        text: "Leftovers are not a backup plan — they're part of the system. Takeout is not failure — it's a signal. Your family already has dinner patterns. Family Food OS helps you see them. Read more in [The Real Week Dinner Guide](/guides/real-week-dinner-guide).",
+      },
+      {
+        type: "p",
+        text: "Family Food OS is built for the real version of family dinner: the busy nights, the leftovers, the repeat favorites, the skipped meals, the grocery gaps, and the moments when takeout wins. The goal is not to make your family perfect at meal planning. The goal is to make dinner easier to run, easier to repeat, and easier to improve every week.",
+      },
+      {
+        type: "cta",
+        title: "See where your dinner week actually breaks",
+        text: "Family Food OS plans your week, then learns from it — so next week is easier than the last. Start your first week free, or explore [The Dinner Pattern Report](/guides/the-dinner-pattern-report) to see your patterns first.",
+      },
+    ],
+    related: [
+      "real-week-dinner-guide",
+      "how-to-build-a-weekly-dinner-rhythm",
+      "the-dinner-pattern-report",
+    ],
+  },
 ];
 
 /** Helpers */
