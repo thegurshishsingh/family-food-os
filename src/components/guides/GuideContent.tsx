@@ -1,0 +1,250 @@
+import { Fragment, ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Quote, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ShowcaseStage } from "@/components/landing/primitives";
+import {
+  WeeklyPlanScreen,
+  GroceryScreen,
+  SavingsScreen,
+  InsightsScreen,
+  DailyDinnerScreen,
+  RealityScoreScreen,
+  OnboardingScreen,
+} from "@/components/landing/screens";
+import type { Block, ScreenKey, Tone } from "@/content/guides";
+import { cn } from "@/lib/utils";
+
+const SCREENS: Record<ScreenKey, () => JSX.Element> = {
+  weeklyPlan: WeeklyPlanScreen,
+  grocery: GroceryScreen,
+  savings: SavingsScreen,
+  insights: InsightsScreen,
+  dailyDinner: DailyDinnerScreen,
+  realityScore: RealityScoreScreen,
+  onboarding: OnboardingScreen,
+};
+
+const calloutTone: Record<Tone, string> = {
+  sky: "border-sky/25 bg-sky/[0.06]",
+  sage: "border-primary/20 bg-primary/[0.05]",
+  amber: "border-warm/30 bg-warm/[0.07]",
+  coral: "border-coral/25 bg-coral/[0.06]",
+};
+
+const calloutIcon: Record<Tone, string> = {
+  sky: "text-sky",
+  sage: "text-primary",
+  amber: "text-accent-foreground",
+  coral: "text-coral",
+};
+
+/** Parse a minimal inline syntax: [label](/path) and **bold**. */
+function renderInline(text: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  // Split on links first, keeping delimiters.
+  const linkRe = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+
+  const pushText = (chunk: string) => {
+    // Handle **bold** within plain chunks.
+    const boldRe = /\*\*([^*]+)\*\*/g;
+    let li = 0;
+    let m: RegExpExecArray | null;
+    while ((m = boldRe.exec(chunk)) !== null) {
+      if (m.index > li) nodes.push(<Fragment key={key++}>{chunk.slice(li, m.index)}</Fragment>);
+      nodes.push(
+        <strong key={key++} className="font-semibold text-foreground">
+          {m[1]}
+        </strong>,
+      );
+      li = m.index + m[0].length;
+    }
+    if (li < chunk.length) nodes.push(<Fragment key={key++}>{chunk.slice(li)}</Fragment>);
+  };
+
+  while ((match = linkRe.exec(text)) !== null) {
+    if (match.index > lastIndex) pushText(text.slice(lastIndex, match.index));
+    const label = match[1];
+    const href = match[2];
+    const isInternal = href.startsWith("/");
+    if (isInternal) {
+      nodes.push(
+        <Link
+          key={key++}
+          to={href}
+          className="font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary transition-colors"
+        >
+          {label}
+        </Link>,
+      );
+    } else {
+      nodes.push(
+        <a
+          key={key++}
+          href={href}
+          className="font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary transition-colors"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {label}
+        </a>,
+      );
+    }
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) pushText(text.slice(lastIndex));
+  return nodes;
+}
+
+const slugifyHeading = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+const GuideContent = ({ blocks }: { blocks: Block[] }) => {
+  return (
+    <div className="space-y-6">
+      {blocks.map((block, i) => {
+        switch (block.type) {
+          case "p":
+            return (
+              <p key={i} className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                {renderInline(block.text)}
+              </p>
+            );
+          case "h2":
+            return (
+              <h2
+                key={i}
+                id={block.id ?? slugifyHeading(block.text)}
+                className="scroll-mt-28 pt-4 text-2xl md:text-3xl font-serif font-semibold text-foreground tracking-tight leading-tight"
+              >
+                {block.text}
+              </h2>
+            );
+          case "h3":
+            return (
+              <h3 key={i} className="pt-1 text-xl font-serif font-semibold text-foreground">
+                {block.text}
+              </h3>
+            );
+          case "ul":
+            return (
+              <ul key={i} className="space-y-2.5 pl-1">
+                {block.items.map((it, j) => (
+                  <li key={j} className="flex gap-3 text-base md:text-lg text-foreground/80 leading-relaxed">
+                    <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" aria-hidden="true" />
+                    <span>{renderInline(it)}</span>
+                  </li>
+                ))}
+              </ul>
+            );
+          case "ol":
+            return (
+              <ol key={i} className="space-y-2.5">
+                {block.items.map((it, j) => (
+                  <li key={j} className="flex gap-3 text-base md:text-lg text-foreground/80 leading-relaxed">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                      {j + 1}
+                    </span>
+                    <span>{renderInline(it)}</span>
+                  </li>
+                ))}
+              </ol>
+            );
+          case "callout": {
+            const tone = block.tone ?? "sage";
+            return (
+              <div
+                key={i}
+                className={cn("rounded-2xl border p-5 md:p-6", calloutTone[tone])}
+              >
+                <div className="mb-1.5 flex items-center gap-2">
+                  <Sparkles className={cn("h-4 w-4", calloutIcon[tone])} />
+                  <p className="font-serif font-semibold text-foreground">{block.title}</p>
+                </div>
+                <p className="text-sm md:text-base text-foreground/75 leading-relaxed">
+                  {renderInline(block.text)}
+                </p>
+              </div>
+            );
+          }
+          case "quote":
+            return (
+              <figure key={i} className="relative my-2 rounded-2xl border border-border/60 bg-card/60 p-6 md:p-8">
+                <Quote className="absolute right-5 top-5 h-8 w-8 text-primary/15" aria-hidden="true" />
+                <blockquote className="font-serif text-xl md:text-2xl font-medium text-foreground leading-snug">
+                  &ldquo;{block.text}&rdquo;
+                </blockquote>
+                {block.attribution && (
+                  <figcaption className="mt-3 text-sm text-muted-foreground">
+                    — {block.attribution}
+                  </figcaption>
+                )}
+              </figure>
+            );
+          case "stat":
+            return (
+              <div key={i} className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {block.items.map((s, j) => (
+                  <div
+                    key={j}
+                    className="rounded-2xl border border-border/60 bg-card/60 p-5 text-center"
+                  >
+                    <p className="font-serif text-3xl font-semibold text-primary leading-none">
+                      {s.value}
+                    </p>
+                    <p className="mt-2 text-xs text-muted-foreground leading-snug">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            );
+          case "screen": {
+            const Screen = SCREENS[block.screen];
+            return (
+              <figure key={i} className="my-4">
+                <ShowcaseStage screen={Screen} tone={block.tone ?? "sage"} crop />
+                {block.caption && (
+                  <figcaption className="mt-3 text-center text-sm text-muted-foreground/80 italic">
+                    {block.caption}
+                  </figcaption>
+                )}
+              </figure>
+            );
+          }
+          case "cta":
+            return (
+              <div
+                key={i}
+                className="my-4 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] via-sage/[0.05] to-background p-6 md:p-8 text-center"
+              >
+                <h3 className="text-xl md:text-2xl font-serif font-semibold text-foreground mb-2">
+                  {block.title}
+                </h3>
+                <p className="mx-auto mb-5 max-w-md text-sm md:text-base text-foreground/75 leading-relaxed">
+                  {block.text}
+                </p>
+                <Button
+                  size="lg"
+                  className="rounded-xl bg-gradient-to-r from-primary to-sage-dark shadow-md hover:from-primary/90 hover:to-sage-dark/90"
+                  asChild
+                >
+                  <Link to="/signup">
+                    Start your first week — free <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            );
+          default:
+            return null;
+        }
+      })}
+    </div>
+  );
+};
+
+export default GuideContent;
