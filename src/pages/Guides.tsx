@@ -51,12 +51,21 @@ const Guides = () => {
         />
         <link rel="canonical" href={canonical} />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Family Food OS" />
         <meta property="og:title" content="Guides — Real-Life Dinner Planning | Family Food OS" />
         <meta
           property="og:description"
           content="A premium library of guides on planning weekly dinners around the week you actually have."
         />
         <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={OG_IMAGE} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Guides — Real-Life Dinner Planning | Family Food OS" />
+        <meta
+          name="twitter:description"
+          content="A premium library of guides on planning weekly dinners around the week you actually have."
+        />
+        <meta name="twitter:image" content={OG_IMAGE} />
         <script type="application/ld+json">{JSON.stringify(collectionSchema)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
