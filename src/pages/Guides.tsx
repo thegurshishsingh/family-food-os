@@ -63,7 +63,7 @@ const Guides = () => {
 
       <LandingHeader />
 
-      <main id="main-content" className="pt-header">
+      <main id="main-content">
         {/* Hero */}
         <section className="relative overflow-hidden px-4 pt-16 pb-10 md:pt-24 md:pb-14">
           <div className="absolute inset-0 -z-10 gradient-mesh" aria-hidden="true" />
