@@ -34,6 +34,9 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
+      <Route path="/guides" element={<Guides />} />
+      <Route path="/guides/the-dinner-pattern-report" element={<DinnerPatternReport />} />
+      <Route path="/guides/:slug" element={<GuideArticle />} />
       <Route path="/login" element={<RedirectIfAuthed><Login /></RedirectIfAuthed>} />
       <Route path="/signup" element={<RedirectIfAuthed><Signup /></RedirectIfAuthed>} />
       <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
