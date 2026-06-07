@@ -24,6 +24,19 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 const Landing = () => {
   const { fadeUp, viewport, initialState } = useScrollReveal();
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
     <MealModeProvider>
     <SmoothScroll>
