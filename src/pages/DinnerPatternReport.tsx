@@ -16,7 +16,7 @@ import LandingHeader from "@/components/landing/LandingHeader";
 import GuidesFooter from "@/components/guides/GuidesFooter";
 import { IconTile, ShowcaseStage } from "@/components/landing/primitives";
 import { InsightsScreen, SavingsScreen } from "@/components/landing/screens";
-import { GUIDES, SITE_URL, getGuide } from "@/content/guides";
+import { GUIDES, OG_IMAGE, SITE_URL, getGuide } from "@/content/guides";
 import GuideCard from "@/components/guides/GuideCard";
 
 const FINDINGS = [
