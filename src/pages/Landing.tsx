@@ -145,6 +145,7 @@ const Landing = () => {
                   <p className="font-semibold text-primary-foreground text-xs uppercase tracking-wider mb-3">Product</p>
                   <a href="#how-it-works" className="block text-primary-foreground/70 hover:text-accent transition-colors text-xs">How it works</a>
                   <a href="#why-different" className="block text-primary-foreground/70 hover:text-accent transition-colors text-xs">Why we're different</a>
+                  <Link to="/guides" className="block text-primary-foreground/70 hover:text-accent transition-colors text-xs">Guides</Link>
                   <Link to="/signup" className="block text-primary-foreground/70 hover:text-accent transition-colors text-xs">Get started</Link>
                 </div>
                 <div className="space-y-2">

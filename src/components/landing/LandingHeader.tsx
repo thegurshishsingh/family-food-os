@@ -51,7 +51,16 @@ const LandingHeader = ({ locale }: LandingHeaderProps) => {
 
         {/* Actions: tokenized widths, never wrap, never shrink */}
         <div className="flex items-center gap-1 xs:gap-1.5 md:gap-3 flex-shrink-0 flex-nowrap whitespace-nowrap">
-          {/* Log in: token-bounded label width ≥390px, icon below */}
+          {/* Guides: resource library link */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="hidden sm:inline-flex h-header-btn px-2.5 md:px-4 font-sans text-sm font-medium leading-[1] whitespace-nowrap"
+            asChild
+          >
+            <Link to="/guides">Guides</Link>
+          </Button>
+
           <Button
             variant="ghost"
             size="sm"
