@@ -43,6 +43,10 @@ const Landing = () => {
     <div className="min-h-screen bg-background max-w-full overflow-x-hidden">
       <LandingHeader />
 
+      <script type="application/ld+json">
+        {JSON.stringify(faqSchema)}
+      </script>
+
       <main id="main-content">
       <HeroSection />
 
