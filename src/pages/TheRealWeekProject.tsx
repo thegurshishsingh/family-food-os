@@ -20,20 +20,20 @@ const STEPS = [
   {
     num: "01",
     icon: ClipboardList,
-    title: "Tell us about your week",
-    text: "A 5-minute intake about your household, schedule, and how dinner usually goes.",
+    title: "Tell us what your week looks like",
+    text: "A quick intake about your household, schedule, and dinner routine.",
   },
   {
     num: "02",
     icon: UtensilsCrossed,
-    title: "Log dinners for 7 days",
-    text: "A quick daily check-in. What you planned, what actually happened, and why.",
+    title: "Track what actually happens",
+    text: "Each day, log what was planned, what happened, and why.",
   },
   {
     num: "03",
     icon: LineChart,
-    title: "Receive your Dinner Pattern Report",
-    text: "A personalized read of your week — the patterns, the friction, and the wins.",
+    title: "Get your Dinner Pattern Report",
+    text: "See the patterns, friction points, and wins from your real week.",
   },
 ];
 
@@ -59,7 +59,7 @@ const WHO = [
   "You cook most weeknights — and it's harder than it should be",
   "Your week has mixed schedules, kid activities, or shift work",
   "You're tired of decision fatigue at 5pm",
-  "You want a system, not another recipe app",
+  "You already have recipes. You need a week that works.",
 ];
 
 const eyebrow = "text-xs font-semibold uppercase tracking-[0.18em]";
@@ -163,6 +163,10 @@ const TheRealWeekProject = () => {
                   <span className="text-sm text-muted-foreground">Free · 7 days · 3 minutes a day</span>
                 </div>
 
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Private household info stays private.
+                </p>
+
                 {/* Example insight */}
                 <div className="mt-8 max-w-md rounded-2xl border border-border bg-card p-5">
                   <p className={`flex items-center gap-2 ${eyebrow} text-foreground/70`}>
@@ -173,11 +177,10 @@ const TheRealWeekProject = () => {
                   </p>
                 </div>
 
-                {/* Gift banner */}
-                <div className="mt-4 max-w-md rounded-2xl bg-warm-light px-5 py-4">
-                  <p className="text-sm leading-relaxed text-foreground/80">
-                    🎁 Complete the study for a chance to win one of five $25 grocery gift cards.
-                  </p>
+                {/* Gift badge */}
+                <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-border bg-warm-light px-4 py-2 text-sm text-foreground/80">
+                  <span>🎁</span>
+                  <span>Complete all 7 days for a chance to win one of five $25 grocery gift cards.</span>
                 </div>
 
                 {/* Social proof */}
@@ -346,6 +349,22 @@ const TheRealWeekProject = () => {
                   Sample preview — your report is generated from your own week.
                 </p>
               </div>
+            </div>
+
+            {/* CTA after report preview */}
+            <div className="mt-12 text-center">
+              <h3 className={`text-2xl md:text-3xl ${headingClass}`}>
+                Ready to find your dinner pattern?
+              </h3>
+              <Button
+                size="lg"
+                className="mt-6 rounded-full bg-primary px-8 py-6 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
+                asChild
+              >
+                <a href="#join">
+                  Join the study <ArrowRight className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
             </div>
           </div>
         </section>
