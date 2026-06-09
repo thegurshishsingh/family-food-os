@@ -15,6 +15,7 @@ import LandingHeader from "@/components/landing/LandingHeader";
 import GuidesFooter from "@/components/guides/GuidesFooter";
 import { IconTile, ShowcaseStage } from "@/components/landing/primitives";
 import { InsightsScreen, WeeklyPlanScreen } from "@/components/landing/screens";
+import StudySignupForm from "@/components/StudySignupForm";
 import { OG_IMAGE, SITE_URL } from "@/content/guides";
 
 const FINDINGS = [
