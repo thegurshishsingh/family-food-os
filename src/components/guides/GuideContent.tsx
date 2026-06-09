@@ -91,6 +91,20 @@ const SectionDivider = ({ tone, ordinal }: { tone: Tone; ordinal: number }) => {
   );
 };
 
+/** Icon per real-week mode, matched by label keyword. */
+const MODE_ICONS: { match: string; Icon: typeof ChefHat }[] = [
+  { match: "leftover", Icon: Refrigerator },
+  { match: "low-effort", Icon: Zap },
+  { match: "takeout", Icon: ShoppingBag },
+  { match: "dine-out", Icon: Utensils },
+  { match: "cook", Icon: ChefHat },
+];
+
+const modeIconFor = (label: string) => {
+  const l = label.toLowerCase();
+  return (MODE_ICONS.find((m) => l.includes(m.match)) ?? MODE_ICONS[MODE_ICONS.length - 1]).Icon;
+};
+
 /** Parse a minimal inline syntax: [label](/path) and **bold**. */
 function renderInline(text: string): ReactNode[] {
   const nodes: ReactNode[] = [];
