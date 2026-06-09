@@ -266,7 +266,7 @@ const TheRealWeekProject = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{ duration: 0.45, delay: Math.min(i * 0.06, 0.2) }}
-                  className="rounded-2xl border border-border bg-card p-7 shadow-sm"
+                  className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7"
                 >
                   <div className="flex items-center justify-between">
                     <span className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary">
@@ -274,8 +274,8 @@ const TheRealWeekProject = () => {
                     </span>
                     <span className="text-sm font-medium text-muted-foreground">{s.num}</span>
                   </div>
-                  <h3 className={`mt-7 text-xl ${headingClass}`}>{s.title}</h3>
-                  <p className="mt-3 text-base leading-relaxed text-muted-foreground">{s.text}</p>
+                  <h3 className={`mt-5 text-lg sm:text-xl sm:mt-7 ${headingClass}`}>{s.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:mt-3 sm:text-base">{s.text}</p>
                 </motion.div>
               ))}
             </div>
