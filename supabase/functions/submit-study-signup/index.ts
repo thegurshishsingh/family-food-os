@@ -132,7 +132,7 @@ Deno.serve(async (req) => {
         return new Response(
           JSON.stringify({ error: "rate_limited" }),
           {
-            status: 429,
+            status: 200,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           },
         );
