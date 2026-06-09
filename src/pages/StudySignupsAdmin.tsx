@@ -18,6 +18,7 @@ import { toast } from "sonner";
 
 type Signup = {
   id: string;
+  name: string | null;
   email: string;
   household_type: string | null;
   consent: boolean;
@@ -59,8 +60,9 @@ const StudySignupsAdmin = () => {
   };
 
   const exportCsv = () => {
-    const header = ["Email", "Household type", "Consent", "Submitted at"];
+    const header = ["Name", "Email", "Household size", "Consent", "Submitted at"];
     const rows = signups.map((s) => [
+      s.name ?? "",
       s.email,
       s.household_type ?? "",
       s.consent ? "Yes" : "No",
@@ -130,8 +132,9 @@ const StudySignupsAdmin = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Household type</TableHead>
+                  <TableHead>Household size</TableHead>
                   <TableHead>Consent</TableHead>
                   <TableHead>Submitted</TableHead>
                   <TableHead className="w-12" />
@@ -140,10 +143,12 @@ const StudySignupsAdmin = () => {
               <TableBody>
                 {signups.map((s) => (
                   <TableRow key={s.id}>
+                    <TableCell className="text-foreground">{s.name ?? "—"}</TableCell>
                     <TableCell className="font-medium text-foreground">{s.email}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {s.household_type ?? "—"}
                     </TableCell>
+
                     <TableCell className="text-muted-foreground">
                       {s.consent ? "Yes" : "No"}
                     </TableCell>

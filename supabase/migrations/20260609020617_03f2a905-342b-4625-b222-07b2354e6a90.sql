@@ -1,0 +1,1 @@
+ALTER TABLE public.study_signups ADD COLUMN IF NOT EXISTS name text;

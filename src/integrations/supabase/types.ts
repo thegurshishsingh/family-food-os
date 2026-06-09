@@ -714,6 +714,7 @@ export type Database = {
           email: string
           household_type: string | null
           id: string
+          name: string | null
         }
         Insert: {
           consent?: boolean
@@ -721,6 +722,7 @@ export type Database = {
           email: string
           household_type?: string | null
           id?: string
+          name?: string | null
         }
         Update: {
           consent?: boolean
@@ -728,6 +730,7 @@ export type Database = {
           email?: string
           household_type?: string | null
           id?: string
+          name?: string | null
         }
         Relationships: []
       }
