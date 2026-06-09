@@ -12,6 +12,14 @@ import {
   Soup,
   Clock,
   Star,
+  ChefHat,
+  Refrigerator,
+  Zap,
+  ShoppingBag,
+  Utensils,
+  CornerDownRight,
+  X,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ShowcaseStage } from "@/components/landing/primitives";
@@ -81,6 +89,20 @@ const SectionDivider = ({ tone, ordinal }: { tone: Tone; ordinal: number }) => {
       <span className="h-px flex-1 bg-gradient-to-r from-border/70 via-border/40 to-transparent" />
     </div>
   );
+};
+
+/** Icon per real-week mode, matched by label keyword. */
+const MODE_ICONS: { match: string; Icon: typeof ChefHat }[] = [
+  { match: "leftover", Icon: Refrigerator },
+  { match: "low-effort", Icon: Zap },
+  { match: "takeout", Icon: ShoppingBag },
+  { match: "dine-out", Icon: Utensils },
+  { match: "cook", Icon: ChefHat },
+];
+
+const modeIconFor = (label: string) => {
+  const l = label.toLowerCase();
+  return (MODE_ICONS.find((m) => l.includes(m.match)) ?? MODE_ICONS[MODE_ICONS.length - 1]).Icon;
 };
 
 /** Parse a minimal inline syntax: [label](/path) and **bold**. */
@@ -262,6 +284,103 @@ const GuideContent = ({ blocks, tone = "sage" }: { blocks: Block[]; tone?: Tone 
             return (
               <figure key={i} className="my-4">
                 <ShowcaseStage screen={Screen} tone={block.tone ?? "sage"} crop />
+                {block.caption && (
+                  <figcaption className="mt-3 text-center text-sm text-muted-foreground/80 italic">
+                    {block.caption}
+                  </figcaption>
+                )}
+              </figure>
+            );
+          }
+          case "modes": {
+            return (
+              <figure key={i} className="my-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {block.items.map((m, j) => {
+                    const Icon = modeIconFor(m.label);
+                    return (
+                      <div
+                        key={j}
+                        className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card/60 p-4"
+                      >
+                        <span
+                          className={cn(
+                            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border",
+                            sectionMedallionTone[m.tone],
+                          )}
+                        >
+                          <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                        </span>
+                        <div>
+                          <p className="font-serif font-semibold text-foreground leading-tight">
+                            {m.label}
+                          </p>
+                          <p className="mt-0.5 text-sm text-foreground/70 leading-snug">
+                            {m.desc}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {block.caption && (
+                  <figcaption className="mt-3 text-center text-sm text-muted-foreground/80 italic">
+                    {block.caption}
+                  </figcaption>
+                )}
+              </figure>
+            );
+          }
+          case "plannedActual": {
+            return (
+              <figure key={i} className="my-4">
+                <div className="overflow-hidden rounded-2xl border border-border/60 bg-card/60">
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-border/50 bg-muted/30 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span>Planned</span>
+                    <span aria-hidden="true" />
+                    <span>What actually happened</span>
+                  </div>
+                  {block.items.map((row, j) => {
+                    const isWin = row.outcome === "win";
+                    return (
+                      <div
+                        key={j}
+                        className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-border/40 px-4 py-3 last:border-b-0"
+                      >
+                        <span className="text-sm md:text-base text-foreground/80 leading-snug">
+                          {row.planned}
+                        </span>
+                        <CornerDownRight
+                          className="h-4 w-4 shrink-0 text-muted-foreground/50"
+                          aria-hidden="true"
+                        />
+                        <span className="flex items-center gap-2 text-sm md:text-base leading-snug">
+                          <span
+                            className={cn(
+                              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full",
+                              isWin
+                                ? "bg-primary/15 text-primary"
+                                : "bg-coral/15 text-coral",
+                            )}
+                          >
+                            {isWin ? (
+                              <Check className="h-3 w-3" strokeWidth={2.5} />
+                            ) : (
+                              <X className="h-3 w-3" strokeWidth={2.5} />
+                            )}
+                          </span>
+                          <span
+                            className={cn(
+                              isWin ? "font-medium text-foreground" : "text-foreground/80",
+                            )}
+                          >
+                            {row.actual}
+                          </span>
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
                 {block.caption && (
                   <figcaption className="mt-3 text-center text-sm text-muted-foreground/80 italic">
                     {block.caption}

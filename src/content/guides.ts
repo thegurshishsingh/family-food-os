@@ -34,6 +34,18 @@ export type Block =
   | { type: "stat"; items: { value: string; label: string }[] }
   | { type: "screen"; screen: ScreenKey; tone?: Tone; caption?: string }
   | {
+      /** Visual grid of the five real-week dinner modes. */
+      type: "modes";
+      items: { label: string; desc: string; tone: Tone }[];
+      caption?: string;
+    }
+  | {
+      /** Side-by-side "what you planned → what actually happened" visual. */
+      type: "plannedActual";
+      items: { planned: string; actual: string; outcome: "miss" | "win" }[];
+      caption?: string;
+    }
+  | {
       type: "cta";
       title: string;
       text: string;
@@ -222,11 +234,36 @@ export const GUIDES: Guide[] = [
         text: "For family routines, social plans, or a needed break — the standing pizza-Friday that keeps everyone sane.",
       },
       {
-        type: "screen",
-        screen: "weeklyPlan",
-        tone: "sage",
+        type: "modes",
         caption:
-          "A real week inside Family Food OS — cook, leftovers, takeout, and dine-out, all in one plan.",
+          "Five modes cover almost every real week — give each night a mode instead of a recipe.",
+        items: [
+          {
+            label: "Cook Night",
+            desc: "Time and energy to cook from scratch.",
+            tone: "sage",
+          },
+          {
+            label: "Leftover Night",
+            desc: "Cook once, eat twice — nothing wasted.",
+            tone: "sky",
+          },
+          {
+            label: "Low-Effort Night",
+            desc: "15-minute meals, no thinking required.",
+            tone: "amber",
+          },
+          {
+            label: "Takeout Night",
+            desc: "Planned convenience, not panic ordering.",
+            tone: "coral",
+          },
+          {
+            label: "Dine-Out Night",
+            desc: "Routines, social plans, or a needed break.",
+            tone: "sage",
+          },
+        ],
       },
       {
         type: "h2",
@@ -282,12 +319,13 @@ export const GUIDES: Guide[] = [
         text: "Most meal planning tools stop at what you intended to cook. Family Food OS pays attention to the difference between what was planned and what actually happened. That gap is where the useful information lives.",
       },
       {
-        type: "ul",
+        type: "plannedActual",
+        caption: "The gap between the plan and the night is where the useful information lives.",
         items: [
-          "Planned chicken bowls → ordered pizza",
-          "Planned curry → kids rejected it",
-          "Planned salmon → too tired to cook",
-          "Planned pasta → became the family favorite",
+          { planned: "Chicken bowls", actual: "Ordered pizza", outcome: "miss" },
+          { planned: "Curry", actual: "Kids rejected it", outcome: "miss" },
+          { planned: "Salmon", actual: "Too tired to cook", outcome: "miss" },
+          { planned: "Pasta", actual: "Became the family favorite", outcome: "win" },
         ],
       },
       {
