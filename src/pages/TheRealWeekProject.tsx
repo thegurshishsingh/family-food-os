@@ -331,17 +331,16 @@ const TheRealWeekProject = () => {
                 </div>
 
                 <div className="grid grid-cols-1 gap-x-10 gap-y-5 py-7 md:grid-cols-2">
-                  {[...REPORT_LEFT.map((t, i) => ({ t, side: "l", i })), ...REPORT_RIGHT.map((t, i) => ({ t, side: "r", i }))]
-                    .sort((a, b) => (a.i - b.i) || (a.side === "l" ? -1 : 1))
-                    .map(({ t, side, i }) => (
-                      <div key={`${side}-${i}`} className="flex items-center gap-3">
-                        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-secondary">
-                          <Check className="h-3.5 w-3.5 text-primary" />
-                        </span>
-                        <p className="text-base text-foreground/85">{t}</p>
-                      </div>
-                    ))}
+                  {REPORT_LEFT.flatMap((t, i) => [t, REPORT_RIGHT[i]]).map((t, idx) => (
+                    <div key={`${t}-${idx}`} className="flex items-center gap-3">
+                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-secondary">
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                      </span>
+                      <p className="text-base text-foreground/85">{t}</p>
+                    </div>
+                  ))}
                 </div>
+
 
                 <p className="border-t border-border pt-5 text-sm text-muted-foreground">
                   Sample preview — your report is generated from your own week.
