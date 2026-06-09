@@ -270,7 +270,9 @@ const GuideContent = ({ blocks, tone = "sage" }: { blocks: Block[]; tone?: Tone 
               </figure>
             );
           }
-          case "cta":
+          case "cta": {
+            const label = block.buttonLabel ?? "Start your first week — free";
+            const href = block.buttonHref ?? "/signup";
             return (
               <div
                 key={i}
@@ -287,12 +289,13 @@ const GuideContent = ({ blocks, tone = "sage" }: { blocks: Block[]; tone?: Tone 
                   className="rounded-xl bg-gradient-to-r from-primary to-sage-dark shadow-md hover:from-primary/90 hover:to-sage-dark/90"
                   asChild
                 >
-                  <Link to="/signup">
-                    Start your first week — free <ArrowRight className="ml-2 h-4 w-4" />
+                  <Link to={href}>
+                    {label} <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>
             );
+          }
           default:
             return null;
         }
