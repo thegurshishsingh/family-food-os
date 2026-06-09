@@ -234,11 +234,36 @@ export const GUIDES: Guide[] = [
         text: "For family routines, social plans, or a needed break — the standing pizza-Friday that keeps everyone sane.",
       },
       {
-        type: "screen",
-        screen: "weeklyPlan",
-        tone: "sage",
+        type: "modes",
         caption:
-          "A real week inside Family Food OS — cook, leftovers, takeout, and dine-out, all in one plan.",
+          "Five modes cover almost every real week — give each night a mode instead of a recipe.",
+        items: [
+          {
+            label: "Cook Night",
+            desc: "Time and energy to cook from scratch.",
+            tone: "sage",
+          },
+          {
+            label: "Leftover Night",
+            desc: "Cook once, eat twice — nothing wasted.",
+            tone: "sky",
+          },
+          {
+            label: "Low-Effort Night",
+            desc: "15-minute meals, no thinking required.",
+            tone: "amber",
+          },
+          {
+            label: "Takeout Night",
+            desc: "Planned convenience, not panic ordering.",
+            tone: "coral",
+          },
+          {
+            label: "Dine-Out Night",
+            desc: "Routines, social plans, or a needed break.",
+            tone: "sage",
+          },
+        ],
       },
       {
         type: "h2",
