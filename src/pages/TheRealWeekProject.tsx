@@ -319,15 +319,15 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* A peek at your report */}
-        <section className="px-4 py-20 md:py-24">
+        <section className="px-4 py-14 sm:py-20 md:py-24">
           <div className="container mx-auto max-w-6xl">
             <p className={`${eyebrow} text-primary`}>A peek at your report</p>
-            <h2 className={`mt-3 text-3xl md:text-4xl ${headingClass}`}>
+            <h2 className={`mt-3 text-2xl sm:text-3xl md:text-4xl ${headingClass}`}>
               Your Dinner Pattern Report may include:
             </h2>
 
-            <div className="mt-8 rounded-[1.5rem] bg-secondary/40 p-2 shadow-sm">
-              <div className="rounded-[1.25rem] border border-border bg-card p-7 md:p-9">
+            <div className="mt-6 rounded-[1.5rem] bg-secondary/40 p-2 shadow-sm sm:mt-8">
+              <div className="rounded-[1.25rem] border border-border bg-card p-5 sm:p-7 md:p-9">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-5">
                   <p className={`${eyebrow} text-foreground/70`}>Dinner Pattern Report</p>
                   <p className="text-sm text-muted-foreground">The Rivera Household · Week of Oct 14</p>
@@ -352,13 +352,13 @@ const TheRealWeekProject = () => {
             </div>
 
             {/* CTA after report preview */}
-            <div className="mt-12 text-center">
-              <h3 className={`text-2xl md:text-3xl ${headingClass}`}>
+            <div className="mt-10 text-center sm:mt-12">
+              <h3 className={`text-xl sm:text-2xl md:text-3xl ${headingClass}`}>
                 Ready to find your dinner pattern?
               </h3>
               <Button
                 size="lg"
-                className="mt-6 rounded-full bg-primary px-8 py-6 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
+                className="mt-5 h-14 w-full rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90 sm:mt-6 sm:h-auto sm:w-auto sm:py-6"
                 asChild
               >
                 <a href="#join">
@@ -370,10 +370,10 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* Who it's for */}
-        <section className="px-4 py-20 md:py-24">
+        <section className="px-4 py-14 sm:py-20 md:py-24">
           <div className="container mx-auto max-w-6xl">
             <p className={`${eyebrow} text-primary`}>Who it's for</p>
-            <h2 className={`mt-3 text-3xl md:text-4xl ${headingClass}`}>
+            <h2 className={`mt-3 text-2xl sm:text-3xl md:text-4xl ${headingClass}`}>
               This study is built for real households.
             </h2>
 
@@ -396,12 +396,12 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* Join the study */}
-        <section id="join" className="scroll-mt-24 bg-card px-4 py-20 md:py-28">
+        <section id="join" className="scroll-mt-24 bg-card px-4 py-14 sm:py-20 md:py-28">
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
               <div>
                 <p className={`${eyebrow} text-primary`}>Join the study</p>
-                <h2 className={`mt-3 text-4xl md:text-5xl ${headingClass}`}>
+                <h2 className={`mt-3 text-3xl sm:text-4xl md:text-5xl ${headingClass}`}>
                   Help us study the real week.
                 </h2>
                 <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
