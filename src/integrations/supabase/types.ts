@@ -707,6 +707,30 @@ export type Database = {
           },
         ]
       }
+      study_signups: {
+        Row: {
+          consent: boolean
+          created_at: string
+          email: string
+          household_type: string | null
+          id: string
+        }
+        Insert: {
+          consent?: boolean
+          created_at?: string
+          email: string
+          household_type?: string | null
+          id?: string
+        }
+        Update: {
+          consent?: boolean
+          created_at?: string
+          email?: string
+          household_type?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
