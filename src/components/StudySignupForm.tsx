@@ -128,6 +128,20 @@ const StudySignupForm = () => {
       onSubmit={handleSubmit}
       className="rounded-2xl border border-border/60 bg-card/70 p-6 md:p-8 text-left"
     >
+      {/* Honeypot field — hidden from real users, only bots fill it */}
+      <div className="absolute left-[-9999px] top-auto h-0 w-0 overflow-hidden" aria-hidden="true">
+        <label htmlFor="rwp-website">Leave this field empty</label>
+        <input
+          id="rwp-website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+        />
+      </div>
+
       <div className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="study-email">Email</Label>
