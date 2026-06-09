@@ -12,6 +12,14 @@ import {
   Soup,
   Clock,
   Star,
+  ChefHat,
+  Refrigerator,
+  Zap,
+  ShoppingBag,
+  Utensils,
+  CornerDownRight,
+  X,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ShowcaseStage } from "@/components/landing/primitives";
