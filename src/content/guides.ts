@@ -34,6 +34,18 @@ export type Block =
   | { type: "stat"; items: { value: string; label: string }[] }
   | { type: "screen"; screen: ScreenKey; tone?: Tone; caption?: string }
   | {
+      /** Visual grid of the five real-week dinner modes. */
+      type: "modes";
+      items: { label: string; desc: string; tone: Tone }[];
+      caption?: string;
+    }
+  | {
+      /** Side-by-side "what you planned → what actually happened" visual. */
+      type: "plannedActual";
+      items: { planned: string; actual: string; outcome: "miss" | "win" }[];
+      caption?: string;
+    }
+  | {
       type: "cta";
       title: string;
       text: string;
