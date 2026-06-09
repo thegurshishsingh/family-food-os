@@ -81,16 +81,20 @@ const StudySignupForm = () => {
     }
 
     setSubmitting(true);
-    const { error } = await supabase.from("study_signups").insert({
-      name: result.data.name || null,
-      email: result.data.email,
-      household_type: householdSize || null,
-      consent: true,
+    const { data, error } = await supabase.functions.invoke("submit-study-signup", {
+      body: {
+        name: result.data.name || null,
+        email: result.data.email,
+        household_type: householdSize || null,
+        consent: true,
+        website: honeypot,
+      },
     });
     setSubmitting(false);
 
-    if (error) {
-      if (error.message?.includes("rate_limited")) {
+    const errorPayload = (data as { error?: string } | null)?.error;
+    if (error || errorPayload) {
+      if (errorPayload === "rate_limited") {
         toast.error("This email was used recently. Please try again later.");
       } else {
         toast.error("Something went wrong. Please try again.");
