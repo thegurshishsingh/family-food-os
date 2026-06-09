@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.throttle_study_signups() FROM PUBLIC, anon, authenticated;
