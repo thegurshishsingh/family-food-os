@@ -33,7 +33,15 @@ export type Block =
   | { type: "quote"; text: string; attribution?: string }
   | { type: "stat"; items: { value: string; label: string }[] }
   | { type: "screen"; screen: ScreenKey; tone?: Tone; caption?: string }
-  | { type: "cta"; title: string; text: string };
+  | {
+      type: "cta";
+      title: string;
+      text: string;
+      /** Optional custom button label (defaults to the free-trial CTA). */
+      buttonLabel?: string;
+      /** Optional custom button href (defaults to /signup). */
+      buttonHref?: string;
+    };
 
 export type CategoryId =
   | "dinner-stress"
