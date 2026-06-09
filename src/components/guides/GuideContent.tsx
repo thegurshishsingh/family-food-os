@@ -389,6 +389,7 @@ const GuideContent = ({ blocks, tone = "sage" }: { blocks: Block[]; tone?: Tone 
               </figure>
             );
           }
+          case "cta": {
             const label = block.buttonLabel ?? "Start your first week — free";
             const href = block.buttonHref ?? "/signup";
             return (
