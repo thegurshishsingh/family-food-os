@@ -129,7 +129,7 @@ const TheRealWeekProject = () => {
 
       <main id="main-content">
         {/* Hero */}
-        <section className="px-4 pt-24 pb-16 md:pt-28 md:pb-20">
+        <section className="px-4 pt-20 pb-12 sm:pt-24 sm:pb-16 md:pt-28 md:pb-20">
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
               <motion.div
@@ -141,26 +141,26 @@ const TheRealWeekProject = () => {
                   <span className="h-1.5 w-1.5 rounded-full bg-accent" /> A 7-Day Family Dinner Study
                 </span>
 
-                <h1 className={`mt-6 text-5xl leading-[1.02] md:text-6xl ${headingClass}`}>
+                <h1 className={`mt-5 text-4xl leading-[1.05] sm:text-5xl sm:leading-[1.02] md:text-6xl ${headingClass}`}>
                   Track one real dinner week.
                 </h1>
 
-                <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg sm:mt-6">
                   Get a personalized <strong className="font-semibold text-foreground">Dinner Pattern Report</strong>{" "}
                   showing what's working, what's breaking, and how to make next week easier.
                 </p>
 
-                <div className="mt-7 flex flex-wrap items-center gap-4">
+                <div className="mt-6 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
                   <Button
                     size="lg"
-                    className="rounded-full bg-primary px-7 py-6 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
+                    className="h-14 w-full rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90 sm:h-auto sm:w-auto sm:py-6"
                     asChild
                   >
                     <a href="#join">
                       Find my Dinner Pattern <ArrowRight className="ml-2 h-4 w-4" />
                     </a>
                   </Button>
-                  <span className="text-sm text-muted-foreground">Free · 7 days · 3 minutes a day</span>
+                  <span className="text-center text-sm text-muted-foreground sm:text-left">Free · 7 days · 3 minutes a day</span>
                 </div>
 
                 <p className="mt-3 text-sm text-muted-foreground">
@@ -168,7 +168,7 @@ const TheRealWeekProject = () => {
                 </p>
 
                 {/* Example insight */}
-                <div className="mt-8 max-w-md rounded-2xl border border-border bg-card p-5">
+                <div className="mt-6 max-w-md rounded-2xl border border-border bg-card p-4 sm:mt-8 sm:p-5">
                   <p className={`flex items-center gap-2 ${eyebrow} text-foreground/70`}>
                     <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Example Insight
                   </p>
@@ -178,7 +178,7 @@ const TheRealWeekProject = () => {
                 </div>
 
                 {/* Gift badge */}
-                <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-border bg-warm-light px-4 py-2 text-sm text-foreground/80">
+                <div className="mt-4 flex flex-wrap items-center gap-2 rounded-full border border-border bg-warm-light px-3 py-2 text-xs text-foreground/80 sm:mt-5 sm:px-4 sm:text-sm">
                   <span>🎁</span>
                   <span>Complete all 7 days for a chance to win one of five $25 grocery gift cards.</span>
                 </div>
@@ -234,10 +234,10 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* What we're studying */}
-        <section className="bg-card px-4 py-20 md:py-28">
+        <section className="bg-card px-4 py-14 sm:py-20 md:py-28">
           <div className="container mx-auto max-w-3xl text-center">
             <p className={`${eyebrow} text-primary`}>What we're studying</p>
-            <h2 className={`mx-auto mt-5 max-w-2xl text-3xl leading-tight md:text-[2.6rem] ${headingClass}`}>
+            <h2 className={`mx-auto mt-5 max-w-2xl text-2xl leading-tight sm:text-3xl md:text-[2.6rem] ${headingClass}`}>
               We're studying the gap between the dinner you planned and the dinner that actually happened.
             </h2>
             <div className="mt-8 space-y-3">
@@ -251,10 +251,10 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* What you'll do */}
-        <section className="px-4 py-20 md:py-24">
+        <section className="px-4 py-14 sm:py-20 md:py-24">
           <div className="container mx-auto max-w-6xl">
             <p className={`${eyebrow} text-primary`}>What you'll do</p>
-            <h2 className={`mt-3 text-3xl md:text-4xl ${headingClass}`}>
+            <h2 className={`mt-3 text-2xl sm:text-3xl md:text-4xl ${headingClass}`}>
               Three small steps. One real week.
             </h2>
 
@@ -266,7 +266,7 @@ const TheRealWeekProject = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{ duration: 0.45, delay: Math.min(i * 0.06, 0.2) }}
-                  className="rounded-2xl border border-border bg-card p-7 shadow-sm"
+                  className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7"
                 >
                   <div className="flex items-center justify-between">
                     <span className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary">
@@ -274,8 +274,8 @@ const TheRealWeekProject = () => {
                     </span>
                     <span className="text-sm font-medium text-muted-foreground">{s.num}</span>
                   </div>
-                  <h3 className={`mt-7 text-xl ${headingClass}`}>{s.title}</h3>
-                  <p className="mt-3 text-base leading-relaxed text-muted-foreground">{s.text}</p>
+                  <h3 className={`mt-5 text-lg sm:text-xl sm:mt-7 ${headingClass}`}>{s.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:mt-3 sm:text-base">{s.text}</p>
                 </motion.div>
               ))}
             </div>
@@ -283,12 +283,12 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* What you get back (dark green) */}
-        <section className="bg-primary px-4 py-20 text-primary-foreground md:py-28">
+        <section className="bg-primary px-4 py-14 text-primary-foreground sm:py-20 md:py-28">
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
               <div>
                 <p className={`${eyebrow} text-accent`}>What you get back</p>
-                <h2 className={`mt-5 text-3xl leading-tight md:text-[2.6rem] font-sans font-bold tracking-tight text-primary-foreground`}>
+                <h2 className={`mt-5 text-2xl leading-tight sm:text-3xl md:text-[2.6rem] font-sans font-bold tracking-tight text-primary-foreground`}>
                   Your personalized Dinner Pattern Report.
                 </h2>
                 <p className="mt-5 max-w-md text-lg leading-relaxed text-primary-foreground/75">
@@ -319,15 +319,15 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* A peek at your report */}
-        <section className="px-4 py-20 md:py-24">
+        <section className="px-4 py-14 sm:py-20 md:py-24">
           <div className="container mx-auto max-w-6xl">
             <p className={`${eyebrow} text-primary`}>A peek at your report</p>
-            <h2 className={`mt-3 text-3xl md:text-4xl ${headingClass}`}>
+            <h2 className={`mt-3 text-2xl sm:text-3xl md:text-4xl ${headingClass}`}>
               Your Dinner Pattern Report may include:
             </h2>
 
-            <div className="mt-8 rounded-[1.5rem] bg-secondary/40 p-2 shadow-sm">
-              <div className="rounded-[1.25rem] border border-border bg-card p-7 md:p-9">
+            <div className="mt-6 rounded-[1.5rem] bg-secondary/40 p-2 shadow-sm sm:mt-8">
+              <div className="rounded-[1.25rem] border border-border bg-card p-5 sm:p-7 md:p-9">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-5">
                   <p className={`${eyebrow} text-foreground/70`}>Dinner Pattern Report</p>
                   <p className="text-sm text-muted-foreground">The Rivera Household · Week of Oct 14</p>
@@ -352,13 +352,13 @@ const TheRealWeekProject = () => {
             </div>
 
             {/* CTA after report preview */}
-            <div className="mt-12 text-center">
-              <h3 className={`text-2xl md:text-3xl ${headingClass}`}>
+            <div className="mt-10 text-center sm:mt-12">
+              <h3 className={`text-xl sm:text-2xl md:text-3xl ${headingClass}`}>
                 Ready to find your dinner pattern?
               </h3>
               <Button
                 size="lg"
-                className="mt-6 rounded-full bg-primary px-8 py-6 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
+                className="mt-5 h-14 w-full rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90 sm:mt-6 sm:h-auto sm:w-auto sm:py-6"
                 asChild
               >
                 <a href="#join">
@@ -370,10 +370,10 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* Who it's for */}
-        <section className="px-4 py-20 md:py-24">
+        <section className="px-4 py-14 sm:py-20 md:py-24">
           <div className="container mx-auto max-w-6xl">
             <p className={`${eyebrow} text-primary`}>Who it's for</p>
-            <h2 className={`mt-3 text-3xl md:text-4xl ${headingClass}`}>
+            <h2 className={`mt-3 text-2xl sm:text-3xl md:text-4xl ${headingClass}`}>
               This study is built for real households.
             </h2>
 
@@ -385,7 +385,7 @@ const TheRealWeekProject = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{ duration: 0.4, delay: Math.min(i * 0.05, 0.2) }}
-                  className="flex items-start gap-4 rounded-2xl border border-border bg-card px-6 py-5 shadow-sm"
+                  className="flex items-start gap-4 rounded-2xl border border-border bg-card px-5 py-4 shadow-sm sm:px-6 sm:py-5"
                 >
                   <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
                   <p className="text-base leading-relaxed text-foreground/85">{item}</p>
@@ -396,12 +396,12 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* Join the study */}
-        <section id="join" className="scroll-mt-24 bg-card px-4 py-20 md:py-28">
+        <section id="join" className="scroll-mt-24 bg-card px-4 py-14 sm:py-20 md:py-28">
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
               <div>
                 <p className={`${eyebrow} text-primary`}>Join the study</p>
-                <h2 className={`mt-3 text-4xl md:text-5xl ${headingClass}`}>
+                <h2 className={`mt-3 text-3xl sm:text-4xl md:text-5xl ${headingClass}`}>
                   Help us study the real week.
                 </h2>
                 <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">

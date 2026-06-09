@@ -107,7 +107,7 @@ const StudySignupForm = () => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-3xl border border-border/60 bg-card p-8 text-center shadow-sm"
+        className="rounded-3xl border border-border/60 bg-card p-6 text-center shadow-sm sm:p-8"
       >
         <CheckCircle2 className="mx-auto h-10 w-10 text-primary" />
         <h3 className="mt-4 font-sans text-xl font-bold tracking-tight text-foreground">
@@ -123,7 +123,7 @@ const StudySignupForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="relative rounded-3xl border border-border/60 bg-card p-7 md:p-8 text-left shadow-sm"
+      className="relative rounded-3xl border border-border/60 bg-card p-5 text-left shadow-sm sm:p-7 md:p-8"
     >
       {/* Honeypot field — hidden from real users, only bots fill it */}
       <div className="absolute left-[-9999px] top-auto h-0 w-0 overflow-hidden" aria-hidden="true">
@@ -196,7 +196,7 @@ const StudySignupForm = () => {
           type="submit"
           size="lg"
           disabled={submitting}
-          className="h-13 w-full rounded-full bg-primary py-6 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
+          className="h-14 w-full rounded-full bg-primary py-6 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
         >
           {submitting ? (
             <>
