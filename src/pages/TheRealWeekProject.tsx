@@ -129,7 +129,7 @@ const TheRealWeekProject = () => {
 
       <main id="main-content">
         {/* Hero */}
-        <section className="px-4 pt-24 pb-16 md:pt-28 md:pb-20">
+        <section className="px-4 pt-20 pb-12 sm:pt-24 sm:pb-16 md:pt-28 md:pb-20">
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
               <motion.div
@@ -141,26 +141,26 @@ const TheRealWeekProject = () => {
                   <span className="h-1.5 w-1.5 rounded-full bg-accent" /> A 7-Day Family Dinner Study
                 </span>
 
-                <h1 className={`mt-6 text-5xl leading-[1.02] md:text-6xl ${headingClass}`}>
+                <h1 className={`mt-5 text-4xl leading-[1.05] sm:text-5xl sm:leading-[1.02] md:text-6xl ${headingClass}`}>
                   Track one real dinner week.
                 </h1>
 
-                <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg sm:mt-6">
                   Get a personalized <strong className="font-semibold text-foreground">Dinner Pattern Report</strong>{" "}
                   showing what's working, what's breaking, and how to make next week easier.
                 </p>
 
-                <div className="mt-7 flex flex-wrap items-center gap-4">
+                <div className="mt-6 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
                   <Button
                     size="lg"
-                    className="rounded-full bg-primary px-7 py-6 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
+                    className="h-14 w-full rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90 sm:h-auto sm:w-auto sm:py-6"
                     asChild
                   >
                     <a href="#join">
                       Find my Dinner Pattern <ArrowRight className="ml-2 h-4 w-4" />
                     </a>
                   </Button>
-                  <span className="text-sm text-muted-foreground">Free · 7 days · 3 minutes a day</span>
+                  <span className="text-center text-sm text-muted-foreground sm:text-left">Free · 7 days · 3 minutes a day</span>
                 </div>
 
                 <p className="mt-3 text-sm text-muted-foreground">
@@ -168,7 +168,7 @@ const TheRealWeekProject = () => {
                 </p>
 
                 {/* Example insight */}
-                <div className="mt-8 max-w-md rounded-2xl border border-border bg-card p-5">
+                <div className="mt-6 max-w-md rounded-2xl border border-border bg-card p-4 sm:mt-8 sm:p-5">
                   <p className={`flex items-center gap-2 ${eyebrow} text-foreground/70`}>
                     <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Example Insight
                   </p>
@@ -178,7 +178,7 @@ const TheRealWeekProject = () => {
                 </div>
 
                 {/* Gift badge */}
-                <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-border bg-warm-light px-4 py-2 text-sm text-foreground/80">
+                <div className="mt-4 flex flex-wrap items-center gap-2 rounded-full border border-border bg-warm-light px-3 py-2 text-xs text-foreground/80 sm:mt-5 sm:px-4 sm:text-sm">
                   <span>🎁</span>
                   <span>Complete all 7 days for a chance to win one of five $25 grocery gift cards.</span>
                 </div>
