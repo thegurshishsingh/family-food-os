@@ -15,6 +15,7 @@ import LandingHeader from "@/components/landing/LandingHeader";
 import GuidesFooter from "@/components/guides/GuidesFooter";
 import { IconTile, ShowcaseStage } from "@/components/landing/primitives";
 import { InsightsScreen, WeeklyPlanScreen } from "@/components/landing/screens";
+import StudySignupForm from "@/components/StudySignupForm";
 import { OG_IMAGE, SITE_URL } from "@/content/guides";
 
 const FINDINGS = [
@@ -319,27 +320,23 @@ const TheRealWeekProject = () => {
           </div>
         </section>
 
-        {/* CTA */}
+        {/* CTA + signup form */}
         <section className="px-4 pt-14 md:pt-20">
           <div className="container mx-auto max-w-3xl">
-            <div className="overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] via-sage/[0.05] to-background p-8 md:p-10 text-center">
-              <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
-                Join The Real Week Project
-              </h2>
-              <p className="mx-auto mt-3 max-w-md text-base text-muted-foreground leading-relaxed">
-                Plan a few real weeks with Family Food OS and contribute to the study — while
-                building a dinner rhythm that finally fits your life.
-              </p>
-              <Button
-                size="lg"
-                className="mt-6 rounded-xl bg-gradient-to-r from-primary to-sage-dark px-8 shadow-md hover:from-primary/90 hover:to-sage-dark/90"
-                asChild
-              >
-                <Link to="/signup">
-                  Start your first week — free <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <p className="mt-3 text-xs text-muted-foreground/60">
+            <div className="overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] via-sage/[0.05] to-background p-8 md:p-10">
+              <div className="text-center">
+                <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
+                  Join The Real Week Project
+                </h2>
+                <p className="mx-auto mt-3 max-w-md text-base text-muted-foreground leading-relaxed">
+                  Add your email and household type to contribute to the study — and help us build a
+                  dinner system that fits real family life.
+                </p>
+              </div>
+              <div className="mx-auto mt-7 max-w-md">
+                <StudySignupForm />
+              </div>
+              <p className="mt-4 text-center text-xs text-muted-foreground/60">
                 No credit card required. Your data is never sold.
               </p>
             </div>
