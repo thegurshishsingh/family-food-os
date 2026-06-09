@@ -18,6 +18,7 @@ import { toast } from "sonner";
 
 type Signup = {
   id: string;
+  name: string | null;
   email: string;
   household_type: string | null;
   consent: boolean;
