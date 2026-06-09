@@ -126,7 +126,7 @@ const StudySignupForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-border/60 bg-card/70 p-6 md:p-8 text-left"
+      className="relative rounded-2xl border border-border/60 bg-card/70 p-6 md:p-8 text-left"
     >
       {/* Honeypot field — hidden from real users, only bots fill it */}
       <div className="absolute left-[-9999px] top-auto h-0 w-0 overflow-hidden" aria-hidden="true">
