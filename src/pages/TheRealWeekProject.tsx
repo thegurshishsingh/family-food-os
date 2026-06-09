@@ -385,7 +385,7 @@ const TheRealWeekProject = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{ duration: 0.4, delay: Math.min(i * 0.05, 0.2) }}
-                  className="flex items-start gap-4 rounded-2xl border border-border bg-card px-6 py-5 shadow-sm"
+                  className="flex items-start gap-4 rounded-2xl border border-border bg-card px-5 py-4 shadow-sm sm:px-6 sm:py-5"
                 >
                   <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
                   <p className="text-base leading-relaxed text-foreground/85">{item}</p>
