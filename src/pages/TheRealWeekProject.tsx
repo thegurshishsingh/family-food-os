@@ -163,12 +163,12 @@ const TheRealWeekProject = () => {
                   <span className="text-center text-sm text-muted-foreground sm:text-left">Free · 7 days · 3 minutes a day</span>
                 </div>
 
-                <p className="mt-3 text-sm text-muted-foreground">
+                <p className="mt-4 text-sm text-muted-foreground">
                   Private household info stays private.
                 </p>
 
                 {/* Example insight */}
-                <div className="mt-6 max-w-md rounded-2xl border border-border bg-card p-4 sm:mt-8 sm:p-5">
+                <div className="mt-7 max-w-md rounded-2xl border border-border bg-card p-4 sm:mt-8 sm:p-5">
                   <p className={`flex items-center gap-2 ${eyebrow} text-foreground/70`}>
                     <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Example Insight
                   </p>
@@ -178,13 +178,13 @@ const TheRealWeekProject = () => {
                 </div>
 
                 {/* Gift badge */}
-                <div className="mt-4 flex flex-wrap items-center gap-2 rounded-full border border-border bg-warm-light px-3 py-2 text-xs text-foreground/80 sm:mt-5 sm:px-4 sm:text-sm">
+                <div className="mt-5 flex flex-wrap items-center gap-2 rounded-full border border-border bg-warm-light px-3 py-2 text-xs text-foreground/80 sm:mt-5 sm:px-4 sm:text-sm">
                   <span>🎁</span>
                   <span>Complete all 7 days for a chance to win one of five $25 grocery gift cards.</span>
                 </div>
 
                 {/* Social proof */}
-                <div className="mt-5 flex max-w-md items-center gap-3">
+                <div className="mt-6 flex max-w-md items-center gap-3 sm:mt-5">
                   <div className="flex -space-x-2">
                     <span className="h-6 w-6 rounded-full border-2 border-background bg-accent" />
                     <span className="h-6 w-6 rounded-full border-2 border-background bg-sage" />
@@ -201,7 +201,7 @@ const TheRealWeekProject = () => {
                 initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="relative"
+                className="relative mt-8 sm:mt-0"
               >
                 <div className="overflow-hidden rounded-[1.75rem] border border-border/60 shadow-xl">
                   <img
@@ -237,10 +237,10 @@ const TheRealWeekProject = () => {
         <section className="bg-card px-4 py-14 sm:py-20 md:py-28">
           <div className="container mx-auto max-w-3xl text-center">
             <p className={`${eyebrow} text-primary`}>What we're studying</p>
-            <h2 className={`mx-auto mt-5 max-w-2xl text-2xl leading-tight sm:text-3xl md:text-[2.6rem] ${headingClass}`}>
+            <h2 className={`mx-auto mt-6 max-w-2xl text-2xl leading-tight sm:text-3xl md:text-[2.6rem] ${headingClass}`}>
               We're studying the gap between the dinner you planned and the dinner that actually happened.
             </h2>
-            <div className="mt-8 space-y-3">
+            <div className="mt-8 space-y-4 sm:space-y-3">
               {STUDYING.map((line) => (
                 <p key={line} className="text-lg text-muted-foreground">
                   {line}
@@ -285,7 +285,7 @@ const TheRealWeekProject = () => {
         {/* What you get back (dark green) */}
         <section className="bg-primary px-4 py-14 text-primary-foreground sm:py-20 md:py-28">
           <div className="container mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-12">
               <div>
                 <p className={`${eyebrow} text-accent`}>What you get back</p>
                 <h2 className={`mt-5 text-2xl leading-tight sm:text-3xl md:text-[2.6rem] font-sans font-bold tracking-tight text-primary-foreground`}>
@@ -297,7 +297,7 @@ const TheRealWeekProject = () => {
                 </p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {GET_BACK.map((item, i) => (
                   <motion.div
                     key={item}
@@ -333,7 +333,7 @@ const TheRealWeekProject = () => {
                   <p className="text-sm text-muted-foreground">The Rivera Household · Week of Oct 14</p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-x-10 gap-y-5 py-7 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-x-10 gap-y-6 py-7 md:grid-cols-2">
                   {REPORT_LEFT.flatMap((t, i) => [t, REPORT_RIGHT[i]]).map((t, idx) => (
                     <div key={`${t}-${idx}`} className="flex items-center gap-3">
                       <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-secondary">
@@ -352,13 +352,13 @@ const TheRealWeekProject = () => {
             </div>
 
             {/* CTA after report preview */}
-            <div className="mt-10 text-center sm:mt-12">
+            <div className="mt-12 text-center sm:mt-12">
               <h3 className={`text-xl sm:text-2xl md:text-3xl ${headingClass}`}>
                 Ready to find your dinner pattern?
               </h3>
               <Button
                 size="lg"
-                className="mt-5 h-14 w-full rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90 sm:mt-6 sm:h-auto sm:w-auto sm:py-6"
+                className="mt-6 h-14 w-full rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90 sm:mt-6 sm:h-auto sm:w-auto sm:py-6"
                 asChild
               >
                 <a href="#join">
@@ -377,7 +377,7 @@ const TheRealWeekProject = () => {
               This study is built for real households.
             </h2>
 
-            <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
               {WHO.map((item, i) => (
                 <motion.div
                   key={item}
@@ -398,7 +398,7 @@ const TheRealWeekProject = () => {
         {/* Join the study */}
         <section id="join" className="scroll-mt-24 bg-card px-4 py-14 sm:py-20 md:py-28">
           <div className="container mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-12">
               <div>
                 <p className={`${eyebrow} text-primary`}>Join the study</p>
                 <h2 className={`mt-3 text-3xl sm:text-4xl md:text-5xl ${headingClass}`}>
