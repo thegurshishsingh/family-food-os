@@ -1,49 +1,69 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  BarChart3,
-  ChevronRight,
-  ClipboardList,
-  Flame,
-  Lightbulb,
-  Users,
-} from "lucide-react";
+import { ArrowRight, Check, ClipboardList, LineChart, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingHeader from "@/components/landing/LandingHeader";
 import GuidesFooter from "@/components/guides/GuidesFooter";
-import { IconTile, ShowcaseStage } from "@/components/landing/primitives";
-import { InsightsScreen, WeeklyPlanScreen } from "@/components/landing/screens";
 import StudySignupForm from "@/components/StudySignupForm";
 import { OG_IMAGE, SITE_URL } from "@/content/guides";
+import familyDinner from "@/assets/real-week-family-dinner.jpg";
 
-const FINDINGS = [
+const STUDYING = [
+  "Meals that changed.",
+  "Groceries that went unused.",
+  "Nights when takeout won.",
+  "Patterns your family can use next week.",
+];
+
+const STEPS = [
   {
-    icon: Flame,
-    gradient: "from-coral to-accent",
-    title: "Wednesday is the breaking point",
-    text: "Across surveyed families, Wednesday consistently emerges as the night dinner plans collapse — not from lack of effort, but from cumulative weekday fatigue meeting an unrealistic cook-from-scratch expectation.",
-  },
-  {
-    icon: Users,
-    gradient: "from-primary to-sage-dark",
-    title: "Families rotate 8–12 meals",
-    text: "Despite access to thousands of recipes, most households return to the same small set of trusted meals. New recipes are tried rarely; familiarity and speed drive repetition.",
-  },
-  {
+    num: "01",
     icon: ClipboardList,
-    gradient: "from-sky to-primary",
-    title: "The grocery-to-table gap is ~30%",
-    text: "On average, nearly a third of planned groceries never become dinner. The primary causes: over-ambitious cook nights, unplanned schedule changes, and ingredients bought without a realistic night assigned.",
+    title: "Tell us about your week",
+    text: "A 5-minute intake about your household, schedule, and how dinner usually goes.",
   },
   {
-    icon: Lightbulb,
-    gradient: "from-accent to-warm",
-    title: "Planned takeout outperforms guilt takeout",
-    text: "Families who schedule one or two takeout nights in advance report significantly lower stress and less food waste than families who treat takeout as a failure mode.",
+    num: "02",
+    icon: UtensilsCrossed,
+    title: "Log dinners for 7 days",
+    text: "A quick daily check-in. What you planned, what actually happened, and why.",
+  },
+  {
+    num: "03",
+    icon: LineChart,
+    title: "Receive your Dinner Pattern Report",
+    text: "A personalized read of your week — the patterns, the friction, and the wins.",
   },
 ];
+
+const GET_BACK = [
+  "Where your plans matched reality — and where they didn't",
+  "The groceries that quietly went unused",
+  "The nights and triggers that lead to takeout",
+  "The recurring wins worth keeping in rotation",
+];
+
+const REPORT_LEFT = [
+  "Your highest-stress dinner night",
+  "What led to takeout",
+  "Recurring meals worth keeping",
+];
+const REPORT_RIGHT = [
+  "How often planned meals changed",
+  "Groceries that went unused",
+  "One recommendation for next week",
+];
+
+const WHO = [
+  "You cook most weeknights — and it's harder than it should be",
+  "Your week has mixed schedules, kid activities, or shift work",
+  "You're tired of decision fatigue at 5pm",
+  "You want a system, not another recipe app",
+];
+
+const eyebrow = "text-xs font-semibold uppercase tracking-[0.18em]";
+const headingClass = "font-sans font-bold tracking-tight text-foreground";
 
 const TheRealWeekProject = () => {
   const canonical = `${SITE_URL}/real-week-project`;
@@ -53,7 +73,7 @@ const TheRealWeekProject = () => {
     "@type": "Article",
     headline: "The Real Week Project by Family Food OS",
     description:
-      "An ongoing study of how real families actually eat dinner — and why most plans break by Wednesday. Research, findings, and a better way to plan.",
+      "A 7-day family dinner study. Track one real dinner week and get a personalized Dinner Pattern Report showing what's working, what's breaking, and how to make next week easier.",
     image: [OG_IMAGE],
     datePublished: "2026-06-09",
     dateModified: "2026-06-09",
@@ -82,7 +102,7 @@ const TheRealWeekProject = () => {
         <title>The Real Week Project | Family Food OS</title>
         <meta
           name="description"
-          content="An ongoing study of how real families actually eat dinner — and why most plans break by Wednesday. Research, findings, and a better way to plan."
+          content="A 7-day family dinner study. Track one real dinner week and get a personalized Dinner Pattern Report showing what's working, what's breaking, and how to make next week easier."
         />
         <link rel="canonical" href={canonical} />
         <meta property="og:type" content="article" />
@@ -90,7 +110,7 @@ const TheRealWeekProject = () => {
         <meta property="og:title" content="The Real Week Project | Family Food OS" />
         <meta
           property="og:description"
-          content="An ongoing study of how real families actually eat dinner — and why most plans break by Wednesday."
+          content="Track one real dinner week and get a personalized Dinner Pattern Report."
         />
         <meta property="og:url" content={canonical} />
         <meta property="og:image" content={OG_IMAGE} />
@@ -98,7 +118,7 @@ const TheRealWeekProject = () => {
         <meta name="twitter:title" content="The Real Week Project | Family Food OS" />
         <meta
           name="twitter:description"
-          content="An ongoing study of how real families actually eat dinner — and why most plans break by Wednesday."
+          content="Track one real dinner week and get a personalized Dinner Pattern Report."
         />
         <meta name="twitter:image" content={OG_IMAGE} />
         <script type="application/ld+json">{JSON.stringify(articleSchema)}</script>
@@ -109,289 +129,272 @@ const TheRealWeekProject = () => {
 
       <main id="main-content">
         {/* Hero */}
-        <section className="relative overflow-hidden px-4 pt-20 pb-10 md:pt-28 md:pb-14">
-          <div className="absolute inset-0 -z-10 gradient-mesh" aria-hidden="true" />
-          <div className="container mx-auto max-w-5xl">
-            <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Link to="/" className="transition-colors hover:text-primary">Home</Link>
-              <ChevronRight className="h-3 w-3" />
-              <span className="text-foreground/70">The Real Week Project</span>
-            </nav>
-
-            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+        <section className="px-4 pt-24 pb-16 md:pt-28 md:pb-20">
+          <div className="container mx-auto max-w-6xl">
+            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/70 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
-                  <BarChart3 className="h-3.5 w-3.5" /> Research Initiative
+                <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/80">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" /> A 7-Day Family Dinner Study
                 </span>
-                <h1 className="mt-5 font-serif text-4xl md:text-6xl font-semibold leading-[1.05] tracking-tight text-foreground">
-                  The Real Week Project
+
+                <h1 className={`mt-6 text-5xl leading-[1.02] md:text-6xl ${headingClass}`}>
+                  Track one real dinner week.
                 </h1>
-                <p className="mt-2 text-lg md:text-xl text-muted-foreground">
-                  by Family Food OS
+
+                <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+                  Get a personalized <strong className="font-semibold text-foreground">Dinner Pattern Report</strong>{" "}
+                  showing what's working, what's breaking, and how to make next week easier.
                 </p>
-                <p className="mt-5 max-w-xl text-base md:text-lg leading-relaxed text-muted-foreground">
-                  An ongoing study of how real families actually eat dinner. We look at where plans
-                  break, what gets repeated, what gets wasted — and how to build a dinner system
-                  that learns from the week you really live.
-                </p>
-                <div className="mt-7 flex flex-wrap items-center gap-3">
+
+                <div className="mt-7 flex flex-wrap items-center gap-4">
                   <Button
                     size="lg"
-                    className="rounded-xl bg-gradient-to-r from-primary to-sage-dark px-7 shadow-md hover:from-primary/90 hover:to-sage-dark/90"
+                    className="rounded-full bg-primary px-7 py-6 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
                     asChild
                   >
-                    <Link to="/signup">
-                      Join the study — free <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
+                    <a href="#join">
+                      Find my Dinner Pattern <ArrowRight className="ml-2 h-4 w-4" />
+                    </a>
                   </Button>
-                  <Button variant="ghost" size="lg" className="rounded-xl" asChild>
-                    <Link to="/guides">Browse the guides</Link>
-                  </Button>
+                  <span className="text-sm text-muted-foreground">Free · 7 days · 3 minutes a day</span>
+                </div>
+
+                {/* Example insight */}
+                <div className="mt-8 max-w-md rounded-2xl border border-border bg-card p-5">
+                  <p className={`flex items-center gap-2 ${eyebrow} text-foreground/70`}>
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent" /> Example Insight
+                  </p>
+                  <p className="mt-2 text-base leading-relaxed text-foreground/80">
+                    "Wednesdays are your highest-stress dinner night. Plan leftovers or 20-minute meals."
+                  </p>
+                </div>
+
+                {/* Gift banner */}
+                <div className="mt-4 max-w-md rounded-2xl bg-warm-light px-5 py-4">
+                  <p className="text-sm leading-relaxed text-foreground/80">
+                    🎁 Complete the study for a chance to win one of five $25 grocery gift cards.
+                  </p>
+                </div>
+
+                {/* Social proof */}
+                <div className="mt-5 flex max-w-md items-center gap-3">
+                  <div className="flex -space-x-2">
+                    <span className="h-6 w-6 rounded-full border-2 border-background bg-accent" />
+                    <span className="h-6 w-6 rounded-full border-2 border-background bg-sage" />
+                    <span className="h-6 w-6 rounded-full border-2 border-background bg-primary" />
+                  </div>
+                  <p className="text-sm leading-snug text-muted-foreground">
+                    Families are joining this week. Spots are limited so every household gets a real report.
+                  </p>
                 </div>
               </motion.div>
 
-              <div>
-                <ShowcaseStage screen={WeeklyPlanScreen} tone="sage" />
-              </div>
+              {/* Hero image with floating badges */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="relative"
+              >
+                <div className="overflow-hidden rounded-[1.75rem] border border-border/60 shadow-xl">
+                  <img
+                    src={familyDinner}
+                    alt="A family sharing a pasta dinner together in a warm sage-green kitchen"
+                    width={1024}
+                    height={1216}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+
+                {/* Top-right pill */}
+                <div className="absolute -top-3 right-4 flex items-center gap-2 rounded-full bg-card px-4 py-2 text-sm font-medium text-foreground shadow-lg">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" /> 3 min a day
+                </div>
+
+                {/* Bottom-left report card */}
+                <div className="absolute -bottom-4 left-4 flex items-center gap-3 rounded-2xl bg-card px-4 py-3 shadow-lg">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary">
+                    <Check className="h-4 w-4 text-primary" />
+                  </span>
+                  <div className="leading-tight">
+                    <p className={`${eyebrow} text-foreground/60`}>Your Report</p>
+                    <p className="text-sm font-semibold text-foreground">5 patterns found</p>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </section>
 
-        {/* What is the project */}
-        <section className="px-4 pt-8 md:pt-12">
-          <div className="container mx-auto max-w-2xl">
-            <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
-              What is The Real Week Project?
+        {/* What we're studying */}
+        <section className="bg-card px-4 py-20 md:py-28">
+          <div className="container mx-auto max-w-3xl text-center">
+            <p className={`${eyebrow} text-primary`}>What we're studying</p>
+            <h2 className={`mx-auto mt-5 max-w-2xl text-3xl leading-tight md:text-[2.6rem] ${headingClass}`}>
+              We're studying the gap between the dinner you planned and the dinner that actually happened.
             </h2>
-            <div className="mt-5 space-y-5 text-base md:text-lg leading-relaxed text-foreground/80">
-              <p>
-                Most dinner advice is written for a family that does not exist: one with unlimited
-                time, predictable schedules, and children who eat everything. The Real Week Project
-                is the opposite. It is a running study of how dinner actually happens in busy
-                households — the shortcuts, the repeat meals, the Wednesday collapse, and the
-                quiet strategies that keep families fed without burning out.
-              </p>
-              <p>
-                Family Food OS collects anonymized pattern data from real weeks: which nights get
-                cooked, which become takeout, what gets eaten twice, and what rots in the crisper.
-                The findings feed directly into the product — so every plan gets smarter about the
-                real shape of family dinner.
-              </p>
-              <p>
-                This page shares what we have learned so far. It is not a sales pitch. It is a
-                public research record — and an invitation to stop planning for a perfect week
-                that never arrives.
-              </p>
+            <div className="mt-8 space-y-3">
+              {STUDYING.map((line) => (
+                <p key={line} className="text-lg text-muted-foreground">
+                  {line}
+                </p>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Findings */}
-        <section className="px-4 pt-16 md:pt-24">
-          <div className="container mx-auto max-w-5xl">
-            <div className="mb-8 text-center">
-              <h2 className="font-serif text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
-                Early findings
-              </h2>
-              <p className="mx-auto mt-3 max-w-xl text-base text-muted-foreground leading-relaxed">
-                Patterns that show up again and again in real family weeks — and what they mean for
-                how you plan.
-              </p>
-            </div>
+        {/* What you'll do */}
+        <section className="px-4 py-20 md:py-24">
+          <div className="container mx-auto max-w-6xl">
+            <p className={`${eyebrow} text-primary`}>What you'll do</p>
+            <h2 className={`mt-3 text-3xl md:text-4xl ${headingClass}`}>
+              Three small steps. One real week.
+            </h2>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              {FINDINGS.map((f, i) => (
+            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+              {STEPS.map((s, i) => (
                 <motion.div
-                  key={f.title}
+                  key={s.num}
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.45, delay: Math.min(i * 0.05, 0.2) }}
-                  className="flex gap-4 rounded-2xl border border-border/60 bg-card/60 p-5 md:p-6"
+                  transition={{ duration: 0.45, delay: Math.min(i * 0.06, 0.2) }}
+                  className="rounded-2xl border border-border bg-card p-7 shadow-sm"
                 >
-                  <IconTile gradient={f.gradient} size="xl" shadow="md">
-                    <f.icon className="h-6 w-6 text-primary-foreground" />
-                  </IconTile>
-                  <div>
-                    <h3 className="font-serif text-lg font-semibold text-foreground">{f.title}</h3>
-                    <p className="mt-1.5 text-sm md:text-base text-muted-foreground leading-relaxed">
-                      {f.text}
-                    </p>
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary">
+                      <s.icon className="h-5 w-5 text-primary" />
+                    </span>
+                    <span className="text-sm font-medium text-muted-foreground">{s.num}</span>
                   </div>
+                  <h3 className={`mt-7 text-xl ${headingClass}`}>{s.title}</h3>
+                  <p className="mt-3 text-base leading-relaxed text-muted-foreground">{s.text}</p>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Methodology / Framework */}
-        <section className="px-4 pt-16 md:pt-24">
-          <div className="container mx-auto max-w-5xl">
-            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
-              <div className="order-2 lg:order-1">
-                <ShowcaseStage screen={InsightsScreen} tone="amber" />
-              </div>
-              <div className="order-1 lg:order-2">
-                <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
-                  The Real Week Framework
+        {/* What you get back (dark green) */}
+        <section className="bg-primary px-4 py-20 text-primary-foreground md:py-28">
+          <div className="container mx-auto max-w-6xl">
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+              <div>
+                <p className={`${eyebrow} text-accent`}>What you get back</p>
+                <h2 className={`mt-5 text-3xl leading-tight md:text-[2.6rem] font-sans font-bold tracking-tight text-primary-foreground`}>
+                  Your personalized Dinner Pattern Report.
                 </h2>
-                <div className="mt-5 space-y-5 text-base md:text-lg leading-relaxed text-foreground/80">
-                  <p>
-                    The Real Week Framework is the planning model at the heart of the project. It
-                    replaces the fantasy of seven home-cooked dinners with five honest modes that
-                    match the real energy of any given night.
-                  </p>
-                  <ul className="space-y-3 text-base text-muted-foreground">
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1.5 inline-block h-2 w-2 rounded-full bg-sage" />
-                      <span><strong className="text-foreground">Cook Night</strong> — time and energy to cook from scratch.</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1.5 inline-block h-2 w-2 rounded-full bg-sky" />
-                      <span><strong className="text-foreground">Leftover Night</strong> — cook once, eat twice, waste nothing.</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1.5 inline-block h-2 w-2 rounded-full bg-accent" />
-                      <span><strong className="text-foreground">Low-Effort Night</strong> — 15 minutes, pantry staples, no decisions.</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1.5 inline-block h-2 w-2 rounded-full bg-coral" />
-                      <span><strong className="text-foreground">Takeout Night</strong> — planned convenience, not panic ordering.</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="mt-1.5 inline-block h-2 w-2 rounded-full bg-primary" />
-                      <span><strong className="text-foreground">Dine-Out Night</strong> — routines, social plans, or a needed break.</span>
-                    </li>
-                  </ul>
-                  <p>
-                    When every night has a mode instead of a recipe, planning becomes fast and the
-                    plan becomes honest. Read the full framework in{" "}
-                    <Link
-                      to="/guides/real-week-dinner-guide"
-                      className="font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary"
-                    >
-                      Why Dinner Plans Fail, and How to Build One That Survives Real Life
-                    </Link>
-                    .
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* How it feeds into the product */}
-        <section className="px-4 pt-16 md:pt-24">
-          <div className="container mx-auto max-w-2xl">
-            <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
-              From research to your dinner table
-            </h2>
-            <div className="mt-5 space-y-5 text-base md:text-lg leading-relaxed text-foreground/80">
-              <p>
-                The Real Week Project is not abstract. Every finding shapes how Family Food OS
-                builds your weekly plan: where to place a cook night, when to schedule a buffer, and
-                which meals are worth repeating.
-              </p>
-              <p>
-                After each dinner, a quick check-in records what actually happened. Over a few weeks,
-                your personal Dinner Pattern Report emerges — showing where your week tends to break,
-                what your family loves, and how to make next week easier than the last.
-              </p>
-              <p>
-                The goal is not perfection. The goal is a plan that fits your real life more closely
-                every single week.
-              </p>
-            </div>
-            <div className="mt-8">
-              <Button
-                size="lg"
-                className="rounded-xl bg-gradient-to-r from-primary to-sage-dark px-7 shadow-md hover:from-primary/90 hover:to-sage-dark/90"
-                asChild
-              >
-                <Link to="/guides/the-dinner-pattern-report">
-                  See the Dinner Pattern Report <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA + signup form */}
-        <section className="px-4 pt-14 md:pt-20">
-          <div className="container mx-auto max-w-3xl">
-            <div className="overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/[0.08] via-sage/[0.05] to-background p-8 md:p-10">
-              <div className="text-center">
-                <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
-                  Join The Real Week Project
-                </h2>
-                <p className="mx-auto mt-3 max-w-md text-base text-muted-foreground leading-relaxed">
-                  Add your email and household type to contribute to the study — and help us build a
-                  dinner system that fits real family life.
+                <p className="mt-5 max-w-md text-lg leading-relaxed text-primary-foreground/75">
+                  One clear document. No fluff, no generic advice — just the patterns we see in your
+                  actual week, and what to do with them.
                 </p>
               </div>
-              <div className="mx-auto mt-7 max-w-md">
-                <StudySignupForm />
+
+              <div className="space-y-4">
+                {GET_BACK.map((item, i) => (
+                  <motion.div
+                    key={item}
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.4, delay: Math.min(i * 0.06, 0.24) }}
+                    className="flex items-center gap-4 rounded-2xl bg-primary-foreground/[0.06] px-5 py-5 ring-1 ring-primary-foreground/10"
+                  >
+                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-accent">
+                      <Check className="h-4 w-4 text-primary" />
+                    </span>
+                    <p className="text-base text-primary-foreground/90">{item}</p>
+                  </motion.div>
+                ))}
               </div>
-              <p className="mt-4 text-center text-xs text-muted-foreground/60">
-                No credit card required. Your data is never sold.
-              </p>
             </div>
           </div>
         </section>
 
-        {/* Related reading */}
-        <section className="px-4 pt-16 md:pt-24 pb-8">
-          <div className="container mx-auto max-w-2xl">
-            <h2 className="font-serif text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-5">
-              Related reading
+        {/* A peek at your report */}
+        <section className="px-4 py-20 md:py-24">
+          <div className="container mx-auto max-w-6xl">
+            <p className={`${eyebrow} text-primary`}>A peek at your report</p>
+            <h2 className={`mt-3 text-3xl md:text-4xl ${headingClass}`}>
+              Your Dinner Pattern Report may include:
             </h2>
-            <div className="space-y-3">
-              <Link
-                to="/guides/real-week-dinner-guide"
-                className="group flex items-center justify-between rounded-2xl border border-border/60 bg-card/50 p-4 transition-colors hover:bg-card"
-              >
-                <div>
-                  <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                    Why Dinner Plans Fail, and How to Build One That Survives Real Life
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    The complete guide to the Real Week Framework.
-                  </p>
+
+            <div className="mt-8 rounded-[1.5rem] bg-secondary/40 p-2 shadow-sm">
+              <div className="rounded-[1.25rem] border border-border bg-card p-7 md:p-9">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-5">
+                  <p className={`${eyebrow} text-foreground/70`}>Dinner Pattern Report</p>
+                  <p className="text-sm text-muted-foreground">The Rivera Household · Week of Oct 14</p>
                 </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-3" />
-              </Link>
-              <Link
-                to="/guides/the-dinner-pattern-report"
-                className="group flex items-center justify-between rounded-2xl border border-border/60 bg-card/50 p-4 transition-colors hover:bg-card"
-              >
-                <div>
-                  <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                    The Dinner Pattern Report
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    See where your plans break and how to make next week easier.
-                  </p>
+
+                <div className="grid grid-cols-1 gap-x-10 gap-y-5 py-7 md:grid-cols-2">
+                  {[...REPORT_LEFT.map((t, i) => ({ t, side: "l", i })), ...REPORT_RIGHT.map((t, i) => ({ t, side: "r", i }))]
+                    .sort((a, b) => (a.i - b.i) || (a.side === "l" ? -1 : 1))
+                    .map(({ t, side, i }) => (
+                      <div key={`${side}-${i}`} className="flex items-center gap-3">
+                        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-secondary">
+                          <Check className="h-3.5 w-3.5 text-primary" />
+                        </span>
+                        <p className="text-base text-foreground/85">{t}</p>
+                      </div>
+                    ))}
                 </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-3" />
-              </Link>
-              <Link
-                to="/guides/why-meal-planning-fails-by-wednesday"
-                className="group flex items-center justify-between rounded-2xl border border-border/60 bg-card/50 p-4 transition-colors hover:bg-card"
-              >
-                <div>
-                  <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                    Why Meal Planning Fails by Wednesday
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    The five forces that break almost every meal plan.
-                  </p>
-                </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-3" />
-              </Link>
+
+                <p className="border-t border-border pt-5 text-sm text-muted-foreground">
+                  Sample preview — your report is generated from your own week.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Who it's for */}
+        <section className="px-4 py-20 md:py-24">
+          <div className="container mx-auto max-w-6xl">
+            <p className={`${eyebrow} text-primary`}>Who it's for</p>
+            <h2 className={`mt-3 text-3xl md:text-4xl ${headingClass}`}>
+              This study is built for real households.
+            </h2>
+
+            <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
+              {WHO.map((item, i) => (
+                <motion.div
+                  key={item}
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.4, delay: Math.min(i * 0.05, 0.2) }}
+                  className="flex items-start gap-4 rounded-2xl border border-border bg-card px-6 py-5 shadow-sm"
+                >
+                  <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
+                  <p className="text-base leading-relaxed text-foreground/85">{item}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Join the study */}
+        <section id="join" className="scroll-mt-24 bg-card px-4 py-20 md:py-28">
+          <div className="container mx-auto max-w-6xl">
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+              <div>
+                <p className={`${eyebrow} text-primary`}>Join the study</p>
+                <h2 className={`mt-3 text-4xl md:text-5xl ${headingClass}`}>
+                  Help us study the real week.
+                </h2>
+                <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
+                  Spots are limited so we can give every household a real report. Add your household
+                  and we'll be in touch when the next week opens.
+                </p>
+              </div>
+
+              <div className="lg:pl-6">
+                <StudySignupForm />
+              </div>
             </div>
           </div>
         </section>
