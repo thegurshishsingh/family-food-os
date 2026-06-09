@@ -139,7 +139,7 @@ const StudySignupForm = () => {
         />
       </div>
 
-      <div className="space-y-5">
+      <div className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="study-name" className="text-sm font-semibold text-foreground">
             Your name
@@ -196,7 +196,7 @@ const StudySignupForm = () => {
           type="submit"
           size="lg"
           disabled={submitting}
-          className="h-14 w-full rounded-full bg-primary py-6 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
+          className="h-14 w-full rounded-full bg-primary text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
         >
           {submitting ? (
             <>
