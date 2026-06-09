@@ -35,6 +35,12 @@ const GuidesFooter = () => (
             >
               The Dinner Pattern Report
             </Link>
+            <Link
+              to="/real-week-project"
+              className="block text-xs text-primary-foreground/70 transition-colors hover:text-accent"
+            >
+              The Real Week Project
+            </Link>
           </div>
           <div className="space-y-2">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-primary-foreground">

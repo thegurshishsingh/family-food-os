@@ -15,6 +15,7 @@ import Onboarding from "./pages/Onboarding";
 import Planner from "./pages/Planner";
 import Guides from "./pages/Guides";
 import GuideArticle from "./pages/GuideArticle";
+import TheRealWeekProject from "./pages/TheRealWeekProject";
 import DinnerPatternReport from "./pages/DinnerPatternReport";
 import Groceries from "./pages/Groceries";
 import MealMemory from "./pages/MealMemory";
@@ -36,6 +37,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Index />} />
       <Route path="/guides" element={<Guides />} />
       <Route path="/guides/the-dinner-pattern-report" element={<DinnerPatternReport />} />
+      <Route path="/real-week-project" element={<TheRealWeekProject />} />
       <Route path="/guides/:slug" element={<GuideArticle />} />
       <Route path="/login" element={<RedirectIfAuthed><Login /></RedirectIfAuthed>} />
       <Route path="/signup" element={<RedirectIfAuthed><Signup /></RedirectIfAuthed>} />
