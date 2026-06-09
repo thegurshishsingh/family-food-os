@@ -17,6 +17,7 @@ import Guides from "./pages/Guides";
 import GuideArticle from "./pages/GuideArticle";
 import TheRealWeekProject from "./pages/TheRealWeekProject";
 import DinnerPatternReport from "./pages/DinnerPatternReport";
+import StudySignupsAdmin from "./pages/StudySignupsAdmin";
 import Groceries from "./pages/Groceries";
 import MealMemory from "./pages/MealMemory";
 import FamilyProfile from "./pages/FamilyProfile";
@@ -38,6 +39,7 @@ const AppRoutes = () => {
       <Route path="/guides" element={<Guides />} />
       <Route path="/guides/the-dinner-pattern-report" element={<DinnerPatternReport />} />
       <Route path="/real-week-project" element={<TheRealWeekProject />} />
+      <Route path="/admin/study-signups" element={<StudySignupsAdmin />} />
       <Route path="/guides/:slug" element={<GuideArticle />} />
       <Route path="/login" element={<RedirectIfAuthed><Login /></RedirectIfAuthed>} />
       <Route path="/signup" element={<RedirectIfAuthed><Signup /></RedirectIfAuthed>} />
