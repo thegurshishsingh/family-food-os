@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { z } from "zod";
@@ -25,6 +25,11 @@ const HOUSEHOLD_TYPES = [
   "Other",
 ];
 
+// Spam-protection tuning
+const COOLDOWN_KEY = "rwp_signup_last_submit";
+const COOLDOWN_MS = 60 * 1000; // one submission per minute per browser
+const MIN_FILL_MS = 2500; // forms completed faster than this are likely bots
+
 const signupSchema = z.object({
   email: z
     .string()
@@ -44,9 +49,34 @@ const StudySignupForm = () => {
   const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  // Honeypot: real users never fill this hidden field
+  const [honeypot, setHoneypot] = useState("");
+  // Timing trap: when the form was first rendered
+  const mountedAt = useRef<number>(Date.now());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Honeypot tripped — silently pretend success so bots don't learn.
+    if (honeypot.trim() !== "") {
+      setDone(true);
+      return;
+    }
+
+    // Timing trap — submitted implausibly fast.
+    if (Date.now() - mountedAt.current < MIN_FILL_MS) {
+      toast.error("That was a little too fast — please try again.");
+      return;
+    }
+
+    // Client-side cooldown to curb rapid repeat submissions.
+    const last = Number(localStorage.getItem(COOLDOWN_KEY) || 0);
+    if (last && Date.now() - last < COOLDOWN_MS) {
+      const secs = Math.ceil((COOLDOWN_MS - (Date.now() - last)) / 1000);
+      toast.error(`Please wait ${secs}s before submitting again.`);
+      return;
+    }
+
     const result = signupSchema.safeParse({ email, householdType, consent });
     if (!result.success) {
       toast.error(result.error.issues[0]?.message ?? "Please check the form");
@@ -62,12 +92,18 @@ const StudySignupForm = () => {
     setSubmitting(false);
 
     if (error) {
-      toast.error("Something went wrong. Please try again.");
+      if (error.message?.includes("rate_limited")) {
+        toast.error("This email was used recently. Please try again later.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
       return;
     }
+    localStorage.setItem(COOLDOWN_KEY, String(Date.now()));
     setDone(true);
     toast.success("You're in — thank you for joining the study!");
   };
+
 
   if (done) {
     return (
