@@ -234,10 +234,10 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* What we're studying */}
-        <section className="bg-card px-4 py-20 md:py-28">
+        <section className="bg-card px-4 py-14 sm:py-20 md:py-28">
           <div className="container mx-auto max-w-3xl text-center">
             <p className={`${eyebrow} text-primary`}>What we're studying</p>
-            <h2 className={`mx-auto mt-5 max-w-2xl text-3xl leading-tight md:text-[2.6rem] ${headingClass}`}>
+            <h2 className={`mx-auto mt-5 max-w-2xl text-2xl leading-tight sm:text-3xl md:text-[2.6rem] ${headingClass}`}>
               We're studying the gap between the dinner you planned and the dinner that actually happened.
             </h2>
             <div className="mt-8 space-y-3">
@@ -251,10 +251,10 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* What you'll do */}
-        <section className="px-4 py-20 md:py-24">
+        <section className="px-4 py-14 sm:py-20 md:py-24">
           <div className="container mx-auto max-w-6xl">
             <p className={`${eyebrow} text-primary`}>What you'll do</p>
-            <h2 className={`mt-3 text-3xl md:text-4xl ${headingClass}`}>
+            <h2 className={`mt-3 text-2xl sm:text-3xl md:text-4xl ${headingClass}`}>
               Three small steps. One real week.
             </h2>
 
@@ -283,12 +283,12 @@ const TheRealWeekProject = () => {
         </section>
 
         {/* What you get back (dark green) */}
-        <section className="bg-primary px-4 py-20 text-primary-foreground md:py-28">
+        <section className="bg-primary px-4 py-14 text-primary-foreground sm:py-20 md:py-28">
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
               <div>
                 <p className={`${eyebrow} text-accent`}>What you get back</p>
-                <h2 className={`mt-5 text-3xl leading-tight md:text-[2.6rem] font-sans font-bold tracking-tight text-primary-foreground`}>
+                <h2 className={`mt-5 text-2xl leading-tight sm:text-3xl md:text-[2.6rem] font-sans font-bold tracking-tight text-primary-foreground`}>
                   Your personalized Dinner Pattern Report.
                 </h2>
                 <p className="mt-5 max-w-md text-lg leading-relaxed text-primary-foreground/75">
