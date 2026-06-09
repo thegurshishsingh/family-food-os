@@ -119,12 +119,12 @@ export const GUIDES: Guide[] = [
     slug: "real-week-dinner-guide",
     category: "real-week-planning",
     title:
-      "The Real Week Dinner Guide: How to Plan Dinners Around the Week You Actually Have",
-    seoTitle: "The Real Week Dinner Guide | Plan Around Real Life",
+      "Why Dinner Plans Fail, and How to Build One That Survives Real Life",
+    seoTitle: "Why Dinner Plans Fail (and How to Fix Them)",
     description:
-      "Stop planning seven perfect dinners. Learn how to plan weekly meals around your real schedule — with cook nights, leftovers, and takeout built in.",
+      "Most dinner plans collapse by Wednesday. Learn why — and how to build a real-week dinner rhythm with cook nights, leftovers, and takeout built in.",
     excerpt:
-      "Our core philosophy: don't plan seven perfect dinners. Plan around the messy, beautiful, unpredictable week you actually have.",
+      "Stop planning for the perfect week. Build a dinner rhythm for the week you actually live.",
     readMinutes: 8,
     tone: "sage",
     heroScreen: "weeklyPlan",
@@ -134,16 +134,24 @@ export const GUIDES: Guide[] = [
       "weekly meal planner",
       "realistic meal planning",
     ],
-    updated: "2026-06-07",
+    updated: "2026-06-09",
     featured: true,
     blocks: [
       {
         type: "p",
-        text: "Most meal planning advice starts from a fantasy: seven home-cooked dinners, every ingredient used, every family member delighted. Then real life shows up — a late meeting, a tired kid, a soccer practice that ran long — and the whole plan collapses by Wednesday. The problem was never your willpower. It was the plan.",
+        text: "You had a plan on Sunday.",
       },
       {
         type: "p",
-        text: "At Family Food OS, we plan differently. We start from the week you actually have, then build dinner around it. This guide walks through that philosophy — and how to put it into practice tonight.",
+        text: "Then Monday ran late. Tuesday's chicken was still frozen. Wednesday became takeout. The spinach you bought with good intentions started wilting in the fridge. By Thursday, the plan was technically still there, but nobody was following it.",
+      },
+      {
+        type: "p",
+        text: "That is not a willpower problem. It is a planning problem.",
+      },
+      {
+        type: "p",
+        text: "Most meal planning advice starts from a fantasy: seven home-cooked dinners, every ingredient used, every family member delighted. This guide does the opposite. It starts from the week you actually live — the one with practices, late meetings, leftovers, and tired parents — and builds dinner around it.",
       },
       {
         type: "h2",
@@ -152,32 +160,66 @@ export const GUIDES: Guide[] = [
       },
       {
         type: "p",
-        text: "A perfect-week plan assumes every night has the same energy, the same time, and the same appetite. None of that is true. Monday after work is not Saturday morning. The week has texture — and a dinner plan that ignores that texture is a plan that's designed to fail.",
+        text: "A perfect-week plan assumes every night has the same energy, the same time, and the same appetite. None of that is true. Monday after work is not Saturday morning. The week has texture — and a dinner plan that ignores that texture is a plan designed to fail.",
       },
       {
         type: "callout",
         tone: "coral",
         title: "The real reason plans break",
-        text: "It's not laziness. Most plans assume seven cook-from-scratch nights and zero schedule changes. Real weeks have neither. Read more in [Why Meal Planning Fails by Wednesday](/guides/why-meal-planning-fails-by-wednesday).",
+        text: "It's not laziness. Most plans assume seven cook-from-scratch nights and zero schedule changes. Real weeks have neither. This is also why so many plans fall apart midweek. We break that down in [Why Meal Planning Fails by Wednesday](/guides/why-meal-planning-fails-by-wednesday).",
+      },
+      {
+        type: "quote",
+        text: "The problem was never your willpower. It was the plan.",
       },
       {
         type: "h2",
-        text: "Plan the week, not seven dinners",
-        id: "plan-the-week",
+        text: "The Real Week Framework",
+        id: "the-framework",
       },
       {
         type: "p",
-        text: "The shift is small but everything changes once you make it: you're not choosing seven recipes, you're assigning a **mode** to each night. Some nights you cook. Some nights you eat leftovers on purpose. Some nights are takeout — and that's a feature, not a failure.",
+        text: "The shift is small, but everything changes once you make it: you're not choosing seven recipes, you're giving each night a **mode**. Five modes cover almost every real week.",
       },
       {
-        type: "ul",
-        items: [
-          "**Cook nights** — when you have the time and energy to make something from scratch.",
-          "**Leftover nights** — intentionally cooking once and eating twice.",
-          "**Takeout nights** — planned, budgeted, guilt-free.",
-          "**Low-effort nights** — 15 minutes, pantry staples, no thinking required.",
-          "**Dine-out nights** — the standing pizza-Friday that keeps everyone sane.",
-        ],
+        type: "h3",
+        text: "Cook Night",
+      },
+      {
+        type: "p",
+        text: "For meals you can realistically make — the nights you have the time and energy to cook from scratch.",
+      },
+      {
+        type: "h3",
+        text: "Leftover Night",
+      },
+      {
+        type: "p",
+        text: "For using food you already cooked. Cook once, eat twice, and the food gets eaten instead of pushed to the back of the fridge.",
+      },
+      {
+        type: "h3",
+        text: "Low-Effort Night",
+      },
+      {
+        type: "p",
+        text: "For 15-minute meals when energy is low — pantry staples, no thinking required.",
+      },
+      {
+        type: "h3",
+        text: "Takeout Night",
+      },
+      {
+        type: "p",
+        text: "For planned convenience, not panic ordering. Budgeted ahead of time, so it doesn't blow up the week.",
+      },
+      {
+        type: "h3",
+        text: "Dine-Out Night",
+      },
+      {
+        type: "p",
+        text: "For family routines, social plans, or a needed break — the standing pizza-Friday that keeps everyone sane.",
       },
       {
         type: "screen",
@@ -188,50 +230,144 @@ export const GUIDES: Guide[] = [
       },
       {
         type: "h2",
+        text: "A sample real-week plan",
+        id: "sample-week",
+      },
+      {
+        type: "p",
+        text: "A realistic week may look like this:",
+      },
+      {
+        type: "ul",
+        items: [
+          "**Monday:** Cook once",
+          "**Tuesday:** Leftovers",
+          "**Wednesday:** Low-effort dinner",
+          "**Thursday:** Planned takeout",
+          "**Friday:** Family favorite",
+          "**Saturday:** Flexible",
+          "**Sunday:** Bigger cook night",
+        ],
+      },
+      {
+        type: "p",
+        text: "That kind of plan is not less organized. It is more honest.",
+      },
+      {
+        type: "h2",
         text: "Match dinner to the night's energy",
         id: "match-energy",
       },
       {
         type: "p",
-        text: "Once you think in modes, planning becomes a quick read of your calendar. Busy Tuesday? That's a leftover night. Open Sunday afternoon? Cook the big batch that feeds Monday too. You stop fighting your week and start flowing with it.",
+        text: "Once you think in modes, planning becomes a quick read of your calendar. Busy Tuesday? That's a leftover night. Open Sunday afternoon? Cook the big batch that feeds Monday too. You stop fighting your week and plan around the night's energy instead.",
       },
       {
         type: "p",
-        text: "Family Food OS does this read for you. It looks at your schedule, your past weeks, and your family's feedback, then proposes a plan that already accounts for the nights that were always going to be hard. We score every plan with a [Reality Score](/guides/how-to-build-a-weekly-dinner-rhythm) so you can see — before the week starts — whether it's actually doable.",
+        text: "Families that cook consistently usually have buffers, not more discipline. A planned leftover night is one less decision. A planned takeout night means you don't blow the budget panic-ordering at 6pm. When the easy nights are part of the plan, the cook nights actually happen.",
       },
       {
-        type: "quote",
-        text: "I stopped feeling like a failure every Wednesday. The plan expected Wednesday to be hard, so Wednesday being hard wasn't a problem anymore.",
-        attribution: "A founding family",
+        type: "callout",
+        tone: "sky",
+        title: "Reality Score, in one line",
+        text: "Reality Score is a simple way to see whether your plan matches the actual shape of your week before the week starts. More on the rhythm behind it in [How to Build a Weekly Dinner Rhythm](/guides/how-to-build-a-weekly-dinner-rhythm).",
       },
       {
         type: "h2",
-        text: "Build leftovers and takeout in on purpose",
-        id: "build-in-buffers",
+        text: "The gap that matters: planned vs. actual",
+        id: "planned-vs-actual",
       },
       {
         type: "p",
-        text: "The families who cook most consistently aren't the ones with the most discipline. They're the ones with the most buffers. A planned leftover night means one less decision. A planned takeout night means you don't blow the budget panic-ordering at 6pm. When the easy nights are part of the plan, the cook nights actually happen.",
+        text: "Most meal planning tools stop at what you intended to cook. Family Food OS pays attention to the difference between what was planned and what actually happened. That gap is where the useful information lives.",
+      },
+      {
+        type: "ul",
+        items: [
+          "Planned chicken bowls → ordered pizza",
+          "Planned curry → kids rejected it",
+          "Planned salmon → too tired to cook",
+          "Planned pasta → became the family favorite",
+        ],
+      },
+      {
+        type: "screen",
+        screen: "insights",
+        tone: "amber",
+        caption:
+          "Family Food OS watches the gap between planned and actual — and learns from it.",
+      },
+      {
+        type: "callout",
+        tone: "amber",
+        title: "Takeout is not failure. It is a signal.",
+        text: "If takeout happens every Wednesday, the answer is not guilt. The answer is planning Wednesday differently.",
+      },
+      {
+        type: "h2",
+        text: "A better plan can protect your grocery budget",
+        id: "saves-money",
+      },
+      {
+        type: "p",
+        text: "When dinner plans break, families often pay twice: once at the grocery store and again through last-minute takeout.",
+      },
+      {
+        type: "p",
+        text: "A real-week plan helps reduce both. It connects meals to the grocery list, builds leftovers into the week, and avoids buying food for dinners that were never realistic in the first place.",
       },
       {
         type: "callout",
         tone: "sky",
         title: "Shop the plan, not the recipes",
-        text: "When you plan around real modes, your grocery list gets smaller and smarter. See how in [How to Stop Wasting Groceries Every Week](/guides/how-to-stop-wasting-groceries-every-week).",
+        text: "If grocery waste is your biggest frustration, read [How to Stop Wasting Groceries Every Week](/guides/how-to-stop-wasting-groceries-every-week).",
       },
       {
         type: "h2",
-        text: "Let the plan learn your family",
-        id: "let-it-learn",
+        text: "Your family already has a dinner pattern",
+        id: "family-pattern",
       },
       {
         type: "p",
-        text: "A real-week plan gets better every week because it remembers. It knows the taco bar was a hit and the spicy curry got refused. It knows Wednesdays are takeout. It knows which 15-minute dinner saved you last month. That memory is what turns a plan into a system.",
+        text: "Most families do not need endless new recipes. They usually rotate the same meals, avoid the same meals, and struggle on the same nights.",
+      },
+      {
+        type: "p",
+        text: "Family Food OS helps turn those patterns into memory, so next week does not start from zero. It knows the taco bar was a hit and the spicy curry got refused. It knows Wednesdays are takeout. It knows which 15-minute dinner saved you last month.",
+      },
+      {
+        type: "h2",
+        text: "How Family Food OS helps",
+        id: "how-it-helps",
+      },
+      {
+        type: "p",
+        text: "Family Food OS helps translate your real week into a dinner plan: the nights you cook, the nights you need leftovers, the nights takeout makes sense, and the meals your family is likely to repeat.",
+      },
+      {
+        type: "p",
+        text: "After dinner, quick check-ins help the system learn what worked, what felt too hard, and what should change next week.",
+      },
+      {
+        type: "callout",
+        tone: "sage",
+        title: "No perfection required",
+        text: "The goal is not to become the kind of family that cooks seven perfect dinners. The goal is to make dinner easier for the family you already are.",
+      },
+      {
+        type: "p",
+        text: "A better dinner plan does not make your week perfect. It makes your real week easier to run.",
+      },
+      {
+        type: "p",
+        text: "That is the point of Family Food OS: fewer nightly decisions, less wasted food, fewer panic takeout nights, and a system that learns what your family actually eats.",
       },
       {
         type: "cta",
-        title: "Plan around your real week",
-        text: "Let Family Food OS build a plan that already expects the hard nights — cook, leftovers, and takeout in one place.",
+        title: "Want to see where your dinner week actually breaks?",
+        text: "Join The Real Week Project and get your personalized Dinner Pattern Report.",
+        buttonLabel: "Find my Dinner Pattern",
+        buttonHref: "/guides/the-dinner-pattern-report",
       },
     ],
     related: [
