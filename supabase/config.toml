@@ -11,3 +11,5 @@ project_id = "khotrjtyyrtyuvlzlzrd"
     verify_jwt = true
   [functions.swap-meal]
     verify_jwt = false
+  [functions.submit-study-signup]
+    verify_jwt = false
