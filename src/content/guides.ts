@@ -319,12 +319,13 @@ export const GUIDES: Guide[] = [
         text: "Most meal planning tools stop at what you intended to cook. Family Food OS pays attention to the difference between what was planned and what actually happened. That gap is where the useful information lives.",
       },
       {
-        type: "ul",
+        type: "plannedActual",
+        caption: "The gap between the plan and the night is where the useful information lives.",
         items: [
-          "Planned chicken bowls → ordered pizza",
-          "Planned curry → kids rejected it",
-          "Planned salmon → too tired to cook",
-          "Planned pasta → became the family favorite",
+          { planned: "Chicken bowls", actual: "Ordered pizza", outcome: "miss" },
+          { planned: "Curry", actual: "Kids rejected it", outcome: "miss" },
+          { planned: "Salmon", actual: "Too tired to cook", outcome: "miss" },
+          { planned: "Pasta", actual: "Became the family favorite", outcome: "win" },
         ],
       },
       {
