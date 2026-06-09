@@ -60,8 +60,9 @@ const StudySignupsAdmin = () => {
   };
 
   const exportCsv = () => {
-    const header = ["Email", "Household type", "Consent", "Submitted at"];
+    const header = ["Name", "Email", "Household size", "Consent", "Submitted at"];
     const rows = signups.map((s) => [
+      s.name ?? "",
       s.email,
       s.household_type ?? "",
       s.consent ? "Yes" : "No",
