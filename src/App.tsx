@@ -19,7 +19,6 @@ import TheRealWeekProject from "./pages/TheRealWeekProject";
 import DinnerPatternReport from "./pages/DinnerPatternReport";
 import StudySignupsAdmin from "./pages/StudySignupsAdmin";
 import Groceries from "./pages/Groceries";
-import MealMemory from "./pages/MealMemory";
 import FamilyProfile from "./pages/FamilyProfile";
 import HouseholdSettings from "./pages/HouseholdSettings";
 import Profile from "./pages/Profile";
