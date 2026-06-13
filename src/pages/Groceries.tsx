@@ -103,9 +103,11 @@ const Groceries = () => {
 
 
         {items.length === 0 ? (
-          <Card className="py-16 text-center">
+          <Card className="py-16 text-center glass-card border-border/40 rounded-2xl">
             <CardContent>
-              <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-sky/15 to-primary/10 mb-4">
+                <ShoppingCart className="w-7 h-7 text-primary" />
+              </div>
               <h2 className="text-xl font-serif font-semibold mb-2">No groceries yet</h2>
               <p className="text-muted-foreground max-w-md mx-auto">
                 Generate a weekly plan first — your grocery list will appear here automatically.
@@ -115,7 +117,7 @@ const Groceries = () => {
         ) : (
           <div className="space-y-6">
             {groupedByCategory.map((group) => (
-              <Card key={group.category}>
+              <Card key={group.category} className="glass-card border-border/40 rounded-2xl overflow-hidden">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg font-serif capitalize">
                     <span>{CATEGORY_EMOJI[group.category] || "📦"}</span>
@@ -123,6 +125,7 @@ const Groceries = () => {
                     <Badge variant="secondary" className="text-xs ml-auto">{group.items.length}</Badge>
                   </CardTitle>
                 </CardHeader>
+
                 <CardContent className="space-y-1">
                   {group.items.map((item) => (
                     <label
