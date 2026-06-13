@@ -379,6 +379,30 @@ const clampPerServing = (m: Macros): Macros => ({
   fiber_g: Math.min(Math.max(m.fiber_g, 0), 50),
 });
 
+// A single dinner serving rarely exceeds this. Above it, the ingredient list
+// almost certainly describes a whole multi-serving recipe, so we estimate the
+// serving count and divide down. Below it we treat the values as already
+// per-serving and leave them untouched.
+const SINGLE_SERVING_CAL_MAX = 850;
+const TARGET_SERVING_CAL = 550;
+
+/**
+ * Normalize a macro set to a single serving. If the calories look like a whole
+ * recipe (multi-serving), estimate how many servings it yields from the total
+ * calories and divide every macro down proportionally.
+ */
+const toSingleServing = (m: Macros): Macros => {
+  if (m.calories <= SINGLE_SERVING_CAL_MAX) return m;
+  const servings = Math.min(Math.max(Math.round(m.calories / TARGET_SERVING_CAL), 2), 12);
+  return {
+    calories: Math.round(m.calories / servings),
+    protein_g: Math.round((m.protein_g / servings) * 10) / 10,
+    carbs_g: Math.round((m.carbs_g / servings) * 10) / 10,
+    fat_g: Math.round((m.fat_g / servings) * 10) / 10,
+    fiber_g: Math.round((m.fiber_g / servings) * 10) / 10,
+  };
+};
+
 export type StoredMacros = {
   calories?: number | null;
   protein_g?: number | null;
@@ -394,8 +418,10 @@ export type StoredMacros = {
  * - When we can confidently match the ingredient list (>=3 ingredients matched
  *   AND >=50% coverage), the ingredient-derived computation is the source of
  *   truth — this corrects AI hallucinations on existing plans.
- * - Otherwise we fall back to the stored value, clamped to realistic
- *   per-serving maxima.
+ * - Ingredient lists are inconsistent: some are per-serving, some are
+ *   whole-recipe. `toSingleServing` detects multi-serving totals and divides
+ *   them down so every meal shows realistic per-serving numbers.
+ * - Otherwise we fall back to the stored value (also normalized to one serving).
  */
 export const resolvePerServingMacros = (
   stored: StoredMacros | null | undefined,
@@ -414,15 +440,20 @@ export const resolvePerServingMacros = (
   const confident = computed.matched >= 3 && coverage >= 0.5 && computed.calories > 0;
 
   if (confident) {
-    return clampPerServing({
+    const perServing = toSingleServing({
       calories: computed.calories,
       protein_g: computed.protein_g,
       carbs_g: computed.carbs_g,
       fat_g: computed.fat_g,
+      fiber_g: computed.fiber_g,
+    });
+    return clampPerServing({
+      ...perServing,
       // Keep stored fiber if our table found none (spices/sauces carry fiber).
-      fiber_g: computed.fiber_g || storedSafe.fiber_g,
+      fiber_g: perServing.fiber_g || storedSafe.fiber_g,
     });
   }
 
-  return clampPerServing(storedSafe);
+  return clampPerServing(toSingleServing(storedSafe));
 };
+
