@@ -360,7 +360,7 @@ const Planner = () => {
   }, [generationMessage]);
 
   const swapMeal = async (day: PlanDay) => {
-    if (!household || day.is_locked) return;
+    if (!household) return;
     setSwappingDay(day.id);
     setSwapDayContext(day);
     try {
