@@ -4,11 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ChefHat, RefreshCw, ArrowRight } from "lucide-react";
+import { ChefHat, RefreshCw, ArrowRight, CalendarDays } from "lucide-react";
 import SwipeCoachMark from "@/components/planner/SwipeCoachMark";
 import RealityScore from "@/components/planner/RealityScore";
 import WhatWeLearnedCard from "@/components/planner/WhatWeLearnedCard";
@@ -547,22 +548,21 @@ const Planner = () => {
     <AppLayout>
       <div className="max-w-5xl mx-auto overflow-x-hidden w-full">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground">
-              {household?.name}'s Week
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              {plan ? `Week of ${new Date(plan.week_start + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : "No plan yet"}
-            </p>
-          </div>
-        {plan && (
-            <Button onClick={() => setShowReplanConfirm(true)} disabled={generating} variant="outline" className="gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Replan This Week
-            </Button>
-          )}
-        </div>
+        <PageHeader
+          eyebrow="Never wonder what's for dinner"
+          icon={CalendarDays}
+          title={household?.name ? `${household.name}'s Week` : "Your Week"}
+          subtitle={plan ? `Week of ${new Date(plan.week_start + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : "No plan yet"}
+          action={
+            plan ? (
+              <Button onClick={() => setShowReplanConfirm(true)} disabled={generating} variant="outline" className="gap-2 rounded-xl">
+                <RefreshCw className="w-4 h-4" />
+                Replan This Week
+              </Button>
+            ) : undefined
+          }
+        />
+
 
         {/* Generating plan spinner (shown at top during replan) */}
         {generating && plan && (
@@ -651,9 +651,11 @@ const Planner = () => {
 
         {/* Empty state — no plan, no chooser shown (shouldn't normally happen) */}
         {!plan && !needsNewPlan && (
-          <Card className="py-16 text-center">
+          <Card className="py-16 text-center glass-card border-border/40 rounded-2xl">
             <CardContent>
-              <ChefHat className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-sky/15 to-primary/10 mb-4">
+                <ChefHat className="w-7 h-7 text-primary" />
+              </div>
               <h2 className="text-xl font-serif font-semibold mb-2">No plan yet</h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Click "Generate Plan" to create your personalized weekly meal plan based on your household preferences.

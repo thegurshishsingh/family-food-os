@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/PageHeader";
 import { formatCalories } from "@/lib/nutritionFormat";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import {
   Flame,
   Truck,
   CheckCircle2,
+  History as HistoryIcon,
   Heart,
   Baby,
   RefreshCw,
@@ -51,7 +53,7 @@ const FeedbackCard = ({ entry }: { entry: FeedbackEntry }) => {
   const Icon = config.icon;
 
   return (
-    <Card>
+    <Card className="glass-card border-border/40 rounded-2xl">
       <CardContent className="py-3 px-4 flex items-center gap-3">
         <Icon className={`w-5 h-5 shrink-0 ${config.color}`} />
         <div className="flex-1 min-w-0">
@@ -142,10 +144,13 @@ const PlanHistory = () => {
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground mb-2">History</h1>
-        <p className="text-muted-foreground text-sm mb-6">
-          Browse your past weekly plans and revisit what your family loved or skipped.
-        </p>
+        <PageHeader
+          eyebrow="Your dinner story, week by week"
+          icon={HistoryIcon}
+          title="History"
+          subtitle="Browse your past weekly plans and revisit what your family loved or skipped."
+        />
+
 
         <Tabs defaultValue="plans">
           <TabsList className="mb-6">
@@ -155,13 +160,16 @@ const PlanHistory = () => {
 
           <TabsContent value="plans">
             {weeks.length === 0 ? (
-              <Card className="py-16 text-center">
+              <Card className="py-16 text-center glass-card border-border/40 rounded-2xl">
                 <CardContent>
-                  <ChefHat className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-sky/15 to-primary/10 mb-4">
+                    <ChefHat className="w-7 h-7 text-primary" />
+                  </div>
                   <h2 className="text-xl font-serif font-semibold mb-2">No history yet</h2>
                   <p className="text-muted-foreground">Generate your first weekly plan to start building history.</p>
                 </CardContent>
               </Card>
+
             ) : (
               <>
                 <TrendCharts weeks={weeks} weeklyBudget={preferences?.weekly_grocery_budget ? Number(preferences.weekly_grocery_budget) : null} />
@@ -178,7 +186,7 @@ const PlanHistory = () => {
                   });
 
                   return (
-                    <Card key={week.id} className="overflow-hidden">
+                    <Card key={week.id} className="overflow-hidden glass-card border-border/40 rounded-2xl">
                       <button
                         onClick={() => toggleWeek(week.id)}
                         className="w-full flex items-center justify-between p-4 md:p-5 text-left hover:bg-muted/50 transition-colors"
@@ -282,15 +290,18 @@ const PlanHistory = () => {
 
           <TabsContent value="memory">
             {feedback.length === 0 ? (
-              <Card className="py-16 text-center">
+              <Card className="py-16 text-center glass-card border-border/40 rounded-2xl">
                 <CardContent>
-                  <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-coral/15 to-accent/10 mb-4">
+                    <Heart className="w-7 h-7 text-coral" />
+                  </div>
                   <h2 className="text-xl font-serif font-semibold mb-2">No feedback yet</h2>
                   <p className="text-muted-foreground max-w-md mx-auto">
                     After meals, mark how they went. Over time, your plan gets smarter.
                   </p>
                 </CardContent>
               </Card>
+
             ) : (
               <Tabs defaultValue="loved">
                 <TabsList className="mb-6">

@@ -42,9 +42,17 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background overflow-x-hidden">
+      {/* Ambient theme wash — mirrors the landing page aesthetic */}
+      <div className="fixed inset-0 -z-10 pointer-events-none gradient-mesh" aria-hidden="true" />
+      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[760px] h-[420px] rounded-full bg-gradient-to-b from-sage/15 via-primary/8 to-transparent blur-3xl" />
+        <div className="absolute -bottom-40 -left-16 w-[380px] h-[380px] rounded-full bg-gradient-to-tr from-accent/10 to-transparent blur-3xl" />
+      </div>
+
       {/* Top nav */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <nav className="sticky top-0 z-50 glass-strong border-b border-border/40">
+
         <div className="container flex items-center justify-between h-14 px-4">
           <Link to="/planner" className="flex items-center gap-2">
             <Logo size="sm" showText={false} />
@@ -97,7 +105,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
 
         </div>
       </nav>
-      <main className="container px-4 py-6 max-w-full overflow-x-hidden">{children}</main>
+      <main className="container relative z-10 px-4 py-6 max-w-full overflow-x-hidden">{children}</main>
     </div>
   );
 };

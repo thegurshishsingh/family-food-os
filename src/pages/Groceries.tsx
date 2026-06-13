@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useHousehold } from "@/hooks/useHousehold";
 import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -88,22 +89,25 @@ const Groceries = () => {
   return (
     <AppLayout>
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground">Grocery List</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {items.length > 0 ? `${checkedCount}/${items.length} items checked` : "No groceries yet"}
-            </p>
-          </div>
-          <Button variant="outline" size="sm" className="gap-1.5" disabled>
-            <Download className="w-4 h-4" /> Export
-          </Button>
-        </div>
+        <PageHeader
+          eyebrow="One trip, nothing forgotten"
+          icon={ShoppingCart}
+          title="Grocery List"
+          subtitle={items.length > 0 ? `${checkedCount}/${items.length} items checked` : "No groceries yet"}
+          action={
+            <Button variant="outline" size="sm" className="gap-1.5 rounded-xl" disabled>
+              <Download className="w-4 h-4" /> Export
+            </Button>
+          }
+        />
+
 
         {items.length === 0 ? (
-          <Card className="py-16 text-center">
+          <Card className="py-16 text-center glass-card border-border/40 rounded-2xl">
             <CardContent>
-              <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-sky/15 to-primary/10 mb-4">
+                <ShoppingCart className="w-7 h-7 text-primary" />
+              </div>
               <h2 className="text-xl font-serif font-semibold mb-2">No groceries yet</h2>
               <p className="text-muted-foreground max-w-md mx-auto">
                 Generate a weekly plan first — your grocery list will appear here automatically.
@@ -113,7 +117,7 @@ const Groceries = () => {
         ) : (
           <div className="space-y-6">
             {groupedByCategory.map((group) => (
-              <Card key={group.category}>
+              <Card key={group.category} className="glass-card border-border/40 rounded-2xl overflow-hidden">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg font-serif capitalize">
                     <span>{CATEGORY_EMOJI[group.category] || "📦"}</span>
@@ -121,6 +125,7 @@ const Groceries = () => {
                     <Badge variant="secondary" className="text-xs ml-auto">{group.items.length}</Badge>
                   </CardTitle>
                 </CardHeader>
+
                 <CardContent className="space-y-1">
                   {group.items.map((item) => (
                     <label
