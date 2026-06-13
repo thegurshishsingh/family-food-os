@@ -28,7 +28,6 @@ interface DayCardProps {
   isSavedMeal?: boolean;
   isFirst?: boolean;
   onSwapMeal: (day: PlanDay) => void;
-  onToggleLock: (day: PlanDay) => void;
   onCycleMealMode: (day: PlanDay) => void;
   onSubmitFeedback: (day: PlanDay, feedback: FeedbackType) => void;
   onSaveEdit: (day: PlanDay, name: string, desc: string) => void;
