@@ -27,8 +27,26 @@ import WeeklyPlanSetup, { type PlanSetupData, type SavedMealOption } from "@/com
 import PlanTypeChooser from "@/components/planner/PlanTypeChooser";
 import RetroCheckInDialog from "@/components/planner/RetroCheckInDialog";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
+import { resolvePerServingMacros } from "@/lib/nutrition";
 
 type PlanType = "full_week" | "partial_week" | null;
+
+/**
+ * Overrides a plan day's macros with authoritative PER-SERVING values derived
+ * from its ingredient list (falling back to stored values when ingredients
+ * can't be matched). This keeps every nutrition display per single serving.
+ */
+const withPerServingNutrition = (day: PlanDay): PlanDay => {
+  const m = resolvePerServingMacros(day, day.ingredients as any);
+  return {
+    ...day,
+    calories: m.calories || null,
+    protein_g: m.protein_g || null,
+    carbs_g: m.carbs_g || null,
+    fat_g: m.fat_g || null,
+    fiber_g: m.fiber_g || null,
+  };
+};
 
 const Planner = () => {
   const { user } = useAuth();
@@ -194,7 +212,7 @@ const Planner = () => {
         .eq("plan_id", p.id)
         .order("day_of_week");
       if (planDays) {
-        setDays(planDays as unknown as PlanDay[]);
+        setDays((planDays as unknown as PlanDay[]).map(withPerServingNutrition));
         const dayIds = planDays.map((d: any) => d.id);
 
         const [fbResult, ciResult] = await Promise.all([
@@ -398,7 +416,7 @@ const Planner = () => {
         setDays((prev) =>
           prev.map((d) =>
             d.id === swapDayContext.id
-              ? { ...d, meal_name: data.meal.meal_name, meal_description: data.meal.meal_description, cuisine_type: data.meal.cuisine_type || null, prep_time_minutes: data.meal.prep_time_minutes || null, calories: data.meal.calories, protein_g: data.meal.protein_g, carbs_g: data.meal.carbs_g, fat_g: data.meal.fat_g, fiber_g: data.meal.fiber_g || null, ingredients: data.meal.ingredients || null, instructions: data.meal.instructions || null }
+              ? withPerServingNutrition({ ...d, meal_name: data.meal.meal_name, meal_description: data.meal.meal_description, cuisine_type: data.meal.cuisine_type || null, prep_time_minutes: data.meal.prep_time_minutes || null, calories: data.meal.calories, protein_g: data.meal.protein_g, carbs_g: data.meal.carbs_g, fat_g: data.meal.fat_g, fiber_g: data.meal.fiber_g || null, ingredients: data.meal.ingredients || null, instructions: data.meal.instructions || null })
               : d
           )
         );

@@ -284,6 +284,9 @@ const DayCard = ({
             {formatMacro(day.fat_g, "fat") && <Badge variant="secondary" className="text-[11px] sm:text-xs hidden sm:inline-flex">{formatMacro(day.fat_g, "fat")}</Badge>}
             {day.prep_time_minutes && day.meal_mode === "cook" && <Badge variant="outline" className="text-[11px] sm:text-xs">{day.prep_time_minutes} min</Badge>}
             {day.cuisine_type && <Badge variant="outline" className="text-[11px] sm:text-xs">{day.cuisine_type}</Badge>}
+            {formatCalories(day.calories) && (
+              <span className="text-[10px] sm:text-[11px] text-muted-foreground/70 self-center ml-0.5">per serving</span>
+            )}
           </div>
 
           {/* Feedback */}

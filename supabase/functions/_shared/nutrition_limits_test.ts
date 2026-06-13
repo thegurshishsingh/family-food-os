@@ -16,11 +16,11 @@ import {
 
 // Hard per-serving ceilings — must match clamp() in nutrition.ts.
 const MAX: Macros = {
-  calories: 2500,
-  protein_g: 250,
-  carbs_g: 350,
-  fat_g: 200,
-  fiber_g: 80,
+  calories: 1400,
+  protein_g: 100,
+  carbs_g: 180,
+  fat_g: 110,
+  fiber_g: 50,
 };
 
 const assertWithinLimits = (m: Macros, label: string) => {

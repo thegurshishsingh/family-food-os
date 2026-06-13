@@ -1,14 +1,20 @@
-// Shared nutrition normalizer for edge functions.
-// AI ingredients are specified PER SINGLE SERVING. This module re-computes
-// macros from the ingredient list using a curated per-100g reference table
-// and unit→grams conversions, then reconciles them with the AI's reported
-// macros (overriding when the AI value is implausibly low/high).
+/**
+ * Frontend nutrition model — mirrors supabase/functions/_shared/nutrition.ts.
+ *
+ * Recipe ingredients are specified PER SINGLE SERVING. This module recomputes
+ * per-serving macros directly from the ingredient list using a curated
+ * per-100g reference table plus unit→grams conversions. The ingredient-derived
+ * value is treated as the source of truth whenever we can confidently match
+ * enough ingredients; otherwise we fall back to the stored (AI-reported) value.
+ *
+ * This guarantees the weekly plan always shows realistic PER-SERVING nutrition,
+ * even for older plans whose stored macros were AI hallucinations.
+ */
 
 export type Ingredient = {
-  name?: string;
+  name?: string | null;
   quantity?: string | number | null;
   unit?: string | null;
-  // Optional hints AI can pass through. We tolerate them being absent.
   notes?: string | null;
   preparation?: string | null;
 };
@@ -79,7 +85,7 @@ const REF: Array<{ match: RegExp; ref: Ref }> = [
   { match: /(quinoa)/i, ref: { cal: 120, p: 4.4, c: 21, f: 1.9, fib: 2.8 } },
   { match: /(farro|barley|spelt)/i, ref: { cal: 130, p: 5, c: 26, f: 0.8, fib: 3.5 } },
   { match: /(orzo|risotto|arborio)/i, ref: { cal: 158, p: 6, c: 31, f: 1, fib: 1.8 } },
-  { match: /(pasta|spaghetti|penne|noodle|linguine|fettuccine|rigatoni|macaroni|ramen|udon|soba|rice\s*noodle|vermicelli|lasagna)/i, ref: { cal: 158, p: 6, c: 31, f: 1, fib: 1.8 } },
+  { match: /(pasta|spaghetti|penne|noodle|linguine|fettuccine|rigatoni|macaroni|ramen|udon|soba|rice\s*noodle|vermicelli|lasagna|rotini|fusilli)/i, ref: { cal: 158, p: 6, c: 31, f: 1, fib: 1.8 } },
   { match: /(couscous|bulgur|millet)/i, ref: { cal: 112, p: 3.8, c: 23, f: 0.2, fib: 1.4 } },
   { match: /(oat|oatmeal|granola)/i, ref: { cal: 70, p: 2.5, c: 12, f: 1.5, fib: 1.7 } },
   { match: /(sweet\s*potato|yam)/i, ref: { cal: 86, p: 1.6, c: 20, f: 0.1, fib: 3 } },
@@ -155,17 +161,13 @@ const lookup = (name: string): Ref | null => {
   return null;
 };
 
-// Pull a serving-size hint like "(7.5 oz drained)", "drained 7 oz", "100g serving"
-// out of a free-form name. Returns grams or null.
 const extractInlineGrams = (raw: string): number | null => {
   if (!raw) return null;
   const s = raw.toLowerCase();
-  // grams / kilograms
   const g = s.match(/(\d+(?:\.\d+)?)\s*(g|gram|grams)\b/);
   if (g) return parseFloat(g[1]);
   const kg = s.match(/(\d+(?:\.\d+)?)\s*(kg|kilogram|kilograms)\b/);
   if (kg) return parseFloat(kg[1]) * 1000;
-  // ounces / pounds
   const oz = s.match(/(\d+(?:\.\d+)?)\s*(oz|ounce|ounces)\b/);
   if (oz) return parseFloat(oz[1]) * 28.35;
   const lb = s.match(/(\d+(?:\.\d+)?)\s*(lb|lbs|pound|pounds)\b/);
@@ -173,24 +175,20 @@ const extractInlineGrams = (raw: string): number | null => {
   return null;
 };
 
-// Convert (qty, unit, name) → grams. Returns 0 when we cannot estimate.
 const toGrams = (qty: number, unit: string, name: string): number => {
   const u = (unit || "").toLowerCase().trim().replace(/\.$/, "");
   const n = (name || "").toLowerCase();
 
-  // Direct mass
   if (/^(g|gr|gram|grams)$/.test(u)) return qty;
   if (/^(kg|kilogram|kilograms)$/.test(u)) return qty * 1000;
   if (/^(mg|milligram|milligrams)$/.test(u)) return qty / 1000;
   if (/^(oz|ounce|ounces)$/.test(u)) return qty * 28.35;
   if (/^(lb|lbs|pound|pounds)$/.test(u)) return qty * 453.6;
 
-  // Volume → grams (water density default; oils/dairy close enough)
   if (/^(ml|milliliter|milliliters)$/.test(u)) return qty;
   if (/^(l|liter|liters|litre|litres)$/.test(u)) return qty * 1000;
   if (/^(fl\s*oz|fluid\s*ounce|fluid\s*ounces)$/.test(u)) return qty * 30;
   if (/^(cup|cups|c)$/.test(u)) {
-    // Cup densities vary wildly — bias by ingredient
     if (/(rice|quinoa|couscous|bulgur|farro|barley|oat|granola)/.test(n)) return qty * 185;
     if (/(flour|cornstarch|breadcrumb|panko)/.test(n)) return qty * 125;
     if (/(sugar|brown\s*sugar)/.test(n)) return qty * 200;
@@ -199,7 +197,7 @@ const toGrams = (qty: number, unit: string, name: string): number => {
     if (/(spinach|kale|lettuce|arugula|greens|herb)/.test(n)) return qty * 30;
     if (/(broccoli|cauliflower|cabbage)/.test(n)) return qty * 90;
     if (/(cheese|shredded\s*cheese|grated)/.test(n)) return qty * 110;
-    return qty * 240; // liquid default
+    return qty * 240;
   }
   if (/^(pint|pt)$/.test(u)) return qty * 480;
   if (/^(quart|qt)$/.test(u)) return qty * 960;
@@ -215,7 +213,6 @@ const toGrams = (qty: number, unit: string, name: string): number => {
     return qty * 60;
   }
 
-  // Count units — depend on the ingredient
   if (/^(piece|pieces|pc|pcs|whole|fillet|fillets|breast|breasts|thigh|thighs|leg|legs|drumstick|drumsticks|wing|wings|patty|patties|chop|chops|steak|steaks|cutlet|cutlets|link|links|strip|strips)$/.test(u)) {
     if (/chicken\s*breast/.test(n)) return qty * 170;
     if (/chicken\s*thigh/.test(n)) return qty * 110;
@@ -223,7 +220,7 @@ const toGrams = (qty: number, unit: string, name: string): number => {
     if (/(salmon|cod|tilapia|halibut|fish|fillet)/.test(n)) return qty * 150;
     if (/(steak|chop|patty|pork|beef|lamb)/.test(n)) return qty * 170;
     if (/(sausage|link|hot\s*dog|bratwurst)/.test(n)) return qty * 75;
-    if (/bacon/.test(n)) return qty * 12; // per strip
+    if (/bacon/.test(n)) return qty * 12;
     if (/shrimp|prawn|scallop/.test(n)) return qty * 15;
     if (/(egg)/.test(n)) return qty * 50;
     if (/(slice|bread|toast|bacon)/.test(n) || /(bread|toast)/.test(u)) return qty * 30;
@@ -235,7 +232,7 @@ const toGrams = (qty: number, unit: string, name: string): number => {
     if (/(garlic|clove|shallot)/.test(n)) return qty * 5;
     if (/(scallion|green\s*onion|spring\s*onion)/.test(n)) return qty * 15;
     if (/(berry|berries|grape|cherry|olive)/.test(n)) return qty * 5;
-    return qty * 100; // generic
+    return qty * 100;
   }
   if (/^(slice|slices)$/.test(u)) {
     if (/(bread|toast|sourdough|baguette)/.test(n)) return qty * 30;
@@ -246,10 +243,9 @@ const toGrams = (qty: number, unit: string, name: string): number => {
   }
   if (/^(clove|cloves)$/.test(u)) return qty * 5;
   if (/^(can|cans|tin|tins)$/.test(u)) {
-    // Standard 14-15 oz can; "drained" weight ≈ 240 g for legumes, 400 g liquid
     if (/(bean|chickpea|garbanzo|lentil|corn|tomato\s*(diced|crushed|whole))/.test(n)) return qty * 240;
     if (/(coconut\s*milk|stock|broth|tomato\s*sauce|tomato\s*paste)/.test(n)) return qty * 400;
-    if (/(tuna|salmon|sardine|anchovy)/.test(n)) return qty * 140; // drained
+    if (/(tuna|salmon|sardine|anchovy)/.test(n)) return qty * 140;
     return qty * 240;
   }
   if (/^(jar|jars)$/.test(u)) return qty * 350;
@@ -260,8 +256,8 @@ const toGrams = (qty: number, unit: string, name: string): number => {
   }
   if (/^(box|boxes|bag|bags)$/.test(u)) return qty * 400;
   if (/^(block|blocks)$/.test(u)) {
-    if (/tofu/.test(n)) return qty * 396; // standard 14 oz block
-    if (/cheese/.test(n)) return qty * 226; // 8 oz
+    if (/tofu/.test(n)) return qty * 396;
+    if (/cheese/.test(n)) return qty * 226;
     return qty * 200;
   }
   if (/^(stick|sticks)$/.test(u)) {
@@ -278,13 +274,9 @@ const toGrams = (qty: number, unit: string, name: string): number => {
   if (/^(medium|med)$/.test(u)) return qty * 130;
   if (/^(large|lg)$/.test(u)) return qty * 180;
   if (/^(xl|extra\s*large)$/.test(u)) return qty * 220;
-  if (/^(serving|servings|portion|portions)$/.test(u)) {
-    // Try to extract from name (e.g., "chicken (1 serving = 4 oz)")
-    return qty * 100;
-  }
+  if (/^(serving|servings|portion|portions)$/.test(u)) return qty * 100;
 
   if (!u) {
-    // Bare numbers — assume "piece" semantics
     if (/(egg)/.test(n)) return qty * 50;
     if (/(garlic|clove)/.test(n)) return qty * 5;
     if (/(slice|toast|bread)/.test(n)) return qty * 30;
@@ -298,62 +290,66 @@ const parseQty = (q: unknown): number => {
   if (typeof q !== "string") return 0;
   let s = q.trim().toLowerCase();
   if (!s) return 0;
-  // Strip common qualifiers
   s = s.replace(/\bapprox(?:imately)?\.?\b/g, "")
        .replace(/\babout\b/g, "")
        .replace(/\b(roughly|around|~)\b/g, "")
        .trim();
-  // Unicode fractions
   const uni: Record<string, number> = {
     "½": 0.5, "⅓": 1 / 3, "⅔": 2 / 3, "¼": 0.25, "¾": 0.75,
     "⅕": 0.2, "⅖": 0.4, "⅗": 0.6, "⅘": 0.8,
     "⅙": 1 / 6, "⅚": 5 / 6, "⅛": 0.125, "⅜": 0.375, "⅝": 0.625, "⅞": 0.875,
   };
-  // Mixed unicode: "1 ½"
   const mixUni = s.match(/^(\d+)\s*([½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞])$/);
   if (mixUni) return parseInt(mixUni[1]) + uni[mixUni[2]];
   if (uni[s]) return uni[s];
-  // Mixed fraction: "1 1/2"
   const mixed = s.match(/^(\d+)\s+(\d+)\/(\d+)/);
   if (mixed) return parseInt(mixed[1]) + parseInt(mixed[2]) / parseInt(mixed[3]);
-  // Plain fraction: "1/2"
   const frac = s.match(/^(\d+)\/(\d+)/);
   if (frac) return parseInt(frac[1]) / parseInt(frac[2]);
-  // Range: "1-2" → average
   const range = s.match(/^(\d+(?:\.\d+)?)\s*[-–to]+\s*(\d+(?:\.\d+)?)/);
   if (range) return (parseFloat(range[1]) + parseFloat(range[2])) / 2;
-  // First number
   const num = s.match(/(\d+(?:\.\d+)?)/);
   if (num) return parseFloat(num[1]);
   return 0;
 };
 
+export type ComputeResult = Macros & {
+  /** Number of ingredients we could match against the reference table. */
+  matched: number;
+  /** Total number of ingredients considered. */
+  total: number;
+};
+
+/**
+ * Compute PER-SERVING macros from a per-serving ingredient list.
+ * `servings` only divides totals when ingredients describe more than one serving
+ * (the app always stores ingredients per single serving, so default is 1).
+ */
 export const computeMacrosFromIngredients = (
   ingredients: Ingredient[] | null | undefined,
   servings = 1,
-): Macros => {
+): ComputeResult => {
   const total: Macros = { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0, fiber_g: 0 };
-  if (!Array.isArray(ingredients) || ingredients.length === 0 || servings <= 0) return total;
+  const list = Array.isArray(ingredients) ? ingredients : [];
+  if (list.length === 0 || servings <= 0) {
+    return { ...total, matched: 0, total: list.length };
+  }
 
-  for (const ing of ingredients) {
+  let matched = 0;
+  for (const ing of list) {
     const name = (ing?.name || "").toString();
     const ref = lookup(name);
     if (!ref) continue;
-    // Prefer explicit qty+unit, then fall back to inline grams hidden in the name
-    // (e.g., "canned chickpeas (7.5 oz drained)").
     let grams = 0;
     const qty = parseQty(ing?.quantity);
-    if (qty > 0) {
-      grams = toGrams(qty, (ing?.unit || "").toString(), name);
-    }
+    if (qty > 0) grams = toGrams(qty, (ing?.unit || "").toString(), name);
     if (grams <= 0) {
       const fromName = extractInlineGrams(`${name} ${ing?.notes ?? ""} ${ing?.preparation ?? ""}`);
       if (fromName) grams = fromName;
     }
     if (grams <= 0) continue;
-    // Sanity clamp: no single ingredient in a per-serving recipe should exceed ~2 kg.
-    // This guards against AI hallucinations like "255850 g of mozzarella".
     if (grams > 2000) grams = 2000;
+    matched += 1;
     const factor = grams / 100;
     total.calories += ref.cal * factor;
     total.protein_g += ref.p * factor;
@@ -368,70 +364,65 @@ export const computeMacrosFromIngredients = (
     carbs_g: Math.round((total.carbs_g / servings) * 10) / 10,
     fat_g: Math.round((total.fat_g / servings) * 10) / 10,
     fiber_g: Math.round((total.fiber_g / servings) * 10) / 10,
+    matched,
+    total: list.length,
   };
 };
 
+// Realistic PER-SERVING maxima. Guards against AI hallucinations that report
+// household totals (e.g. "170g protein") as if they were a single serving.
+const clampPerServing = (m: Macros): Macros => ({
+  calories: Math.min(Math.max(Math.round(m.calories), 0), 1400),
+  protein_g: Math.min(Math.max(m.protein_g, 0), 100),
+  carbs_g: Math.min(Math.max(m.carbs_g, 0), 180),
+  fat_g: Math.min(Math.max(m.fat_g, 0), 110),
+  fiber_g: Math.min(Math.max(m.fiber_g, 0), 50),
+});
+
+export type StoredMacros = {
+  calories?: number | null;
+  protein_g?: number | null;
+  carbs_g?: number | null;
+  fat_g?: number | null;
+  fiber_g?: number | null;
+};
+
 /**
- * Reconcile AI-reported macros against a per-ingredient computation.
- * - When the ingredient list is well covered (>=3 matched AND >=50% coverage),
- *   the ingredient-derived computation is the source of truth — AI macros are
- *   frequently hallucinated (household totals reported as a single serving).
- * - When coverage is partial we blend AI + computed.
- * - When we can't compute reliably we keep AI values.
- * Result is always PER-SERVING and clamped to realistic single-serving maxima.
+ * Resolve the authoritative PER-SERVING macros for a meal.
+ *
+ * Strategy:
+ * - When we can confidently match the ingredient list (>=3 ingredients matched
+ *   AND >=50% coverage), the ingredient-derived computation is the source of
+ *   truth — this corrects AI hallucinations on existing plans.
+ * - Otherwise we fall back to the stored value, clamped to realistic
+ *   per-serving maxima.
  */
-export const normalizeMacros = (
-  ai: Partial<Macros> | null | undefined,
+export const resolvePerServingMacros = (
+  stored: StoredMacros | null | undefined,
   ingredients: Ingredient[] | null | undefined,
-  recipeServings = 1,
 ): Macros => {
-  const computed = computeMacrosFromIngredients(ingredients, recipeServings);
-  const aiSafe: Macros = {
-    calories: Number(ai?.calories) || 0,
-    protein_g: Number(ai?.protein_g) || 0,
-    carbs_g: Number(ai?.carbs_g) || 0,
-    fat_g: Number(ai?.fat_g) || 0,
-    fiber_g: Number(ai?.fiber_g) || 0,
+  const computed = computeMacrosFromIngredients(ingredients, 1);
+  const storedSafe: Macros = {
+    calories: Number(stored?.calories) || 0,
+    protein_g: Number(stored?.protein_g) || 0,
+    carbs_g: Number(stored?.carbs_g) || 0,
+    fat_g: Number(stored?.fat_g) || 0,
+    fiber_g: Number(stored?.fiber_g) || 0,
   };
 
-  const list = Array.isArray(ingredients) ? ingredients : [];
-  const knownCount = list.filter((i) => lookup((i?.name || "").toString())).length;
-  const coverage = list.length > 0 ? knownCount / list.length : 0;
+  const coverage = computed.total > 0 ? computed.matched / computed.total : 0;
+  const confident = computed.matched >= 3 && coverage >= 0.5 && computed.calories > 0;
 
-  // Realistic PER-SERVING maxima — guards against AI / ingredient hallucinations.
-  const clamp = (m: Macros): Macros => ({
-    calories: Math.min(Math.max(Math.round(m.calories), 0), 1400),
-    protein_g: Math.min(Math.max(m.protein_g, 0), 100),
-    carbs_g: Math.min(Math.max(m.carbs_g, 0), 180),
-    fat_g: Math.min(Math.max(m.fat_g, 0), 110),
-    fiber_g: Math.min(Math.max(m.fiber_g, 0), 50),
-  });
-
-  // Not enough signal — keep AI values (still clamped).
-  if (knownCount < 3 || computed.calories === 0) return clamp(aiSafe);
-
-  // Strong coverage — trust the ingredient computation as the source of truth.
-  if (coverage >= 0.5) {
-    return clamp({
+  if (confident) {
+    return clampPerServing({
       calories: computed.calories,
       protein_g: computed.protein_g,
       carbs_g: computed.carbs_g,
       fat_g: computed.fat_g,
-      fiber_g: computed.fiber_g || aiSafe.fiber_g,
+      // Keep stored fiber if our table found none (spices/sauces carry fiber).
+      fiber_g: computed.fiber_g || storedSafe.fiber_g,
     });
   }
 
-  // Partial coverage — keep AI if it's close, otherwise blend toward computed.
-  const proteinDiff = Math.abs(aiSafe.protein_g - computed.protein_g) / Math.max(computed.protein_g, 1);
-  const calorieDiff = Math.abs(aiSafe.calories - computed.calories) / Math.max(computed.calories, 1);
-
-  if (proteinDiff <= 0.35 && calorieDiff <= 0.35) return clamp(aiSafe);
-
-  return clamp({
-    calories: Math.round((aiSafe.calories + computed.calories) / 2) || computed.calories,
-    protein_g: Math.round(((aiSafe.protein_g + computed.protein_g) / 2) * 10) / 10 || computed.protein_g,
-    carbs_g: Math.round(((aiSafe.carbs_g + computed.carbs_g) / 2) * 10) / 10 || computed.carbs_g,
-    fat_g: Math.round(((aiSafe.fat_g + computed.fat_g) / 2) * 10) / 10 || computed.fat_g,
-    fiber_g: Math.max(aiSafe.fiber_g, computed.fiber_g),
-  });
+  return clampPerServing(storedSafe);
 };
