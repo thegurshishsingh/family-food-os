@@ -407,18 +407,35 @@ export const normalizeMacros = (
     fiber_g: Math.min(Math.max(m.fiber_g, 0), 50),
   });
 
-  // Not enough signal — keep AI values (still clamped).
-  if (knownCount < 3 || computed.calories === 0) return clamp(aiSafe);
+  // Ingredient lists are inconsistent: some are per-serving, some are
+  // whole-recipe. If the total calories look like a multi-serving recipe,
+  // estimate the serving count and divide every macro down to one serving.
+  const SINGLE_SERVING_CAL_MAX = 850;
+  const TARGET_SERVING_CAL = 550;
+  const toSingleServing = (m: Macros): Macros => {
+    if (m.calories <= SINGLE_SERVING_CAL_MAX) return m;
+    const servings = Math.min(Math.max(Math.round(m.calories / TARGET_SERVING_CAL), 2), 12);
+    return {
+      calories: m.calories / servings,
+      protein_g: m.protein_g / servings,
+      carbs_g: m.carbs_g / servings,
+      fat_g: m.fat_g / servings,
+      fiber_g: m.fiber_g / servings,
+    };
+  };
+
+  // Not enough signal — keep AI values (normalized + clamped).
+  if (knownCount < 3 || computed.calories === 0) return clamp(toSingleServing(aiSafe));
 
   // Strong coverage — trust the ingredient computation as the source of truth.
   if (coverage >= 0.5) {
-    return clamp({
+    return clamp(toSingleServing({
       calories: computed.calories,
       protein_g: computed.protein_g,
       carbs_g: computed.carbs_g,
       fat_g: computed.fat_g,
       fiber_g: computed.fiber_g || aiSafe.fiber_g,
-    });
+    }));
   }
 
   // Partial coverage — keep AI if it's close, otherwise blend toward computed.
