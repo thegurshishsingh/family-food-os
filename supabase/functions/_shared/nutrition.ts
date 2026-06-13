@@ -373,11 +373,12 @@ export const computeMacrosFromIngredients = (
 
 /**
  * Reconcile AI-reported macros against a per-ingredient computation.
- * - If AI macros look reasonable (within tolerance), keep them.
- * - If AI macros are clearly wrong (>35% off on protein OR calories,
- *   when our computed value has at least 3 known ingredients), use our values.
- * Always treats the result as PER-SERVING. If `recipeServings > 1`, the
- * ingredient-derived totals are divided down to per-serving.
+ * - When the ingredient list is well covered (>=3 matched AND >=50% coverage),
+ *   the ingredient-derived computation is the source of truth — AI macros are
+ *   frequently hallucinated (household totals reported as a single serving).
+ * - When coverage is partial we blend AI + computed.
+ * - When we can't compute reliably we keep AI values.
+ * Result is always PER-SERVING and clamped to realistic single-serving maxima.
  */
 export const normalizeMacros = (
   ai: Partial<Macros> | null | undefined,
@@ -393,23 +394,34 @@ export const normalizeMacros = (
     fiber_g: Number(ai?.fiber_g) || 0,
   };
 
-  const knownCount = (Array.isArray(ingredients) ? ingredients : []).filter(
-    (i) => lookup((i?.name || "").toString()),
-  ).length;
+  const list = Array.isArray(ingredients) ? ingredients : [];
+  const knownCount = list.filter((i) => lookup((i?.name || "").toString())).length;
+  const coverage = list.length > 0 ? knownCount / list.length : 0;
 
-  // Final per-serving sanity clamp. No realistic single dinner serving should
-  // exceed these maxima — guards against AI / ingredient hallucinations.
+  // Realistic PER-SERVING maxima — guards against AI / ingredient hallucinations.
   const clamp = (m: Macros): Macros => ({
-    calories: Math.min(Math.max(m.calories, 0), 2500),
-    protein_g: Math.min(Math.max(m.protein_g, 0), 250),
-    carbs_g: Math.min(Math.max(m.carbs_g, 0), 350),
-    fat_g: Math.min(Math.max(m.fat_g, 0), 200),
-    fiber_g: Math.min(Math.max(m.fiber_g, 0), 80),
+    calories: Math.min(Math.max(Math.round(m.calories), 0), 1400),
+    protein_g: Math.min(Math.max(m.protein_g, 0), 100),
+    carbs_g: Math.min(Math.max(m.carbs_g, 0), 180),
+    fat_g: Math.min(Math.max(m.fat_g, 0), 110),
+    fiber_g: Math.min(Math.max(m.fiber_g, 0), 50),
   });
 
   // Not enough signal — keep AI values (still clamped).
   if (knownCount < 3 || computed.calories === 0) return clamp(aiSafe);
 
+  // Strong coverage — trust the ingredient computation as the source of truth.
+  if (coverage >= 0.5) {
+    return clamp({
+      calories: computed.calories,
+      protein_g: computed.protein_g,
+      carbs_g: computed.carbs_g,
+      fat_g: computed.fat_g,
+      fiber_g: computed.fiber_g || aiSafe.fiber_g,
+    });
+  }
+
+  // Partial coverage — keep AI if it's close, otherwise blend toward computed.
   const proteinDiff = Math.abs(aiSafe.protein_g - computed.protein_g) / Math.max(computed.protein_g, 1);
   const calorieDiff = Math.abs(aiSafe.calories - computed.calories) / Math.max(computed.calories, 1);
 
@@ -417,7 +429,7 @@ export const normalizeMacros = (
 
   return clamp({
     calories: Math.round((aiSafe.calories + computed.calories) / 2) || computed.calories,
-    protein_g: Math.max(aiSafe.protein_g, computed.protein_g),
+    protein_g: Math.round(((aiSafe.protein_g + computed.protein_g) / 2) * 10) / 10 || computed.protein_g,
     carbs_g: Math.round(((aiSafe.carbs_g + computed.carbs_g) / 2) * 10) / 10 || computed.carbs_g,
     fat_g: Math.round(((aiSafe.fat_g + computed.fat_g) / 2) * 10) / 10 || computed.fat_g,
     fiber_g: Math.max(aiSafe.fiber_g, computed.fiber_g),
