@@ -472,8 +472,6 @@ const Planner = () => {
   };
 
   const handleDragStart = (dayId: string) => {
-    const day = days.find((d) => d.id === dayId);
-    if (day?.is_locked) return;
     setDraggedDayId(dayId);
   };
 
