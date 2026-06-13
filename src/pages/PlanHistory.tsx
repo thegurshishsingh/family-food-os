@@ -290,15 +290,18 @@ const PlanHistory = () => {
 
           <TabsContent value="memory">
             {feedback.length === 0 ? (
-              <Card className="py-16 text-center">
+              <Card className="py-16 text-center glass-card border-border/40 rounded-2xl">
                 <CardContent>
-                  <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-coral/15 to-accent/10 mb-4">
+                    <Heart className="w-7 h-7 text-coral" />
+                  </div>
                   <h2 className="text-xl font-serif font-semibold mb-2">No feedback yet</h2>
                   <p className="text-muted-foreground max-w-md mx-auto">
                     After meals, mark how they went. Over time, your plan gets smarter.
                   </p>
                 </CardContent>
               </Card>
+
             ) : (
               <Tabs defaultValue="loved">
                 <TabsList className="mb-6">
