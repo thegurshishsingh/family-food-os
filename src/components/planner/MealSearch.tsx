@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { Search, Sparkles, Clock, Flame, ChefHat, Check } from "lucide-react";
 import { DAYS, type PlanDay } from "./types";
 import type { MealSuggestion } from "./SwapMealDialog";
@@ -149,7 +149,7 @@ const MealSearch = ({ days, householdId, todayDow, onAdded }: MealSearchProps) =
             </DialogHeader>
           </div>
 
-          <ScrollArea className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
             <div className="px-5 py-4 space-y-5">
               {previewMeal && (
                 <>
@@ -264,7 +264,7 @@ const MealSearch = ({ days, householdId, todayDow, onAdded }: MealSearchProps) =
                 </>
               )}
             </div>
-          </ScrollArea>
+          </div>
 
           {/* Footer */}
           <div className="px-5 py-3 border-t border-border/60 bg-background flex items-center justify-end gap-2">
