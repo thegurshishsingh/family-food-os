@@ -461,15 +461,7 @@ const Planner = () => {
     }
   };
 
-  const toggleLock = async (day: PlanDay) => {
-    const { error } = await supabase.from("plan_days").update({ is_locked: !day.is_locked }).eq("id", day.id);
-    if (!error) {
-      setDays((prev) => prev.map((d) => (d.id === day.id ? { ...d, is_locked: !d.is_locked } : d)));
-    }
-  };
-
   const cycleMealMode = async (day: PlanDay) => {
-    if (day.is_locked) return;
     const modes: MealMode[] = ["cook", "leftovers", "takeout", "dine_out", "emergency"];
     const nextIdx = (modes.indexOf(day.meal_mode) + 1) % modes.length;
     const newMode = modes[nextIdx];
