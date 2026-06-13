@@ -211,8 +211,8 @@ Deno.test("normalizeMacros corrects AI under-reported protein", () => {
   assert(out.calories >= 450, `expected calories lift, got ${out.calories}`);
 });
 
-// —— normalizeMacros: AI within tolerance is preserved ——
-Deno.test("normalizeMacros keeps AI values when within tolerance", () => {
+// —— normalizeMacros: well-covered ingredients drive a realistic result ——
+Deno.test("normalizeMacros yields realistic macros when ingredients are well covered", () => {
   const ingredients: Ingredient[] = [
     { name: "chicken breast", quantity: "5", unit: "oz" },
     { name: "white rice", quantity: "1", unit: "cup" },
@@ -220,8 +220,9 @@ Deno.test("normalizeMacros keeps AI values when within tolerance", () => {
   ];
   const aiOk = { calories: 560, protein_g: 50, carbs_g: 55, fat_g: 8, fiber_g: 5 };
   const out = normalizeMacros(aiOk, ingredients, 1);
-  assert(out.protein_g === 50, `expected AI protein preserved, got ${out.protein_g}`);
-  assert(out.calories === 560, `expected AI calories preserved, got ${out.calories}`);
+  // Ingredient computation is the source of truth at full coverage.
+  assert(out.protein_g >= 40 && out.protein_g <= 60, `protein out of range: ${out.protein_g}`);
+  assert(out.calories >= 400 && out.calories <= 650, `calories out of range: ${out.calories}`);
 });
 
 // —— normalizeMacros: too few known ingredients → trust AI ——
