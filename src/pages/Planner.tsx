@@ -212,7 +212,7 @@ const Planner = () => {
         .eq("plan_id", p.id)
         .order("day_of_week");
       if (planDays) {
-        setDays(planDays as unknown as PlanDay[]);
+        setDays((planDays as unknown as PlanDay[]).map(withPerServingNutrition));
         const dayIds = planDays.map((d: any) => d.id);
 
         const [fbResult, ciResult] = await Promise.all([
