@@ -19,6 +19,7 @@ import DayCard from "@/components/planner/DayCard";
 import SwapMealDialog, { type MealSuggestion } from "@/components/planner/SwapMealDialog";
 import DailyDinnerCard from "@/components/planner/DailyDinnerCard";
 import MobileReorderSheet from "@/components/planner/MobileReorderSheet";
+import MealSearch from "@/components/planner/MealSearch";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
 import NotificationsNudge from "@/components/planner/NotificationsNudge";
