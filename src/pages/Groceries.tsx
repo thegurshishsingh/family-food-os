@@ -89,17 +89,18 @@ const Groceries = () => {
   return (
     <AppLayout>
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground">Grocery List</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {items.length > 0 ? `${checkedCount}/${items.length} items checked` : "No groceries yet"}
-            </p>
-          </div>
-          <Button variant="outline" size="sm" className="gap-1.5" disabled>
-            <Download className="w-4 h-4" /> Export
-          </Button>
-        </div>
+        <PageHeader
+          eyebrow="One trip, nothing forgotten"
+          icon={ShoppingCart}
+          title="Grocery List"
+          subtitle={items.length > 0 ? `${checkedCount}/${items.length} items checked` : "No groceries yet"}
+          action={
+            <Button variant="outline" size="sm" className="gap-1.5 rounded-xl" disabled>
+              <Download className="w-4 h-4" /> Export
+            </Button>
+          }
+        />
+
 
         {items.length === 0 ? (
           <Card className="py-16 text-center">
