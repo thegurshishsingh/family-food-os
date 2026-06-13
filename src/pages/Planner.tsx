@@ -27,8 +27,26 @@ import WeeklyPlanSetup, { type PlanSetupData, type SavedMealOption } from "@/com
 import PlanTypeChooser from "@/components/planner/PlanTypeChooser";
 import RetroCheckInDialog from "@/components/planner/RetroCheckInDialog";
 import { DAYS, type PlanDay, type WeeklyPlan, type FeedbackType, type MealMode } from "@/components/planner/types";
+import { resolvePerServingMacros } from "@/lib/nutrition";
 
 type PlanType = "full_week" | "partial_week" | null;
+
+/**
+ * Overrides a plan day's macros with authoritative PER-SERVING values derived
+ * from its ingredient list (falling back to stored values when ingredients
+ * can't be matched). This keeps every nutrition display per single serving.
+ */
+const withPerServingNutrition = (day: PlanDay): PlanDay => {
+  const m = resolvePerServingMacros(day, day.ingredients as any);
+  return {
+    ...day,
+    calories: m.calories || null,
+    protein_g: m.protein_g || null,
+    carbs_g: m.carbs_g || null,
+    fat_g: m.fat_g || null,
+    fiber_g: m.fiber_g || null,
+  };
+};
 
 const Planner = () => {
   const { user } = useAuth();
