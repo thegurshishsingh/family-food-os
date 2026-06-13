@@ -487,7 +487,7 @@ const Planner = () => {
     if (!draggedDayId || draggedDayId === targetDayId) { setDraggedDayId(null); return; }
     const source = days.find((d) => d.id === draggedDayId);
     const target = days.find((d) => d.id === targetDayId);
-    if (!source || !target || target.is_locked) { setDraggedDayId(null); return; }
+    if (!source || !target) { setDraggedDayId(null); return; }
 
     const mealFields = ["meal_name", "meal_description", "meal_mode", "cuisine_type", "prep_time_minutes", "calories", "protein_g", "carbs_g", "fat_g", "fiber_g", "notes", "takeout_budget"] as const;
     const sourceData: any = {};
