@@ -186,7 +186,7 @@ const PlanHistory = () => {
                   });
 
                   return (
-                    <Card key={week.id} className="overflow-hidden">
+                    <Card key={week.id} className="overflow-hidden glass-card border-border/40 rounded-2xl">
                       <button
                         onClick={() => toggleWeek(week.id)}
                         className="w-full flex items-center justify-between p-4 md:p-5 text-left hover:bg-muted/50 transition-colors"
