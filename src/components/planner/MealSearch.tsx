@@ -264,7 +264,7 @@ const MealSearch = ({ days, householdId, todayDow, onAdded }: MealSearchProps) =
                 </>
               )}
             </div>
-          </ScrollArea>
+          </div>
 
           {/* Footer */}
           <div className="px-5 py-3 border-t border-border/60 bg-background flex items-center justify-end gap-2">
