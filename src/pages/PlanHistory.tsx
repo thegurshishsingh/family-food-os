@@ -16,6 +16,7 @@ import {
   Flame,
   Truck,
   CheckCircle2,
+  History as HistoryIcon,
   Heart,
   Baby,
   RefreshCw,
