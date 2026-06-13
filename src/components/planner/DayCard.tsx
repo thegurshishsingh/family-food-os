@@ -45,7 +45,7 @@ const ACTION_WIDTH = 72;
 
 const DayCard = ({
   day, index, feedback, isSwapping, isDragged, isDragOver, isToday, householdId, householdSize, checkedIn, isSavedMeal, isFirst,
-  onSwapMeal, onToggleLock, onCycleMealMode, onSubmitFeedback, onSaveEdit,
+  onSwapMeal, onCycleMealMode, onSubmitFeedback, onSaveEdit,
   onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, onCheckedIn, onMobileDragStart,
 }: DayCardProps) => {
   const [editing, setEditing] = useState(false);
