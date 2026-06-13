@@ -35,7 +35,14 @@ export const useHousehold = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) { setLoading(false); return; }
+    if (!user) {
+      setHousehold(null);
+      setPreferences(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
 
     const fetch = async () => {
       const { data: hh } = await supabase
