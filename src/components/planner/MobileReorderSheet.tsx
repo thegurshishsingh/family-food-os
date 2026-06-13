@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeftRight, Lock, Check } from "lucide-react";
+import { ArrowLeftRight, Check } from "lucide-react";
 import { DAYS, MODE_CONFIG, type PlanDay } from "./types";
 
 interface MobileReorderSheetProps {
@@ -29,9 +29,6 @@ const MobileReorderSheet = ({ open, onOpenChange, days, onReorder }: MobileReord
   }, [onOpenChange]);
 
   const handleTap = (index: number) => {
-    const day = orderedDays[index];
-    if (day.is_locked) return;
-
     if (selectedIndex === null) {
       // First tap — select this day
       setSelectedIndex(index);
@@ -41,13 +38,9 @@ const MobileReorderSheet = ({ open, onOpenChange, days, onReorder }: MobileReord
       setSelectedIndex(null);
     } else {
       // Second tap — swap with selected day
-      const targetDay = orderedDays[index];
-      if (targetDay.is_locked) {
-        setSelectedIndex(null);
-        return;
-      }
-
       const sourceDay = orderedDays[selectedIndex];
+      const targetDay = orderedDays[index];
+
       const mealFields: (keyof PlanDay)[] = ["meal_name", "meal_description", "meal_mode", "cuisine_type", "prep_time_minutes", "calories", "protein_g", "carbs_g", "fat_g", "fiber_g", "notes", "takeout_budget"];
       const sourceData: any = {};
       const targetData: any = {};
@@ -81,25 +74,23 @@ const MobileReorderSheet = ({ open, onOpenChange, days, onReorder }: MobileReord
             const mode = MODE_CONFIG[day.meal_mode];
             const Icon = mode.icon;
             const isSelected = selectedIndex === i;
-            const isLocked = !!day.is_locked;
 
             return (
               <button
                 key={day.id}
                 type="button"
                 onClick={() => handleTap(i)}
-                disabled={isLocked}
                 className={`
                   w-full flex items-center gap-3 rounded-xl px-3 py-3 transition-all text-left
                   ${isSelected ? "bg-primary/10 ring-2 ring-primary shadow-md" : "bg-card border border-border/60"}
-                  ${isLocked ? "opacity-50 cursor-not-allowed" : "active:scale-[0.98]"}
+                  active:scale-[0.98]
                 `}
               >
                 {/* Swap icon */}
                 <div className={`p-1.5 rounded-lg transition-colors ${
-                  isSelected ? "text-primary" : isLocked ? "text-muted-foreground/30" : "text-muted-foreground"
+                  isSelected ? "text-primary" : "text-muted-foreground"
                 }`}>
-                  {isLocked ? <Lock className="w-4 h-4" /> : <ArrowLeftRight className="w-4 h-4" />}
+                  <ArrowLeftRight className="w-4 h-4" />
                 </div>
 
                 {/* Day label */}
@@ -124,12 +115,6 @@ const MobileReorderSheet = ({ open, onOpenChange, days, onReorder }: MobileReord
                 {isSelected && (
                   <Badge className="text-[10px] shrink-0 bg-primary text-primary-foreground">
                     Selected
-                  </Badge>
-                )}
-
-                {isLocked && (
-                  <Badge variant="outline" className="text-[10px] shrink-0 gap-1">
-                    <Lock className="w-2.5 h-2.5" /> Locked
                   </Badge>
                 )}
               </button>

@@ -36,7 +36,6 @@ export type PlanDay = {
   carbs_g: number | null;
   fat_g: number | null;
   fiber_g: number | null;
-  is_locked: boolean;
   notes: string | null;
   takeout_budget: number | null;
   ingredients: { name: string; quantity: string; unit?: string }[] | null;
