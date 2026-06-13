@@ -19,6 +19,7 @@ import DayCard from "@/components/planner/DayCard";
 import SwapMealDialog, { type MealSuggestion } from "@/components/planner/SwapMealDialog";
 import DailyDinnerCard from "@/components/planner/DailyDinnerCard";
 import MobileReorderSheet from "@/components/planner/MobileReorderSheet";
+import MealSearch from "@/components/planner/MealSearch";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
 import NotificationsNudge from "@/components/planner/NotificationsNudge";
@@ -570,6 +571,27 @@ const Planner = () => {
             ) : undefined
           }
         />
+
+        {/* Meal search — find any recipe and add it to a chosen day */}
+        {plan && household && days.length > 0 && (
+          <MealSearch
+            days={days}
+            householdId={household.id}
+            todayDow={todayDow}
+            onAdded={(dayId, meal) => {
+              setDays((prev) =>
+                prev.map((d) =>
+                  d.id === dayId
+                    ? withPerServingNutrition({ ...d, meal_name: meal.meal_name, meal_description: meal.meal_description ?? null, cuisine_type: meal.cuisine_type || null, prep_time_minutes: meal.prep_time_minutes || null, calories: meal.calories ?? null, protein_g: meal.protein_g ?? null, carbs_g: meal.carbs_g ?? null, fat_g: meal.fat_g ?? null, fiber_g: meal.fiber_g ?? null, ingredients: meal.ingredients || null, instructions: meal.instructions || null })
+                    : d
+                )
+              );
+              setDayFeedback((prev) => { const n = { ...prev }; delete n[dayId]; return n; });
+            }}
+          />
+        )}
+
+
 
 
         {/* Generating plan spinner (shown at top during replan) */}
