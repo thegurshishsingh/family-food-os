@@ -548,22 +548,21 @@ const Planner = () => {
     <AppLayout>
       <div className="max-w-5xl mx-auto overflow-x-hidden w-full">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground">
-              {household?.name}'s Week
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              {plan ? `Week of ${new Date(plan.week_start + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : "No plan yet"}
-            </p>
-          </div>
-        {plan && (
-            <Button onClick={() => setShowReplanConfirm(true)} disabled={generating} variant="outline" className="gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Replan This Week
-            </Button>
-          )}
-        </div>
+        <PageHeader
+          eyebrow="Never wonder what's for dinner"
+          icon={CalendarDays}
+          title={household?.name ? `${household.name}'s Week` : "Your Week"}
+          subtitle={plan ? `Week of ${new Date(plan.week_start + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : "No plan yet"}
+          action={
+            plan ? (
+              <Button onClick={() => setShowReplanConfirm(true)} disabled={generating} variant="outline" className="gap-2 rounded-xl">
+                <RefreshCw className="w-4 h-4" />
+                Replan This Week
+              </Button>
+            ) : undefined
+          }
+        />
+
 
         {/* Generating plan spinner (shown at top during replan) */}
         {generating && plan && (
