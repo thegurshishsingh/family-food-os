@@ -160,13 +160,16 @@ const PlanHistory = () => {
 
           <TabsContent value="plans">
             {weeks.length === 0 ? (
-              <Card className="py-16 text-center">
+              <Card className="py-16 text-center glass-card border-border/40 rounded-2xl">
                 <CardContent>
-                  <ChefHat className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-sky/15 to-primary/10 mb-4">
+                    <ChefHat className="w-7 h-7 text-primary" />
+                  </div>
                   <h2 className="text-xl font-serif font-semibold mb-2">No history yet</h2>
                   <p className="text-muted-foreground">Generate your first weekly plan to start building history.</p>
                 </CardContent>
               </Card>
+
             ) : (
               <>
                 <TrendCharts weeks={weeks} weeklyBudget={preferences?.weekly_grocery_budget ? Number(preferences.weekly_grocery_budget) : null} />
