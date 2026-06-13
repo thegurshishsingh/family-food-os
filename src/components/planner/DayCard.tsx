@@ -84,14 +84,12 @@ const DayCard = ({
     }
   }, []);
 
-  const lockOpacity = useTransform(dragX, [0, ACTION_WIDTH], [0, 1]);
   const swapOpacity = useTransform(dragX, [-ACTION_WIDTH, 0], [1, 0]);
 
   const mode = MODE_CONFIG[day.meal_mode];
   const Icon = mode.icon;
 
   const startEditing = () => {
-    if (day.is_locked) return;
     setEditing(true);
     setEditName(day.meal_name || "");
     setEditDesc(day.meal_description || "");
@@ -110,14 +108,10 @@ const DayCard = ({
 
   const handleDragEnd = (_: any, info: PanInfo) => {
     const offset = info.offset.x;
-    if (offset < -SWIPE_THRESHOLD && !day.is_locked) {
+    if (offset < -SWIPE_THRESHOLD) {
       swipeRef.current = true;
       animate(dragX, 0, { type: "spring", stiffness: 400, damping: 30 });
       onSwapMeal(day);
-    } else if (offset > SWIPE_THRESHOLD) {
-      swipeRef.current = true;
-      animate(dragX, 0, { type: "spring", stiffness: 400, damping: 30 });
-      onToggleLock(day);
     } else {
       animate(dragX, 0, { type: "spring", stiffness: 400, damping: 30 });
     }
@@ -126,7 +120,6 @@ const DayCard = ({
   const cardContent = (
     <Card
       className={`overflow-hidden transition-all max-w-full
-        ${day.is_locked ? "ring-1 ring-primary/20" : ""}
         ${isDragged ? "opacity-50 scale-[0.98]" : ""}
         ${isDragOver ? "ring-2 ring-primary shadow-lg" : ""}
         ${isToday ? "ring-2 ring-primary/60 bg-primary/[0.04] shadow-md shadow-primary/10" : ""}
@@ -135,11 +128,9 @@ const DayCard = ({
       <div className="flex flex-col sm:flex-row">
         {/* Day label + mode */}
         <div className={`flex items-center gap-2 px-3 pt-3 pb-1 sm:flex-col sm:gap-1 sm:p-4 sm:w-44 sm:border-r border-border sm:items-start ${isToday ? "sm:bg-primary/[0.06]" : ""}`}>
-          {!day.is_locked && (
-            <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 hidden sm:block" />
-          )}
+          <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab active:cursor-grabbing shrink-0 hidden sm:block" />
           {/* Mobile drag handle */}
-          {!day.is_locked && isMobile && (
+          {isMobile && (
             <button
               className="flex items-center justify-center w-6 h-6 rounded text-primary active:bg-primary/10 transition-colors shrink-0 sm:hidden"
               onClick={() => {
@@ -162,7 +153,6 @@ const DayCard = ({
           <button
             onClick={() => onCycleMealMode(day)}
             className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium transition-colors ${mode.color}`}
-            disabled={day.is_locked}
           >
             <Icon className="w-3 h-3" />
             {mode.label}
@@ -235,28 +225,16 @@ const DayCard = ({
                 </>
               ) : (
                 <>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={startEditing} disabled={day.is_locked} title="Edit meal">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={startEditing} title="Edit meal">
                     <Pencil className="w-4 h-4 text-muted-foreground" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onSwapMeal(day)} disabled={day.is_locked || isSwapping} title="Swap meal">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onSwapMeal(day)} disabled={isSwapping} title="Swap meal">
                     {isSwapping ? (
                       <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
                     ) : (
                       <Shuffle className="w-4 h-4 text-muted-foreground" />
                     )}
                   </Button>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onToggleLock(day)}>
-                        {day.is_locked ? <Lock className="w-4 h-4 text-primary" /> : <Unlock className="w-4 h-4 text-muted-foreground" />}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-[200px] text-center">
-                      {day.is_locked
-                        ? "This meal is locked — it won't change when you regenerate the plan. Click to unlock."
-                        : "Lock this meal so it stays when you regenerate the plan"}
-                    </TooltipContent>
-                  </Tooltip>
                 </>
               )}
             </div>
@@ -278,7 +256,7 @@ const DayCard = ({
             <div className="flex items-center gap-2 mt-2 -ml-0.5">
               <button
                 onClick={() => onSwapMeal(day)}
-                disabled={day.is_locked || isSwapping}
+                disabled={isSwapping}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:scale-95 transition-all disabled:opacity-30"
               >
                 {isSwapping ? (
@@ -289,20 +267,8 @@ const DayCard = ({
                 Swap Meal
               </button>
               <button
-                onClick={() => onToggleLock(day)}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all active:scale-95 ${
-                  day.is_locked
-                    ? "bg-primary/10 text-primary ring-1 ring-primary/20"
-                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                {day.is_locked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
-                {day.is_locked ? "Locked" : "Lock"}
-              </button>
-              <button
                 onClick={startEditing}
-                disabled={day.is_locked}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-muted/50 text-muted-foreground hover:bg-muted active:scale-95 transition-all disabled:opacity-30"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-muted/50 text-muted-foreground hover:bg-muted active:scale-95 transition-all"
               >
                 <Pencil className="w-3 h-3" />
                 Edit
@@ -369,7 +335,7 @@ const DayCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ layout: { type: "spring", stiffness: 350, damping: 32 }, delay: index * 0.03 }}
       className="min-w-0 overflow-hidden"
-      draggable={!isMobile && !day.is_locked}
+      draggable={!isMobile}
       onDragStart={() => !isMobile && onDragStart(day.id)}
       onDragOver={(e) => !isMobile && onDragOver(e, day.id)}
       onDragLeave={() => !isMobile && onDragLeave()}
@@ -378,41 +344,18 @@ const DayCard = ({
     >
       {isMobile ? (
         <div className="relative overflow-hidden rounded-lg">
-          {/* Swipe-right background: Lock/Unlock */}
-          <motion.div
-            className="absolute inset-y-0 left-0 flex items-center justify-start pl-4 rounded-lg"
-            style={{
-              opacity: lockOpacity,
-              backgroundColor: day.is_locked ? "hsl(var(--muted))" : "hsl(var(--primary) / 0.15)",
-              width: ACTION_WIDTH,
-            }}
-          >
-            <div className="flex flex-col items-center gap-0.5">
-              {day.is_locked ? (
-                <Unlock className="w-5 h-5 text-primary" />
-              ) : (
-                <Lock className="w-5 h-5 text-primary" />
-              )}
-              <span className="text-[10px] font-medium text-primary">
-                {day.is_locked ? "Unlock" : "Lock"}
-              </span>
-            </div>
-          </motion.div>
-
           {/* Swipe-left background: Swap */}
           <motion.div
-            className={`absolute inset-y-0 right-0 flex items-center justify-end pr-4 rounded-lg ${day.is_locked ? "bg-muted" : ""}`}
+            className="absolute inset-y-0 right-0 flex items-center justify-end pr-4 rounded-lg"
             style={{
               opacity: swapOpacity,
-              backgroundColor: day.is_locked ? "hsl(var(--muted))" : "hsl(var(--accent) / 0.2)",
+              backgroundColor: "hsl(var(--accent) / 0.2)",
               width: ACTION_WIDTH,
             }}
           >
             <div className="flex flex-col items-center gap-0.5">
-              <Shuffle className={`w-5 h-5 ${day.is_locked ? "text-muted-foreground" : "text-accent-foreground"}`} />
-              <span className={`text-[10px] font-medium ${day.is_locked ? "text-muted-foreground" : "text-accent-foreground"}`}>
-                {day.is_locked ? "Locked" : "Swap"}
-              </span>
+              <Shuffle className="w-5 h-5 text-accent-foreground" />
+              <span className="text-[10px] font-medium text-accent-foreground">Swap</span>
             </div>
           </motion.div>
 
@@ -420,7 +363,7 @@ const DayCard = ({
           <motion.div
             style={{ x: dragX }}
             drag="x"
-            dragConstraints={{ left: -ACTION_WIDTH, right: ACTION_WIDTH }}
+            dragConstraints={{ left: -ACTION_WIDTH, right: 0 }}
             dragElastic={0.2}
             onDragEnd={handleDragEnd}
             onTouchStart={handleTouchStart}
