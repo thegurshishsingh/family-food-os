@@ -144,10 +144,13 @@ const PlanHistory = () => {
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-serif font-semibold text-foreground mb-2">History</h1>
-        <p className="text-muted-foreground text-sm mb-6">
-          Browse your past weekly plans and revisit what your family loved or skipped.
-        </p>
+        <PageHeader
+          eyebrow="Your dinner story, week by week"
+          icon={HistoryIcon}
+          title="History"
+          subtitle="Browse your past weekly plans and revisit what your family loved or skipped."
+        />
+
 
         <Tabs defaultValue="plans">
           <TabsList className="mb-6">
