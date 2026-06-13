@@ -5,17 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { CalendarDays, ShoppingCart, Heart, Settings, LogOut, User, History, Bell } from "lucide-react";
+import { CalendarDays, ShoppingCart, Settings, LogOut, User, History, Bell } from "lucide-react";
 import Logo from "@/components/Logo";
 
 const NAV = [
   { to: "/planner", label: "Weekly Plan", icon: CalendarDays },
   { to: "/history", label: "History", icon: History },
   { to: "/groceries", label: "Groceries", icon: ShoppingCart },
-  { to: "/memory", label: "Meal Memory", icon: Heart },
-  { to: "/notifications", label: "Notifications", icon: Bell },
-  { to: "/settings", label: "Settings", icon: Settings },
-  { to: "/profile", label: "Profile", icon: User },
 ];
 
 const AppLayout = ({ children }: { children: ReactNode }) => {
@@ -55,15 +51,13 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
             <span className="font-serif text-lg font-semibold text-foreground hidden sm:inline">Family Food OS</span>
           </Link>
           <div className="flex items-center gap-1">
-            {/* Show only key nav items on mobile, all on md+ */}
+            {/* Primary nav: always visible */}
             {NAV.map((n) => (
               <Button
                 key={n.to}
                 variant={location.pathname === n.to ? "secondary" : "ghost"}
                 size="sm"
-                className={`gap-1.5 px-2 sm:px-3 ${
-                  ["/planner", "/groceries"].includes(n.to) ? "" : "hidden md:inline-flex"
-                }`}
+                className="gap-1.5 px-2 sm:px-3"
                 asChild
               >
                 <Link to={n.to}>
@@ -84,29 +78,23 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
-                {/* Show hidden nav items on mobile */}
-                {NAV.filter((n) => !["/planner", "/groceries"].includes(n.to)).map((n) => (
-                  <DropdownMenuItem key={n.to} onClick={() => navigate(n.to)} className="cursor-pointer gap-2 md:hidden">
-                    <n.icon className="w-4 h-4" /> {n.label}
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator className="md:hidden" />
-                <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer gap-2 hidden md:flex">
+                <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer gap-2">
                   <User className="w-4 h-4" /> Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/notifications")} className="cursor-pointer gap-2 hidden md:flex">
+                <DropdownMenuItem onClick={() => navigate("/notifications")} className="cursor-pointer gap-2">
                   <Bell className="w-4 h-4" /> Notifications
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer gap-2 hidden md:flex">
+                <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer gap-2">
                   <Settings className="w-4 h-4" /> Settings
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="hidden md:block" />
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer gap-2 text-destructive focus:text-destructive">
                   <LogOut className="w-4 h-4" /> Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
         </div>
       </nav>
       <main className="container px-4 py-6 max-w-full overflow-x-hidden">{children}</main>

@@ -19,7 +19,6 @@ import TheRealWeekProject from "./pages/TheRealWeekProject";
 import DinnerPatternReport from "./pages/DinnerPatternReport";
 import StudySignupsAdmin from "./pages/StudySignupsAdmin";
 import Groceries from "./pages/Groceries";
-import MealMemory from "./pages/MealMemory";
 import FamilyProfile from "./pages/FamilyProfile";
 import HouseholdSettings from "./pages/HouseholdSettings";
 import Profile from "./pages/Profile";
@@ -46,7 +45,7 @@ const AppRoutes = () => {
       <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
       <Route path="/planner" element={<RequireHousehold><Planner /></RequireHousehold>} />
       <Route path="/groceries" element={<RequireHousehold><Groceries /></RequireHousehold>} />
-      <Route path="/memory" element={<RequireHousehold><MealMemory /></RequireHousehold>} />
+      <Route path="/memory" element={<Navigate to="/history" replace />} />
       <Route path="/family-profile" element={<RequireHousehold><FamilyProfile /></RequireHousehold>} />
       <Route path="/history" element={<RequireHousehold><PlanHistory /></RequireHousehold>} />
       <Route path="/checkin" element={<Navigate to="/planner" replace />} />
