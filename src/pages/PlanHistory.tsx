@@ -53,7 +53,7 @@ const FeedbackCard = ({ entry }: { entry: FeedbackEntry }) => {
   const Icon = config.icon;
 
   return (
-    <Card>
+    <Card className="glass-card border-border/40 rounded-2xl">
       <CardContent className="py-3 px-4 flex items-center gap-3">
         <Icon className={`w-5 h-5 shrink-0 ${config.color}`} />
         <div className="flex-1 min-w-0">
