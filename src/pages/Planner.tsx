@@ -681,7 +681,6 @@ const Planner = () => {
                 isSavedMeal={!!day.meal_name && savedMealNames.has(day.meal_name.toLowerCase())}
                 isFirst={i === 0}
                 onSwapMeal={swapMeal}
-                onToggleLock={toggleLock}
                 onCycleMealMode={cycleMealMode}
                 onSubmitFeedback={submitFeedback}
                 onSaveEdit={saveEdit}
@@ -729,7 +728,7 @@ const Planner = () => {
         onReorder={async (sourceId, targetId) => {
           const source = days.find(d => d.id === sourceId);
           const target = days.find(d => d.id === targetId);
-          if (!source || !target || target.is_locked) return;
+          if (!source || !target) return;
           const mealFields = ["meal_name", "meal_description", "meal_mode", "cuisine_type", "prep_time_minutes", "calories", "protein_g", "carbs_g", "fat_g", "fiber_g", "notes", "takeout_budget"] as const;
           const sourceData: any = {};
           const targetData: any = {};
