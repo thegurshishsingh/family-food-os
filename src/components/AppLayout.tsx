@@ -105,7 +105,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
 
         </div>
       </nav>
-      <main className="container px-4 py-6 max-w-full overflow-x-hidden">{children}</main>
+      <main className="container relative z-10 px-4 py-6 max-w-full overflow-x-hidden">{children}</main>
     </div>
   );
 };
