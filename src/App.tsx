@@ -36,6 +36,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
+      <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
       <Route path="/guides" element={<Guides />} />
       <Route path="/guides/the-dinner-pattern-report" element={<DinnerPatternReport />} />
       <Route path="/real-week-project" element={<TheRealWeekProject />} />
