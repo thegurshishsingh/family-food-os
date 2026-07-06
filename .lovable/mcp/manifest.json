@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://khotrjtyyrtyuvlzlzrd.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "family-food-os-mcp",
+      "version": "0.1.0",
+      "title": "Family Food OS"
+    },
+    "tools": [
+      {
+        "name": "get_household",
+        "title": "Get household",
+        "description": "Get the signed-in user's household profile: name, number of adults, number of children, and child age bands.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_current_plan",
+        "title": "Get current dinner plan",
+        "description": "Get the signed-in user's most recent weekly dinner plan, including each day's meal name, description, mode, prep time, and per-serving nutrition.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_grocery_list",
+        "title": "Get grocery list",
+        "description": "Get the grocery list for the signed-in user's most recent weekly plan, grouped by category, with checked state and quantities.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_saved_meals",
+        "title": "List saved meals",
+        "description": "List the meals the signed-in user's household has saved to their custom library, with frequency and whether they are included in planning.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
