@@ -22,6 +22,10 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Same-origin relative redirect target (used by the OAuth consent flow).
+  const nextParam = new URLSearchParams(window.location.search).get("next");
+  const safeNext = nextParam && nextParam.startsWith("/") ? nextParam : "/planner";
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -30,13 +34,13 @@ const Login = () => {
     if (error) {
       toast({ variant: "destructive", title: "Login failed", description: error.message });
     } else {
-      navigate("/planner");
+      navigate(safeNext);
     }
   };
 
   const handleGoogleLogin = async () => {
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/planner",
+      redirect_uri: window.location.origin + safeNext,
     });
     if (result?.error) {
       toast({ variant: "destructive", title: "Google login failed", description: String(result.error) });
@@ -45,7 +49,7 @@ const Login = () => {
 
   const handleAppleLogin = async () => {
     const result = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: window.location.origin + "/planner",
+      redirect_uri: window.location.origin + safeNext,
     });
     if (result?.error) {
       toast({ variant: "destructive", title: "Apple login failed", description: String(result.error) });
