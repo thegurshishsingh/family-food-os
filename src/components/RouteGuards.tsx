@@ -22,7 +22,10 @@ export const RequireHousehold = ({ children }: { children: ReactNode }) => {
 export const RedirectIfAuthed = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
-  if (user) return <Navigate to="/planner" replace />;
+  if (user) {
+    const next = new URLSearchParams(window.location.search).get("next");
+    return <Navigate to={next && next.startsWith("/") ? next : "/planner"} replace />;
+  }
   return <>{children}</>;
 };
 
