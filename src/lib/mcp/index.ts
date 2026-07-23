@@ -3,6 +3,7 @@ import getHousehold from "./tools/get-household";
 import getCurrentPlan from "./tools/get-current-plan";
 import getGroceryList from "./tools/get-grocery-list";
 import listSavedMeals from "./tools/list-saved-meals";
+import searchSavedMeals from "./tools/search-saved-meals";
 
 // The OAuth issuer MUST be the direct Supabase host built from the project ref.
 // Vite inlines VITE_SUPABASE_PROJECT_ID as a literal at build time, so this stays
