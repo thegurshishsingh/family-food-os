@@ -79,6 +79,38 @@
           "properties": {}
         },
         "outputSchema": null
+      },
+      {
+        "name": "search_saved_meals",
+        "title": "Search saved meals",
+        "description": "Search the signed-in user's saved meal library by name or description keywords. Returns matching meals with frequency and whether they're included in planning, so an assistant can quickly propose one to add to the weekly plan.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Keywords to search for in the meal name or description (case-insensitive)."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 25,
+              "description": "Maximum number of matches to return. Defaults to 10."
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
       }
     ]
   }

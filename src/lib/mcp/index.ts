@@ -20,5 +20,5 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [getHousehold, getCurrentPlan, getGroceryList, listSavedMeals],
+  tools: [getHousehold, getCurrentPlan, getGroceryList, listSavedMeals, searchSavedMeals],
 });
