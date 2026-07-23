@@ -83,7 +83,7 @@
       {
         "name": "search_saved_meals",
         "title": "Search saved meals",
-        "description": "Search the signed-in user's saved meal library by name or description keywords. Returns matching meals with frequency and whether they're included in planning, so an assistant can quickly propose one to add to the weekly plan.",
+        "description": "Search the signed-in user's saved meal library by name or description keywords. Results are ranked by relevance (name matches beat description matches) and annotated with derived tags for meal type (pasta, taco, curry, ...) and protein (chicken, salmon, tofu, ...) so an assistant can quickly filter or propose one to add to the weekly plan.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -101,7 +101,7 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 25,
-              "description": "Maximum number of matches to return. Defaults to 10."
+              "description": "Maximum number of matches to return, after relevance ranking. Defaults to 10."
             }
           },
           "required": [

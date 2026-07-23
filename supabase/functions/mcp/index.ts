@@ -189,13 +189,64 @@ var list_saved_meals_default = defineTool4({
 // src/lib/mcp/tools/search-saved-meals.ts
 import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.20.1";
 import { z } from "npm:zod@^3.25.76";
+var PROTEIN_TAGS = [
+  { tag: "chicken", patterns: /\b(chicken|poultry|rotisserie)\b/i },
+  { tag: "beef", patterns: /\b(beef|steak|burger|meatball|meatloaf|brisket)\b/i },
+  { tag: "pork", patterns: /\b(pork|bacon|ham|sausage|chorizo|prosciutto)\b/i },
+  { tag: "turkey", patterns: /\b(turkey)\b/i },
+  { tag: "lamb", patterns: /\b(lamb)\b/i },
+  { tag: "fish", patterns: /\b(salmon|tuna|cod|tilapia|halibut|trout|fish|snapper|mahi)\b/i },
+  { tag: "seafood", patterns: /\b(shrimp|prawn|scallop|crab|lobster|clam|mussel|calamari|squid)\b/i },
+  { tag: "tofu", patterns: /\b(tofu|tempeh|seitan|edamame)\b/i },
+  { tag: "beans", patterns: /\b(bean|lentil|chickpea|garbanzo|dal|dahl)\b/i },
+  { tag: "eggs", patterns: /\b(egg|frittata|omelet|omelette|quiche|shakshuka)\b/i },
+  { tag: "cheese", patterns: /\b(cheese|paneer|halloumi|ricotta|mozzarella|parmesan)\b/i }
+];
+var TYPE_TAGS = [
+  { tag: "pasta", patterns: /\b(pasta|spaghetti|linguine|penne|rigatoni|rotini|fettuccine|lasagna|ravioli|gnocchi|mac and cheese|carbonara|bolognese|alfredo)\b/i },
+  { tag: "pizza", patterns: /\b(pizza|flatbread|calzone)\b/i },
+  { tag: "taco", patterns: /\b(taco|burrito|quesadilla|enchilada|fajita|tostada|nachos)\b/i },
+  { tag: "stir-fry", patterns: /\b(stir[- ]fry|stirfry|wok)\b/i },
+  { tag: "curry", patterns: /\b(curry|masala|tikka|korma|vindaloo|thai red|thai green)\b/i },
+  { tag: "soup", patterns: /\b(soup|stew|chili|chowder|bisque|ramen|pho|minestrone)\b/i },
+  { tag: "salad", patterns: /\b(salad|bowl|grain bowl|buddha bowl|poke)\b/i },
+  { tag: "sandwich", patterns: /\b(sandwich|sub|hoagie|wrap|panini|melt|gyro)\b/i },
+  { tag: "rice", patterns: /\b(rice|risotto|paella|biryani|pilaf|jambalaya|fried rice)\b/i },
+  { tag: "grill", patterns: /\b(grill|grilled|bbq|barbecue|kebab|kabob|skewer)\b/i },
+  { tag: "roast", patterns: /\b(roast|roasted|baked|sheet[- ]pan|casserole|bake)\b/i },
+  { tag: "breakfast-for-dinner", patterns: /\b(pancake|waffle|french toast|breakfast)\b/i }
+];
+function deriveTags(text) {
+  return {
+    type_tags: TYPE_TAGS.filter((t) => t.patterns.test(text)).map((t) => t.tag),
+    protein_tags: PROTEIN_TAGS.filter((t) => t.patterns.test(text)).map((t) => t.tag)
+  };
+}
+function tokenize(q) {
+  return q.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 2);
+}
+function scoreMeal(name, description, tokens) {
+  const n = (name ?? "").toLowerCase();
+  const d = (description ?? "").toLowerCase();
+  let score = 0;
+  for (const t of tokens) {
+    const wordRe = new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`);
+    if (wordRe.test(n)) score += 10;
+    else if (n.includes(t)) score += 6;
+    if (wordRe.test(d)) score += 3;
+    else if (d.includes(t)) score += 1;
+  }
+  const phrase = tokens.join(" ");
+  if (phrase && n.includes(phrase)) score += 5;
+  return score;
+}
 var search_saved_meals_default = defineTool5({
   name: "search_saved_meals",
   title: "Search saved meals",
-  description: "Search the signed-in user's saved meal library by name or description keywords. Returns matching meals with frequency and whether they're included in planning, so an assistant can quickly propose one to add to the weekly plan.",
+  description: "Search the signed-in user's saved meal library by name or description keywords. Results are ranked by relevance (name matches beat description matches) and annotated with derived tags for meal type (pasta, taco, curry, ...) and protein (chicken, salmon, tofu, ...) so an assistant can quickly filter or propose one to add to the weekly plan.",
   inputSchema: {
     query: z.string().trim().min(1).describe("Keywords to search for in the meal name or description (case-insensitive)."),
-    limit: z.number().int().min(1).max(25).optional().describe("Maximum number of matches to return. Defaults to 10.")
+    limit: z.number().int().min(1).max(25).optional().describe("Maximum number of matches to return, after relevance ranking. Defaults to 10.")
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ query, limit }, ctx) => {
@@ -207,26 +258,41 @@ var search_saved_meals_default = defineTool5({
       return { content: [{ type: "text", text: "No household found for this account yet." }] };
     }
     const max = limit ?? 10;
-    const safe = query.replace(/[,%()*]/g, " ").trim();
-    if (!safe) {
-      return { content: [{ type: "text", text: "Query is empty after sanitization." }], isError: true };
+    const tokens = tokenize(query);
+    if (tokens.length === 0) {
+      return { content: [{ type: "text", text: "Query has no searchable terms." }], isError: true };
     }
-    const pattern = `%${safe}%`;
     const supabase = supabaseForUser(ctx);
-    const { data: meals, error } = await supabase.from("saved_meals").select("id, meal_name, meal_description, frequency, include_in_plan, created_at").eq("household_id", household.id).or(`meal_name.ilike.${pattern},meal_description.ilike.${pattern}`).order("created_at", { ascending: false }).limit(max);
+    const orFilter = tokens.flatMap((t) => {
+      const p = `%${t.replace(/[,%()*]/g, " ")}%`;
+      return [`meal_name.ilike.${p}`, `meal_description.ilike.${p}`];
+    }).join(",");
+    const { data: meals, error } = await supabase.from("saved_meals").select("id, meal_name, meal_description, frequency, include_in_plan, created_at").eq("household_id", household.id).or(orFilter).limit(Math.min(max * 4, 100));
     if (error) throw new Error(error.message);
-    const rows = meals ?? [];
+    const ranked = (meals ?? []).map((m) => {
+      const score = scoreMeal(m.meal_name ?? "", m.meal_description ?? null, tokens);
+      const tags = deriveTags(`${m.meal_name ?? ""} ${m.meal_description ?? ""}`);
+      return { m, score, tags };
+    }).filter((r) => r.score > 0).sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      const at = a.m.created_at ? Date.parse(a.m.created_at) : 0;
+      const bt = b.m.created_at ? Date.parse(b.m.created_at) : 0;
+      return bt - at;
+    }).slice(0, max);
     const result = {
       query,
-      total: rows.length,
-      meals: rows.map((m) => ({
+      total: ranked.length,
+      meals: ranked.map(({ m, score, tags }) => ({
         id: m.id,
         name: m.meal_name,
         description: m.meal_description,
         frequency: m.frequency,
-        include_in_plan: m.include_in_plan
+        include_in_plan: m.include_in_plan,
+        relevance: score,
+        type_tags: tags.type_tags,
+        protein_tags: tags.protein_tags
       })),
-      hint: rows.length === 0 ? "No saved meals matched. Try a shorter or different keyword." : "To add one of these to the plan, tell the user which day to swap it onto \u2014 swapping runs in the app."
+      hint: ranked.length === 0 ? "No saved meals matched. Try a shorter or different keyword." : "Results are ordered by relevance. To add one to the plan, tell the user which day to swap it onto \u2014 swapping runs in the app."
     };
     return {
       content: [{ type: "text", text: JSON.stringify(result) }],
