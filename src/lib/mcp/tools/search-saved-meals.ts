@@ -6,7 +6,7 @@ export default defineTool({
   name: "search_saved_meals",
   title: "Search saved meals",
   description:
-    "Search the signed-in user's saved meal library by name or description keywords. Returns matching meals with frequency, planning inclusion, and any stored recipe details (ingredients, steps, prep time, cuisine, nutrition per serving) so an assistant can quickly propose one to add to the weekly plan.",
+    "Search the signed-in user's saved meal library by name or description keywords. Returns matching meals with frequency and whether they're included in planning, so an assistant can quickly propose one to add to the weekly plan.",
   inputSchema: {
     query: z
       .string()
@@ -32,16 +32,20 @@ export default defineTool({
     }
 
     const max = limit ?? 10;
-    // Escape PostgREST ilike wildcards/commas in the user query.
-    const safe = query.replace(/[,%()]/g, " ").trim();
+    // Strip PostgREST-significant characters from the user query before ilike.
+    const safe = query.replace(/[,%()*]/g, " ").trim();
+    if (!safe) {
+      return { content: [{ type: "text", text: "Query is empty after sanitization." }], isError: true };
+    }
     const pattern = `%${safe}%`;
 
     const supabase = supabaseForUser(ctx);
     const { data: meals, error } = await supabase
       .from("saved_meals")
-      .select("*")
+      .select("id, meal_name, meal_description, frequency, include_in_plan, created_at")
       .eq("household_id", household.id)
       .or(`meal_name.ilike.${pattern},meal_description.ilike.${pattern}`)
+      .order("created_at", { ascending: false })
       .limit(max);
     if (error) throw new Error(error.message);
 
@@ -49,26 +53,12 @@ export default defineTool({
     const result = {
       query,
       total: rows.length,
-      meals: rows.map((m: Record<string, unknown>) => ({
+      meals: rows.map((m) => ({
         id: m.id,
         name: m.meal_name,
         description: m.meal_description,
         frequency: m.frequency,
         include_in_plan: m.include_in_plan,
-        cuisine: m.cuisine_type ?? null,
-        prep_time_minutes: m.prep_time_minutes ?? null,
-        ingredients: m.ingredients ?? null,
-        steps: m.steps ?? null,
-        nutrition_per_serving:
-          m.calories != null || m.protein_g != null
-            ? {
-                calories: m.calories ?? null,
-                protein_g: m.protein_g ?? null,
-                carbs_g: m.carbs_g ?? null,
-                fat_g: m.fat_g ?? null,
-                fiber_g: m.fiber_g ?? null,
-              }
-            : null,
       })),
       hint:
         rows.length === 0
