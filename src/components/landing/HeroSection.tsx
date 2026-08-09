@@ -80,9 +80,10 @@ const HeroSection = () => {
               </span>
             </div>
 
-            <h1 className="text-[2.6rem] leading-[1.1] sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground mb-5">
+            <h1 className="text-[clamp(1.95rem,8.5vw,2.6rem)] leading-[1.1] sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground mb-5">
               <span className="block">A whole week of</span>
-              <span className="block whitespace-nowrap">
+              <span className="block sm:whitespace-nowrap">
+
                 dinners,{" "}
                 <span className="relative inline-block h-[1.1em] leading-[1.1em] overflow-hidden align-bottom">
                   <AnimatePresence mode="wait">
