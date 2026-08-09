@@ -273,9 +273,10 @@ const PlansThatFitRealLife = () => {
           variants={fadeUp}
           custom={4}
         >
-          <Button size="lg" className="text-base px-8 h-12 rounded-xl bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.4)]" asChild>
-            <Link to="/signup">This could be your week. Start free <ArrowRight className="w-4 h-4 ml-2" /></Link>
+          <Button size="lg" className="w-full sm:w-auto max-w-full text-sm sm:text-base px-5 sm:px-8 h-14 sm:h-12 rounded-xl whitespace-normal bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.4)]" asChild>
+            <Link to="/signup" className="inline-flex items-center justify-center gap-2 text-center">This could be your week. Start free <ArrowRight className="w-4 h-4 shrink-0" /></Link>
           </Button>
+
         </motion.div>
       </div>
     </section>
