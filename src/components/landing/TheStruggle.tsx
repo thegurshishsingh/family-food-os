@@ -41,7 +41,7 @@ const TheStruggle = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center [&>*]:min-w-0">
           {/* Left — the 5pm chaos timeline */}
           <motion.div
             initial={initialState}
@@ -57,11 +57,12 @@ const TheStruggle = () => {
               {SCENES.map((scene, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-4 px-5 py-3.5 border-b border-border/20 last:border-b-0"
+                  className="flex items-start gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 border-b border-border/20 last:border-b-0"
                 >
-                  <span className="text-xs font-mono text-muted-foreground/50 mt-1 shrink-0 w-14">
+                  <span className="text-xs font-mono text-muted-foreground/50 mt-1 shrink-0 w-12 sm:w-14">
                     {scene.time}
                   </span>
+
                   <IconTile size="md" gradient={scene.color}>
                     <scene.icon className="w-4 h-4 text-primary-foreground" />
                   </IconTile>
@@ -94,7 +95,7 @@ const TheStruggle = () => {
                 cropHeightClassName="h-[320px] sm:h-[348px]"
                 cards={[
                   {
-                    pos: "top-10 -right-4 sm:-right-8 w-[138px]",
+                    pos: "top-10 right-0 sm:-right-8 w-[124px] sm:w-[138px]",
                     delay: 0.7,
                     node: (
                       <FloatingStatCard icon={Flame} label="Streak" value="5" unit="days" tone="coral" showArrow />

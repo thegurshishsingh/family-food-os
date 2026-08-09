@@ -78,11 +78,11 @@ export const ShowcaseStage = ({
   const revealMargin = isMobile ? "-20px" : "-60px";
 
   return (
-    <div className={cn("relative mx-auto w-fit", className)}>
+    <div className={cn("relative mx-auto w-fit max-w-full", className)}>
       {/* Panel — tint + glow + phone (clipped) */}
       <div
         className={cn(
-          "relative rounded-3xl border border-border/60 overflow-hidden bg-gradient-to-b px-6 sm:px-8",
+          "relative rounded-3xl border border-border/60 overflow-hidden bg-gradient-to-b px-3 sm:px-8",
           crop ? "pt-10 pb-0 sm:pt-12" : "py-10 sm:py-12",
           toneBg[tone],
         )}

@@ -66,7 +66,7 @@ const HeroSection = () => {
       </div>
 
       <div className="container max-w-6xl mx-auto relative z-10">
-        <div className="grid md:grid-cols-2 gap-10 md:gap-8 items-center">
+        <div className="grid md:grid-cols-2 gap-10 md:gap-8 items-center [&>*]:min-w-0">
           {/* Left — Copy */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -80,9 +80,10 @@ const HeroSection = () => {
               </span>
             </div>
 
-            <h1 className="text-[2.6rem] leading-[1.1] sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground mb-5">
+            <h1 className="text-[clamp(1.95rem,8.5vw,2.6rem)] leading-[1.1] sm:text-5xl md:text-6xl font-serif font-semibold tracking-tight text-foreground mb-5">
               <span className="block">A whole week of</span>
-              <span className="block whitespace-nowrap">
+              <span className="block sm:whitespace-nowrap">
+
                 dinners,{" "}
                 <span className="relative inline-block h-[1.1em] leading-[1.1em] overflow-hidden align-bottom">
                   <AnimatePresence mode="wait">
@@ -144,7 +145,7 @@ const HeroSection = () => {
 
             {/* Floating zoom card: reality score (top-left) */}
             <motion.div
-              className="absolute top-8 -left-3 sm:-left-8 w-[150px]"
+              className="absolute top-8 left-0 sm:-left-8 w-[132px] sm:w-[150px]"
               animate={{ y: [0, -6, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
             >
@@ -162,7 +163,7 @@ const HeroSection = () => {
 
             {/* Floating zoom card: time saved (bottom-right) */}
             <motion.div
-              className="absolute bottom-10 -right-3 sm:-right-8 w-[164px]"
+              className="absolute bottom-10 right-0 sm:-right-8 w-[144px] sm:w-[164px]"
               animate={{ y: [0, -7, 0] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
             >
