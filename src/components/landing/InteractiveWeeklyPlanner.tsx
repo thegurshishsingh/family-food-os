@@ -506,14 +506,15 @@ const InteractiveWeeklyPlanner = () => {
             variants={fadeUp}
             custom={1}
           >
-            <div className="relative mx-auto w-fit">
+            <div className="relative mx-auto w-fit max-w-full">
               {/* Pastel bordered panel (matches the page's showcase language) */}
-              <div className="relative rounded-3xl border border-border/60 overflow-hidden bg-gradient-to-b from-primary/[0.1] via-primary/[0.03] to-background px-6 sm:px-8 py-10 sm:py-12">
+              <div className="relative rounded-3xl border border-border/60 overflow-hidden bg-gradient-to-b from-primary/[0.1] via-primary/[0.03] to-background px-3 sm:px-8 py-10 sm:py-12">
                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center" aria-hidden="true">
                   <div className="w-[78%] h-[68%] rounded-full blur-3xl bg-gradient-to-b from-primary/20 to-transparent" />
                 </div>
                 <div className="relative flex justify-center">
                   <PhoneFrame widthClassName="w-[258px] sm:w-[280px]" glow={false}>
+
                     <PlanScreen
                       selected={selected}
                       openDay={openDay}
