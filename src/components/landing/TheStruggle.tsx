@@ -95,7 +95,7 @@ const TheStruggle = () => {
                 cropHeightClassName="h-[320px] sm:h-[348px]"
                 cards={[
                   {
-                    pos: "top-10 -right-4 sm:-right-8 w-[138px]",
+                    pos: "top-10 right-0 sm:-right-8 w-[124px] sm:w-[138px]",
                     delay: 0.7,
                     node: (
                       <FloatingStatCard icon={Flame} label="Streak" value="5" unit="days" tone="coral" showArrow />
