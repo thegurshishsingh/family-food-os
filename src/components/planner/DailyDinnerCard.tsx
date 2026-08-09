@@ -119,8 +119,13 @@ const DailyDinnerCard = ({
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [smartLine, setSmartLine] = useState("");
-  const [streak, setStreak] = useState(0);
-  const [streakMessage, setStreakMessage] = useState("");
+  const [records, setRecords] = useState<CheckInRecord[]>([]);
+  const [reward, setReward] = useState<{
+    streak: StreakResult;
+    previousStreak: number;
+    total: number;
+    weekLogged: number;
+  } | null>(null);
   const [orderedDetail, setOrderedDetail] = useState("");
   const [showOrderedInput, setShowOrderedInput] = useState(false);
   const { toast } = useToast();
@@ -129,68 +134,38 @@ const DailyDinnerCard = ({
   const todayDow = jsDay === 0 ? 6 : jsDay - 1;
   const dayName = DAYS[todayDow];
 
-  // Load streak
+  // Load raw check-ins — everything else is derived.
   useEffect(() => {
-    computeStreak();
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("evening_checkins")
+        .select("created_at, outcome")
+        .eq("household_id", householdId)
+        .order("created_at", { ascending: false });
+      if (!cancelled) setRecords((data as CheckInRecord[]) ?? []);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [householdId, checkedIn]);
 
-  const computeStreak = async () => {
-    const { data } = await supabase
-      .from("evening_checkins")
-      .select("created_at")
-      .eq("household_id", householdId)
-      .order("created_at", { ascending: false });
+  const streakState = useMemo(() => computeStreak(records), [records]);
+  const streak = streakState.current;
+  const streakMessage = streakLine(streakState);
 
-    if (!data || data.length === 0) {
-      setStreak(0);
-      setStreakMessage("");
-      return;
-    }
-
-    const uniqueDates = [
-      ...new Set(
-        data.map((r) => {
-          const d = new Date(r.created_at);
-          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-        })
-      ),
-    ].sort((a, b) => (a > b ? -1 : 1));
-
-    const today = new Date();
-    const todayStr = fmt(today);
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = fmt(yesterday);
-
-    if (uniqueDates[0] !== todayStr && uniqueDates[0] !== yesterdayStr) {
-      setStreak(0);
-      setStreakMessage("");
-      return;
-    }
-
-    let count = 1;
-    for (let i = 1; i < uniqueDates.length; i++) {
-      const prev = new Date(uniqueDates[i - 1] + "T00:00:00");
-      const curr = new Date(uniqueDates[i] + "T00:00:00");
-      const diffDays = Math.round((prev.getTime() - curr.getTime()) / (1000 * 60 * 60 * 24));
-      if (diffDays === 1) count++;
-      else break;
-    }
-
-    setStreak(count);
-    setStreakMessage(getStreakMessage(count));
+  const countLoggedThisWeek = (list: CheckInRecord[]) => {
+    const now = new Date();
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    monday.setHours(0, 0, 0, 0);
+    return new Set(
+      list
+        .filter((r) => new Date(r.created_at) >= monday)
+        .map((r) => toDateKey(new Date(r.created_at))),
+    ).size;
   };
 
-  const fmt = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-
-  const getStreakMessage = (n: number): string => {
-    if (n >= 7) return "Full week! The habit is real.";
-    if (n >= 5) return "Five days strong 💪";
-    if (n >= 3) return "Building momentum!";
-    if (n === 2) return "Two in a row — keep it going!";
-    return "First check-in! Come back tomorrow.";
-  };
 
   // Already checked in — show completed state
   if (checkedIn && todayDay) {
