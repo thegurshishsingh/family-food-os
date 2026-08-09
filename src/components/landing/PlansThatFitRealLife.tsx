@@ -138,7 +138,7 @@ const PlansThatFitRealLife = () => {
           })}
         </motion.div>
 
-        <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 md:gap-10 items-center">
+        <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 md:gap-10 items-center [&>*]:min-w-0">
           {/* Weekly plan card */}
           <motion.div
             initial={initialState}
