@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,6 +7,15 @@ import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { Sparkles, Plus, ShoppingBag, Ban, Flame } from "lucide-react";
 import { DAYS, MODE_CONFIG, type PlanDay, type FeedbackType } from "./types";
+import CheckInReward from "./CheckInReward";
+import {
+  computeStreak,
+  streakLine,
+  toDateKey,
+  type CheckInRecord,
+  type StreakResult,
+} from "@/lib/gamification";
+
 
 const COOK_ACTIONS = [
   { value: "cooked_it", label: "Cooked it", emoji: "🍳", sentiment: "positive" },
