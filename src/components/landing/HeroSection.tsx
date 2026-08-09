@@ -145,7 +145,7 @@ const HeroSection = () => {
 
             {/* Floating zoom card: reality score (top-left) */}
             <motion.div
-              className="absolute top-8 -left-3 sm:-left-8 w-[150px]"
+              className="absolute top-8 left-0 sm:-left-8 w-[132px] sm:w-[150px]"
               animate={{ y: [0, -6, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
             >
