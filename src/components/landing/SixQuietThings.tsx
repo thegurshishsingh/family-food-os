@@ -203,7 +203,7 @@ const SixQuietThings = () => {
             return (
               <motion.div
                 key={i}
-                className="grid md:grid-cols-2 gap-8 md:gap-12 items-center rounded-3xl border border-border/60 bg-card/40 backdrop-blur-sm p-5 sm:p-8 md:p-10 shadow-[0_24px_60px_-32px_hsl(var(--foreground)/0.25)]"
+                className="grid md:grid-cols-2 gap-8 md:gap-12 items-center [&>*]:min-w-0 rounded-3xl border border-border/60 bg-card/40 backdrop-blur-sm p-5 sm:p-8 md:p-10 shadow-[0_24px_60px_-32px_hsl(var(--foreground)/0.25)]"
                 initial={initialState}
                 whileInView="visible"
                 viewport={viewport}

@@ -32,7 +32,7 @@ const RealityScoreSection = () => {
       </div>
 
       <div className="container max-w-6xl relative z-10">
-        <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center [&>*]:min-w-0">
           {/* Copy */}
           <motion.div
             initial={initialState}

@@ -78,7 +78,7 @@ export const ShowcaseStage = ({
   const revealMargin = isMobile ? "-20px" : "-60px";
 
   return (
-    <div className={cn("relative mx-auto w-fit", className)}>
+    <div className={cn("relative mx-auto w-fit max-w-full", className)}>
       {/* Panel — tint + glow + phone (clipped) */}
       <div
         className={cn(

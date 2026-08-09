@@ -449,7 +449,7 @@ const InteractiveWeeklyPlanner = () => {
       </div>
 
       <div className="container max-w-6xl relative z-10">
-        <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center [&>*]:min-w-0">
           {/* Copy */}
           <motion.div
             initial={initialState}
@@ -473,7 +473,7 @@ const InteractiveWeeklyPlanner = () => {
             </p>
 
 
-            <div className="grid grid-cols-3 gap-3 max-w-md">
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 max-w-md [&>*]:min-w-0">
               <div className="rounded-2xl border border-border/60 bg-card/60 px-3 py-3">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Score</p>
                 <p className="flex items-baseline gap-0.5">
