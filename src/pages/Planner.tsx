@@ -22,6 +22,8 @@ import MobileReorderSheet from "@/components/planner/MobileReorderSheet";
 import MealSearch from "@/components/planner/MealSearch";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
+import MomentumCard from "@/components/planner/MomentumCard";
+
 import NotificationsNudge from "@/components/planner/NotificationsNudge";
 import HomeScreenSetupCard from "@/components/planner/HomeScreenSetupCard";
 import WeeklyPlanSetup, { type PlanSetupData, type SavedMealOption } from "@/components/planner/WeeklyPlanSetup";
@@ -678,6 +680,20 @@ const Planner = () => {
             }} />
           </div>
         )}
+
+        {/* 2b. Momentum — level, streak, next unlock */}
+        {plan && household && (
+          <div className="mb-4">
+            <MomentumCard
+              householdId={household.id}
+              weekLogged={days.filter((d) => checkedInDays.has(d.id)).length}
+              weekTotal={Math.max(days.length, 1)}
+              refreshKey={checkedInDays.size}
+              onViewRecap={() => navigate("/history")}
+            />
+          </div>
+        )}
+
 
         {/* Empty state — no plan, no chooser shown (shouldn't normally happen) */}
         {!plan && !needsNewPlan && (
