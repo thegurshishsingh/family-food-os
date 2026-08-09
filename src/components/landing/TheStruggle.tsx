@@ -57,11 +57,12 @@ const TheStruggle = () => {
               {SCENES.map((scene, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-4 px-5 py-3.5 border-b border-border/20 last:border-b-0"
+                  className="flex items-start gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 border-b border-border/20 last:border-b-0"
                 >
-                  <span className="text-xs font-mono text-muted-foreground/50 mt-1 shrink-0 w-14">
+                  <span className="text-xs font-mono text-muted-foreground/50 mt-1 shrink-0 w-12 sm:w-14">
                     {scene.time}
                   </span>
+
                   <IconTile size="md" gradient={scene.color}>
                     <scene.icon className="w-4 h-4 text-primary-foreground" />
                   </IconTile>
