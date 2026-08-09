@@ -33,11 +33,12 @@ const FinalCTA = () => {
           <p className="text-muted-foreground/80 text-base md:text-lg max-w-md mx-auto mb-8 leading-relaxed">
             Join our founding families and let the system plan your whole week.
           </p>
-          <Button size="lg" className="text-base px-10 h-14 rounded-xl text-lg bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.5)]" asChild>
-            <Link to="/signup">
-              Start your first week — free <ArrowRight className="w-5 h-5 ml-2" />
+          <Button size="lg" className="w-full sm:w-auto max-w-full px-6 sm:px-10 h-14 rounded-xl text-base sm:text-lg whitespace-normal bg-gradient-to-r from-primary to-sage-dark hover:from-primary/90 hover:to-sage-dark/90 shadow-[0_4px_24px_-4px_hsl(var(--primary)/0.5)]" asChild>
+            <Link to="/signup" className="inline-flex items-center justify-center gap-2 text-center">
+              Start your first week — free <ArrowRight className="w-5 h-5 shrink-0" />
             </Link>
           </Button>
+
 
           {/* Trust row */}
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
