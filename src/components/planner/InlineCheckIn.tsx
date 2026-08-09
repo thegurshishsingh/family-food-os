@@ -1,10 +1,12 @@
 import { useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
-import { Check, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { Check, Sparkles, Flame } from "lucide-react";
 import { DAYS, type PlanDay } from "./types";
 import { deriveCheckInOutcome } from "@/lib/checkInOutcome";
+import { computeStreak, type CheckInRecord } from "@/lib/gamification";
+
 
 const EFFORT_OPTIONS = [
   { value: "easy", emoji: "😌", label: "Easy" },
