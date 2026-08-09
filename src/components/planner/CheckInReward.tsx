@@ -162,7 +162,25 @@ const CheckInReward = ({
             </div>
           )}
 
-          <p className="text-[11px] text-muted-foreground/70">{streakLine(streak)}</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[11px] text-muted-foreground/70">{streakLine(streak)}</p>
+            {celebrate && (
+              <MilestoneShareCard
+                householdName={householdName}
+                data={{
+                  value: milestone ? String(milestone) : `${weekLogged}/${weekTotal}`,
+                  unit: milestone ? "nights in a row" : "dinners logged",
+                  headline: milestone ? `${milestone}-night dinner streak` : "A perfect week of dinners",
+                  subline: milestone
+                    ? "Real dinners, logged as they actually happened."
+                    : "Every night of the week, logged and learned from.",
+                  levelTitle: `Level ${level.level} · ${level.title}`,
+                  householdName,
+                }}
+              />
+            )}
+          </div>
+
         </CardContent>
       </Card>
     </motion.div>
