@@ -23,6 +23,7 @@ import MealSearch from "@/components/planner/MealSearch";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
 import MomentumCard from "@/components/planner/MomentumCard";
+import TonightsEasiestWin from "@/components/planner/TonightsEasiestWin";
 
 import NotificationsNudge from "@/components/planner/NotificationsNudge";
 import HomeScreenSetupCard from "@/components/planner/HomeScreenSetupCard";
@@ -646,10 +647,31 @@ const Planner = () => {
           </div>
         ) : null}
 
-        {/* 1. Tonight's Dinner card */}
+        {/* 0. Tonight's easiest win — fastest path to a logged dinner */}
         {plan && household && (
           <div className="mb-4">
+            <TonightsEasiestWin
+              householdId={household.id}
+              todayDow={todayDow}
+              todayDay={days.find((d) => d.day_of_week === todayDow) || null}
+              yesterdayDay={days.find((d) => d.day_of_week === (todayDow + 6) % 7) || null}
+              checkedIn={(() => {
+                const td = days.find((d) => d.day_of_week === todayDow);
+                return td ? checkedInDays.has(td.id) : false;
+              })()}
+              onLogRequest={() => {
+                const el = document.getElementById("tonight-checkin");
+                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }}
+            />
+          </div>
+        )}
+
+        {/* 1. Tonight's Dinner card */}
+        {plan && household && (
+          <div className="mb-4" id="tonight-checkin">
             <DailyDinnerCard
+              householdName={household.name}
               todayDay={days.find((d) => d.day_of_week === todayDow) || null}
               householdId={household.id}
               checkedIn={(() => {
