@@ -148,23 +148,24 @@ const PlansThatFitRealLife = () => {
             custom={2}
           >
             <ContentCard halo="primary">
-              <div className="px-6 pt-4 pb-3 border-b border-border/40">
-                <div className="flex items-center justify-between">
-                  <div>
+              <div className="px-4 sm:px-6 pt-4 pb-3 border-b border-border/40">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="min-w-0">
                     <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-[0.15em] mb-1">Your Week</p>
                     <h3 className="text-[17px] font-serif font-semibold text-foreground leading-tight">March 10 – 16</h3>
                   </div>
-                  <div className="flex items-center gap-1.5 pl-3 pr-3.5 py-1.5 rounded-full glass text-primary text-[11px] font-bold tracking-wide">
+                  <div className="flex items-center gap-1.5 px-2.5 sm:pl-3 sm:pr-3.5 py-1.5 rounded-full glass text-primary text-[10px] sm:text-[11px] font-bold tracking-wide shrink-0">
                     <TrendingUp className="w-3 h-3" />
-                    Reality Score: 84
+                    <span className="hidden sm:inline">Reality Score: 84</span>
+                    <span className="sm:hidden">Reality 84</span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4 px-6 py-2 border-b border-border/30">
-                <div className="w-11" />
-                <div className="w-[100px]"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Mode</span></div>
-                <div className="flex-1"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Meal</span></div>
-                <div className="w-12 text-right"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Prep</span></div>
+              <div className="flex items-center gap-2 sm:gap-4 px-4 sm:px-6 py-2 border-b border-border/30">
+                <div className="w-9 sm:w-11" />
+                <div className="w-[76px] sm:w-[100px]"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Mode</span></div>
+                <div className="flex-1 min-w-0"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Meal</span></div>
+                <div className="w-10 sm:w-12 text-right"><span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Prep</span></div>
               </div>
               <div className="flex-1 min-h-[280px]">
                 {WEEK_PREVIEW.map((day, i) => {
@@ -175,35 +176,36 @@ const PlansThatFitRealLife = () => {
                       ref={registerRow(String(i))}
                       type="button"
                       onClick={() => setMode(day.mode as MealMode)}
-                      className="w-full flex items-center gap-4 px-6 py-2.5 border-b border-border/20 last:border-b-0 group transition-colors hover:bg-primary/[0.04] text-left"
+                      className="w-full flex items-center gap-2 sm:gap-4 px-4 sm:px-6 py-2.5 border-b border-border/20 last:border-b-0 group transition-colors hover:bg-primary/[0.04] text-left"
                       initial={{ opacity: 0, x: isMobile ? 0 : -6 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={viewport}
                       transition={{ delay: 0.2 + i * 0.05, duration: 0.3 }}
                       animate={{ opacity: dim ? 0.45 : 1 }}
                     >
-                      <div className="w-11 flex items-baseline gap-1.5">
+                      <div className="w-9 sm:w-11 flex items-baseline gap-1 sm:gap-1.5 shrink-0">
                         <span className="text-[13px] font-bold text-foreground">{day.day}</span>
                         <span className="text-[10px] text-muted-foreground/60 font-medium">{day.date}</span>
                       </div>
-                      <div className="w-[100px]">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider text-primary-foreground bg-gradient-to-r ${day.gradient}`}>
-                          <day.icon className="w-2.5 h-2.5" />
+                      <div className="w-[76px] sm:w-[100px] shrink-0">
+                        <span className={`inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-primary-foreground bg-gradient-to-r ${day.gradient}`}>
+                          <day.icon className="w-2.5 h-2.5 shrink-0" />
                           {day.label}
                         </span>
                       </div>
-                      <span className="text-[13px] text-foreground/80 flex-1 truncate font-medium">{day.meal}</span>
-                      <span className="text-[11px] text-muted-foreground/50 w-12 text-right font-medium tabular-nums">{day.time}</span>
+                      <span className="text-[12px] sm:text-[13px] text-foreground/80 flex-1 min-w-0 truncate font-medium">{day.meal}</span>
+                      <span className="text-[11px] text-muted-foreground/50 w-10 sm:w-12 text-right font-medium tabular-nums shrink-0">{day.time}</span>
                     </motion.button>
                   );
                 })}
               </div>
-              <div className="px-6 py-2.5 border-t border-border/30">
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                  <span className="font-medium">3 cook · 1 leftover · 1 takeout · 1 out</span>
-                  <span className="font-bold text-primary">~2,400 cal avg</span>
+              <div className="px-4 sm:px-6 py-2.5 border-t border-border/30">
+                <div className="flex items-center justify-between gap-2 text-[10px] sm:text-[11px] text-muted-foreground">
+                  <span className="font-medium min-w-0 truncate">3 cook · 1 leftover · 1 takeout · 1 out</span>
+                  <span className="font-bold text-primary shrink-0">~2,400 cal avg</span>
                 </div>
               </div>
+
             </ContentCard>
           </motion.div>
 
