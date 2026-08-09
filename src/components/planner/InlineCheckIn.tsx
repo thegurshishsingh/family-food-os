@@ -92,7 +92,18 @@ const InlineCheckIn = ({ day, householdId, onCheckedIn }: InlineCheckInProps) =>
     setSmartLine(generateSmartLine(selectedTags, effort, day));
     setDone(true);
     setSaving(false);
-    setTimeout(() => onCheckedIn(day.id), 2500);
+
+    // Momentum feedback — show the streak they just extended.
+    void (async () => {
+      const { data } = await supabase
+        .from("evening_checkins")
+        .select("created_at")
+        .eq("household_id", householdId)
+        .order("created_at", { ascending: false });
+      setStreak(computeStreak((data as CheckInRecord[]) ?? []).current);
+    })();
+
+    setTimeout(() => onCheckedIn(day.id), 3500);
   };
 
   if (done) {
@@ -100,14 +111,28 @@ const InlineCheckIn = ({ day, householdId, onCheckedIn }: InlineCheckInProps) =>
       <motion.div
         initial={{ opacity: 0, height: 0 }}
         animate={{ opacity: 1, height: "auto" }}
-        className="border-t border-border pt-3 mt-3"
+        className="border-t border-border pt-3 mt-3 space-y-1.5"
       >
         <div className="flex items-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
           <p className="text-xs font-serif text-foreground">{smartLine}</p>
         </div>
+        {streak > 0 && (
+          <motion.div
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-1.5"
+          >
+            <Flame className="w-3.5 h-3.5 text-accent shrink-0" />
+            <p className="text-[11px] text-muted-foreground">
+              <span className="text-foreground font-medium">{streak} night{streak === 1 ? "" : "s"} in a row</span>
+              {" "}· keep it going tomorrow
+            </p>
+          </motion.div>
+        )}
       </motion.div>
     );
+
   }
 
   if (!expanded) {
