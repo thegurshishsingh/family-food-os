@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Flame, Sparkles, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import MilestoneShareCard from "./MilestoneShareCard";
 import {
   crossedStreakMilestone,
   getLevel,
@@ -46,6 +47,8 @@ interface CheckInRewardProps {
   weekTotal?: number;
   /** The learning line generated from what they picked. */
   smartLine: string;
+  /** Household name, printed on the shareable milestone card. */
+  householdName?: string;
 }
 
 /**
@@ -60,6 +63,7 @@ const CheckInReward = ({
   weekLogged,
   weekTotal = 7,
   smartLine,
+  householdName,
 }: CheckInRewardProps) => {
   const milestone = crossedStreakMilestone(previousStreak, streak.current);
   const level = getLevel(totalCheckIns);
@@ -166,7 +170,6 @@ const CheckInReward = ({
             <p className="text-[11px] text-muted-foreground/70">{streakLine(streak)}</p>
             {celebrate && (
               <MilestoneShareCard
-                householdName={householdName}
                 data={{
                   value: milestone ? String(milestone) : `${weekLogged}/${weekTotal}`,
                   unit: milestone ? "nights in a row" : "dinners logged",
