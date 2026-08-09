@@ -22,6 +22,8 @@ import MobileReorderSheet from "@/components/planner/MobileReorderSheet";
 import MealSearch from "@/components/planner/MealSearch";
 import WeeklyInsights from "@/components/planner/WeeklyInsights";
 import WeeklyDinnerProgress from "@/components/planner/WeeklyDinnerProgress";
+import MomentumCard from "@/components/planner/MomentumCard";
+
 import NotificationsNudge from "@/components/planner/NotificationsNudge";
 import HomeScreenSetupCard from "@/components/planner/HomeScreenSetupCard";
 import WeeklyPlanSetup, { type PlanSetupData, type SavedMealOption } from "@/components/planner/WeeklyPlanSetup";
