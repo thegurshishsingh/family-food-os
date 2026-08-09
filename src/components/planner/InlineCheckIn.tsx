@@ -62,7 +62,9 @@ const InlineCheckIn = ({ day, householdId, onCheckedIn }: InlineCheckInProps) =>
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [smartLine, setSmartLine] = useState("");
+  const [streak, setStreak] = useState(0);
   const { toast } = useToast();
+
 
   const suggested = useMemo(() => getSuggestedTags(day), [day]);
   const suggestedTags = ALL_TAGS.filter((t) => suggested.includes(t.value));
