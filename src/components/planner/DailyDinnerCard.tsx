@@ -106,6 +106,8 @@ interface DailyDinnerCardProps {
   checkedIn: boolean;
   onCheckedIn: (dayId: string) => void;
   onFeedback: (day: PlanDay, feedback: FeedbackType) => void;
+  /** Household name, used on the shareable milestone card. */
+  householdName?: string;
 }
 
 const DailyDinnerCard = ({
@@ -114,6 +116,7 @@ const DailyDinnerCard = ({
   checkedIn,
   onCheckedIn,
   onFeedback,
+  householdName,
 }: DailyDinnerCardProps) => {
   const [selectedAction, setSelectedAction] = useState<QuickAction | null>(null);
   const [saving, setSaving] = useState(false);
@@ -306,6 +309,7 @@ const DailyDinnerCard = ({
           totalCheckIns={reward.total}
           weekLogged={reward.weekLogged}
           smartLine={smartLine}
+          householdName={householdName}
         />
       );
     }

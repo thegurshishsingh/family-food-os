@@ -277,6 +277,14 @@ Deno.serve(async (req) => {
     now
   );
 
+  // Streak state for evening_checkin targets, so the nudge can say what's
+  // actually at stake tonight ("your 6-night streak needs one log").
+  const streakByUser = await buildStreakByUser(
+    supabase,
+    Array.from(new Set(checkinTargets.map((t) => t.user_id))),
+    byUser
+  );
+
   let dispatched = 0;
   for (const [slot, targets] of [
     ["dinner_reveal", dinnerTargets] as const,
@@ -325,6 +333,28 @@ Deno.serve(async (req) => {
           } else {
             titleByUser[uid] = "How did dinner go?";
             bodyByUser[uid] = `Quick check-in for ${meal} — helps us plan smarter.`;
+          }
+        }
+        // Streak-at-risk copy wins over the generic check-in nudge.
+        if (slot === "evening_checkin") {
+          for (const uid of ids) {
+            const st = streakByUser[uid];
+            if (!st || st.loggedToday) continue;
+            const meal = tonightMealByUser[uid];
+            if (st.current >= 2) {
+              titleByUser[uid] = `Your ${st.current}-night streak is waiting 🔥`;
+              bodyByUser[uid] = meal
+                ? `One tap on ${meal} keeps it alive.`
+                : `One tap tonight keeps it alive.`;
+            } else if (st.current === 1) {
+              titleByUser[uid] = "Two nights in a row?";
+              bodyByUser[uid] = meal
+                ? `Log ${meal} and your streak starts building.`
+                : "Log tonight and your streak starts building.";
+            } else if (st.brokenRecently) {
+              titleByUser[uid] = "Pick it back up tonight";
+              bodyByUser[uid] = "One log restarts your streak — no catching up needed.";
+            }
           }
         }
       }
@@ -539,6 +569,89 @@ async function buildTonightMealByUser(
     const planDow = (jsWeekday + 6) % 7;
     const meal = mealMap.get(mealKey(planId, planDow));
     if (meal) out[uid] = meal;
+  }
+  return out;
+}
+
+// Per-user streak state derived from evening_checkins (distinct local-ish
+// days). Mirrors src/lib/gamification.ts: one missed day is forgiven.
+async function buildStreakByUser(
+  supabase: SupabaseAdmin,
+  userIds: string[],
+  byUser: Record<string, { tz: string }>
+): Promise<Record<string, { current: number; loggedToday: boolean; brokenRecently: boolean }>> {
+  const out: Record<string, { current: number; loggedToday: boolean; brokenRecently: boolean }> = {};
+  if (!userIds.length) return out;
+
+  const { data: households } = await supabase
+    .from("households")
+    .select("id, owner_id")
+    .in("owner_id", userIds);
+  const hhByUser = new Map<string, string>();
+  for (const h of households ?? []) hhByUser.set(h.owner_id as string, h.id as string);
+  const householdIds = Array.from(new Set(hhByUser.values()));
+  if (!householdIds.length) return out;
+
+  const since = new Date();
+  since.setDate(since.getDate() - 120);
+  const { data: checkins } = await supabase
+    .from("evening_checkins")
+    .select("household_id, created_at")
+    .in("household_id", householdIds)
+    .gte("created_at", since.toISOString());
+  if (!checkins?.length) return out;
+
+  const localDayKey = (iso: string, tz: string): string => {
+    try {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: tz,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date(iso));
+    } catch {
+      return new Date(iso).toISOString().slice(0, 10);
+    }
+  };
+  const daysBetween = (a: string, b: string) =>
+    Math.round((new Date(a + "T00:00:00Z").getTime() - new Date(b + "T00:00:00Z").getTime()) / 86_400_000);
+
+  const byHousehold = new Map<string, string[]>();
+  for (const c of checkins) {
+    const hid = c.household_id as string;
+    const arr = byHousehold.get(hid) ?? [];
+    arr.push(c.created_at as string);
+    byHousehold.set(hid, arr);
+  }
+
+  for (const uid of userIds) {
+    const hid = hhByUser.get(uid);
+    if (!hid) continue;
+    const tz = byUser[uid]?.tz || "UTC";
+    const rows = byHousehold.get(hid) ?? [];
+    const keys = [...new Set(rows.map((r) => localDayKey(r, tz)))].sort((a, b) => (a > b ? -1 : 1));
+    if (!keys.length) {
+      out[uid] = { current: 0, loggedToday: false, brokenRecently: false };
+      continue;
+    }
+    const todayKey = localDayKey(new Date().toISOString(), tz);
+    const diffHead = daysBetween(todayKey, keys[0]);
+    const loggedToday = diffHead === 0;
+    if (diffHead > 2) {
+      out[uid] = { current: 0, loggedToday: false, brokenRecently: diffHead <= 10 };
+      continue;
+    }
+    let usedGrace = diffHead === 2;
+    let count = 1;
+    for (let i = 1; i < keys.length; i++) {
+      const gap = daysBetween(keys[i - 1], keys[i]);
+      if (gap === 1) count++;
+      else if (gap === 2 && !usedGrace) {
+        usedGrace = true;
+        count++;
+      } else break;
+    }
+    out[uid] = { current: count, loggedToday, brokenRecently: false };
   }
   return out;
 }
