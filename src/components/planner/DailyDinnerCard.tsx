@@ -236,11 +236,23 @@ const DailyDinnerCard = ({
     }
 
     onFeedback(todayDay, actionToFeedback(action));
+
+    // Reward moment: recompute momentum with tonight's log included.
+    const optimistic: CheckInRecord[] = [{ created_at: new Date().toISOString() }, ...records];
+    setReward({
+      streak: computeStreak(optimistic),
+      previousStreak: streakState.current,
+      total: new Set(optimistic.map((r) => toDateKey(new Date(r.created_at)))).size,
+      weekLogged: countLoggedThisWeek(optimistic),
+    });
+    setRecords(optimistic);
+
     setSmartLine(generateSmartLine(action, todayDay));
     setDone(true);
     setSaving(false);
     setShowOrderedInput(false);
-    setTimeout(() => onCheckedIn(todayDay.id), 3000);
+    setTimeout(() => onCheckedIn(todayDay.id), 6000);
+
   };
 
   const handleQuickAction = (action: QuickAction) => {
