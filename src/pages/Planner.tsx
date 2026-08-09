@@ -681,6 +681,20 @@ const Planner = () => {
           </div>
         )}
 
+        {/* 2b. Momentum — level, streak, next unlock */}
+        {plan && household && (
+          <div className="mb-4">
+            <MomentumCard
+              householdId={household.id}
+              weekLogged={days.filter((d) => checkedInDays.has(d.id)).length}
+              weekTotal={Math.max(days.length, 1)}
+              refreshKey={checkedInDays.size}
+              onViewRecap={() => navigate("/history")}
+            />
+          </div>
+        )}
+
+
         {/* Empty state — no plan, no chooser shown (shouldn't normally happen) */}
         {!plan && !needsNewPlan && (
           <Card className="py-16 text-center glass-card border-border/40 rounded-2xl">
