@@ -41,7 +41,7 @@ const TheStruggle = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center [&>*]:min-w-0">
           {/* Left — the 5pm chaos timeline */}
           <motion.div
             initial={initialState}
