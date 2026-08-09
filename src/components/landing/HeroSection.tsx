@@ -163,7 +163,7 @@ const HeroSection = () => {
 
             {/* Floating zoom card: time saved (bottom-right) */}
             <motion.div
-              className="absolute bottom-10 -right-3 sm:-right-8 w-[164px]"
+              className="absolute bottom-10 right-0 sm:-right-8 w-[144px] sm:w-[164px]"
               animate={{ y: [0, -7, 0] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
             >
