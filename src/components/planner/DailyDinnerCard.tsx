@@ -296,8 +296,19 @@ const DailyDinnerCard = ({
     );
   }
 
-  // Done state — smart feedback
+  // Done state — the reward moment
   if (done) {
+    if (reward) {
+      return (
+        <CheckInReward
+          streak={reward.streak}
+          previousStreak={reward.previousStreak}
+          totalCheckIns={reward.total}
+          weekLogged={reward.weekLogged}
+          smartLine={smartLine}
+        />
+      );
+    }
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
@@ -322,6 +333,7 @@ const DailyDinnerCard = ({
       </motion.div>
     );
   }
+
 
   // Main dinner card
   return (
