@@ -232,7 +232,7 @@ const HeroSection = () => {
                   />
                 )}
                 <card.icon className={`w-5 h-5 ${card.iconColor} mb-2.5`} strokeWidth={2} />
-                <h3 className="text-sm font-semibold text-foreground mb-1">{card.title}</h3>
+                <h2 className="text-sm font-semibold text-foreground mb-1">{card.title}</h2>
                 <p className="text-[13px] text-muted-foreground leading-relaxed">{card.sentence}</p>
               </button>
             );
