@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Download, Share2, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { trackEvent } from "@/lib/analytics";
 
 export interface MilestoneShareData {
   /** Big headline number, e.g. 7 */
@@ -147,13 +148,15 @@ interface Props {
   data: MilestoneShareData;
   /** Optional trigger label override. */
   label?: string;
+  /** Where the card was opened from, for analytics. */
+  source?: string;
 }
 
 /**
  * Screenshot-worthy milestone card. Rendered on a canvas so it can be
  * downloaded or shared through the native share sheet.
  */
-const MilestoneShareCard = ({ data, label = "Share this win" }: Props) => {
+const MilestoneShareCard = ({ data, label = "Share this win", source = "check_in_reward" }: Props) => {
   const [open, setOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [format, setFormat] = useState<AspectFormat>("square");
@@ -172,12 +175,22 @@ const MilestoneShareCard = ({ data, label = "Share this win" }: Props) => {
     [data],
   );
 
+  const baseProps = {
+    source,
+    value: data.value,
+    unit: data.unit,
+    headline: data.headline,
+    level_title: data.levelTitle,
+  };
+
   const generate = () => {
     setOpen(true);
+    void trackEvent("milestone_share_opened", { ...baseProps, format });
     renderCurrent(format);
   };
 
   const switchFormat = (fmt: AspectFormat) => {
+    void trackEvent("milestone_share_format_changed", { ...baseProps, from: format, to: fmt });
     setFormat(fmt);
     setPreviewUrl(null);
     renderCurrent(fmt);
@@ -189,12 +202,14 @@ const MilestoneShareCard = ({ data, label = "Share this win" }: Props) => {
     a.href = previewUrl;
     a.download = `family-food-os-milestone.png`;
     a.click();
+    void trackEvent("milestone_share_downloaded", { ...baseProps, format });
     toast({ title: "Saved to your device", description: "Share it wherever you like." });
   };
 
   const handleShare = async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    void trackEvent("milestone_share_clicked", { ...baseProps, format });
     try {
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
       if (!blob) throw new Error("Could not generate image");
@@ -205,15 +220,22 @@ const MilestoneShareCard = ({ data, label = "Share this win" }: Props) => {
           text: `${data.headline} — ${data.subline}`,
           files: [file],
         });
+        void trackEvent("milestone_share_completed", { ...baseProps, format, method: "native_share" });
       } else {
         try {
           await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+          void trackEvent("milestone_share_completed", { ...baseProps, format, method: "clipboard" });
           toast({ title: "Image copied to clipboard!", description: "Paste it into your favourite app." });
         } catch {
           handleDownload();
         }
       }
     } catch (e: any) {
+      void trackEvent("milestone_share_failed", {
+        ...baseProps,
+        format,
+        reason: e?.name === "AbortError" ? "aborted" : (e?.message ?? "unknown"),
+      });
       if (e.name !== "AbortError") {
         toast({ variant: "destructive", title: "Share failed", description: e.message });
       }

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Flame, Sparkles, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import {
   streakLine,
   type StreakResult,
 } from "@/lib/gamification";
+import { trackEvent } from "@/lib/analytics";
 
 const ConfettiParticle = ({ index, total }: { index: number; total: number }) => {
   const angle = (index / total) * 360;
@@ -69,6 +71,28 @@ const CheckInReward = ({
   const level = getLevel(totalCheckIns);
   const nextMilestone = getNextMilestone(totalCheckIns);
   const celebrate = Boolean(milestone) || weekLogged === weekTotal;
+
+  const tracked = useRef(false);
+  useEffect(() => {
+    if (tracked.current) return;
+    tracked.current = true;
+    void trackEvent("check_in_reward_shown", {
+      streak_current: streak.current,
+      streak_longest: streak.longest,
+      streak_used_grace: streak.usedGrace,
+      previous_streak: previousStreak,
+      streak_milestone: milestone,
+      celebrated: celebrate,
+      perfect_week: weekLogged === weekTotal,
+      total_check_ins: totalCheckIns,
+      week_logged: weekLogged,
+      week_total: weekTotal,
+      level: level.level,
+      level_title: level.title,
+      next_milestone: nextMilestone?.title ?? null,
+      next_milestone_count: nextMilestone?.count ?? null,
+    });
+  }, [celebrate, level, milestone, nextMilestone, previousStreak, streak, totalCheckIns, weekLogged, weekTotal]);
 
   return (
     <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
@@ -170,6 +194,7 @@ const CheckInReward = ({
             <p className="text-[11px] text-muted-foreground/70">{streakLine(streak)}</p>
             {celebrate && (
               <MilestoneShareCard
+                source={milestone ? "streak_milestone" : "perfect_week"}
                 data={{
                   value: milestone ? String(milestone) : `${weekLogged}/${weekTotal}`,
                   unit: milestone ? "nights in a row" : "dinners logged",
