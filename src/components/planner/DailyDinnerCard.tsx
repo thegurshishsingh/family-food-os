@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { Sparkles, Plus, ShoppingBag, Ban, Flame } from "lucide-react";
 import { DAYS, MODE_CONFIG, type PlanDay, type FeedbackType } from "./types";
 import CheckInReward from "./CheckInReward";
+import { deriveCheckInOutcome } from "@/lib/checkInOutcome";
 import {
   computeStreak,
   streakLine,
@@ -170,8 +171,9 @@ const DailyDinnerCard = ({
   };
 
 
-  // Already checked in — show completed state
-  if (checkedIn && todayDay) {
+  // Already checked in — show completed state (but never interrupt the
+  // reward moment that's currently on screen).
+  if (checkedIn && todayDay && !done) {
     return (
       <Card className="bg-primary/[0.03] border-primary/10">
         <CardContent className="p-5 sm:p-6">
@@ -213,11 +215,14 @@ const DailyDinnerCard = ({
     setSelectedAction(action);
     setSaving(true);
 
+    const tags = actionToTags(action);
+    const effort = actionToEffort(action);
     const { error: ciErr } = await supabase.from("evening_checkins").insert({
       plan_day_id: todayDay.id,
       household_id: householdId,
-      tags: actionToTags(action),
-      effort_level: actionToEffort(action),
+      tags,
+      effort_level: effort,
+      outcome: deriveCheckInOutcome(tags, effort),
     });
 
     if (ciErr) {
