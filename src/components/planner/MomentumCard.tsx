@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Flame, Trophy, Lock, Check, CalendarHeart, ShieldCheck } from "lucide-react";
 import { useHouseholdProgress } from "@/hooks/useHouseholdProgress";
 import { streakLine, type MomentumStats } from "@/lib/gamification";
+import { trackEvent } from "@/lib/analytics";
 
 interface MomentumCardProps {
   householdId: string;
@@ -40,6 +41,41 @@ const MomentumCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [records, weekLogged, weekTotal],
   );
+
+  // Fire one momentum snapshot per distinct stat state so we can monitor
+  // win/milestone calculation in production.
+  const lastSnapshot = useRef<string | null>(null);
+  useEffect(() => {
+    if (loading || m.totalCheckIns === 0) return;
+    const snapshot = JSON.stringify({
+      t: m.totalCheckIns,
+      w: m.wins,
+      p: m.perfectWeeks,
+      s: m.streak.current,
+      l: m.level.level,
+      n: m.nextMilestone?.count ?? null,
+    });
+    if (lastSnapshot.current === snapshot) return;
+    lastSnapshot.current = snapshot;
+    void trackEvent("momentum_viewed", {
+      household_id: householdId,
+      total_check_ins: m.totalCheckIns,
+      wins: m.wins,
+      wins_rate: m.totalCheckIns ? Number((m.wins / m.totalCheckIns).toFixed(3)) : 0,
+      perfect_weeks: m.perfectWeeks,
+      streak_current: m.streak.current,
+      streak_longest: m.streak.longest,
+      streak_used_grace: m.streak.usedGrace,
+      level: m.level.level,
+      level_title: m.level.title,
+      level_progress: Number(m.level.progress.toFixed(3)),
+      milestones_unlocked: m.milestonesUnlocked.length,
+      next_milestone: m.nextMilestone?.title ?? null,
+      next_milestone_count: m.nextMilestone?.count ?? null,
+      week_logged: m.weekLogged,
+      week_total: m.weekTotal,
+    });
+  }, [loading, m, householdId]);
 
   if (loading || m.totalCheckIns === 0) return null;
 
@@ -155,7 +191,14 @@ const MomentumCard = ({
           {/* Sunday ritual */}
           {isSunday && onViewRecap && (
             <button
-              onClick={onViewRecap}
+              onClick={() => {
+                void trackEvent("momentum_recap_clicked", {
+                  household_id: householdId,
+                  total_check_ins: m.totalCheckIns,
+                  week_logged: m.weekLogged,
+                });
+                onViewRecap();
+              }}
               className="w-full min-h-[48px] rounded-xl bg-primary text-primary-foreground text-sm font-medium inline-flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
             >
               <CalendarHeart className="w-4 h-4" />
